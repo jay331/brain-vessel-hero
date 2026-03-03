@@ -1,0 +1,390 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>腦脈先鋒：亞東中風中心</title>
+    <style>
+        :root { --vessel-wall: #8b0000; --blood-bg: #050101; --danger: #ff4d4d; --safe: #00ffcc; --hospital: #00a0e9; }
+        body { background: #000; color: #fff; font-family: 'PingFang TC', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
+        #game-layout { display: flex; align-items: flex-start; gap: 20px; }
+        
+        #vessel-container {
+            position: relative; width: 280px; height: 525px; background: var(--blood-bg);
+            border: 2px solid #333; border-top: 25px solid var(--vessel-wall); border-bottom: 22px solid var(--vessel-wall);
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.4); overflow: hidden;
+        }
+        
+        #vessel-container::after {
+            content: "亞東中風中心 FEMH STROKE CENTER";
+            position: absolute; top: -22px; left: 0; width: 100%;
+            text-align: center; color: rgba(255,255,255,0.7); font-size: 0.65rem; font-weight: bold; letter-spacing: 1px; z-index: 10;
+        }
+
+        canvas { display: block; background: transparent; position: relative; z-index: 1; }
+        .sidebar { width: 170px; display: flex; flex-direction: column; gap: 15px; }
+        .stat-box { background: #1a1a1a; padding: 12px; border: 1px solid #444; text-align: center; border-radius: 4px; }
+        .stat-val { font-size: 1.8rem; font-weight: bold; color: var(--danger); }
+        #alert-signal { font-weight: bold; font-size: 0.85rem; margin-top: 5px; padding: 6px; border-radius: 3px; min-height: 1.2em; }
+        .status-normal { color: #00ffcc; border: 1px solid #00ffcc22; }
+        .status-warning { color: #ffcc00; background: rgba(255, 204, 0, 0.2); border: 1px solid #ffcc00; }
+        .status-danger { color: #ff4d4d; background: rgba(255, 77, 77, 0.2); border: 1px solid #ff4d4d; animation: blink 1s infinite; }
+        
+        @keyframes blink { 50% { opacity: 0.6; } }
+        #log-box { font-size: 0.8rem; color: #ffcc00; height: 180px; border-top: 1px solid #333; padding-top: 10px; overflow: hidden; }
+        
+        #game-over { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); flex-direction:column; align-items:center; justify-content:center; z-index:1000; }
+        .over-card { background: #1a0000; padding: 30px; border: 2px solid #f00; border-radius: 8px; text-align: center; max-width: 320px; width: 90%; }
+        #leaderboard { margin: 20px 0; text-align: left; font-size: 0.9rem; border-top: 1px solid #444; padding-top: 10px; }
+        .score-row { display: flex; justify-content: space-between; padding: 3px 0; color: #aaa; }
+        .score-row.highlight { color: #00ffcc; font-weight: bold; }
+        button { background: #f00; color: #fff; border: none; padding: 12px 30px; cursor: pointer; border-radius: 4px; font-weight: bold; width: 100%; font-size: 1rem; }
+        #start-hint { position: fixed; bottom: 20px; color: #666; font-size: 0.8rem; }
+    
+/*CASEMODE_HIDE_LEADERBOARD*/
+body.caseMode .leaderboard, body.caseMode #leaderboard{display:none !important;}
+</style>
+</head>
+<body>
+
+<div id="game-layout">
+    <div class="sidebar">
+        <div class="stat-box">
+            <div style="font-size:0.8rem;color:#aaa">血管狹窄度</div>
+            <div id="blockage" class="stat-val">--%</div>
+            <div id="alert-signal" class="status-normal">臨床掃描啟動</div>
+        </div>
+        <div class="stat-box">
+            <div style="font-size:0.8rem;color:#aaa">健康積分</div>
+            <div id="score" class="stat-val" style="color:var(--safe)">0</div>
+        </div>
+    </div>
+    
+    <div id="vessel-container">
+        <canvas id="tetris" width="280" height="525"></canvas>
+    </div>
+
+    <div class="sidebar">
+        <div id="log-box"><strong>🩺 臨床影像診斷</strong><br><div id="log-list" style="margin-top:5px;"></div></div>
+        <div style="font-size:0.7rem; color:#bbb; background: #220505; padding: 8px; border: 1px solid #400; line-height: 1.4;">
+            <b>技術支援：</b><br>
+            • 單位：亞東中風中心<br>
+            • 判定：超過頂端或狹窄100%才失敗<br>
+            • 排行榜：自動記錄前10名
+        </div>
+    </div>
+</div>
+
+<div id="game-over">
+    <div class="over-card">
+        <h1 style="color:#f00; margin:0; font-size: 1.5rem;">急性腦梗塞</h1>
+        <p style="margin: 5px 0; font-size: 0.85rem; color: #ccc;">亞東中風中心：提醒您及早就醫</p>
+        <div id="leaderboard">
+            <strong style="color: #ffcc00;">🏆 血管康復排行榜 (Top 10)</strong>
+            <div id="leaderboard-list"></div>
+        </div>
+        <button onclick="location.reload()">重新啟動監測</button>
+    </div>
+</div>
+<div id="start-hint">按任意鍵或點擊以啟動儀器</div>
+
+<script>
+const isCaseMode =
+  new URLSearchParams(location.search).get('mode') === 'case';
+
+if (isCaseMode) {
+  document.body.classList.add('caseMode');
+}
+const AudioEngine = {
+    ctx: null,
+    init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
+    beep(freq, duration, vol, type = 'sine', slide = 0) {
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        if (slide !== 0) osc.frequency.exponentialRampToValueAtTime(freq + slide, this.ctx.currentTime + duration);
+        gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(); osc.stop(this.ctx.currentTime + duration);
+    },
+    playMove() { this.beep(200, 0.05, 0.05, 'triangle'); },
+    playRotate() { this.beep(300, 0.1, 0.05, 'sine', 200); },
+    playHit() { this.beep(100, 0.15, 0.1, 'triangle'); },
+    playClear() { 
+        this.beep(523.25, 0.1, 0.1);
+        setTimeout(() => this.beep(659.25, 0.15, 0.1), 50);
+    },
+    playWarning() { this.beep(440, 0.2, 0.08); },
+    playDanger() { this.beep(880, 0.1, 0.12, 'square'); },
+    playDeath() {
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.frequency.setValueAtTime(220, this.ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(110, this.ctx.currentTime + 2);
+        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 2.1);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(); osc.stop(this.ctx.currentTime + 2.1);
+    }
+};
+
+const canvas = document.getElementById('tetris');
+const context = canvas.getContext('2d');
+context.scale(35, 35);
+
+const arena = Array(15).fill().map(() => Array(8).fill(0));
+const textGrid = Array(15).fill().map(() => Array(8).fill(""));
+const dangerTerms = ["高血壓", "高血糖", "高血脂", "吸菸", "亂吃藥", "心房顫動", "肥胖", "壓力", "熬夜"];
+const colors = [null, '#FF0D72', '#0DC2FF', '#0DFF72', '#F538FF', '#FF8E0D', '#FFE138', '#3877FF', '#555'];
+
+let cells = [];
+for(let i=0; i<85; i++) cells.push({ x: Math.random()*8, y: Math.random()*15, s: 0.15 + Math.random()*0.15 });
+
+function drawMatrix(matrix, offset, isArena = false) {
+    if (isArena) {
+        cells.forEach(c => {
+            c.x += c.s; if (c.x > 8) c.x = 0;
+            if (!arena[Math.floor(c.y)][Math.floor(c.x)]) {
+                context.fillStyle = 'rgba(255, 40, 40, 0.6)';
+                context.beginPath(); context.arc(c.x, c.y, 0.1, 0, Math.PI*2); context.fill();
+            }
+        });
+    }
+    matrix.forEach((row, y) => {
+        row.forEach((value, x) => {
+            if (value !== 0) {
+                const wx = x + offset.x, wy = y + offset.y;
+                context.fillStyle = value === 8 ? '#333' : colors[value];
+                context.fillRect(wx, wy, 1, 1);
+                context.strokeStyle = value === 8 ? '#f44' : 'rgba(0,0,0,0.5)';
+                context.lineWidth = 0.02;
+                context.strokeRect(wx, wy, 1, 1);
+                if (isArena && value === 8 && textGrid[y][x]) {
+                    context.fillStyle = '#fff'; context.font = "bold 0.55px sans-serif"; 
+                    context.textAlign = "center"; context.fillText(textGrid[y][x], wx + 0.5, wy + 0.72);
+                }
+            }
+        });
+    });
+}
+
+function spawnDanger(isInitial = false) {
+    const term = dangerTerms[Math.floor(Math.random() * dangerTerms.length)];
+    const startX = Math.floor(Math.random() * (8 - term.length + 1));
+    let targetY = -1;
+    for (let y = 14; y >= 0; y--) {
+        let isClear = true;
+        for (let i = 0; i < term.length; i++) { if (arena[y][startX + i] !== 0) { isClear = false; break; } }
+        if (isClear) { targetY = y; break; }
+    }
+    if (targetY !== -1) {
+        for(let i=0; i<term.length; i++) {
+            arena[targetY][startX + i] = 8;
+            textGrid[targetY][startX + i] = term[i];
+        }
+        if(!isInitial) updateLog(`斑塊沉積: ${term}`);
+    }
+}
+
+function updateLog(msg) {
+    const list = document.getElementById('log-list');
+    const entry = document.createElement('div');
+    entry.innerText = `> ${msg}`; list.prepend(entry);
+    if (list.children.length > 5) list.lastElementChild.remove();
+}
+
+const player = { pos: {x: 0, y: 0}, matrix: null };
+function createPiece(t) {
+    if (t === 'I') return [[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]];
+    if (t === 'L') return [[0,2,0],[0,2,0],[0,2,2]];
+    if (t === 'O') return [[4,4],[4,4]];
+    if (t === 'T') return [[0,7,0],[7,7,7],[0,0,0]];
+    return [[5,5,0],[0,5,5],[0,0,0]];
+}
+
+// 修正：忽略 y < 0 的碰撞檢查，讓方塊能順利從最上方進入
+function collide(a, p) {
+    const [m, o] = [p.matrix, p.pos];
+    for (let y = 0; y < m.length; ++y) {
+        for (let x = 0; x < m[y].length; ++x) {
+            if (m[y][x] !== 0) {
+                let ay = y + o.y, ax = x + o.x;
+                if (ay < 0) {
+                    if (ax < 0 || ax >= 8) return true; // 僅檢查左右邊界
+                    continue; 
+                }
+                if (!a[ay] || a[ay][ax] !== 0) return true;
+            }
+        }
+    }
+    return false;
+}
+
+// 修正：判定邏輯 (固定後 y < 0 或 狹窄度 100)
+function playerDrop() {
+    player.pos.y++;
+    if (collide(arena, player)) {
+        player.pos.y--; 
+        let overflow = false;
+        player.matrix.forEach((row, y) => { 
+            row.forEach((v, x) => { 
+                if(v !== 0) {
+                    let finalY = y + player.pos.y;
+                    if (finalY < 0) overflow = true;
+                    else arena[finalY][x + player.pos.x] = v;
+                }
+            }); 
+        });
+        
+        AudioEngine.playHit();
+        arenaSweep();
+        
+        let highestPoint = 15;
+        for (let y = 0; y < 15; y++) { if (arena[y].some(v => v !== 0)) { highestPoint = y; break; } }
+        let fullness = Math.floor(((15 - highestPoint) / 15) * 100);
+
+        if (overflow || fullness >= 100) {
+            endGame();
+        } else {
+            if (Math.random() < 0.35) spawnDanger();
+            playerReset();
+        }
+    }
+    dropCounter = 0;
+}
+
+function playerReset() {
+    const pieces = 'ILOTZ';
+    player.matrix = createPiece(pieces[pieces.length * Math.random() | 0]);
+    player.pos.y = 0; player.pos.x = 3;
+    // 移除 Reset 時的即死檢查，統一交給 playerDrop 處理
+}
+
+function arenaSweep() {
+    let count = 0;
+    outer: for (let y = 14; y >= 0; --y) {
+        for (let x = 0; x < 8; ++x) if (arena[y][x] === 0) continue outer;
+        arena.splice(y, 1); arena.unshift(new Array(8).fill(0));
+        textGrid.splice(y, 1); textGrid.unshift(new Array(8).fill(""));
+        count++; y++; 
+    }
+    if (count > 0) { score += count * 100; AudioEngine.playClear(); }
+    return count;
+}
+
+let lastSoundTime = 0;
+function checkVesselStatus(fullness) {
+    const alertEl = document.getElementById('alert-signal');
+    const now = Date.now();
+    if (fullness >= 70) {
+        alertEl.innerText = "🚨 嚴重狹窄 (70%↑)"; alertEl.className = "status-danger";
+        if (now - lastSoundTime > 600) { AudioEngine.playDanger(); lastSoundTime = now; }
+    } else if (fullness >= 50) {
+        alertEl.innerText = "⚠️ 預警訊號 (50%↑)"; alertEl.className = "status-warning";
+        if (now - lastSoundTime > 1500) { AudioEngine.playWarning(); lastSoundTime = now; }
+    } else {
+        alertEl.innerText = "管腔通暢"; alertEl.className = "status-normal";
+    }
+}
+
+function updateLeaderboard(finalScore) {
+    let scores = JSON.parse(localStorage.getItem('vessel_scores_named')) || [];
+    const isTopScore = scores.length < 10 || finalScore > (scores[scores.length - 1]?.score || 0);
+    if (isTopScore && finalScore > 0) {
+        setTimeout(() => {
+            const userName = prompt("恭喜進入前十名！請輸入您的名字：", "匿名醫護");
+            const entryName = userName ? userName.substring(0, 10) : "匿名";
+            scores.push({ name: entryName, score: finalScore, date: new Date().getTime() });
+            scores.sort((a, b) => b.score - a.score);
+            scores = scores.slice(0, 10);
+            localStorage.setItem('vessel_scores_named', JSON.stringify(scores));
+            renderLeaderboard(scores, finalScore);
+        }, 500);
+    } else {
+        renderLeaderboard(scores, finalScore);
+    }
+}
+
+function renderLeaderboard(scores, currentScore) {
+    const listContainer = document.getElementById('leaderboard-list');
+    listContainer.innerHTML = '';
+    if (scores.length === 0) {
+        listContainer.innerHTML = '<div style="color:#666; text-align:center;">尚無紀錄</div>';
+        return;
+    }
+    scores.forEach((item, i) => {
+        const row = document.createElement('div');
+        row.className = 'score-row' + (item.score === currentScore ? ' highlight' : '');
+        row.innerHTML = `<span>${i + 1}. ${item.name}</span> <span>${item.score}</span>`;
+        listContainer.appendChild(row);
+    });
+}
+
+function endGame() { 
+    gameOver = true; 
+    AudioEngine.playDeath(); 
+    document.getElementById('game-over').style.display = 'flex'; 
+    
+    if(!isCaseMode) {
+        updateLeaderboard(score);
+    }
+
+    // 通知父頁
+    try{
+        parent.postMessage(
+            {type:'GAME_RESULT', game:'match-l1', score: score},
+            '*'
+        );
+    }catch(e){}
+}
+
+
+let gameOver = false, score = 0, dropCounter = 0, lastTime = 0;
+function update(time = 0) {
+    if(gameOver) return;
+    const dt = time - lastTime; lastTime = time;
+    dropCounter += dt;
+    if (dropCounter > 800) playerDrop();
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    drawMatrix(arena, {x: 0, y: 0}, true);
+    drawMatrix(player.matrix, player.pos);
+    let highestPoint = 15;
+    for (let y = 0; y < 15; y++) { if (arena[y].some(v => v !== 0)) { highestPoint = y; break; } }
+    let fullness = Math.floor(((15 - highestPoint) / 15) * 100);
+    document.getElementById('blockage').innerText = (gameOver ? "100" : Math.min(99, fullness)) + "%";
+    document.getElementById('score').innerText = score;
+    checkVesselStatus(fullness);
+    requestAnimationFrame(update);
+}
+
+const initGame = () => { AudioEngine.init(); document.getElementById('start-hint').style.display='none'; };
+document.addEventListener('keydown', e => {
+    initGame();
+    if (gameOver) return;
+    if (e.keyCode === 37) { player.pos.x--; if(collide(arena, player)) player.pos.x++; else AudioEngine.playMove(); }
+    if (e.keyCode === 39) { player.pos.x++; if(collide(arena, player)) player.pos.x--; else AudioEngine.playMove(); }
+    if (e.keyCode === 40) playerDrop();
+    if (e.keyCode === 38) {
+        const m = player.matrix;
+        for (let y = 0; y < m.length; ++y) { for (let x = 0; x < y; ++x) [m[x][y], m[y][x]] = [m[y][x], m[x][y]]; }
+        m.forEach(r => r.reverse());
+        if (collide(arena, player)) { m.forEach(r => r.reverse()); for (let y = 0; y < m.length; ++y) { for (let x = 0; x < y; ++x) [m[x][y], m[y][x]] = [m[y][x], m[x][y]]; } }
+        else AudioEngine.playRotate();
+    }
+});
+document.addEventListener('mousedown', initGame);
+
+document.addEventListener('DOMContentLoaded', () => {
+    for(let i=0; i<3; i++) spawnDanger(true); 
+    updateLog("亞東中風中心：斑塊掃描完成");
+    playerReset();
+    update();
+});
+</script>
+
+</body>
+</html>

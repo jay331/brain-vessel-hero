@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>腦脈先鋒：亞東中風中心</title>
+  <style>
+    :root { --vessel-wall:#8b0000; --blood-bg:#050101; --danger:#ff4d4d; --safe:#00ffcc; }
+
+    body{
+      background:#000; color:#fff; font-family:'PingFang TC',sans-serif;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      height:100vh; margin:0; overflow:hidden;
+    }
+    #game-layout{ display:flex; align-items:flex-start; gap:20px; }
+
+    #vessel-container{
+      position:relative; width:280px; height:525px; background:var(--blood-bg);
+      border:2px solid #333; border-top:25px solid var(--vessel-wall); border-bottom:22px solid var(--vessel-wall);
+      box-shadow:0 0 50px rgba(255,0,0,0.4); overflow:hidden;
+    }
+    #vessel-container::after{
+      content:"亞東中風中心 FEMH STROKE CENTER";
+      position:absolute; top:-22px; left:0; width:100%;
+      text-align:center; color:rgba(255,255,255,0.7); font-size:0.65rem; font-weight:bold; letter-spacing:1px; z-index:10;
+    }
+    canvas{ display:block; background:transparent; position:relative; z-index:1; }
+
+    /* ===== Sidebars ===== */
+    .sidebar{ width:205px; display:flex; flex-direction:column; gap:12px; }
+    .sidebar.left{ height:525px; justify-content:flex-start; }
+    .left-top{ flex:0 0 auto; }
+
+    #log-box{
+      flex:1 1 auto; min-height:0;
+      font-size:0.8rem; color:#ffcc00;
+      border-top:1px solid #333; padding-top:10px; overflow:hidden;
+      background:#111; border:1px solid rgba(255,255,255,.08); border-radius:8px; padding:10px;
+      display:flex; flex-direction:column;
+    }
+    #log-box strong{ color:#ffcc00; }
+    #log-list{
+      margin-top:6px;
+      flex:1 1 auto;
+      overflow:auto;
+      padding-right:4px;
+    }
+    #log-list::-webkit-scrollbar{ width:6px; }
+    #log-list::-webkit-scrollbar-thumb{ background:rgba(255,204,0,.35); border-radius:999px; }
+    #log-list::-webkit-scrollbar-track{ background:rgba(255,255,255,.06); border-radius:999px; }
+
+    .sidebar.right{ height:525px; justify-content:space-between; }
+    .right-top{ display:flex; flex-direction:column; gap:12px; }
+
+    .stat-box{
+      background:#1a1a1a; padding:12px; border:1px solid #444;
+      text-align:center; border-radius:6px;
+    }
+    .stat-val{ font-size:1.8rem; font-weight:bold; color:var(--danger); }
+
+    /* ✅ 健康積分區塊加大 */
+    .score-box{
+      padding:16px 12px;
+      border-radius:10px;
+      border:1px solid rgba(0,255,204,.25);
+      box-shadow: 0 0 18px rgba(0,255,204,.12);
+    }
+    .score-label{ font-size:0.9rem; color:#a7f3d0; font-weight:900; letter-spacing:.3px; margin-bottom:8px; }
+    #score{
+      display:inline-block;
+      font-size:2.8rem; font-weight:1000; line-height:1;
+      color:var(--safe);
+      padding:4px 10px; border-radius:12px;
+    }
+
+    #alert-signal{
+      font-weight:bold; font-size:0.85rem; margin-top:5px;
+      padding:6px; border-radius:4px; min-height:1.2em;
+    }
+    .status-normal{ color:#00ffcc; border:1px solid #00ffcc22; }
+    .status-warning{ color:#ffcc00; background:rgba(255,204,0,0.2); border:1px solid #ffcc00; }
+    .status-danger{ color:#ff4d4d; background:rgba(255,77,77,0.2); border:1px solid #ff4d4d; animation:blink 1s infinite; }
+    @keyframes blink{ 50%{ opacity:0.6; } }
+
+    /* ✅ 中風中心區塊（多3列空間） */
+    .support-box{
+      font-size:0.70rem; color:#bbb;
+      background:#220505; padding:8px 10px;
+      border:1px solid #400; border-radius:10px; line-height:1.28;
+    }
+    .support-box b{ font-size:0.78rem; }
+
+    /* ✅ Toast 固定在「積分下方、介入上方」 */
+    .toast-slot{
+      height:44px; display:flex; align-items:center; justify-content:center;
+      position:relative; overflow:visible;
+    }
+    .toast-inline{
+      background:rgba(255, 213, 74, 0.14);
+      border:1px solid rgba(255, 213, 74, 0.55);
+      color:#ffe27a;
+      padding:8px 12px;
+      border-radius:12px;
+      font-weight:1000;
+      font-size:0.86rem;
+      letter-spacing:.2px;
+      box-shadow:0 0 22px rgba(255, 213, 74, 0.22);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      opacity:0;
+      pointer-events:none;
+      white-space:nowrap;
+      transform: translateY(6px) scale(.98);
+    }
+    @keyframes toastPopInline{
+      0%   { opacity:0; transform:translateY(10px) scale(.98); }
+      18%  { opacity:1; transform:translateY(0px)  scale(1.02); }
+      70%  { opacity:1; transform:translateY(-1px) scale(1.00); }
+      100% { opacity:0; transform:translateY(10px) scale(.98); }
+    }
+    .toast-inline.show{ animation: toastPopInline .8s ease-out; }
+
+    /* ✅ 介入區：預留 3 格空間 */
+    .intervention-box{
+      background:#070a12;
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:12px;
+      padding:8px;
+      box-shadow: 0 0 20px rgba(0,255,204,.10);
+      min-height: 210px;
+    }
+    .intervention-grid{ display:grid; grid-template-columns:1fr; gap:8px; }
+
+    .int-btn{
+      width:100%;
+      background:linear-gradient(180deg, rgba(0,255,204,.18), rgba(17,24,39,.95));
+      border:1px solid rgba(0,255,204,.55);
+      color:#eafff8;
+      border-radius:14px;
+      padding:11px 12px;
+      cursor:pointer;
+      font-size:0.90rem;
+      line-height:1.22;
+      text-align:left;
+      font-weight:900;
+      letter-spacing:.2px;
+      box-shadow: 0 0 18px rgba(0,255,204,.18);
+      text-shadow: 0 0 10px rgba(0,255,204,.18);
+      position:relative;
+      overflow:hidden;
+      user-select:none;
+      -webkit-user-select:none;
+      touch-action:manipulation;
+      transition: transform .12s ease, filter .12s ease, box-shadow .12s ease, border-color .12s ease;
+    }
+    .int-btn:hover{
+      box-shadow: 0 0 34px rgba(0,255,204,.38);
+      border-color: rgba(0,255,204,.95);
+      transform: translateY(-2px);
+      filter: brightness(1.06);
+    }
+    .int-btn:active{ transform: translateY(1px) scale(.99); }
+    .int-btn[disabled]{
+      opacity:.35;
+      cursor:not-allowed;
+      box-shadow:none;
+      transform:none;
+      border-color: rgba(255,255,255,.12);
+      background: #111827;
+      color:#9ca3af;
+      text-shadow:none;
+      filter:none;
+    }
+
+    .int-btn::after{
+      content:"";
+      position:absolute; left:0; top:0; bottom:0;
+      width:0%;
+      background:rgba(0,255,204,.18);
+      transition:width .08s linear;
+      pointer-events:none;
+    }
+    .int-btn.holding::after{ width: var(--hold-pct, 0%); }
+    .int-btn .hold-tip{
+      display:block;
+      margin-top:5px;
+      font-size:.70rem;
+      font-weight:900;
+      opacity:.85;
+      color:#cbd5e1;
+      text-shadow:none;
+    }
+
+    /* ✅ 300 分里程碑：更久、更顯眼 */
+    @keyframes milestoneFlashLong {
+      0%   { transform: scale(1);    filter:brightness(1);    color:var(--safe); text-shadow:none; }
+      12%  { transform: scale(1.10); filter:brightness(1.7);  color:#ffd54a;     text-shadow:0 0 24px rgba(255,213,74,.7); }
+      35%  { transform: scale(1.06); filter:brightness(1.55); color:#ffe27a;     text-shadow:0 0 30px rgba(255,213,74,.8); }
+      70%  { transform: scale(1.03); filter:brightness(1.35); color:#ffeaa7;     text-shadow:0 0 18px rgba(255,213,74,.55); }
+      100% { transform: scale(1);    filter:brightness(1);    color:var(--safe); text-shadow:none; }
+    }
+    #score.milestone-flash{ animation: milestoneFlashLong 1.25s ease-out; }
+
+    /* ===== Game over ===== */
+    #game-over{
+      display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+      background:rgba(0,0,0,0.95);
+      flex-direction:column; align-items:center; justify-content:center; z-index:1000;
+    }
+    .over-card{
+      background:#1a0000; padding:30px; border:2px solid #f00;
+      border-radius:8px; text-align:center; max-width:320px; width:90%;
+    }
+    #leaderboard{ margin:20px 0; text-align:left; font-size:0.9rem; border-top:1px solid #444; padding-top:10px; }
+    .score-row{ display:flex; justify-content:space-between; padding:3px 0; color:#aaa; }
+    .score-row.highlight{ color:#00ffcc; font-weight:bold; }
+    button{ background:#f00; color:#fff; border:none; padding:12px 30px; cursor:pointer; border-radius:4px; font-weight:bold; width:100%; font-size:1rem; }
+
+    /* =========================
+       ✅ Cover（保留你喜歡的極簡圖像導向封面）
+       ========================= */
+    #cover{
+      position:fixed; inset:0; z-index:2000;
+      background:
+        radial-gradient(800px 500px at 30% 30%, rgba(255,77,77,.15), transparent 60%),
+        radial-gradient(800px 500px at 70% 70%, rgba(0,255,204,.12), transparent 60%),
+        linear-gradient(180deg, #020205, #000);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .cover-center{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:24px;
+      user-select:none;
+      -webkit-user-select:none;
+    }
+    .scan-frame{
+      width:260px; height:180px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.18);
+      background: linear-gradient(180deg, rgba(5,1,1,.9), rgba(0,0,0,.95));
+      box-shadow: inset 0 0 40px rgba(255,77,77,.18);
+      display:flex;
+      align-items:flex-end;
+      padding:18px;
+    }
+    .scan-bars{
+      width:100%; height:100%;
+      display:grid;
+      grid-template-columns:repeat(8,1fr);
+      gap:8px;
+      align-items:end;
+    }
+    .scan-bars span{
+      height:30%;
+      border-radius:8px;
+      background:rgba(255,77,77,.25);
+      animation:scanPulse 1.6s ease-in-out infinite;
+    }
+    .scan-bars span:nth-child(odd){ background:rgba(0,255,204,.22); }
+    .scan-bars span:nth-child(1){height:35%;animation-delay:.1s}
+    .scan-bars span:nth-child(2){height:55%;animation-delay:.3s}
+    .scan-bars span:nth-child(3){height:40%;animation-delay:.2s}
+    .scan-bars span:nth-child(4){height:65%;animation-delay:.4s}
+    .scan-bars span:nth-child(5){height:30%;animation-delay:.15s}
+    .scan-bars span:nth-child(6){height:60%;animation-delay:.35s}
+    .scan-bars span:nth-child(7){height:45%;animation-delay:.25s}
+    .scan-bars span:nth-child(8){height:50%;animation-delay:.45s}
+    @keyframes scanPulse{ 0%{filter:brightness(1)} 50%{filter:brightness(1.4)} 100%{filter:brightness(1)} }
+
+    .cover-title{
+      text-align:center;
+      font-size:2.2rem;
+      font-weight:1000;
+      letter-spacing:.4px;
+      margin-top:2px;
+    }
+    .cover-sub{
+      margin-top:6px;
+      font-size:.8rem;
+      letter-spacing:1px;
+      color:rgba(255,255,255,.6);
+    }
+
+    /* ✅ 三顆「儀器介面」按鈕：更明顯 hover */
+    .module-stack{
+      display:flex; flex-direction:column; gap:12px;
+      width:min(420px, 86vw);
+      margin-top:4px;
+    }
+    .module-btn{
+      width:100%;
+      padding:14px 16px;
+      border-radius:14px;
+      cursor:pointer;
+      color:rgba(255,255,255,.92);
+      border:1px solid rgba(255,255,255,.14);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.22));
+      box-shadow:
+        0 0 0 rgba(0,0,0,0),
+        inset 0 0 0 rgba(0,0,0,0);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      font-weight:1000;
+      letter-spacing:.2px;
+      transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease, filter .14s ease;
+      position:relative;
+      overflow:hidden;
+    }
+    .module-btn::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background: linear-gradient(90deg, rgba(0,255,204,.22), rgba(255,77,77,.18), rgba(255,213,74,.12));
+      opacity:.0;
+      filter: blur(14px);
+      transition: opacity .14s ease;
+      pointer-events:none;
+    }
+    .module-btn .left{
+      display:flex; align-items:center; gap:10px;
+      text-align:left;
+    }
+    .chip{
+      width:10px; height:10px; border-radius:999px;
+      background: rgba(0,255,204,.95);
+      box-shadow: 0 0 18px rgba(0,255,204,.35);
+      flex:0 0 auto;
+    }
+    .chip.red{ background: rgba(255,77,77,.95); box-shadow: 0 0 18px rgba(255,77,77,.35); }
+    .chip.gold{ background: rgba(255,213,74,.95); box-shadow: 0 0 18px rgba(255,213,74,.30); }
+    .module-btn .name{ font-size:1.05rem; }
+    .module-btn .hint{ font-size:.78rem; color: rgba(255,255,255,.62); font-weight:900; letter-spacing:.8px; }
+    .module-btn:hover{
+      transform: translateY(-3px);
+      border-color: rgba(0,255,204,.55);
+      filter: brightness(1.06);
+      box-shadow:
+        0 0 38px rgba(0,255,204,.18),
+        0 0 68px rgba(255,77,77,.10),
+        inset 0 0 24px rgba(255,255,255,.06);
+    }
+    .module-btn:hover::before{ opacity:.55; }
+    .module-btn:active{ transform: translateY(1px) scale(.99); }
+
+    .module-btn[disabled]{
+      cursor:not-allowed;
+      opacity:.55;
+      filter:saturate(.7);
+      border-color: rgba(255,255,255,.10);
+    }
+    .module-btn[disabled]:hover{
+      transform:none;
+      box-shadow:none;
+    }
+    .module-btn[disabled]::before{ opacity:0; }
+
+    /* ✅ 說明畫面（每個遊戲進入前） */
+    #intro{
+      position:fixed; inset:0; z-index:2100;
+      display:none; align-items:center; justify-content:center;
+      background: rgba(0,0,0,.78);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding:18px;
+    }
+    .intro-card{
+      width:min(520px, 92vw);
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(10,12,18,.72);
+      box-shadow: 0 0 70px rgba(0,255,204,.12), 0 0 90px rgba(255,77,77,.10);
+      padding:16px 16px 14px;
+    }
+    .intro-head{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      margin-bottom:10px;
+    }
+    .intro-title{
+      font-size:1.15rem; font-weight:1000; letter-spacing:.2px;
+      color: rgba(255,255,255,.92);
+    }
+    .intro-tag{
+      font-size:.75rem; font-weight:1000;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(0,255,204,.22);
+      color: rgba(0,255,204,.92);
+      background: rgba(0,255,204,.08);
+    }
+    .intro-body{
+      color: rgba(255,255,255,.78);
+      font-size:.92rem;
+      line-height:1.55;
+      border-top:1px solid rgba(255,255,255,.10);
+      padding-top:10px;
+    }
+    .intro-actions{
+      display:flex; gap:10px; justify-content:flex-end;
+      margin-top:12px;
+    }
+    .btn-primary{
+      border:none;
+      padding:12px 14px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:1000;
+      color:#071014;
+      background: linear-gradient(180deg, #00ffcc, #00cfa5);
+      box-shadow:0 0 30px rgba(0,255,204,.28);
+      transition: transform .12s ease, filter .12s ease, box-shadow .12s ease;
+    }
+    .btn-primary:hover{ transform: translateY(-1px); filter: brightness(1.06); box-shadow:0 0 42px rgba(0,255,204,.34); }
+    .btn-primary:active{ transform: translateY(1px); }
+    .btn-ghost{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.88);
+      padding:12px 14px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:900;
+      transition: transform .12s ease, background .12s ease;
+    }
+    .btn-ghost:hover{ transform: translateY(-1px); background: rgba(255,255,255,.09); }
+    .btn-ghost:active{ transform: translateY(1px); }
+
+    /* ✅ 遊戲內「回到封面」左下角 */
+    #backToCover{
+      position:fixed;
+      left:16px;
+      bottom:16px;
+      z-index:1500;
+      display:none; /* 進入遊戲才顯示 */
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.35);
+      color: rgba(255,255,255,.88);
+      padding:10px 12px;
+      border-radius:12px;
+      font-weight:1000;
+      cursor:pointer;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 0 26px rgba(0,255,204,.10);
+      transition: transform .12s ease, filter .12s ease, box-shadow .12s ease, border-color .12s ease;
+    }
+    #backToCover:hover{
+      transform: translateY(-2px);
+      border-color: rgba(0,255,204,.45);
+      filter: brightness(1.06);
+      box-shadow: 0 0 36px rgba(0,255,204,.18);
+    }
+    #backToCover:active{ transform: translateY(1px) scale(.99); }
+
+    /* 遊戲提示（開始後顯示） */
+    #start-hint{
+      position:fixed; bottom:20px; color:#666; font-size:0.8rem;
+      display:none; z-index:1200;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ✅ 封面（保留你的版本，但改成三顆模組按鈕） -->
+<div id="cover" aria-hidden="false">
+  <div class="cover-center">
+    <div class="scan-frame" aria-hidden="true">
+      <div class="scan-bars">
+        <span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span>
+      </div>
+    </div>
+
+    <div class="cover-title">
+      腦脈先鋒
+      <div class="cover-sub">FEMH · Stroke Center</div>
+    </div>
+
+    <div class="module-stack">
+      <button class="module-btn" id="btnPrev" type="button" data-module="prevention">
+        <div class="left">
+          <span class="chip"></span>
+          <div class="name">中風預防</div>
+        </div>
+        <div class="hint">READY</div>
+      </button>
+
+      <button class="module-btn" id="btnTreat" type="button" data-module="treatment" disabled>
+        <div class="left">
+          <span class="chip red"></span>
+          <div class="name">中風治療</div>
+        </div>
+        <div class="hint">PENDING</div>
+      </button>
+
+      <button class="module-btn" id="btnRehab" type="button" data-module="rehab" disabled>
+        <div class="left">
+          <span class="chip gold"></span>
+          <div class="name">中風復健</div>
+        </div>
+        <div class="hint">PENDING</div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ 每個遊戲進入前：說明畫面 -->
+<div id="intro" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="intro-card">
+    <div class="intro-head">
+      <div class="intro-title" id="introTitle">模組說明</div>
+      <div class="intro-tag" id="introTag">READY</div>
+    </div>
+    <div class="intro-body" id="introBody"></div>
+    <div class="intro-actions">
+      <button class="btn-ghost" id="introCancel" type="button">取消</button>
+      <button class="btn-primary" id="introOk" type="button">確定</button>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ 遊戲內：回到封面 -->
+<button id="backToCover" type="button">⟵ 回到封面</button>
+
+<div id="game-layout">
+  <!-- 左側 -->
+  <div class="sidebar left">
+    <div class="left-top stat-box">
+      <div style="font-size:0.8rem;color:#aaa">血管狹窄度</div>
+      <div id="blockage" class="stat-val">--%</div>
+      <div id="alert-signal" class="status-normal">臨床掃描啟動</div>
+    </div>
+
+    <div id="log-box">
+      <strong> 腦血管壁變化 </strong>
+      <div id="log-list"></div>
+    </div>
+  </div>
+
+  <!-- 中間 -->
+  <div id="vessel-container">
+    <canvas id="tetris" width="280" height="525"></canvas>
+  </div>
+
+  <!-- 右側 -->
+  <div class="sidebar right">
+    <div class="right-top">
+      <div class="stat-box score-box">
+        <div class="score-label">健康積分</div>
+        <div id="score">0</div>
+      </div>
+
+      <div class="toast-slot">
+        <div id="intervention-toast" class="toast-inline">🎉 新增介入選項！</div>
+      </div>
+
+      <div class="intervention-box">
+        <div id="intervention-grid" class="intervention-grid"></div>
+      </div>
+    </div>
+
+    <div class="support-box">
+      <b> 【 遊戲規則 】</b><br><br>
+      • 滿300分，可取得特定介入<br><br>
+      • 特定介入可用於消除危險因子<br><br>
+      • 血管全阻塞代表發生中風<br><br>
+      亞東中風中心關心您的腦血管健康
+    </div>
+  </div>
+</div>
+
+<div id="game-over">
+  <div class="over-card">
+    <h1 style="color:#f00; margin:0; font-size:1.5rem;">急性腦梗塞</h1>
+    <p style="margin:5px 0; font-size:0.85rem; color:#ccc;">亞東中風中心：提醒您及早就醫</p>
+    <div id="leaderboard">
+      <strong style="color:#ffcc00;">🏆 血管康復排行榜 (Top 10)</strong>
+      <div id="leaderboard-list"></div>
+    </div>
+    <button onclick="location.reload()">重新啟動監測</button>
+  </div>
+</div>
+
+<div id="start-hint">← → 移動　↑ 旋轉　↓ 加速　介入：長按 3 秒　（左下可回封面）</div>
+
+<script>
+/* =========================
+   Audio
+   ========================= */
+const AudioEngine = {
+  ctx: null,
+  init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
+  beep(freq, duration, vol, type='sine', slide=0){
+    this.init();
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+    if (slide !== 0) osc.frequency.exponentialRampToValueAtTime(freq + slide, this.ctx.currentTime + duration);
+    gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+    osc.connect(gain); gain.connect(this.ctx.destination);
+    osc.start(); osc.stop(this.ctx.currentTime + duration);
+  },
+  playMove(){ this.beep(200, 0.05, 0.05, 'triangle'); },
+  playRotate(){ this.beep(300, 0.1, 0.05, 'sine', 200); },
+  playHit(){ this.beep(100, 0.15, 0.1, 'triangle'); },
+  playClear(){ this.beep(523.25, 0.1, 0.1); setTimeout(()=>this.beep(659.25,0.15,0.1), 50); },
+  playWarning(){ this.beep(440, 0.2, 0.08); },
+  playDeath(){
+    this.init();
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.frequency.setValueAtTime(220, this.ctx.currentTime);
+    osc.frequency.linearRampToValueAtTime(110, this.ctx.currentTime + 2);
+    gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 2.1);
+    osc.connect(gain); gain.connect(this.ctx.destination);
+    osc.start(); osc.stop(this.ctx.currentTime + 2.1);
+  },
+  playMilestone(){
+    this.beep(784, 0.09, 0.12, 'sine');
+    setTimeout(()=>this.beep(988, 0.10, 0.12, 'sine'), 90);
+    setTimeout(()=>this.beep(1175, 0.12, 0.12, 'triangle'), 180);
+  },
+  playStart(){
+    this.beep(523.25, 0.08, 0.10, 'sine');
+    setTimeout(()=>this.beep(659.25, 0.09, 0.10, 'sine'), 80);
+    setTimeout(()=>this.beep(783.99, 0.11, 0.10, 'triangle'), 170);
+  }
+};
+
+/* =========================
+   Toast
+   ========================= */
+let toastTimer = null;
+function showInterventionToast(text="🎉 新增介入選項！"){
+  const el = document.getElementById('intervention-toast');
+  if (!el) return;
+  el.textContent = text;
+
+  el.classList.remove('show');
+  void el.offsetWidth;
+  el.classList.add('show');
+
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> el.classList.remove('show'), 820);
+}
+
+/* =========================
+   Canvas + Arena
+   ========================= */
+const canvas = document.getElementById('tetris');
+const context = canvas.getContext('2d');
+context.scale(35, 35);
+
+const arena = Array(15).fill().map(() => Array(8).fill(0));
+const textGrid = Array(15).fill().map(() => Array(8).fill(""));
+
+const dangerTerms = ["高血壓", "高血糖", "高血脂", "吸菸", "遺傳", "肥胖", "壓力", "熬夜"];
+const colors = [null, '#FF0D72', '#0DC2FF', '#0DFF72', '#F538FF', '#FF8E0D', '#FFE138', '#3877FF', '#555'];
+
+let cells = [];
+function resetParticles(){
+  cells = [];
+  for (let i=0; i<85; i++) cells.push({ x: Math.random()*8, y: Math.random()*15, s: 0.15 + Math.random()*0.15 });
+}
+resetParticles();
+
+function drawMatrix(matrix, offset, isArena=false){
+  if (isArena) {
+    cells.forEach(c=>{
+      c.x += c.s; if (c.x > 8) c.x = 0;
+      if (!arena[Math.floor(c.y)][Math.floor(c.x)]) {
+        context.fillStyle = 'rgba(255, 40, 40, 0.6)';
+        context.beginPath(); context.arc(c.x, c.y, 0.1, 0, Math.PI*2); context.fill();
+      }
+    });
+  }
+  matrix.forEach((row,y)=>{
+    row.forEach((value,x)=>{
+      if (value !== 0){
+        const wx = x + offset.x, wy = y + offset.y;
+        context.fillStyle = value === 8 ? '#333' : colors[value];
+        context.fillRect(wx, wy, 1, 1);
+        context.strokeStyle = value === 8 ? '#f44' : 'rgba(0,0,0,0.5)';
+        context.lineWidth = 0.02;
+        context.strokeRect(wx, wy, 1, 1);
+        if (isArena && value === 8 && textGrid[y][x]) {
+          context.fillStyle = '#fff';
+          context.font = "bold 0.55px sans-serif";
+          context.textAlign = "center";
+          context.fillText(textGrid[y][x], wx + 0.5, wy + 0.72);
+        }
+      }
+    });
+  });
+}
+
+function spawnDanger(isInitial=false){
+  const term = dangerTerms[Math.floor(Math.random()*dangerTerms.length)];
+  const startX = Math.floor(Math.random()*(8 - term.length + 1));
+  let targetY = -1;
+
+  for (let y=14; y>=0; y--){
+    let isClear = true;
+    for (let i=0; i<term.length; i++){
+      if (arena[y][startX+i] !== 0) { isClear=false; break; }
+    }
+    if (isClear) { targetY = y; break; }
+  }
+
+  if (targetY !== -1){
+    for (let i=0; i<term.length; i++){
+      arena[targetY][startX+i] = 8;
+      textGrid[targetY][startX+i] = term[i];
+    }
+    if (!isInitial) updateLog(`${term}: 導致新斑塊沉積`);
+  }
+}
+
+function updateLog(msg){
+  const list = document.getElementById('log-list');
+  const entry = document.createElement('div');
+  entry.innerText = `> ${msg}`;
+  list.prepend(entry);
+  while (list.children.length > 80) list.lastElementChild.remove();
+}
+
+/* =========================
+   Player + Pieces
+   ========================= */
+const player = { pos:{x:0,y:0}, matrix:null };
+
+function createPiece(t){
+  if (t === 'I') return [[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]];
+  if (t === 'L') return [[0,2,0],[0,2,0],[0,2,2]];
+  if (t === 'O') return [[4,4],[4,4]];
+  if (t === 'T') return [[0,7,0],[7,7,7],[0,0,0]];
+  return [[5,5,0],[0,5,5],[0,0,0]];
+}
+function randomPiece(){
+  const pieces = 'ILOTZ';
+  return createPiece(pieces[pieces.length * Math.random() | 0]);
+}
+
+function collide(a, p){
+  const [m,o] = [p.matrix, p.pos];
+  for (let y=0; y<m.length; ++y){
+    for (let x=0; x<m[y].length; ++x){
+      if (m[y][x] !== 0){
+        let ay = y + o.y, ax = x + o.x;
+        if (ay < 0){
+          if (ax < 0 || ax >= 8) return true;
+          continue;
+        }
+        if (!a[ay] || a[ay][ax] !== 0) return true;
+      }
+    }
+  }
+  return false;
+}
+
+function playerReset(){
+  player.matrix = randomPiece();
+  player.pos.y = 0;
+  player.pos.x = (8 / 2 | 0) - (player.matrix[0].length / 2 | 0);
+}
+
+function playerDrop(){
+  player.pos.y++;
+  if (collide(arena, player)){
+    player.pos.y--;
+    let overflow = false;
+
+    player.matrix.forEach((row,y)=>{
+      row.forEach((v,x)=>{
+        if (v !== 0){
+          let finalY = y + player.pos.y;
+          if (finalY < 0) overflow = true;
+          else arena[finalY][x + player.pos.x] = v;
+        }
+      });
+    });
+
+    AudioEngine.playHit();
+    arenaSweep();
+
+    let highestPoint = 15;
+    for (let y=0; y<15; y++){ if (arena[y].some(v=>v!==0)) { highestPoint=y; break; } }
+    let fullness = Math.floor(((15 - highestPoint)/15)*100);
+
+    if (overflow || fullness >= 100){
+      endGame();
+    } else {
+      if (Math.random() < 0.35) spawnDanger();
+      playerReset();
+    }
+  }
+  dropCounter = 0;
+}
+
+/* =========================
+   ✅ 分數里程碑：每 +300 分 -> (1) 顯眼更久 (2) 音效 (3) 新增介入（最多3）
+   ========================= */
+let gameOver = false;
+let score = 0;
+
+function flashScoreMilestone300(){
+  const el = document.getElementById('score');
+  el.classList.remove('milestone-flash');
+  void el.offsetWidth;
+  el.classList.add('milestone-flash');
+  setTimeout(()=>el.classList.remove('milestone-flash'), 1400);
+}
+
+function handleScoreMilestones(prevScore, newScore){
+  const prevM = Math.floor(prevScore / 300);
+  const nowM  = Math.floor(newScore / 300);
+  if (nowM <= prevM) return;
+
+  for (let m = prevM + 1; m <= nowM; m++){
+    flashScoreMilestone300();
+    AudioEngine.playMilestone();
+    enqueueInterventionByRule();
+  }
+}
+
+function addScore(delta){
+  if (delta <= 0) return;
+  const prev = score;
+  score += delta;
+  handleScoreMilestones(prev, score);
+}
+
+/* =========================
+   Arena sweep
+   ========================= */
+function arenaSweep(){
+  let count = 0;
+  outer: for (let y=14; y>=0; --y){
+    for (let x=0; x<8; ++x) if (arena[y][x] === 0) continue outer;
+    arena.splice(y,1); arena.unshift(new Array(8).fill(0));
+    textGrid.splice(y,1); textGrid.unshift(new Array(8).fill(""));
+    count++; y++;
+  }
+  if (count > 0){
+    addScore(count * 100);
+    AudioEngine.playClear();
+  }
+  return count;
+}
+
+/* =========================
+   Vessel status
+   ========================= */
+function checkVesselStatus(fullness){
+  const alertEl = document.getElementById('alert-signal');
+
+  if (fullness === 0){
+    alertEl.innerText = "🟢 無狹窄";
+    alertEl.className = "status-normal";
+  }
+  else if (fullness < 50){
+    alertEl.innerText = "🟡 非顯著狹窄 (<50%)";
+    alertEl.className = "status-warning";
+  }
+  else {
+    alertEl.innerText = "🔴 明顯狹窄 (≥50%)";
+    alertEl.className = "status-danger";
+  }
+}
+
+/* =========================
+   Leaderboard
+   ========================= */
+function updateLeaderboard(finalScore){
+  let scores = JSON.parse(localStorage.getItem('vessel_scores_named')) || [];
+  const isTopScore = scores.length < 10 || finalScore > (scores[scores.length - 1]?.score || 0);
+  if (isTopScore && finalScore > 0){
+    setTimeout(()=>{
+      const userName = prompt("恭喜進入前十名！請輸入您的名字：", "匿名醫護");
+      const entryName = userName ? userName.substring(0,10) : "匿名";
+      scores.push({ name: entryName, score: finalScore, date: new Date().getTime() });
+      scores.sort((a,b)=>b.score-a.score);
+      scores = scores.slice(0,10);
+      localStorage.setItem('vessel_scores_named', JSON.stringify(scores));
+      renderLeaderboard(scores, finalScore);
+    }, 500);
+  } else renderLeaderboard(scores, finalScore);
+}
+function renderLeaderboard(scores, currentScore){
+  const listContainer = document.getElementById('leaderboard-list');
+  listContainer.innerHTML = '';
+  if (scores.length === 0){
+    listContainer.innerHTML = '<div style="color:#666; text-align:center;">尚無紀錄</div>';
+    return;
+  }
+  scores.forEach((item,i)=>{
+    const row = document.createElement('div');
+    row.className = 'score-row' + (item.score === currentScore ? ' highlight' : '');
+    row.innerHTML = `<span>${i+1}. ${item.name}</span> <span>${item.score}</span>`;
+    listContainer.appendChild(row);
+  });
+}
+function endGame(){
+  gameOver = true;
+  cancelHold();
+  AudioEngine.playDeath();
+  document.getElementById('game-over').style.display='flex';
+  updateLeaderboard(score);
+}
+    try{ parent.postMessage({type:'GAME_RESULT', game:'match-l2', score: score}, '*'); }catch(e){}
+
+
+/* =========================
+   ✅ 特定介入：每滿 300 分新增 1 個，可累積最多 3 個
+   ========================= */
+const interventions = [
+  { term:"高血壓", action:"規律量測＋降壓藥物" },
+  { term:"高血糖", action:"控糖計畫／藥物調整" },
+  { term:"高血脂", action:"他汀治療＋飲食" },
+  { term:"吸菸",   action:"戒菸門診／尼古丁替代" },
+  { term:"遺傳",   action:"家族篩檢＋定期追蹤" },
+  { term:"肥胖",   action:"減重運動＋營養介入" },
+  { term:"壓力",   action:"壓力管理＋正念睡眠" },
+  { term:"熬夜",   action:"睡眠衛教＋作息重建" },
+];
+
+const COOLDOWN_MS = 1800;
+let lastInterventionAt = -999999;
+let interventionQueue = [];
+
+function countTermOnBoard(term){
+  let cnt = 0;
+  for (let y=0; y<15; y++){
+    for (let x=0; x<8; x++){
+      if (arena[y][x] === 8 && textGrid[y][x] === term[0]){
+        let ok = true;
+        for (let i=0; i<term.length; i++){
+          if (x+i >= 8) { ok=false; break; }
+          if (arena[y][x+i] !== 8 || textGrid[y][x+i] !== term[i]) { ok=false; break; }
+        }
+        if (ok) cnt++;
+      }
+    }
+  }
+  return cnt;
+}
+
+function clearTermOnBoard(term){
+  let clearedGroups = 0;
+  for (let y=0; y<15; y++){
+    for (let x=0; x<=8-term.length; x++){
+      if (arena[y][x] === 8 && textGrid[y][x] === term[0]){
+        let ok = true;
+        for (let i=0; i<term.length; i++){
+          if (arena[y][x+i] !== 8 || textGrid[y][x+i] !== term[i]) { ok=false; break; }
+        }
+        if (ok){
+          for (let i=0; i<term.length; i++){
+            arena[y][x+i] = 0;
+            textGrid[y][x+i] = "";
+          }
+          clearedGroups++;
+        }
+      }
+    }
+  }
+  return clearedGroups;
+}
+
+function pickInterventionByRule(){
+  const availableOnBoard = interventions.filter(it => countTermOnBoard(it.term) > 0);
+  if (availableOnBoard.length > 0){
+    return availableOnBoard[Math.floor(Math.random() * availableOnBoard.length)];
+  }
+  return interventions[Math.floor(Math.random() * interventions.length)];
+}
+
+function enqueueInterventionByRule(){
+  const it = pickInterventionByRule();
+  if (!it) return;
+
+  interventionQueue.push(it);
+  if (interventionQueue.length > 3) interventionQueue.shift();
+
+  updateLog(`取得特定介入（${it.term}）`);
+  renderInterventions();
+  showInterventionToast("🎉 新增介入選項！");
+}
+
+/* ===== 長按控制器 ===== */
+const HOLD_MS = 3000;
+let holdTimer = null;
+let holdStartAt = 0;
+let holdingBtn = null;
+let holdingIt = null;
+
+function clearHoldUI(){
+  if (holdingBtn){
+    holdingBtn.classList.remove('holding');
+    holdingBtn.style.setProperty('--hold-pct', '0%');
+    const tip = holdingBtn.querySelector('.hold-tip');
+    if (tip) tip.textContent = `長按 3 秒消除危險因子`;
+  }
+  holdingBtn = null;
+  holdingIt = null;
+  holdStartAt = 0;
+  if (holdTimer){ clearInterval(holdTimer); holdTimer = null; }
+}
+function cancelHold(){ clearHoldUI(); }
+
+function startHold(btn, it){
+  initGame();
+  if (!isStarted || gameOver) return;
+
+  updateInterventionButtonState();
+  if (btn.disabled) return;
+
+  holdingBtn = btn;
+  holdingIt = it;
+  holdStartAt = Date.now();
+  btn.classList.add('holding');
+  btn.style.setProperty('--hold-pct', '0%');
+
+  const tip = btn.querySelector('.hold-tip');
+  if (tip) tip.textContent = `保持按住… 3.0s`;
+
+  holdTimer = setInterval(()=>{
+    if (!holdingBtn) return;
+
+    const elapsed = Date.now() - holdStartAt;
+    const pct = Math.min(100, Math.floor((elapsed / HOLD_MS) * 100));
+    holdingBtn.style.setProperty('--hold-pct', pct + '%');
+
+    if (tip){
+      const remain = Math.max(0, (HOLD_MS - elapsed) / 1000);
+      tip.textContent = remain > 0 ? `保持按住… ${remain.toFixed(1)}s` : `啟動中…`;
+    }
+
+    if (elapsed >= HOLD_MS){
+      clearInterval(holdTimer);
+      holdTimer = null;
+      executeIntervention(holdingIt);
+      clearHoldUI();
+    }
+  }, 80);
+}
+
+function renderInterventions(){
+  const grid = document.getElementById('intervention-grid');
+  grid.innerHTML = '';
+
+  if (interventionQueue.length === 0) return;
+
+  interventionQueue.forEach((it)=>{
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'int-btn';
+    btn.innerHTML = `${it.action}<span class="hold-tip">長按 3 秒啟動</span>`;
+
+    btn.addEventListener('mousedown', ()=>startHold(btn, it));
+    btn.addEventListener('mouseup', cancelHold);
+    btn.addEventListener('mouseleave', cancelHold);
+
+    btn.addEventListener('touchstart', (e)=>{ e.preventDefault(); startHold(btn, it); }, {passive:false});
+    btn.addEventListener('touchend', cancelHold);
+    btn.addEventListener('touchcancel', cancelHold);
+
+    grid.appendChild(btn);
+  });
+
+  updateInterventionButtonState();
+}
+
+function updateInterventionButtonState(){
+  const btns = document.querySelectorAll('#intervention-grid .int-btn');
+  if (!btns.length) return;
+
+  const now = Date.now();
+  const remain = Math.max(0, COOLDOWN_MS - (now - lastInterventionAt));
+  const disabled = !isStarted || gameOver || (remain > 0);
+
+  btns.forEach(btn=>{
+    btn.disabled = disabled;
+    const tip = btn.querySelector('.hold-tip');
+    if (tip){
+      tip.textContent = btn.disabled
+        ? (!isStarted ? `尚未開始` : (gameOver ? `監測終止` : `冷卻中… ${(remain/1000).toFixed(1)}s`))
+        : `長按 3 秒啟動`;
+    }
+    if (btn.disabled && holdingBtn === btn) cancelHold();
+  });
+}
+
+function removeOneFromQueue(it){
+  const idx = interventionQueue.findIndex(x => x.term === it.term && x.action === it.action);
+  if (idx >= 0) interventionQueue.splice(idx, 1);
+}
+
+function executeIntervention(it){
+  initGame();
+  if (!isStarted || gameOver) return;
+  if (!it) return;
+
+  const now = Date.now();
+  if (COOLDOWN_MS > 0 && (now - lastInterventionAt < COOLDOWN_MS)) return;
+
+  const before = countTermOnBoard(it.term);
+
+  if (before === 0){
+    updateLog(`⚠️ 介入啟動：目前無 ${it.term} 斑塊（仍消耗一次介入）`);
+    AudioEngine.playWarning();
+
+    lastInterventionAt = now;
+    removeOneFromQueue(it);
+    renderInterventions();
+    return;
+  }
+
+  const clearedGroups = clearTermOnBoard(it.term);
+  if (clearedGroups > 0){
+    addScore(clearedGroups * 120);
+    AudioEngine.playClear();
+    updateLog(`✅ 介入成功：清除 ${clearedGroups} 組斑塊（${it.term}）`);
+  } else {
+    AudioEngine.playWarning();
+    updateLog(`介入失敗：未偵測到完整斑塊（仍消耗一次介入）`);
+  }
+
+  lastInterventionAt = now;
+  removeOneFromQueue(it);
+  renderInterventions();
+}
+
+/* =========================
+   Game loop + Input
+   ========================= */
+let dropCounter = 0, lastTime = 0;
+let rafId = null;
+let isStarted = false;
+
+function update(time=0){
+  if (!isStarted) return;
+  if (gameOver) return;
+
+  const dt = time - lastTime; lastTime = time;
+  dropCounter += dt;
+  if (dropCounter > 800) playerDrop();
+
+  context.clearRect(0,0,canvas.width,canvas.height);
+  drawMatrix(arena, {x:0,y:0}, true);
+  drawMatrix(player.matrix, player.pos);
+
+  let highestPoint = 15;
+  for (let y=0; y<15; y++){ if (arena[y].some(v=>v!==0)) { highestPoint=y; break; } }
+  let fullness = Math.floor(((15 - highestPoint)/15)*100);
+
+  document.getElementById('blockage').innerText = (gameOver ? "100" : Math.min(99, fullness)) + "%";
+  document.getElementById('score').textContent = score;
+
+  checkVesselStatus(fullness);
+  updateInterventionButtonState();
+
+  rafId = requestAnimationFrame(update);
+}
+
+const initGame = () => { AudioEngine.init(); };
+
+/* ✅ 只在開始後接受控制 */
+document.addEventListener('keydown', e=>{
+  if (!isStarted) return;
+  initGame();
+  if (gameOver) return;
+
+  if (e.keyCode === 37) { player.pos.x--; if (collide(arena, player)) player.pos.x++; else AudioEngine.playMove(); }
+  if (e.keyCode === 39) { player.pos.x++; if (collide(arena, player)) player.pos.x--; else AudioEngine.playMove(); }
+  if (e.keyCode === 40) playerDrop();
+  if (e.keyCode === 38) {
+    const m = player.matrix;
+    for (let y=0; y<m.length; ++y) for (let x=0; x<y; ++x) [m[x][y], m[y][x]] = [m[y][x], m[x][y]];
+    m.forEach(r=>r.reverse());
+    if (collide(arena, player)){
+      m.forEach(r=>r.reverse());
+      for (let y=0; y<m.length; ++y) for (let x=0; x<y; ++x) [m[x][y], m[y][x]] = [m[y][x], m[x][y]];
+    } else AudioEngine.playRotate();
+  }
+});
+
+/* =========================
+   ✅ 模組流程：封面 → 說明畫面 → 遊戲
+   ========================= */
+const coverEl = document.getElementById('cover');
+const introEl = document.getElementById('intro');
+const introTitleEl = document.getElementById('introTitle');
+const introTagEl = document.getElementById('introTag');
+const introBodyEl = document.getElementById('introBody');
+const backBtn = document.getElementById('backToCover');
+
+let pendingModule = null;
+
+const moduleIntro = {
+  prevention: {
+    title: "中風預防 - 降低「血管狹窄度」，避免血管阻塞",
+    body:
+      "操作：← → 移動、↑ 旋轉、↓ 加速下落。<br>" +
+      "規則：每滿 <b>300</b> 分新增 1 個「特定介入」（最多可存 3 個）。<br>" +
+      "介入：長按 3 秒，消除對應危險因子。"
+  },
+  treatment: {
+    title: "中風治療 · 監測模組",
+    tag: "COMING",
+    body: "此模組尚在製作中。"
+  },
+  rehab: {
+    title: "中風復健 · 監測模組",
+    tag: "COMING",
+    body: "此模組尚在製作中。"
+  }
+};
+
+function showCover(){
+  // 停止遊戲 loop
+  if (rafId) cancelAnimationFrame(rafId);
+  rafId = null;
+  isStarted = false;
+
+  // UI
+  document.getElementById('start-hint').style.display = 'none';
+  backBtn.style.display = 'none';
+  introEl.style.display = 'none';
+  document.getElementById('game-over').style.display = 'none';
+
+  coverEl.style.display = 'flex';
+  coverEl.setAttribute('aria-hidden','false');
+
+  // 讓介入按鈕顯示「尚未開始」
+  updateInterventionButtonState();
+}
+
+function hideCover(){
+  coverEl.style.display = 'none';
+  coverEl.setAttribute('aria-hidden','true');
+}
+
+function openIntro(moduleKey){
+  pendingModule = moduleKey;
+  const cfg = moduleIntro[moduleKey];
+  introTitleEl.textContent = cfg.title;
+  introTagEl.textContent = cfg.tag;
+  introBodyEl.innerHTML = cfg.body;
+
+  introEl.style.display = 'flex';
+  introEl.setAttribute('aria-hidden','false');
+}
+
+function closeIntro(){
+  introEl.style.display = 'none';
+  introEl.setAttribute('aria-hidden','true');
+  pendingModule = null;
+}
+
+function resetGameState(){
+  // 清 arena/text
+  for (let y=0; y<15; y++){
+    for (let x=0; x<8; x++){
+      arena[y][x] = 0;
+      textGrid[y][x] = "";
+    }
+  }
+  resetParticles();
+
+  // 狀態
+  gameOver = false;
+  score = 0;
+  lastInterventionAt = -999999;
+  interventionQueue = [];
+  clearHoldUI();
+
+  // 初始危險因子 + log
+  document.getElementById('log-list').innerHTML = "";
+  for (let i=0; i<3; i++) spawnDanger(true);
+  updateLog("腦血管監測開始");
+
+  // player
+  playerReset();
+
+  // UI 即時畫面
+  context.clearRect(0,0,canvas.width,canvas.height);
+  drawMatrix(arena, {x:0,y:0}, true);
+  drawMatrix(player.matrix, player.pos);
+  document.getElementById('blockage').innerText = "0%";
+  document.getElementById('score').textContent = "0";
+  renderInterventions();
+  updateInterventionButtonState();
+}
+
+function startModule(moduleKey){
+  if (moduleKey !== "prevention"){
+    showInterventionToast("⚙️ 模組尚在製作中");
+    return;
+  }
+
+  initGame();
+  AudioEngine.playStart();
+
+  // 每次進入都重置成新的一局
+  resetGameState();
+
+  // 進入遊戲
+  hideCover();
+  closeIntro();
+
+  backBtn.style.display = 'block';
+  document.getElementById('start-hint').style.display = 'block';
+
+  isStarted = true;
+  lastTime = performance.now();
+  dropCounter = 0;
+
+  if (rafId) cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(update);
+}
+
+/* ✅ 重要：確保「中風預防」一定會觸發（你之前沒反應通常是事件沒綁到或被 cover 點擊邏輯擋住） */
+document.getElementById('btnPrev').addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); openIntro('prevention'); });
+document.getElementById('btnTreat').addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); openIntro('treatment'); });
+document.getElementById('btnRehab').addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); openIntro('rehab'); });
+
+document.getElementById('introCancel').addEventListener('click', ()=> closeIntro());
+document.getElementById('introOk').addEventListener('click', ()=>{
+  if (!pendingModule) return;
+  startModule(pendingModule);
+});
+
+/* 點 intro 背景關閉 */
+introEl.addEventListener('click', (e)=>{
+  if (e.target === introEl) closeIntro();
+});
+
+/* 回到封面 */
+backBtn.addEventListener('click', ()=>{
+  showCover();
+});
+
+/* =========================
+   Init（先準備好畫面，但停在封面）
+   ========================= */
+resetGameState();
+showCover();
+</script>
+
+</body>
+</html>

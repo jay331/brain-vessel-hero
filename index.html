@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+<title>腦脈先鋒｜個案一</title>
+
+<style>
+:root{
+  --bg:#060912; --panel:rgba(10,14,28,.86); --line:rgba(255,255,255,.12);
+  --text:#eaf2ff; --muted:rgba(234,242,255,.72);
+  --accent:#00ffe5; --good:#3dff8e; --warn:#ffd166; --bad:#ff4d6d;
+}
+
+html,body{
+  margin:0;height:100%;background:var(--bg);color:var(--text);
+  font-family:"PingFang TC","Noto Sans TC",system-ui,-apple-system,sans-serif;
+  overflow:hidden;
+}
+*{box-sizing:border-box}
+button{font-family:inherit}
+
+/* ===== Layout ===== */
+.app{height:100%;display:flex;flex-direction:column}
+
+header{
+  padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:linear-gradient(180deg, rgba(10,14,28,.92), rgba(10,14,28,.55));
+  border-bottom:1px solid var(--line);
+}
+.brand{min-width:0}
+.brand .t{font-weight:1000;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand .s{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.hud{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.chip{
+  padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.10);color:var(--muted);font-size:12px
+}
+.chip strong{color:var(--text)}
+
+.btn{
+  appearance:none;border:0;cursor:pointer;padding:10px 12px;border-radius:14px;
+  font-weight:1000;background:rgba(255,255,255,.05);color:var(--text);
+  border:1px solid rgba(255,255,255,.10);font-size:13px
+}
+.btn.primary{
+  background:linear-gradient(180deg, rgba(0,255,229,.18), rgba(0,255,229,.06));
+  border:1px solid rgba(0,255,229,.35);
+  box-shadow:0 10px 24px rgba(0,255,229,.08)
+}
+.btn.secondary{background:rgba(255,255,255,.03)}
+.btn.danger{
+  background:linear-gradient(180deg, rgba(255,77,109,.18), rgba(255,77,109,.06));
+  border:1px solid rgba(255,77,109,.32)
+}
+
+.wrap{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:12px}
+.stage{
+  position:relative;width:min(520px,100vw);aspect-ratio:9/16;max-height:100%;
+  border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,.10);
+  box-shadow:0 26px 80px rgba(0,0,0,.55);
+  background:
+    url('assets/bg_base.png') center/cover no-repeat,
+    radial-gradient(circle at 40% 12%, rgba(255,209,102,.10), rgba(0,0,0,0) 55%),
+    radial-gradient(circle at 70% 35%, rgba(0,255,229,.10), rgba(0,0,0,0) 60%),
+    linear-gradient(180deg, #0a1021, #070a12);
+}
+.vignette{position:absolute;inset:0;background:radial-gradient(circle at 50% 35%, rgba(0,0,0,0), rgba(0,0,0,.55) 78%);pointer-events:none}
+.content{position:absolute;inset:0;display:flex;flex-direction:column;gap:10px;padding:12px}
+.screen{flex:1;min-height:0;display:none;flex-direction:column;gap:10px}
+.screen.show{display:flex}
+
+/* ===== Common cards ===== */
+.topTalk{
+  display:flex;gap:10px;align-items:flex-start;padding:12px;border-radius:18px;
+  background:var(--panel);border:1px solid rgba(255,255,255,.12)
+}
+.avatar{
+  width:56px;height:56px;border-radius:16px;background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.10);overflow:hidden;flex:0 0 auto
+}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.talk{min-width:0}
+.talk .who{font-weight:1000;font-size:14px}
+.talk .say{margin-top:6px;color:var(--muted);font-size:12.5px;line-height:1.65}
+
+.midPanel{
+  flex:1;min-height:0;padding:12px;border-radius:18px;background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.10);overflow:auto
+}
+.midPanel h2{margin:0 0 8px;font-size:14px}
+.bullet{margin:0;padding-left:18px;color:var(--muted);font-size:12.5px;line-height:1.65}
+.bullet li{margin:6px 0}
+
+.bottomBar{
+  display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;
+  padding:12px;border-radius:18px;background:rgba(10,14,28,.72);border:1px solid rgba(255,255,255,.12)
+}
+.icons{display:flex;gap:10px;align-items:center}
+.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+
+.toast{
+  position:absolute;left:50%;bottom:14px;transform:translateX(-50%);
+  padding:10px 12px;border-radius:14px;background:rgba(10,14,28,.86);
+  border:1px solid rgba(255,255,255,.10);box-shadow:0 18px 45px rgba(0,0,0,.45);
+  font-size:12px;display:none;z-index:50;max-width:min(92vw,520px)
+}
+.toast.show{display:block}
+
+.gameOverlay{position:fixed;inset:0;display:none;flex-direction:column;background:#000;z-index:2000}
+.gameTop{
+  padding:10px 10px;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:linear-gradient(180deg, rgba(10,14,28,.92), rgba(10,14,28,.55));
+  border-bottom:1px solid rgba(255,255,255,.12)
+}
+.gameTop .meta{min-width:0}
+.gameTop .meta .h{font-weight:1000;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gameTop .meta .s{font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#gameFrame{flex:1;border:0;width:100%;background:#000}
+
+.rankTable{width:100%;border-collapse:collapse;margin-top:8px}
+.rankTable th,.rankTable td{
+  border-bottom:1px solid rgba(255,255,255,.08);
+  padding:8px 6px;font-size:12px;color:var(--muted);text-align:left
+}
+.rankTable th{color:rgba(234,242,255,.85);font-weight:1000}
+
+@supports(padding:max(0px)){
+  header{padding-top:max(10px, env(safe-area-inset-top));}
+  .toast{bottom:calc(14px + env(safe-area-inset-bottom));}
+}
+
+/* ===== HOME ===== */
+#scrHome{
+  position:relative;
+  background: url('assets/bg_home_mockup.png') center/cover no-repeat;
+}
+#scrHome .homeBtns{
+  position:absolute;left:0;right:0;bottom:34px;
+  display:flex;gap:18px;justify-content:center;padding:0 7%;
+  z-index:9999;pointer-events:auto;
+}
+#scrHome .homeBtns button{
+  flex:1;height:110px;border-radius:18px;
+  background: rgba(255,0,0,0.01);
+  border: 0;cursor:pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+#scrHome .homeBtns button:focus-visible{
+  outline: 2px solid rgba(0,255,229,.55);
+  outline-offset: 3px;
+}
+
+/* ===== LIST ===== */
+#scrList .listBtn{
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: .5px;
+  text-align: left;
+  padding: 18px 16px;
+  padding-left: 24px;
+  border-radius: 18px;
+  color: #eaf2ff;
+  background: linear-gradient(180deg, rgba(20,30,55,.75), rgba(10,15,30,.85));
+  border: 1px solid rgba(255,255,255,.18);
+  box-shadow: 0 8px 22px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.12);
+  transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+}
+#scrList .listBtn:hover{ filter: brightness(1.08); }
+#scrList .listBtn:active{
+  transform: translateY(2px) scale(.99);
+  box-shadow: 0 4px 12px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.08);
+}
+#scrList .btnHomeBack{
+  font-size: 15px;
+  padding: 12px 18px;
+  border-radius: 16px;
+  color: #eaf2ff;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.22);
+  box-shadow: 0 6px 16px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.12);
+}
+#scrList .topTalk{
+  flex-direction: row;
+  align-items: center;
+  text-align: center;
+  padding: 20px 16px;
+  gap: 14px;
+  background: rgba(10,14,28,.48);
+  border-radius: 20px;
+}
+#scrList .topTalk .avatar{ width: 88px;height: 88px;border-radius: 22px; }
+#scrList .topTalk .who{ font-size: 40px;font-weight: 900;letter-spacing: 2px; }
+
+/* ===== CASE (Doctor) ===== */
+#scrCase .topTalk .avatar{ width:120px;height:120px;border-radius:22px; }
+#scrCase .topTalk .who{ font-size:24px;font-weight:900;letter-spacing:1px; }
+#scrCase .topTalk .say{ font-size:16.5px;line-height:1.7;margin-top:6px; }
+
+/* Role tiles bigger */
+#scrCase .iconTile{
+  width:110px;height:110px;border-radius:20px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  cursor:pointer;position:relative;user-select:none
+}
+#scrCase .iconTile.locked{opacity:.28;cursor:not-allowed}
+#scrCase .iconTile.active{outline:2px solid rgba(0,255,229,.35)}
+#scrCase .iconTile img{
+  width:80px;height:80px;opacity:.95;
+  filter: brightness(1.15) contrast(1.15) saturate(1.25);
+}
+#scrCase .iconTile .lbl{font-size:12.5px;letter-spacing:.5px;font-weight:1000;color:rgba(234,242,255,.82)}
+#scrCase .iconTile .badge{
+  position:absolute;right:8px;top:8px;padding:4px 6px;border-radius:999px;
+  background:rgba(0,255,229,.15);border:1px solid rgba(0,255,229,.35);
+  font-size:10px;font-weight:1000;color:var(--text);display:none
+}
+#scrCase .iconTile.ready .badge{display:block}
+
+/* CASE accordion container */
+#scrCase .midPanel{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap: 10px;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  overflow: visible;
+}
+
+/* Title card button */
+#scrCase .caseTitleCard{
+  width:100%;
+  border: 1px solid rgba(0,255,229,.25);
+  border-radius: 24px;
+  padding: 14px 18px;
+  min-height: 84px;
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  cursor:pointer;
+  color:#eafffb;
+  background: linear-gradient(180deg, rgba(0,255,229,.64), rgba(10,14,28,.86));
+  box-shadow: 0 10px 26px rgba(0,0,0,.35);
+  -webkit-tap-highlight-color: transparent;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+#scrCase #caseHintTitle{
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+}
+#scrCase .caseTitleCard .chev{
+  font-size: 18px;
+  opacity: .9;
+  transform: rotate(0deg);
+  transition: transform .18s ease;
+}
+#scrCase .caseTitleCard[aria-expanded="true"] .chev{
+  transform: rotate(180deg);
+}
+
+/* Description wrap collapsible */
+#scrCase .caseDescWrap{
+  overflow:hidden;
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: max-height .22s ease, opacity .18s ease, transform .18s ease;
+}
+#scrCase .caseDescWrap.open{
+  max-height: 380px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Description card as extension */
+#scrCase #caseBullets{
+  margin:0;
+  list-style:none;
+  padding: 14px 16px;
+  padding-left: 0;
+  font-size: 16.5px;
+  line-height: 1.75;
+  color: var(--muted);
+  background: rgba(10,14,28,.92);
+  border: 1px solid rgba(255,255,255,.12);
+  border-top: 0;
+  border-radius: 0 0 24px 24px;
+  box-shadow: 0 10px 26px rgba(0,0,0,.35);
+}
+#scrCase #caseBullets li{ margin: 8px 0; }
+
+
+
+/* ===== BRIEF ===== */
+#scrBrief .topTalk{ padding:24px; align-items:center; }
+#scrBrief .avatar{ width:110px;height:110px;border-radius:20px; }
+#scrBrief .talk .who{ font-size:24px;font-weight:900;letter-spacing:1px; }
+#scrBrief .talk .say{ font-size:16.5px;line-height:1.7;margin-top:6px;color:var(--muted); }
+
+/* Brief toggle button */
+#scrBrief .briefToggleBtn{
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.04);
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Brief detail collapsible */
+#scrBrief #briefDetail{ display:none; }
+#scrBrief #briefDetail.open{ display:block; }
+
+#scrBrief #briefTitle{
+  margin: 10px 0 12px 0;
+  padding: 16px 18px;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  text-align: center;
+  color: #eafffb;
+  background: linear-gradient(180deg, rgba(0,255,229,.55), rgba(10,14,28,.92));
+  border: 1px solid rgba(0,255,229,.35);
+  border-radius: 22px;
+  box-shadow: 0 12px 28px rgba(0,0,0,.4);
+}
+#scrBrief #briefBullets{
+  list-style:none;
+  padding: 16px 18px;
+  margin: 0;
+  background: rgba(10,14,28,.9);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 22px;
+  font-size: 16.5px;
+  line-height: 1.75;
+  color: var(--muted);
+}
+#scrBrief #briefBullets li{ margin: 10px 0; }
+
+/* Brief bottom buttons: left / right */
+#scrBrief .bottomBar{ justify-content: space-between; }
+#scrBrief .bottomBar .actions{
+  width:100%;
+  display:flex;
+  justify-content: space-between;
+  align-items:center;
+}
+#scrBrief .bottomBar .btn{
+  font-size:18px;
+  padding:14px 22px;
+  border-radius:18px;
+}
+#scrBrief .bottomBar .btn.primary{
+  font-size:20px;
+  font-weight:900;
+  letter-spacing:1.5px;
+}
+
+/* ✅ scrBrief：預設不顯示 bottomBar */
+#scrBrief .bottomBar{
+  display: none;
+}
+
+/* ✅ 只有查看任務目標（briefDetail.open）時才顯示 bottomBar */
+#scrBrief #briefDetail.open ~ .bottomBar{
+  display: flex;
+}
+
+/* ===== CASE：查看任務才顯示三件套（標題卡+說明+bottomBar） ===== */
+
+/* 查看任務按鈕（長得像 briefToggleBtn） */
+#scrCase .caseToggleBtn{
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.04);
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 預設：任務整組隱藏 */
+#scrCase .caseTaskWrap{
+  display:none;
+}
+
+/* 展開狀態 */
+#scrCase.taskOpen .caseTaskWrap{
+  display:block;
+}
+
+/* bottomBar 也跟著 taskOpen */
+#scrCase .bottomBar{
+  display:none;
+}
+#scrCase.taskOpen .bottomBar{
+  display:flex;
+}
+
+/* ✅ 任務標題卡取消點擊行為（不需要動作） */
+#scrCase .caseTitleCard{
+  cursor: default;
+}
+#scrCase .caseTitleCard .chev{
+  display:none; /* 既然不展開，就把箭頭藏掉（可留著也行） */
+}
+
+/* ✅ 說明區直接顯示，不用 open 動畫 */
+#scrCase .caseDescWrap{
+  max-height: none;
+  opacity: 1;
+  transform: none;
+  overflow: visible;
+}
+
+
+
+</style>
+</head>
+
+<body>
+<div class="app">
+<header>
+  <div class="brand">
+    <div class="t" id="titleLine">腦脈先鋒｜個案一</div>
+    <div class="s" id="subLine" style="display:none"></div>
+  </div>
+  <div class="hud">
+    <div class="chip">個案積分：<strong id="caseScore">0</strong></div>
+    <button class="btn secondary" id="btnHome">首頁</button>
+    <button class="btn danger" id="btnReset">重置</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="stage">
+    <div class="content">
+
+      <!-- Home -->
+      <section class="screen show" id="scrHome">
+        <div class="homeBtns" aria-label="首頁模式選擇">
+          <button type="button" id="btnMissionMode" aria-label="個案模式"></button>
+          <button type="button" id="btnListMode" aria-label="清單模式"></button>
+        </div>
+      </section>
+
+      <!-- List -->
+      <section class="screen" id="scrList">
+        <div class="topTalk">
+          <div class="avatar"><img src="assets/nurse_card.png" alt=""></div>
+          <div class="talk">
+            <div class="who">清單模式</div>
+            <div class="say"></div>
+          </div>
+        </div>
+        <div class="midPanel">
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <button class="btn primary listBtn" onclick="startListGame('race')">1. 黃金送醫（競速）</button>
+            <button class="btn primary listBtn" onclick="startListGame('shoot')">2. 血管再通治療 (消消樂)</button>
+            <button class="btn primary listBtn" onclick="startListGame('match-l1')">3. 衛教俄羅斯方塊 Lv1</button>
+            <button class="btn primary listBtn" onclick="startListGame('match-l2')">4. 衛教俄羅斯方塊 Lv2</button>
+          </div>
+        </div>
+        <div class="bottomBar">
+          <div class="icons" style="gap:8px;color:var(--muted);font-size:12px">—</div>
+          <div class="actions"><button class="btn secondary btnHomeBack" onclick="goHome()">回首頁</button></div>
+        </div>
+      </section>
+
+      <!-- Doctor Case -->
+      <section class="screen" id="scrCase">
+        <div class="topTalk">
+          <div class="avatar"><img src="assets/doctor_card.png" alt=""></div>
+          <div class="talk">
+            <div class="who" id="caseTitleLine">醫師｜個案 說明</div>
+            <div class="say" id="doctorLine">（載入中…）</div>
+          </div>
+        </div>
+
+<button id="btnToggleCaseTask" class="caseToggleBtn" type="button" aria-expanded="false">
+  查看任務 ▾
+</button>
+
+<div class="caseTaskWrap">
+  <div class="midPanel">
+    <button id="caseTitleCard" class="caseTitleCard" type="button" aria-hidden="true">
+      <span id="caseHintTitle">任務</span>
+    </button>
+
+    <div id="caseDescWrap">
+      <ul class="bullet" id="caseBullets"></ul>
+    </div>
+  </div>
+</div>
+
+        <div class="bottomBar">
+          <div class="icons" id="roleIcons">
+            <div class="iconTile" id="tileEMT"><span class="badge">GO</span><img src="assets/emt_card.png" alt=""><div class="lbl">EMT</div></div>
+            <div class="iconTile locked" id="tileTEAM"><span class="badge">GO</span><img src="assets/team_card.png" alt=""><div class="lbl">取栓</div></div>
+            <div class="iconTile locked" id="tileNURSE"><span class="badge">GO</span><img src="assets/nurse_card.png" alt=""><div class="lbl">護理</div></div>
+          </div>
+          <div class="actions"><button class="btn secondary" onclick="goHome()">回首頁</button></div>
+        </div>
+      </section>
+
+      <!-- Brief -->
+      <section class="screen" id="scrBrief">
+        <div class="topTalk">
+          <div class="avatar"><img id="briefAvatar" src="assets/emt_card.png" alt=""></div>
+          <div class="talk">
+            <div class="who" id="briefWho">—</div>
+            <div class="say" id="briefLine">—</div>
+          </div>
+        </div>
+
+        <button id="btnToggleBrief" class="briefToggleBtn" aria-expanded="false" type="button">
+          查看任務目標 ▾
+        </button>
+
+        <!-- ✅ 關鍵修正：加上 id="briefDetail" 才能被 JS/CSS 控制 -->
+        <div class="midPanel" id="briefDetail">
+          <h2 id="briefTitle">任務目標</h2>
+          <ul class="bullet" id="briefBullets"></ul>
+        </div>
+
+        <div class="bottomBar">
+          <div class="actions">
+            <button class="btn secondary" id="btnBriefBack" type="button">返回醫師處</button>
+            <button class="btn primary" id="btnStartTask" type="button">開始任務</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Role Complete -->
+      <section class="screen" id="scrRoleComplete">
+        <div class="topTalk">
+          <div class="avatar"><img id="rcAvatar" src="assets/emt_card.png" alt=""></div>
+          <div class="talk">
+            <div class="who" id="rcWho">✅ 任務完成</div>
+            <div class="say" id="rcLine">—</div>
+          </div>
+        </div>
+
+        <div class="midPanel">
+          <h2>本段結算</h2>
+          <ul class="bullet" id="rcBullets"></ul>
+        </div>
+
+        <div class="bottomBar">
+          <div class="icons" style="color:var(--muted);font-size:12px">可重來一次，或完成本段回到醫師。</div>
+          <div class="actions">
+            <button class="btn secondary" id="btnRetryRole" type="button">重來一次</button>
+            <button class="btn primary" id="btnFinishRole" type="button">完成任務</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Case Complete -->
+      <section class="screen" id="scrCaseComplete">
+        <div class="topTalk">
+          <div class="avatar"><img src="assets/doctor_card.png" alt=""></div>
+          <div class="talk">
+            <div class="who">✅ 個案一完成</div>
+            <div class="say">你已完成 EMT → 取栓 → 護理流程。本頁會結算「個案成績排名」。</div>
+          </div>
+        </div>
+
+        <div class="midPanel">
+          <h2>個案成績</h2>
+          <ul class="bullet" id="caseResultBullets"></ul>
+
+          <h2 style="margin-top:14px">排行榜（本機）</h2>
+          <table class="rankTable" id="rankTable">
+            <thead><tr><th>#</th><th>玩家</th><th>分數</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div style="margin-top:8px;color:var(--muted);font-size:12px;line-height:1.65">
+            提示：排行榜目前存於本機（localStorage）。之後若要多人共享，可改成上傳到伺服器/Google Sheet。
+          </div>
+        </div>
+
+        <div class="bottomBar">
+          <div class="icons" style="color:var(--muted);font-size:12px">—</div>
+          <div class="actions">
+            <button class="btn secondary" id="btnReplayCase" type="button">重新個案一</button>
+            <button class="btn primary" id="btnOtherCases" disabled style="opacity:.45;cursor:not-allowed" type="button">進入其它個案（預設不可選）</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="toast" id="toast">—</div>
+      <div class="vignette"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Game Overlay -->
+<div class="gameOverlay" id="gameOverlay">
+  <div class="gameTop">
+    <div class="meta">
+      <div class="h" id="gameTitle">任務</div>
+      <div class="s" id="gameSub">—</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+      <div class="chip">本關：<strong id="stageTime">—</strong></div>
+      <button class="btn" id="btnExitGame" type="button">返回指示</button>
+    </div>
+  </div>
+  <iframe id="gameFrame" title="遊戲"></iframe>
+</div>
+
+<script>
+
+let currentCase = 1;
+const KEY_RANK='BVP_CASE1_RANK_V1';
+
+const GAME_FILES = {
+  'race': 'game_race_lev1.html',
+  'match-l1': 'game_match_lev1.html',
+  'match-l2': 'game_match_lev2.html',
+  'shoot': 'game_shoot_lev1.html',
+};
+
+const caseState = {
+  caseScore: 0,
+  currentRole: 'EMT', // EMT -> TEAM -> NURSE -> DONE
+  unlocked: { EMT:true, TEAM:false, NURSE:false },
+  completed: { EMT:false, TEAM:false, NURSE:false },
+  activeRole: null,
+  lastPerf: null,
+  isListMode: false
+};
+
+const ui = {
+  subLine: qs('#subLine'),
+  caseScore: qs('#caseScore'),
+  toast: qs('#toast'),
+
+  scrHome: qs('#scrHome'),
+  scrList: qs('#scrList'),
+  scrCase: qs('#scrCase'),
+  scrBrief: qs('#scrBrief'),
+  scrRoleComplete: qs('#scrRoleComplete'),
+  scrCaseComplete: qs('#scrCaseComplete'),
+
+  btnMissionMode: qs('#btnMissionMode'),
+  btnListMode: qs('#btnListMode'),
+  btnHome: qs('#btnHome'),
+  btnReset: qs('#btnReset'),
+
+  doctorLine: qs('#doctorLine'),
+  caseHintTitle: qs('#caseHintTitle'),
+  caseBullets: qs('#caseBullets'),
+  tileEMT: qs('#tileEMT'),
+  tileTEAM: qs('#tileTEAM'),
+  tileNURSE: qs('#tileNURSE'),
+
+  briefAvatar: qs('#briefAvatar'),
+  briefWho: qs('#briefWho'),
+  briefLine: qs('#briefLine'),
+  briefTitle: qs('#briefTitle'),
+  briefBullets: qs('#briefBullets'),
+  btnBriefBack: qs('#btnBriefBack'),
+  btnStartTask: qs('#btnStartTask'),
+
+  rcAvatar: qs('#rcAvatar'),
+  rcWho: qs('#rcWho'),
+  rcLine: qs('#rcLine'),
+  rcBullets: qs('#rcBullets'),
+  btnRetryRole: qs('#btnRetryRole'),
+  btnFinishRole: qs('#btnFinishRole'),
+
+  caseResultBullets: qs('#caseResultBullets'),
+  rankTable: qs('#rankTable tbody'),
+  btnReplayCase: qs('#btnReplayCase'),
+  btnOtherCases: qs('#btnOtherCases'),
+
+  gameOverlay: qs('#gameOverlay'),
+  gameFrame: qs('#gameFrame'),
+  gameTitle: qs('#gameTitle'),
+  gameSub: qs('#gameSub'),
+  stageTime: qs('#stageTime'),
+  btnExitGame: qs('#btnExitGame'),
+
+  // NEW: brief toggle
+  btnToggleBrief: qs('#btnToggleBrief'),
+  briefDetail: qs('#briefDetail'),
+
+  // NEW: case accordion
+  caseTitleCard: qs('#caseTitleCard'),
+  caseDescWrap: qs('#caseDescWrap'),
+};
+
+window.goHome = goHome;
+window.startListGame = startListGame;
+
+bind();
+renderHud();
+goHome();
+
+/* ===== Bind events ===== */
+function bind(){
+  ui.btnMissionMode.onclick = ()=>startMission();
+  ui.btnListMode.onclick = ()=>{caseState.isListMode=true; ui.subLine.textContent='清單模式'; show('list');};
+  ui.btnHome.onclick = goHome;
+  ui.btnReset.onclick = resetAll;
+
+  ui.tileEMT.onclick = ()=>openRole('EMT');
+  ui.tileTEAM.onclick = ()=>openRole('TEAM');
+  ui.tileNURSE.onclick = ()=>openRole('NURSE');
+
+  ui.btnBriefBack.onclick = ()=>show('case');
+  ui.btnStartTask.onclick = ()=>startRoleGame(caseState.activeRole);
+
+  ui.btnRetryRole.onclick = ()=>showBrief(caseState.activeRole);
+  ui.btnFinishRole.onclick = finishRole;
+
+  ui.btnReplayCase.onclick = ()=>{resetCaseOnly(); startMission();};
+
+  ui.btnExitGame.onclick = ()=>{
+    closeGame();
+function focusGameFrame(){
+  // 先讓 iframe 本身可被 focus
+  ui.gameFrame.setAttribute('tabindex','0');
+
+  // 先 focus iframe element
+  ui.gameFrame.focus({ preventScroll:true });
+
+  // 同網域(你的遊戲是本機 html) 可以再 focus iframe 內部 window
+  try{ ui.gameFrame.contentWindow.focus(); }catch(e){}
+}
+    if(caseState.isListMode){ show('list'); toast('已返回清單'); }
+    else { show('brief'); toast('已返回任務指示'); }
+  };
+
+  // Brief: toggle mission detail
+  if(ui.btnToggleBrief && ui.briefDetail){
+    ui.btnToggleBrief.onclick = ()=>{
+      const open = ui.briefDetail.classList.toggle('open');
+      ui.btnToggleBrief.setAttribute('aria-expanded', open ? 'true' : 'false');
+      ui.btnToggleBrief.textContent = open ? '隱藏任務目標 ▴' : '查看任務目標 ▾';
+    };
+  }
+
+
+}
+// Case：查看任務（顯示 midPanel + bottomBar）
+const btnToggleCaseTask = document.getElementById('btnToggleCaseTask');
+if(btnToggleCaseTask){
+  btnToggleCaseTask.onclick = ()=>{
+    const scr = ui.scrCase;
+    const open = scr.classList.toggle('taskOpen');
+
+    btnToggleCaseTask.setAttribute('aria-expanded', open ? 'true' : 'false');
+    btnToggleCaseTask.textContent = open ? '隱藏任務 ▴' : '查看任務 ▾';
+  };
+
+ui.gameOverlay.addEventListener('pointerdown', ()=>{
+  // 點一下 overlay 就把焦點拉回 iframe，避免被外層按鈕搶走
+  focusGameFrame();
+});
+}
+/* ===== Reset ===== */
+function resetAll(){
+  if(!confirm('重置個案一進度與排行榜（本機）？')) return;
+  resetCaseOnly();
+  localStorage.removeItem(KEY_RANK);
+  renderHud(); goHome(); toast('已重置（含排行榜）');
+}
+function resetCaseOnly(){
+  caseState.caseScore=0;
+  caseState.currentRole='EMT';
+  caseState.unlocked={EMT:true,TEAM:false,NURSE:false};
+  caseState.completed={EMT:false,TEAM:false,NURSE:false};
+  caseState.activeRole=null;
+  caseState.lastPerf=null;
+  caseState.isListMode=false;
+}
+
+/* ===== Navigation ===== */
+function goHome(){
+  ui.subLine.textContent='首頁：選擇模式';
+  show('home');
+}
+
+function show(which){
+  [ui.scrHome,ui.scrList,ui.scrCase,ui.scrBrief,ui.scrRoleComplete,ui.scrCaseComplete]
+    .forEach(x=>x.classList.remove('show'));
+
+  ({home:ui.scrHome,list:ui.scrList,case:ui.scrCase,brief:ui.scrBrief,
+    roleComplete:ui.scrRoleComplete,caseComplete:ui.scrCaseComplete}[which])
+    .classList.add('show');
+
+  // ✅ 每次進 brief 預設收合 + bottomBar 隱藏（由 CSS 控制）
+  if(which==='brief'){
+    if(ui.briefDetail && ui.btnToggleBrief){
+      ui.briefDetail.classList.remove('open');
+      ui.btnToggleBrief.setAttribute('aria-expanded','false');
+      ui.btnToggleBrief.textContent='查看任務目標 ▾';
+    }
+  }
+
+  // ✅ 每次進 case 預設不顯示任務三件套
+  if(which==='case'){
+    ui.scrCase.classList.remove('taskOpen');
+    const btn = document.getElementById('btnToggleCaseTask');
+    if(btn){
+      btn.setAttribute('aria-expanded','false');
+      btn.textContent = '查看任務 ▾';
+    }
+  }
+} // ✅ ✅ ✅ 這個大括號你原本少了，會讓整個 JS 爆炸
+
+// （可留可刪）你原本的 accordion 不用就乾脆保留空函式或刪掉
+function collapseCaseDesc(){
+  if(!ui.caseTitleCard || !ui.caseDescWrap) return;
+  ui.caseDescWrap.classList.remove('open');
+  ui.caseTitleCard.setAttribute('aria-expanded','false');
+}
+
+/* ===== Mission flow ===== */
+function startMission(){
+  updateCaseTitle();
+  caseState.isListMode=false;
+  ui.subLine.textContent='個案模式：個案一';
+  ui.doctorLine.textContent='一位45歲男性病人，下午2:30在公司上班時，被同事發現右側手腳無力、語言表達困難，眼位向左偏移。高度懷疑急性缺血性中風。';
+  renderCaseDoctor();
+  show('case');
+  toast('個案一開始：點 EMT');
+}
+
+function renderHud(){
+  ui.caseScore.textContent = String(caseState.caseScore);
+}
+
+function renderCaseDoctor(){
+  ui.caseBullets.innerHTML='';
+
+  setTile(ui.tileEMT,  canClickRole('EMT'));
+  setTile(ui.tileTEAM, canClickRole('TEAM'));
+  setTile(ui.tileNURSE,canClickRole('NURSE'));
+
+  if(caseState.currentRole==='EMT'){
+    ui.caseHintTitle.textContent='【 任務1 】協助院前送醫';
+    addBullet('請向 EMT 人員報到，接受任務指示');
+  } else if(caseState.currentRole==='TEAM'){
+    ui.doctorLine.textContent='病人已順利到院。影像顯示疑似大血管阻塞，接下來需要取栓團隊立即介入。';
+    ui.caseHintTitle.textContent='協助取栓治療';
+    addBullet('👉 請向下方取栓人員報到，接受任務指示。');
+  } else if(caseState.currentRole==='NURSE'){
+    ui.doctorLine.textContent='已完成再通治療。接下來，預防勝於治療：需要護理衛教與照護建議。';
+    ui.caseHintTitle.textContent='協助護理衛教';
+    addBullet('👉 請向下方護理人員報到，接受任務指示。');
+    addBullet('本段使用 Match Game Lv1，需達到 1500 分以上才算完成。');
+  }
+
+  function addBullet(t){
+    const li=document.createElement('li');
+    li.textContent=t;
+    ui.caseBullets.appendChild(li);
+  }
+}
+
+function setTile(tile, clickable){
+  tile.classList.toggle('locked', !clickable);
+  tile.classList.toggle('ready', clickable);
+  tile.classList.toggle('active', clickable);
+}
+function canClickRole(role){
+  return caseState.currentRole===role;
+}
+
+function openRole(role){
+  if(!canClickRole(role)) return toast('目前不是這個職類的任務');
+  caseState.activeRole = role;
+  showBrief(role);
+}
+
+function showBrief(role){
+  const cfg = roleCfg(role);
+  ui.briefAvatar.src = cfg.avatar;
+  ui.briefWho.textContent = cfg.who;
+  ui.briefLine.textContent = cfg.line;
+  ui.briefTitle.textContent = cfg.title;
+  ui.briefBullets.innerHTML='';
+  cfg.bullets.forEach(b=>{
+    const li=document.createElement('li');
+    li.textContent=b;
+    ui.briefBullets.appendChild(li);
+  });
+  show('brief');
+}
+
+function startRoleGame(role){
+  const cfg = roleCfg(role);
+  ui.btnExitGame.textContent = caseState.isListMode ? '返回清單' : '返回指示';
+  if(!GAME_FILES[cfg.gameId]){ toast('找不到遊戲檔'); return; }
+  caseState.lastPerf=null;
+  ui.gameTitle.textContent = cfg.who;
+  ui.gameSub.textContent = cfg.gameDesc;
+  ui.stageTime.textContent = '—';
+ui.gameFrame.onload = () => {
+  focusGameFrame();
+};
+ui.gameFrame.src = GAME_FILES[cfg.gameId];
+
+ui.gameOverlay.style.display='flex';
+
+// 保險：顯示後也 focus 一次（有時 onload 比較慢）
+setTimeout(focusGameFrame, 50);
+  toast('進入遊戲：通關後會回到任務指示結算');
+}
+
+function closeGame(){
+  ui.gameFrame.src='';
+  ui.gameOverlay.style.display='none';
+}
+
+/* ===== List mode games ===== */
+function startListGame(gameId){
+  caseState.isListMode=true;
+  ui.btnExitGame.textContent='返回清單';
+  ui.gameTitle.textContent='清單模式';
+  ui.gameSub.textContent='（清單模式保留遊戲內排行榜；個案模式不顯示）';
+  ui.stageTime.textContent='—';
+ui.gameFrame.onload = () => {
+  focusGameFrame();
+};
+ui.gameFrame.src = GAME_FILES[gameId];
+
+ui.gameOverlay.style.display='flex';
+setTimeout(focusGameFrame, 50);
+  toast('清單模式：通關後可自行返回');
+}
+
+/* ===== Receive completion from games ===== */
+window.addEventListener('message',(e)=>{
+  const d=e.data;
+  if(!d || typeof d!=='object') return;
+  if(d.type!=='GAME_CLEAR' && d.type!=='GAME_RESULT') return;
+
+  if(caseState.isListMode){
+    toast('清單模式：偵測到通關（不計入個案）');
+    return;
+  }
+
+  const role = caseState.activeRole;
+  if(!role){ toast('未指定任務'); return; }
+
+  const cfg = roleCfg(role);
+  const time = (typeof d.time==='number') ? Math.round(d.time) : null;
+  ui.stageTime.textContent = time!=null ? `${time}s` : '完成';
+
+  const rawScore = (typeof d.score==='number') ? d.score : null;
+
+  // Gate: NURSE needs >= 1500
+  if(role==='NURSE'){
+    if(rawScore===null){
+      closeGame(); show('brief'); toast('未取得分數，請再試一次'); return;
+    }
+    if(rawScore < 1500){
+      closeGame(); show('brief'); toast('未達過關：護理任務需分數 ≥ 1500，請再試一次'); return;
+    }
+  }
+
+  const perf = { timeSec: time, score: rawScore, raw:d };
+  const reward = cfg.reward(perf);
+
+  caseState.lastPerf = { role, perf, reward };
+  closeGame();
+  showRoleComplete(cfg, perf, reward);
+});
+
+function showRoleComplete(cfg, perf, reward){
+  ui.rcAvatar.src = cfg.avatar;
+  ui.rcWho.textContent = `✅ ${cfg.who}｜任務完成`;
+  ui.rcLine.textContent = cfg.completeLine(perf);
+  ui.rcBullets.innerHTML='';
+  cfg.completeBullets(perf, reward).forEach(s=>{
+    const li=document.createElement('li');
+    li.textContent=s;
+    ui.rcBullets.appendChild(li);
+  });
+  show('roleComplete');
+  toast('已回到任務結算');
+}
+
+function finishRole(){
+  const last = caseState.lastPerf;
+  if(!last){ toast('尚未完成此任務'); return; }
+
+  caseState.caseScore += last.reward.score;
+  renderHud();
+
+  if(last.role==='EMT'){
+    caseState.completed.EMT=true;
+    caseState.currentRole='TEAM';
+    caseState.unlocked.TEAM=true;
+  } else if(last.role==='TEAM'){
+    caseState.completed.TEAM=true;
+    caseState.currentRole='NURSE';
+    caseState.unlocked.NURSE=true;
+  } else if(last.role==='NURSE'){
+    caseState.completed.NURSE=true;
+    caseState.currentRole='DONE';
+    finalizeCase();
+    return;
+  }
+
+  caseState.activeRole=null;
+  caseState.lastPerf=null;
+  renderCaseDoctor();
+  show('case');
+  toast('已完成本段：回醫師畫面');
+}
+
+function finalizeCase(){
+  const entry = { name:'腦脈先鋒', score: caseState.caseScore, ts: Date.now() };
+  const rank = loadRank();
+  rank.push(entry);
+  rank.sort((a,b)=>b.score-a.score || a.ts-b.ts);
+  const top = rank.slice(0,10);
+  saveRank(top);
+
+  ui.caseResultBullets.innerHTML='';
+  addRes(`總分：${caseState.caseScore}`);
+  addRes('完成流程：EMT → 取栓 → 護理');
+  addRes('獎勵：知識卡 / 道具（未來加入；此版先只做分數與排名）');
+
+  ui.rankTable.innerHTML='';
+  top.forEach((r,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td>${i+1}</td><td>${esc(r.name)}</td><td>${r.score}</td>`;
+    ui.rankTable.appendChild(tr);
+  });
+
+  show('caseComplete');
+  toast('個案一完成：已更新排行榜');
+
+  function addRes(t){
+    const li=document.createElement('li');
+    li.textContent=t;
+    ui.caseResultBullets.appendChild(li);
+  }
+}
+
+function roleCfg(role){
+  if(role==='EMT'){
+    return {
+      avatar:'assets/emt_card.png',
+      who:'EMT｜院前送醫',
+      line:'病患需要在最短時間內送到可以取栓的醫院。你要安全、快速地把病人送到院。',
+      title:'任務目標與操作',
+      bullets:[
+        '🎯 目標：最短時間將病人安全送到醫院（Time is brain）',
+        '⚠️ 碰撞/失誤：會延長到院時間，拖延治療',
+        '🎮 操作：左右控制、空白鍵可擊退障礙物'
+      ],
+      gameId:'race',
+      gameDesc:'黃金送醫（競速）',
+      reward:(p)=>{
+        const t = (p.timeSec==null)? 999 : p.timeSec;
+        const score = Math.max(40, Math.round(200 - t));
+        return { score };
+      },
+      completeLine:(p)=> p.timeSec!=null ? `到院完成！耗時 ${p.timeSec}s。` : '到院完成！',
+      completeBullets:(p,r)=>[
+        `⏱ 到院時間：${p.timeSec!=null ? p.timeSec+'s' : '—'}`,
+        `⭐ 本段得分：+${r.score}`
+      ]
+    };
+  }
+  if(role==='TEAM'){
+    return {
+      avatar:'assets/team_card.png',
+      who:'取栓團隊｜取栓治療',
+      line:'影像顯示疑似大血管阻塞。你需要完成取栓處置，讓血流恢復（此段先用操作型小遊戲示意）。',
+      title:'任務目標與操作',
+      bullets:[
+        '🎯 目標：完成取栓處置（消消樂）',
+        '🧠 概念：鎖定關鍵血栓、快速再通',
+        '🎮 操作：點擊/消除，依遊戲提示完成'
+      ],
+      gameId:'shoot',
+      gameDesc:'血管再通治療（示意取栓操作）',
+      reward:(p)=>({ score: 160 }),
+      completeLine:(p)=>'取栓任務完成！',
+      completeBullets:(p,r)=>[
+        '✅ 完成取栓操作示意任務',
+        `⭐ 本段得分：+${r.score}`
+      ]
+    };
+  }
+  return {
+    avatar:'assets/nurse_card.png',
+    who:'護理師｜預防與衛教',
+    line:'預防勝於治療。完成衛教任務，強化預防觀念與照護行為（此段使用 match game）。',
+    title:'任務目標與操作',
+    bullets:[
+      '🎯 目標：Match Game Lv1 分數達 1500 以上',
+      '🧾 重點：危險因子、用藥依從、復健與生活型態',
+      '🎮 操作：依遊戲規則配對/消除，累積分數'
+    ],
+    gameId:'match-l1',
+    gameDesc:'衛教消消樂 Lv1（護理任務）',
+    reward:(p)=>({ score: 140 }),
+    completeLine:(p)=>`護理任務完成！（分數：${p.score ?? '—'}）`,
+    completeBullets:(p,r)=>[
+      `✅ 達成門檻：${p.score} ≥ 1500`,
+      `⭐ 本段得分：+${r.score}`
+    ]
+  };
+}
+
+/* ===== Rank ===== */
+function loadRank(){
+  try{
+    const raw = localStorage.getItem(KEY_RANK);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr : [];
+  }catch(_){ return []; }
+}
+function saveRank(arr){
+  localStorage.setItem(KEY_RANK, JSON.stringify(arr));
+}
+
+/* ===== Utils ===== */
+function toast(msg){
+  ui.toast.textContent=msg;
+  ui.toast.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t=setTimeout(()=>ui.toast.classList.remove('show'),1700);
+}
+function qs(s){return document.querySelector(s);}
+function esc(s){
+  return String(s??'')
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'","&#39;");
+}
+function updateCaseTitle(){
+  const el = document.getElementById('caseTitleLine');
+  if(!el) return;
+
+  const chineseNum = ['一','二','三','四','五','六','七','八','九','十'];
+
+  el.textContent = `醫師｜個案${chineseNum[currentCase-1]} 病情說明`;
+}
+</script>
+</body>
+</html>
