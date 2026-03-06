@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
-<title>腦脈先鋒｜黃金送醫（三車道・智慧生成）</title>
+<title>腦脈先鋒｜黃金送醫（三車道・跳躍版）</title>
 
 <style>
   :root{
@@ -14,6 +14,7 @@
     --accent:#00ffcc;
     --warn:#ffd166;
     --danger:#ff4d4d;
+    --jump:#7aa8ff;
     --shadow:0 12px 40px rgba(0,0,0,.55);
 
     --car-w:48px;
@@ -22,24 +23,34 @@
     --ammo-size:44px;
     --ob-size:54px;
   }
+
   html,body{
     height:100%; margin:0;
     background:radial-gradient(1200px 700px at 50% 0%, #111827 0%, var(--bg) 55%, #000 100%);
     color:var(--text);
     font-family:"PingFang TC","Noto Sans TC",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
   }
-  body{display:flex; justify-content:center; align-items:flex-start; padding:14px 0;}
+
+  body{
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    padding:14px 0;
+  }
+
   #wrap{
     position:relative;
     width:min(380px, 96vw);
-    user-select:none; -webkit-user-select:none;
+    user-select:none;
+    -webkit-user-select:none;
     touch-action:none;
   }
+
   #game{
     position:relative;
     width:100%;
-    aspect-ratio: 320 / 560;
-    max-height: 78vh;
+    aspect-ratio:320 / 560;
+    max-height:78vh;
     border:1px solid rgba(255,255,255,.12);
     border-radius:18px;
     box-shadow:var(--shadow);
@@ -47,9 +58,10 @@
     background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,0));
   }
 
-  /* 上方：距離 + 能量 + 時間（整數秒，文字） */
   #topHud{
-    position:absolute; left:50%; top:10px;
+    position:absolute;
+    left:50%;
+    top:10px;
     transform:translateX(-50%);
     z-index:12;
     padding:8px 12px;
@@ -61,27 +73,29 @@
     letter-spacing:.3px;
     font-size:13px;
     white-space:nowrap;
-    display:flex; align-items:center; gap:10px;
+    display:flex;
+    align-items:center;
+    gap:10px;
   }
   #topHud .num{
     color:var(--accent);
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric:tabular-nums;
   }
   #topHud.boosting .num{filter:drop-shadow(0 0 10px rgba(0,255,204,.45));}
-  #ammoHud{opacity:.92; font-weight:900;}
-  #ammoHud b{color:var(--warn); font-variant-numeric: tabular-nums;}
-  #timeHud{opacity:.92; font-weight:900;}
-  #timeHud b{color:#fff; font-variant-numeric: tabular-nums;}
+  #ammoHud b{color:var(--warn); font-variant-numeric:tabular-nums;}
+  #timeHud b{color:#fff; font-variant-numeric:tabular-nums;}
 
   .road{
-    position:absolute; inset:0;
+    position:absolute;
+    inset:0;
     background:
       radial-gradient(800px 420px at 50% 20%, rgba(0,255,204,.08), transparent 60%),
       linear-gradient(180deg, var(--road1) 0%, var(--road2) 100%);
   }
   .road::before{
     content:"";
-    position:absolute; inset:-10%;
+    position:absolute;
+    inset:-10%;
     background:linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(255,255,255,.05) 30%, rgba(255,255,255,.03) 55%, rgba(0,0,0,0) 100%);
     transform:skewX(-12deg);
     animation:sweep 3.2s linear infinite;
@@ -92,24 +106,36 @@
     100%{transform:translateX(40%) skewX(-12deg);}
   }
 
-  /* 三車道線 */
   #lanes{position:absolute; inset:0; pointer-events:none; opacity:.85;}
-  .edge{position:absolute; top:0; bottom:0; width:3px; background:linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,255,255,.08));}
+  .edge{
+    position:absolute;
+    top:0;
+    bottom:0;
+    width:3px;
+    background:linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,255,255,.08));
+  }
   .edge.left{left:12%;}
   .edge.right{right:12%;}
   .divider{
-    position:absolute; top:0; bottom:0; width:3px;
+    position:absolute;
+    top:0;
+    bottom:0;
+    width:3px;
     background:repeating-linear-gradient(180deg, rgba(255,255,255,.16) 0 22px, rgba(255,255,255,0) 22px 56px);
     opacity:.25;
   }
   .divider.one{left:36.5%;}
   .divider.two{left:63.5%;}
 
-  /* 終點：醫院 */
   #finish{
-    position:absolute; left:0; right:0;
-    top:-38%; height:38%;
-    display:flex; align-items:flex-end; justify-content:center;
+    position:absolute;
+    left:0;
+    right:0;
+    top:-38%;
+    height:38%;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
     padding-bottom:14px;
     background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(230,236,255,.92));
     color:#0b1220;
@@ -117,11 +143,14 @@
     z-index:6;
   }
   #finish .hospital{
-    width:86%; height:72%;
+    width:86%;
+    height:72%;
     border-radius:16px;
     background:radial-gradient(120px 90px at 50% 35%, rgba(0,255,204,.25), transparent 55%), #ffffff;
     box-shadow:0 10px 30px rgba(0,0,0,.18);
-    display:flex; align-items:center; justify-content:center;
+    display:flex;
+    align-items:center;
+    justify-content:center;
     position:relative;
     overflow:hidden;
   }
@@ -138,10 +167,16 @@
     box-shadow:inset 0 0 0 2px rgba(255,255,255,.35);
   }
   #finish .sign{
-    background:#0b1220; color:#fff;
-    padding:10px 14px; border-radius:14px;
-    font-size:16px; font-weight:900; letter-spacing:.4px;
-    display:flex; align-items:center; gap:10px;
+    background:#0b1220;
+    color:#fff;
+    padding:10px 14px;
+    border-radius:14px;
+    font-size:16px;
+    font-weight:900;
+    letter-spacing:.4px;
+    display:flex;
+    align-items:center;
+    gap:10px;
     box-shadow:0 8px 18px rgba(0,0,0,.20);
     opacity:0;
     transform:translateY(8px);
@@ -149,19 +184,26 @@
   }
   #finish.success .sign{opacity:1; transform:translateY(0);}
   #finish .cross{
-    width:24px; height:24px; border-radius:7px;
+    width:24px;
+    height:24px;
+    border-radius:7px;
     background:var(--accent);
-    display:grid; place-items:center;
-    color:#00130f; font-weight:900;
+    display:grid;
+    place-items:center;
+    color:#00130f;
+    font-weight:900;
   }
 
-  /* 右側：相對距離 */
   #rail{
     position:absolute;
-    right:10px; top:10px;
-    width:52px; height:78%;
+    right:10px;
+    top:10px;
+    width:52px;
+    height:78%;
     z-index:10;
-    display:flex; flex-direction:column; align-items:center;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
     gap:10px;
     pointer-events:none;
   }
@@ -173,20 +215,32 @@
     box-shadow:0 10px 22px rgba(0,0,0,.28);
     overflow:hidden;
   }
-  #hospitalMark{height:40px; display:grid; place-items:center; font-size:18px;}
+  #hospitalMark{
+    height:40px;
+    display:grid;
+    place-items:center;
+    font-size:18px;
+  }
   #trackBox{flex:1; position:relative;}
   #trackLine{
-    position:absolute; left:50%; top:10px; bottom:10px;
-    width:4px; transform:translateX(-50%);
+    position:absolute;
+    left:50%;
+    top:10px;
+    bottom:10px;
+    width:4px;
+    transform:translateX(-50%);
     background:linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
     border-radius:999px;
   }
   #miniAmb{
-    position:absolute; left:50%;
+    position:absolute;
+    left:50%;
     transform:translateX(-50%);
     bottom:10px;
-    width:30px; height:30px;
-    display:grid; place-items:center;
+    width:30px;
+    height:30px;
+    display:grid;
+    place-items:center;
     border-radius:10px;
     background:rgba(0,255,204,.16);
     border:1px solid rgba(0,255,204,.35);
@@ -194,7 +248,8 @@
     font-size:18px;
   }
   #distanceText{
-    position:absolute; left:50%;
+    position:absolute;
+    left:50%;
     transform:translateX(-50%);
     bottom:10px;
     margin-bottom:-32px;
@@ -207,59 +262,72 @@
     white-space:nowrap;
   }
 
-  /* 車（俯視） */
   .carTop{
     position:absolute;
-    width:var(--car-w); height:var(--car-h);
+    width:var(--car-w);
+    height:var(--car-h);
     border-radius:14px;
     border:1px solid rgba(255,255,255,.14);
     display:block;
   }
   .carTop .body{position:absolute; inset:0; border-radius:14px;}
   .carTop .glass{
-    position:absolute; left:9px; right:9px;
-    top:10px; height:16px;
+    position:absolute;
+    left:9px;
+    right:9px;
+    top:10px;
+    height:16px;
     border-radius:10px;
     background:linear-gradient(180deg, rgba(255,255,255,.35), rgba(255,255,255,.10));
     border:1px solid rgba(255,255,255,.12);
     opacity:.9;
   }
   .carTop .lights{
-    position:absolute; left:9px; right:9px;
-    bottom:9px; height:9px;
-    display:flex; justify-content:space-between; gap:7px;
+    position:absolute;
+    left:9px;
+    right:9px;
+    bottom:9px;
+    height:9px;
+    display:flex;
+    justify-content:space-between;
+    gap:7px;
     opacity:.9;
   }
   .carTop .lights span{
-    flex:1; border-radius:7px;
+    flex:1;
+    border-radius:7px;
     background:linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.18));
     filter:drop-shadow(0 0 10px rgba(255,255,255,.12));
   }
   .carTop .wheels{
-    position:absolute; left:4px; right:4px;
-    top:16px; bottom:16px;
+    position:absolute;
+    left:4px;
+    right:4px;
+    top:16px;
+    bottom:16px;
     pointer-events:none;
   }
   .carTop .wheels::before,
   .carTop .wheels::after{
     content:"";
-    position:absolute; top:0; bottom:0;
-    width:7px; border-radius:9px;
+    position:absolute;
+    top:0;
+    bottom:0;
+    width:7px;
+    border-radius:9px;
     background:rgba(0,0,0,.35);
   }
   .carTop .wheels::before{left:0;}
   .carTop .wheels::after{right:0;}
 
-  /* 玩家救護車（朝上） */
   #player{
     position:absolute;
     bottom:6%;
-    z-index:5;
+    z-index:7;
     transition:left 120ms ease;
     transform:rotate(180deg);
     transform-origin:center;
     box-shadow:0 16px 26px rgba(0,0,0,.35);
-    cursor:pointer;
   }
   #player .body{
     background:
@@ -267,8 +335,11 @@
       linear-gradient(180deg, #ff4d4d 0%, #e1162f 100%);
   }
   #player .sirens{
-    position:absolute; left:9px; right:9px;
-    top:32px; height:12px;
+    position:absolute;
+    left:9px;
+    right:9px;
+    top:32px;
+    height:12px;
     border-radius:9px;
     background:linear-gradient(90deg, rgba(0,255,204,.10), rgba(0,255,204,.92), rgba(0,255,204,.10));
     filter:drop-shadow(0 0 10px rgba(0,255,204,.45));
@@ -276,16 +347,25 @@
     opacity:.95;
   }
   #player.boosting{filter:drop-shadow(0 0 18px rgba(0,255,204,.35));}
+  #player.jumping{
+    filter:
+      drop-shadow(0 12px 20px rgba(122,168,255,.20))
+      drop-shadow(0 0 12px rgba(122,168,255,.18));
+  }
   #player.finishing{
     transition:transform 600ms ease, top 600ms ease, left 250ms ease;
     filter:drop-shadow(0 0 18px rgba(0,255,204,.22));
   }
-  @keyframes flash{ 0%{opacity:.25} 50%{opacity:1} 100%{opacity:.25} }
+  @keyframes flash{
+    0%{opacity:.25}
+    50%{opacity:1}
+    100%{opacity:.25}
+  }
 
-  /* 對向來車 */
   .npcCar{
     position:absolute;
-    width:var(--car-w); height:var(--car-h);
+    width:var(--car-w);
+    height:var(--car-h);
     border-radius:14px;
     border:1px solid rgba(255,255,255,.10);
     box-shadow:0 14px 24px rgba(0,0,0,.32);
@@ -297,17 +377,18 @@
     border-radius:14px;
   }
 
-  /* 加速道具 */
   .boost{
     position:absolute;
-    width:var(--pickup-size); height:var(--pickup-size);
+    width:var(--pickup-size);
+    height:var(--pickup-size);
     border-radius:14px;
     background:
       radial-gradient(22px 22px at 35% 35%, rgba(255,255,255,.25), rgba(255,255,255,0) 60%),
       linear-gradient(180deg, rgba(0,255,204,.22), rgba(0,255,204,.08));
     border:1px solid rgba(0,255,204,.35);
     box-shadow:0 14px 24px rgba(0,0,0,.28), 0 0 18px rgba(0,255,204,.10);
-    display:grid; place-items:center;
+    display:grid;
+    place-items:center;
   }
   .boost::before{
     content:"»»";
@@ -319,57 +400,60 @@
     transform:translateY(-1px);
   }
 
-  /* 能量補給 */
   .ammoPick{
     position:absolute;
-    width:var(--ammo-size); height:var(--ammo-size);
+    width:var(--ammo-size);
+    height:var(--ammo-size);
     border-radius:14px;
     background:
       radial-gradient(20px 20px at 35% 35%, rgba(255,255,255,.22), rgba(255,255,255,0) 60%),
       linear-gradient(180deg, rgba(255,209,102,.22), rgba(255,209,102,.08));
     border:1px solid rgba(255,209,102,.35);
     box-shadow:0 14px 24px rgba(0,0,0,.28), 0 0 18px rgba(255,209,102,.10);
-    display:grid; place-items:center;
+    display:grid;
+    place-items:center;
     font-size:18px;
   }
   .ammoPick::before{ content:"⚡"; }
 
-  /* 障礙物（中道） */
   .obstacle{
     position:absolute;
-    width:var(--ob-size); height:var(--ob-size);
+    width:var(--ob-size);
+    height:var(--ob-size);
     border-radius:18px;
     background:
       radial-gradient(18px 18px at 35% 35%, rgba(255,255,255,.08), rgba(255,255,255,0) 60%),
       linear-gradient(180deg, rgba(255,77,77,.18), rgba(255,77,77,.06));
     border:1px solid rgba(255,77,77,.25);
     box-shadow:0 16px 26px rgba(0,0,0,.38);
-    display:grid; place-items:center;
+    display:grid;
+    place-items:center;
     font-weight:1000;
     color:rgba(255,77,77,.92);
   }
   .obstacle::before{ content:"⛔"; font-size:22px; }
 
-  /* 震波 */
   .shock{
     position:absolute;
-    width:18px; height:18px;
+    width:18px;
+    height:18px;
     border-radius:999px;
     border:2px solid rgba(255,209,102,.95);
     box-shadow:0 0 18px rgba(255,209,102,.18);
     z-index:9;
     pointer-events:none;
   }
+
   .shatter{animation:shatter .28s ease-out forwards;}
   @keyframes shatter{
     0%{transform:scale(1); filter:brightness(1.1);}
     100%{transform:scale(1.45); opacity:0; filter:brightness(1.8) blur(1px);}
   }
 
-  /* 懲罰提示 */
   #penalty{
     position:absolute;
-    left:50%; top:54%;
+    left:50%;
+    top:54%;
     transform:translate(-50%,-50%);
     padding:10px 12px;
     border-radius:14px;
@@ -383,9 +467,14 @@
     letter-spacing:.3px;
   }
   #penalty strong{color:var(--warn);}
-  #penalty .sub{display:block; margin-top:4px; font-size:12px; opacity:.85; font-weight:700;}
+  #penalty .sub{
+    display:block;
+    margin-top:4px;
+    font-size:12px;
+    opacity:.85;
+    font-weight:700;
+  }
 
-  /* 觸控提示 */
   #touchHint{
     position:absolute;
     left:50%;
@@ -407,28 +496,82 @@
   }
   #touchHint.show{opacity:1;}
 
-  /* 底部控制 */
-  #controls{margin-top:10px; display:grid; grid-template-columns:1fr 1fr; gap:10px;}
-  .btnRow{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
-  button{
-    border:none; border-radius:16px;
+  #fabJump,
+  #fabShoot{
+    position:absolute;
+    z-index:16;
+    width:74px;
+    height:74px;
+    border:none;
+    border-radius:999px;
+    display:grid;
+    place-items:center;
+    font-size:28px;
+    font-weight:1000;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
+    box-shadow:0 12px 26px rgba(0,0,0,.34);
+  }
+  #fabJump{
+    left:14px;
+    bottom:18px;
+    color:#061225;
+    background:linear-gradient(180deg, rgba(122,168,255,.96), rgba(88,135,235,.92));
+    border:1px solid rgba(255,255,255,.28);
+    box-shadow:
+      0 12px 26px rgba(0,0,0,.34),
+      0 0 22px rgba(122,168,255,.18);
+  }
+  #fabShoot{
+    right:14px;
+    bottom:18px;
+    color:#1b1400;
+    background:linear-gradient(180deg, rgba(255,209,102,.96), rgba(255,190,60,.92));
+    border:1px solid rgba(255,255,255,.28);
+    box-shadow:
+      0 12px 26px rgba(0,0,0,.34),
+      0 0 24px rgba(255,209,102,.20);
+  }
+  #fabJump:active,
+  #fabShoot:active{transform:scale(.96);}
+  #fabJump.cooldown{opacity:.58;}
+  #fabShoot.empty{opacity:.55; filter:grayscale(.15);}
+
+  #controls{
+    margin-top:10px;
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:10px;
+  }
+  .btnRow{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  button.ctrl{
+    border:none;
+    border-radius:16px;
     padding:14px 12px;
     color:var(--text);
     background:linear-gradient(180deg, rgba(10,15,25,.85), rgba(10,15,25,.55));
     border:1px solid rgba(255,255,255,.12);
     box-shadow:0 10px 22px rgba(0,0,0,.28);
-    font-size:14px; font-weight:900; letter-spacing:.3px;
+    font-size:14px;
+    font-weight:900;
+    letter-spacing:.3px;
   }
-  button:active{transform:translateY(1px); box-shadow:0 6px 16px rgba(0,0,0,.30);}
-  .accent{border-color:rgba(0,255,204,.35); box-shadow:0 10px 22px rgba(0,255,204,.10), 0 10px 22px rgba(0,0,0,.28);}
+  button.ctrl:active{transform:translateY(1px); box-shadow:0 6px 16px rgba(0,0,0,.30);}
+  .accent{border-color:rgba(0,255,204,.35);}
   .danger{border-color:rgba(255,77,77,.35);}
-  .shoot{border-color:rgba(255,209,102,.35); box-shadow:0 10px 22px rgba(255,209,102,.10), 0 10px 22px rgba(0,0,0,.28);}
+  .shoot{border-color:rgba(255,209,102,.35);}
+  .jump{border-color:rgba(122,168,255,.35);}
 
-  /* 結果覆蓋層 */
   #overlay{
-    position:absolute; inset:0;
+    position:absolute;
+    inset:0;
     display:none;
-    align-items:center; justify-content:center;
+    align-items:center;
+    justify-content:center;
     background:rgba(0,0,0,.55);
     z-index:20;
   }
@@ -445,7 +588,6 @@
   #card p{margin:0 0 12px; opacity:.9; font-size:13px; line-height:1.4;}
   #card .small{opacity:.8; font-size:12px;}
 
-  /* 排行榜 */
   #rankBox{
     margin-top:10px;
     text-align:left;
@@ -461,28 +603,37 @@
     opacity:.95;
     background:rgba(0,0,0,.18);
     border-bottom:1px solid rgba(255,255,255,.10);
-    display:flex; justify-content:space-between;
+    display:flex;
+    justify-content:space-between;
   }
   #rankList{
-    list-style:none; margin:0; padding:0;
-    max-height:190px; overflow:auto;
+    list-style:none;
+    margin:0;
+    padding:0;
+    max-height:190px;
+    overflow:auto;
   }
   #rankList li{
-    display:flex; justify-content:space-between; gap:10px;
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
     padding:7px 10px;
     font-size:12px;
     border-bottom:1px solid rgba(255,255,255,.06);
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric:tabular-nums;
   }
   #rankList li:last-child{border-bottom:none;}
   .rankMe{background:rgba(0,255,204,.08);}
 
-  body.caseMode .leaderboard, body.caseMode #leaderboard{display:none !important;}
+  body.caseMode .leaderboard,
+  body.caseMode #leaderboard{display:none !important;}
 
   @media (max-width: 768px){
-    #controls{
-      display:none;
-    }
+    #controls{display:none;}
+  }
+  @media (min-width: 769px){
+    #fabJump,
+    #fabShoot{display:none;}
   }
 </style>
 </head>
@@ -522,7 +673,7 @@
     </div>
 
     <div id="penalty">⛔ 延誤 <strong>3</strong> 秒<span class="sub">（原地暫停，距離倒數不動）</span></div>
-    <div id="touchHint">左半邊：左移｜右半邊：右移｜點車子：震波</div>
+    <div id="touchHint">左半邊：左移｜右半邊：右移｜左下跳起｜右下發射</div>
 
     <div id="player" class="carTop">
       <div class="body"></div>
@@ -531,6 +682,9 @@
       <div class="sirens"></div>
       <div class="lights"><span></span><span></span></div>
     </div>
+
+    <button id="fabJump" type="button" aria-label="跳起">⤴</button>
+    <button id="fabShoot" type="button" aria-label="發射震波">⚡</button>
 
     <div id="overlay">
       <div id="card">
@@ -542,26 +696,27 @@
           <ul id="rankList"></ul>
         </div>
 
-        <button class="accent" id="restartBtn" style="margin-top:12px;">再跑一次</button>
-        <div class="small" style="margin-top:10px">操作：桌機用 ⬅️➡️ / 空白鍵；手機用左半邊、右半邊換車道，點車子發射震波</div>
+        <button class="ctrl accent" id="restartBtn" style="margin-top:12px; width:100%;">再跑一次</button>
+        <div class="small" style="margin-top:10px">桌機：← / → 移動、Space 跳起、X 發射｜手機：左/右半邊移動、左下跳起、右下發射</div>
       </div>
     </div>
   </div>
 
   <div id="controls">
     <div class="btnRow">
-      <button class="accent" id="leftBtn">⬅️ 左</button>
-      <button class="accent" id="rightBtn">右 ➡️</button>
+      <button class="ctrl accent" id="leftBtn">⬅️ 左</button>
+      <button class="ctrl accent" id="rightBtn">右 ➡️</button>
     </div>
+    <button class="ctrl jump" id="jumpBtn">⤴ 跳起</button>
     <div class="btnRow">
-      <button class="shoot" id="shootBtn">⚡ 震波</button>
-      <button class="danger" id="restartSmallBtn">重來</button>
+      <button class="ctrl shoot" id="shootBtn">⚡ 震波</button>
+      <button class="ctrl danger" id="restartSmallBtn">重來</button>
     </div>
   </div>
 </div>
 
 <script>
-const isCaseMode = new URLSearchParams(location.search).get('mode')==='case';
+const isCaseMode = new URLSearchParams(location.search).get('mode') === 'case';
 if(isCaseMode) document.body.classList.add('caseMode');
 
 /* ===================== 參數 ===================== */
@@ -596,6 +751,10 @@ const SHOCK_GROW_PX_PER_S = 520;
 const SHOCK_LIFETIME_MS = 260;
 const FIRE_COOLDOWN_MS = 240;
 
+const JUMP_DURATION_MS = 620;
+const JUMP_HEIGHT_PX = 112;
+const JUMP_COOLDOWN_MS = 180;
+
 const WAVE_MIN_MS = 520;
 const WAVE_MAX_MS = 980;
 const WAVE_TWO_CAR_PROB = 0.60;
@@ -605,10 +764,9 @@ const SAFE_HORIZON_SEC = 1.0;
 const COLLISION_PAD = 6;
 
 const PENALTY_MS = 3000;
-
 const FINISH_RUNIN_MS = 650;
 const END_DELAY_MS = 2000;
-/* ====================================================== */
+/* ================================================= */
 
 const game = document.getElementById("game");
 const player = document.getElementById("player");
@@ -629,12 +787,15 @@ const distLeftEl = document.getElementById("distLeft");
 
 const ammoCountEl = document.getElementById("ammoCount");
 const timeNowEl = document.getElementById("timeNow");
-
 const rankListEl = document.getElementById("rankList");
 
 const leftBtn = document.getElementById("leftBtn");
 const rightBtn = document.getElementById("rightBtn");
+const jumpBtn = document.getElementById("jumpBtn");
 const shootBtn = document.getElementById("shootBtn");
+
+const fabJump = document.getElementById("fabJump");
+const fabShoot = document.getElementById("fabShoot");
 
 let lane = 1;
 let distance = 0;
@@ -648,24 +809,23 @@ let boostUntil = 0;
 
 let ammo = 0;
 let lastFireAt = 0;
-let touchLaneLock = 0;
+let lastJumpAt = -99999;
+let jumpUntil = 0;
+let jumpLift = 0;
+
+let touchMoveLock = 0;
 let touchHintTimer = null;
 
-// timer（顯示整數秒）
 let runStartAt = 0;
 let elapsedMs = 0;
 
-// spawns
 let nextWaveAt = 0;
 let nextBoostAt = 0;
 let nextObAt = 0;
 let nextAmmoAt = 0;
 
-// ranks
-const RANK_KEY = "brain_ambulance_top10_v1";
+const RANK_KEY = "brain_ambulance_top10_v2";
 let lastRunTimeMs = null;
-
-// end delay handle
 let endScheduled = false;
 
 function clamp(n,a,b){ return Math.max(a, Math.min(b, n)); }
@@ -707,27 +867,22 @@ function getBoostSize(){ return parseFloat(getComputedStyle(document.documentEle
 function getAmmoSize(){ return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ammo-size')) || 44; }
 function getObstacleSize(){ return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ob-size')) || 54; }
 
+function requestFullscreenSafe(){
+  const el = document.documentElement;
+  if(document.fullscreenElement) return;
+  try{
+    if(el.requestFullscreen) el.requestFullscreen();
+    else if(el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    else if(el.msRequestFullscreen) el.msRequestFullscreen();
+  }catch(e){}
+}
+
 function showTouchHint(){
   const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
   if(!isTouch) return;
   touchHint.classList.add('show');
   clearTimeout(touchHintTimer);
   touchHintTimer = setTimeout(()=> touchHint.classList.remove('show'), 2200);
-}
-
-function requestFullscreenSafe(){
-  const el = document.documentElement;
-  if(document.fullscreenElement) return;
-
-  try{
-    if(el.requestFullscreen){
-      el.requestFullscreen();
-    }else if(el.webkitRequestFullscreen){
-      el.webkitRequestFullscreen();
-    }else if(el.msRequestFullscreen){
-      el.msRequestFullscreen();
-    }
-  }catch(e){}
 }
 
 function laneCenters(){
@@ -780,7 +935,6 @@ function nearestTopInLane(ln, typeFilter){
   return minTop;
 }
 
-/* ====== 生成 ====== */
 function makeNpcCar(laneIndex){
   const el = document.createElement("div");
   el.className = "carTop npcCar";
@@ -790,7 +944,7 @@ function makeNpcCar(laneIndex){
   const carW = getCarWidth();
   el.style.left = (centers[laneIndex] - carW/2) + "px";
   el.style.top = "-150px";
-  return { type:"npc", el, v:mult, lane: laneIndex };
+  return { type:"npc", el, v:mult, lane:laneIndex };
 }
 
 function makeBoost(laneIndex){
@@ -800,7 +954,7 @@ function makeBoost(laneIndex){
   const size = getBoostSize();
   el.style.left = (centers[laneIndex] - size/2) + "px";
   el.style.top = "-110px";
-  return { type:"boost", el, lane: laneIndex };
+  return { type:"boost", el, lane:laneIndex };
 }
 
 function makeObstacle(){
@@ -810,7 +964,7 @@ function makeObstacle(){
   const size = getObstacleSize();
   el.style.left = (centers[1] - size/2) + "px";
   el.style.top = "-120px";
-  return { type:"ob", el, lane: 1 };
+  return { type:"ob", el, lane:1 };
 }
 
 function makeAmmo(laneIndex){
@@ -820,20 +974,19 @@ function makeAmmo(laneIndex){
   const size = getAmmoSize();
   el.style.left = (centers[laneIndex] - size/2) + "px";
   el.style.top = "-110px";
-  return { type:"ammo", el, lane: laneIndex };
+  return { type:"ammo", el, lane:laneIndex };
 }
 
 function makeShock(now){
   const el = document.createElement("div");
   el.className = "shock";
   const cx = player.offsetLeft + player.offsetWidth/2;
-  const cy = player.offsetTop + player.offsetHeight/2;
+  const cy = player.offsetTop + player.offsetHeight/2 - jumpLift;
   el.style.left = (cx - 9) + "px";
   el.style.top = (cy - 9) + "px";
-  return { type:"shock", el, born: now, r: 9, cx, cy };
+  return { type:"shock", el, born:now, r:9, cx, cy };
 }
 
-/* 安全判定 */
 function laneUnsafeWithin(ln, horizonSec){
   const playerTop = player.offsetTop;
   for(const e of entities){
@@ -889,7 +1042,8 @@ function spawnNpcWaveSmart(now){
     for(let i=entities.length-1; i>=0; i--){
       const e = entities[i];
       if(e.type==="npc" && lanes.includes(e.lane) && e.el.offsetTop < 0){
-        e.el.remove(); entities.splice(i,1);
+        e.el.remove();
+        entities.splice(i,1);
       }
     }
     return false;
@@ -927,14 +1081,13 @@ function spawnAmmo(){
   entities.push(obj);
 }
 
-/* ====== 效果 ====== */
 function applyPenalty(now){
   pauseUntil = Math.max(pauseUntil, now + PENALTY_MS);
   penaltyBox.style.display = "block";
   penaltyBox.querySelector("strong").textContent = String(Math.ceil((pauseUntil - now)/1000));
   game.animate(
     [{ transform:"translateX(0)" }, { transform:"translateX(-6px)" }, { transform:"translateX(6px)" }, { transform:"translateX(0)" }],
-    { duration: 220, iterations: 1 }
+    { duration:220, iterations:1 }
   );
 }
 
@@ -947,6 +1100,13 @@ function applyBoost(now){
 function updateAmmoUI(){
   ammoCountEl.textContent = String(ammo);
   shootBtn.textContent = ammo > 0 ? `⚡ 震波 (${ammo})` : "⚡ 震波";
+  fabShoot.classList.toggle('empty', ammo <= 0);
+}
+
+function updateJumpUI(now = performance.now()){
+  const cooling = now < lastJumpAt + JUMP_COOLDOWN_MS || now < jumpUntil;
+  jumpBtn.textContent = cooling ? "⤴ 跳起…" : "⤴ 跳起";
+  fabJump.classList.toggle('cooldown', cooling);
 }
 
 function tryShock(now){
@@ -964,23 +1124,66 @@ function tryShock(now){
   entities.push(s);
 
   player.animate(
-    [{ transform:"rotate(180deg) scale(1)" }, { transform:"rotate(180deg) scale(1.02)" }, { transform:"rotate(180deg) scale(1)" }],
+    [
+      { transform:`rotate(180deg) translateY(${-jumpLift}px) scale(1)` },
+      { transform:`rotate(180deg) translateY(${-jumpLift}px) scale(1.03)` },
+      { transform:`rotate(180deg) translateY(${-jumpLift}px) scale(1)` }
+    ],
     { duration:150, iterations:1 }
   );
 }
 
-/* ====== 排行榜 ====== */
+function tryJump(now){
+  if(over || finishing) return;
+  if(now < pauseUntil) return;
+  if(now < jumpUntil) return;
+  if(now < lastJumpAt + JUMP_COOLDOWN_MS) return;
+
+  lastJumpAt = now;
+  jumpUntil = now + JUMP_DURATION_MS;
+  player.classList.add("jumping");
+  updateJumpUI(now);
+
+  player.animate(
+    [
+      { transform:`rotate(180deg) translateY(0px) scale(1)` },
+      { transform:`rotate(180deg) translateY(${-JUMP_HEIGHT_PX}px) scale(1.04)` },
+      { transform:`rotate(180deg) translateY(0px) scale(1)` }
+    ],
+    {
+      duration:JUMP_DURATION_MS,
+      easing:"cubic-bezier(.2,.8,.2,1)",
+      iterations:1
+    }
+  );
+}
+
+function computeJumpLift(now){
+  if(now >= jumpUntil) return 0;
+  const start = jumpUntil - JUMP_DURATION_MS;
+  const p = clamp((now - start) / JUMP_DURATION_MS, 0, 1);
+  return Math.sin(Math.PI * p) * JUMP_HEIGHT_PX;
+}
+
+function isJumping(now){
+  return now < jumpUntil;
+}
+
 function loadRanks(){
   try{
     const raw = localStorage.getItem(RANK_KEY);
     const arr = raw ? JSON.parse(raw) : [];
     return Array.isArray(arr) ? arr : [];
-  }catch{ return []; }
+  }catch{
+    return [];
+  }
 }
-function saveRanks(arr){ try{ localStorage.setItem(RANK_KEY, JSON.stringify(arr)); }catch{} }
+function saveRanks(arr){
+  try{ localStorage.setItem(RANK_KEY, JSON.stringify(arr)); }catch{}
+}
 function addRank(timeMs){
   const arr = loadRanks();
-  arr.push({ t: timeMs, at: Date.now() });
+  arr.push({ t:timeMs, at:Date.now() });
   arr.sort((a,b)=>a.t-b.t);
   const top10 = arr.slice(0,10);
   saveRanks(top10);
@@ -1003,15 +1206,13 @@ function renderRanks(arr){
   });
 }
 
-/* 清空所有車/障礙/道具/震波 */
 function purgeAllEntities(){
   for(const e of entities){
-    try{ e.el && e.el.remove && e.el.remove(); }catch{}
+    try{ e.el?.remove?.(); }catch{}
   }
   entities = [];
 }
 
-/* ====== 終點：入院動畫 ====== */
 function enterHospitalAndWin(now){
   if(finishing || over) return;
   finishing = true;
@@ -1049,7 +1250,6 @@ function enterHospitalAndWin(now){
   requestAnimationFrame(step);
 }
 
-/* ====== 重置/結束 ====== */
 function reset(){
   purgeAllEntities();
   distance = 0;
@@ -1062,18 +1262,22 @@ function reset(){
 
   ammo = 0;
   lastFireAt = 0;
-  touchLaneLock = 0;
+  lastJumpAt = -99999;
+  jumpUntil = 0;
+  jumpLift = 0;
+  touchMoveLock = 0;
 
   runStartAt = performance.now();
   elapsedMs = 0;
   timeNowEl.textContent = "0";
 
   penaltyBox.style.display = "none";
-  player.classList.remove("boosting","finishing");
+  player.classList.remove("boosting","finishing","jumping");
   topHud.classList.remove("boosting");
 
   player.style.top = "";
   player.style.bottom = "6%";
+  player.style.transform = "rotate(180deg) translateY(0px)";
 
   finish.style.top = "-38%";
   finish.classList.remove("success");
@@ -1083,6 +1287,7 @@ function reset(){
   updateRelativeDistance(0);
   distLeftEl.textContent = String(GOAL_DISTANCE);
   updateAmmoUI();
+  updateJumpUI();
 
   lastRunTimeMs = null;
   renderRanks(loadRanks());
@@ -1106,7 +1311,9 @@ function gameEnd(){
   resultTitle.textContent = "✅ 成功抵達醫院！";
   resultText.textContent = `到院時間：${fmtSec(elapsedMs)} 秒（越快越好）`;
 
-  try{ parent.postMessage({type:'GAME_CLEAR', game:'race', time: Math.floor(elapsedMs/1000)}, '*'); }catch(e){}
+  try{
+    parent.postMessage({type:'GAME_CLEAR', game:'race', time: Math.floor(elapsedMs/1000)}, '*');
+  }catch(e){}
 
   const top10 = addRank(elapsedMs);
   renderRanks(top10);
@@ -1120,6 +1327,14 @@ function tick(now){
 
   elapsedMs = now - runStartAt;
   timeNowEl.textContent = String(Math.floor(elapsedMs/1000));
+
+  jumpLift = computeJumpLift(now);
+  player.style.transform = `rotate(180deg) translateY(${-jumpLift}px)`;
+
+  if(now >= jumpUntil){
+    player.classList.remove("jumping");
+  }
+  updateJumpUI(now);
 
   if(now >= boostUntil){
     player.classList.remove("boosting");
@@ -1176,51 +1391,65 @@ function tick(now){
     nextAmmoAt = now + rand(AMMO_MIN_MS, AMMO_MAX_MS);
   }
 
+  const jumping = isJumping(now);
+
   for(let i = entities.length - 1; i >= 0; i--){
     const e = entities[i];
 
     if(e.type === "npc"){
       e.el.style.top = (e.el.offsetTop + (NPC_FALL_BASE * e.v) * dt) + "px";
-      if(hit(player, e.el)){
-        e.el.remove(); entities.splice(i,1);
-        applyPenalty(now); break;
+      if(!jumping && hit(player, e.el)){
+        e.el.remove();
+        entities.splice(i,1);
+        applyPenalty(now);
+        break;
       }
       if(e.el.offsetTop > game.clientHeight + 160){
-        e.el.remove(); entities.splice(i,1);
+        e.el.remove();
+        entities.splice(i,1);
       }
     }
 
     if(e.type === "ob"){
       e.el.style.top = (e.el.offsetTop + OB_FALL * dt) + "px";
-      if(hit(player, e.el)){
-        e.el.remove(); entities.splice(i,1);
-        applyPenalty(now); break;
+      if(!jumping && hit(player, e.el)){
+        e.el.remove();
+        entities.splice(i,1);
+        applyPenalty(now);
+        break;
       }
       if(e.el.offsetTop > game.clientHeight + 160){
-        e.el.remove(); entities.splice(i,1);
+        e.el.remove();
+        entities.splice(i,1);
       }
     }
 
     if(e.type === "boost"){
       e.el.style.top = (e.el.offsetTop + BOOST_FALL * dt) + "px";
       if(hit(player, e.el)){
-        e.el.remove(); entities.splice(i,1);
-        applyBoost(now); continue;
+        e.el.remove();
+        entities.splice(i,1);
+        applyBoost(now);
+        continue;
       }
       if(e.el.offsetTop > game.clientHeight + 140){
-        e.el.remove(); entities.splice(i,1);
+        e.el.remove();
+        entities.splice(i,1);
       }
     }
 
     if(e.type === "ammo"){
       e.el.style.top = (e.el.offsetTop + AMMO_FALL * dt) + "px";
       if(hit(player, e.el)){
-        e.el.remove(); entities.splice(i,1);
-        ammo++; updateAmmoUI();
+        e.el.remove();
+        entities.splice(i,1);
+        ammo++;
+        updateAmmoUI();
         continue;
       }
       if(e.el.offsetTop > game.clientHeight + 140){
-        e.el.remove(); entities.splice(i,1);
+        e.el.remove();
+        entities.splice(i,1);
       }
     }
 
@@ -1251,7 +1480,8 @@ function tick(now){
       }
 
       if(age >= SHOCK_LIFETIME_MS){
-        e.el.remove(); entities.splice(i,1);
+        e.el.remove();
+        entities.splice(i,1);
       }
     }
   }
@@ -1259,39 +1489,68 @@ function tick(now){
   requestAnimationFrame(tick);
 }
 
-/* 操作 */
-function moveLeft(){ if(performance.now() < pauseUntil || over || finishing) return; setPlayerLane(lane - 1); }
-function moveRight(){ if(performance.now() < pauseUntil || over || finishing) return; setPlayerLane(lane + 1); }
+function moveLeft(){
+  if(performance.now() < pauseUntil || over || finishing) return;
+  setPlayerLane(lane - 1);
+}
+function moveRight(){
+  if(performance.now() < pauseUntil || over || finishing) return;
+  setPlayerLane(lane + 1);
+}
 
 document.addEventListener("keydown", e=>{
-  if(e.key==="ArrowLeft") moveLeft();
-  if(e.key==="ArrowRight") moveRight();
-  if(e.key===" "){ e.preventDefault(); tryShock(performance.now()); }
+  if(e.repeat) return;
+
+  if(e.key === "ArrowLeft") moveLeft();
+  if(e.key === "ArrowRight") moveRight();
+  if(e.code === "Space"){
+    e.preventDefault();
+    tryJump(performance.now());
+  }
+  if(e.key === "x" || e.key === "X"){
+    e.preventDefault();
+    tryShock(performance.now());
+  }
 });
 
 leftBtn.addEventListener("click", moveLeft);
 rightBtn.addEventListener("click", moveRight);
+jumpBtn.addEventListener("click", ()=> tryJump(performance.now()));
 shootBtn.addEventListener("click", ()=> tryShock(performance.now()));
 
-/* 點車子發射 */
-player.addEventListener("click", (e)=>{
+fabJump.addEventListener("click", (e)=>{
+  e.preventDefault();
+  e.stopPropagation();
+  requestFullscreenSafe();
+  tryJump(performance.now());
+});
+fabJump.addEventListener("touchstart", (e)=>{
+  e.preventDefault();
+  e.stopPropagation();
+  requestFullscreenSafe();
+  tryJump(performance.now());
+}, { passive:false });
+
+fabShoot.addEventListener("click", (e)=>{
+  e.preventDefault();
   e.stopPropagation();
   requestFullscreenSafe();
   tryShock(performance.now());
 });
-
-player.addEventListener("touchstart", (e)=>{
+fabShoot.addEventListener("touchstart", (e)=>{
   e.preventDefault();
   e.stopPropagation();
   requestFullscreenSafe();
   tryShock(performance.now());
 }, { passive:false });
 
-/* 背景左右換道 */
 game.addEventListener("touchstart", (e)=>{
   if(over || finishing) return;
   if(performance.now() < pauseUntil) return;
-  if(e.target === player || player.contains(e.target)) return;
+  if(
+    e.target === fabJump || fabJump.contains(e.target) ||
+    e.target === fabShoot || fabShoot.contains(e.target)
+  ) return;
 
   e.preventDefault();
   requestFullscreenSafe();
@@ -1303,17 +1562,20 @@ game.addEventListener("touchstart", (e)=>{
   const x = touch.clientX - rect.left;
   const side = (x < rect.width / 2) ? -1 : 1;
 
-  if(side !== touchLaneLock){
+  if(side !== touchMoveLock){
     if(side < 0) moveLeft();
     else moveRight();
-    touchLaneLock = side;
+    touchMoveLock = side;
   }
 }, { passive:false });
 
 game.addEventListener("touchmove", (e)=>{
   if(over || finishing) return;
   if(performance.now() < pauseUntil) return;
-  if(e.target === player || player.contains(e.target)) return;
+  if(
+    e.target === fabJump || fabJump.contains(e.target) ||
+    e.target === fabShoot || fabShoot.contains(e.target)
+  ) return;
 
   e.preventDefault();
 
@@ -1324,24 +1586,23 @@ game.addEventListener("touchmove", (e)=>{
   const x = touch.clientX - rect.left;
   const side = (x < rect.width / 2) ? -1 : 1;
 
-  if(side !== touchLaneLock){
+  if(side !== touchMoveLock){
     if(side < 0) moveLeft();
     else moveRight();
-    touchLaneLock = side;
+    touchMoveLock = side;
   }
 }, { passive:false });
 
 game.addEventListener("touchend", (e)=>{
   e.preventDefault();
-  touchLaneLock = 0;
+  touchMoveLock = 0;
 }, { passive:false });
 
 game.addEventListener("touchcancel", (e)=>{
   e.preventDefault();
-  touchLaneLock = 0;
+  touchMoveLock = 0;
 }, { passive:false });
 
-/* 第一次互動嘗試全螢幕 */
 document.addEventListener("pointerdown", ()=>{
   requestFullscreenSafe();
 }, { once:true });
@@ -1359,12 +1620,10 @@ function handleResize(){
   setPlayerLane(lane);
 }
 
-/* 初始化 */
 updateResponsiveSizes();
 reset();
 requestAnimationFrame(tick);
 window.addEventListener("resize", handleResize);
 </script>
-
 </body>
 </html>
