@@ -496,61 +496,71 @@
   }
   #touchHint.show{opacity:1;}
 
-#mobileSkillBar{
-  display:none;
-  margin-top:10px;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-}
-
-#fabJump,
-#fabShoot{
-  border:none;
-  border-radius:18px;
-  min-height:64px;
-  display:grid;
-  place-items:center;
-  font-size:22px;
-  font-weight:1000;
-  touch-action:manipulation;
-  -webkit-tap-highlight-color:transparent;
-  box-shadow:0 12px 26px rgba(0,0,0,.28);
-}
-
-#fabJump{
-  color:#061225;
-  background:linear-gradient(180deg, rgba(122,168,255,.96), rgba(88,135,235,.92));
-  border:1px solid rgba(255,255,255,.28);
-}
-
-#fabShoot{
-  color:#1b1400;
-  background:linear-gradient(180deg, rgba(255,209,102,.96), rgba(255,190,60,.92));
-  border:1px solid rgba(255,255,255,.28);
-}
-
-#fabJump:active,
-#fabShoot:active{
-  transform:scale(.98);
-}
-
-#fabJump.cooldown{opacity:.58;}
-#fabShoot.empty{opacity:.55; filter:grayscale(.15);}
-
-@media (max-width: 768px){
+  /* 手機三鍵 */
   #mobileSkillBar{
+    display:none;
+    margin-top:10px;
+    grid-template-columns:1fr 1.15fr 1fr;
+    gap:10px;
+  }
+
+  #mLeft,#mCenter,#mRight{
+    border:none;
+    border-radius:18px;
+    min-height:64px;
     display:grid;
+    place-items:center;
+    font-size:22px;
+    font-weight:1000;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
+    box-shadow:0 12px 26px rgba(0,0,0,.28);
   }
-  #controls{
-    display:none;
-  }
-}
 
-@media (min-width: 769px){
-  #mobileSkillBar{
-    display:none;
+  #mLeft,#mRight{
+    color:var(--text);
+    background:linear-gradient(180deg, rgba(10,15,25,.90), rgba(10,15,25,.62));
+    border:1px solid rgba(255,255,255,.18);
   }
-}
+
+  #mCenter{
+    color:#1b1400;
+    background:linear-gradient(180deg, rgba(255,209,102,.96), rgba(255,190,60,.92));
+    border:1px solid rgba(255,255,255,.28);
+  }
+
+  #mCenter.jumpMode{
+    color:#061225;
+    background:linear-gradient(180deg, rgba(122,168,255,.96), rgba(88,135,235,.92));
+  }
+
+  #mCenter.empty{
+    opacity:.62;
+    filter:grayscale(.12);
+  }
+
+  #mCenter.cooldown{
+    opacity:.58;
+  }
+
+  #mLeft:active,#mCenter:active,#mRight:active{
+    transform:scale(.98);
+  }
+
+  @media (max-width: 768px){
+    #mobileSkillBar{
+      display:grid;
+    }
+    #controls{
+      display:none;
+    }
+  }
+
+  @media (min-width: 769px){
+    #mobileSkillBar{
+      display:none;
+    }
+  }
 
   #controls{
     margin-top:10px;
@@ -646,10 +656,6 @@
   @media (max-width: 768px){
     #controls{display:none;}
   }
-  @media (min-width: 769px){
-    #fabJump,
-    #fabShoot{display:none;}
-  }
 </style>
 </head>
 
@@ -688,7 +694,7 @@
     </div>
 
     <div id="penalty">⛔ 延誤 <strong>3</strong> 秒<span class="sub">（原地暫停，距離倒數不動）</span></div>
-    <div id="touchHint">左半邊：左移｜右半邊：右移｜下方按鈕：跳起 / 發射</div>
+    <div id="touchHint">手機：左鍵左移／中鍵短按發射、長按跳起／右鍵右移</div>
 
     <div id="player" class="carTop">
       <div class="body"></div>
@@ -697,8 +703,6 @@
       <div class="sirens"></div>
       <div class="lights"><span></span><span></span></div>
     </div>
-
-    
 
     <div id="overlay">
       <div id="card">
@@ -711,9 +715,15 @@
         </div>
 
         <button class="ctrl accent" id="restartBtn" style="margin-top:12px; width:100%;">再跑一次</button>
-        <div class="small" style="margin-top:10px">桌機：← / → 移動、Space 跳起、↑ 發射｜手機：左/右半邊移動、下方跳起 / 發射</div>
+        <div class="small" style="margin-top:10px">桌機：← / → 移動、Space 跳起、↑ 發射｜手機：左鍵左移、中鍵短按發射／長按跳起、右鍵右移</div>
       </div>
     </div>
+  </div>
+
+  <div id="mobileSkillBar">
+    <button id="mLeft" type="button" aria-label="向左">⬅</button>
+    <button id="mCenter" type="button" aria-label="發射或跳起">⚡</button>
+    <button id="mRight" type="button" aria-label="向右">➡</button>
   </div>
 
   <div id="controls">
@@ -728,9 +738,6 @@
     </div>
   </div>
 </div>
-
-<button id="fabJump" type="button" aria-label="跳起">⤴</button>
-    <button id="fabShoot" type="button" aria-label="發射震波">⚡</button>
 
 <script>
 const isCaseMode = new URLSearchParams(location.search).get('mode') === 'case';
@@ -783,6 +790,7 @@ const COLLISION_PAD = 6;
 const PENALTY_MS = 3000;
 const FINISH_RUNIN_MS = 650;
 const END_DELAY_MS = 2000;
+const CENTER_LONG_PRESS_MS = 320;
 /* ================================================= */
 
 const game = document.getElementById("game");
@@ -811,8 +819,9 @@ const rightBtn = document.getElementById("rightBtn");
 const jumpBtn = document.getElementById("jumpBtn");
 const shootBtn = document.getElementById("shootBtn");
 
-const fabJump = document.getElementById("fabJump");
-const fabShoot = document.getElementById("fabShoot");
+const mLeft = document.getElementById("mLeft");
+const mCenter = document.getElementById("mCenter");
+const mRight = document.getElementById("mRight");
 
 let lane = 1;
 let distance = 0;
@@ -830,8 +839,9 @@ let lastJumpAt = -99999;
 let jumpUntil = 0;
 let jumpLift = 0;
 
-let touchMoveLock = 0;
 let touchHintTimer = null;
+let centerPressTimer = null;
+let centerLongTriggered = false;
 
 let runStartAt = 0;
 let elapsedMs = 0;
@@ -900,6 +910,13 @@ function showTouchHint(){
   touchHint.classList.add('show');
   clearTimeout(touchHintTimer);
   touchHintTimer = setTimeout(()=> touchHint.classList.remove('show'), 2200);
+}
+
+function clearCenterPressTimer(){
+  if(centerPressTimer){
+    clearTimeout(centerPressTimer);
+    centerPressTimer = null;
+  }
 }
 
 function laneCenters(){
@@ -1117,13 +1134,14 @@ function applyBoost(now){
 function updateAmmoUI(){
   ammoCountEl.textContent = String(ammo);
   shootBtn.textContent = ammo > 0 ? `⚡ 震波 (${ammo})` : "⚡ 震波";
-  fabShoot.classList.toggle('empty', ammo <= 0);
+  mCenter.classList.toggle('empty', ammo <= 0);
 }
 
 function updateJumpUI(now = performance.now()){
   const cooling = now < lastJumpAt + JUMP_COOLDOWN_MS || now < jumpUntil;
   jumpBtn.textContent = cooling ? "⤴ 跳起…" : "⤴ 跳起";
-  fabJump.classList.toggle('cooldown', cooling);
+  mCenter.classList.toggle('cooldown', cooling);
+  mCenter.classList.toggle('jumpMode', now < jumpUntil);
 }
 
 function tryShock(now){
@@ -1282,7 +1300,9 @@ function reset(){
   lastJumpAt = -99999;
   jumpUntil = 0;
   jumpLift = 0;
-  touchMoveLock = 0;
+
+  clearCenterPressTimer();
+  centerLongTriggered = false;
 
   runStartAt = performance.now();
   elapsedMs = 0;
@@ -1537,90 +1557,65 @@ rightBtn.addEventListener("click", moveRight);
 jumpBtn.addEventListener("click", ()=> tryJump(performance.now()));
 shootBtn.addEventListener("click", ()=> tryShock(performance.now()));
 
-fabJump.addEventListener("click", (e)=>{
+mLeft.addEventListener("click", (e)=>{
   e.preventDefault();
-  e.stopPropagation();
   requestFullscreenSafe();
-  tryJump(performance.now());
+  moveLeft();
 });
-fabJump.addEventListener("touchstart", (e)=>{
+mLeft.addEventListener("touchstart", (e)=>{
   e.preventDefault();
-  e.stopPropagation();
   requestFullscreenSafe();
-  tryJump(performance.now());
+  moveLeft();
 }, { passive:false });
 
-fabShoot.addEventListener("click", (e)=>{
+mRight.addEventListener("click", (e)=>{
+  e.preventDefault();
+  requestFullscreenSafe();
+  moveRight();
+});
+mRight.addEventListener("touchstart", (e)=>{
+  e.preventDefault();
+  requestFullscreenSafe();
+  moveRight();
+}, { passive:false });
+
+mCenter.addEventListener("touchstart", (e)=>{
+  e.preventDefault();
+  e.stopPropagation();
+  requestFullscreenSafe();
+
+  centerLongTriggered = false;
+  clearCenterPressTimer();
+
+  centerPressTimer = setTimeout(()=>{
+    centerLongTriggered = true;
+    tryJump(performance.now());
+  }, CENTER_LONG_PRESS_MS);
+}, { passive:false });
+
+mCenter.addEventListener("touchend", (e)=>{
+  e.preventDefault();
+  e.stopPropagation();
+
+  clearCenterPressTimer();
+
+  if(!centerLongTriggered){
+    tryShock(performance.now());
+  }
+}, { passive:false });
+
+mCenter.addEventListener("touchcancel", (e)=>{
+  e.preventDefault();
+  e.stopPropagation();
+  clearCenterPressTimer();
+}, { passive:false });
+
+mCenter.addEventListener("click", (e)=>{
   e.preventDefault();
   e.stopPropagation();
   requestFullscreenSafe();
   tryShock(performance.now());
 });
-fabShoot.addEventListener("touchstart", (e)=>{
-  e.preventDefault();
-  e.stopPropagation();
-  requestFullscreenSafe();
-  tryShock(performance.now());
-}, { passive:false });
-
-game.addEventListener("touchstart", (e)=>{
-  if(over || finishing) return;
-  if(performance.now() < pauseUntil) return;
-  if(
-    e.target === fabJump || fabJump.contains(e.target) ||
-    e.target === fabShoot || fabShoot.contains(e.target)
-  ) return;
-
-  e.preventDefault();
-  requestFullscreenSafe();
-
-  const touch = e.touches[0];
-  if(!touch) return;
-
-  const rect = game.getBoundingClientRect();
-  const x = touch.clientX - rect.left;
-  const side = (x < rect.width / 2) ? -1 : 1;
-
-  if(side !== touchMoveLock){
-    if(side < 0) moveLeft();
-    else moveRight();
-    touchMoveLock = side;
-  }
-}, { passive:false });
-
-game.addEventListener("touchmove", (e)=>{
-  if(over || finishing) return;
-  if(performance.now() < pauseUntil) return;
-  if(
-    e.target === fabJump || fabJump.contains(e.target) ||
-    e.target === fabShoot || fabShoot.contains(e.target)
-  ) return;
-
-  e.preventDefault();
-
-  const touch = e.touches[0];
-  if(!touch) return;
-
-  const rect = game.getBoundingClientRect();
-  const x = touch.clientX - rect.left;
-  const side = (x < rect.width / 2) ? -1 : 1;
-
-  if(side !== touchMoveLock){
-    if(side < 0) moveLeft();
-    else moveRight();
-    touchMoveLock = side;
-  }
-}, { passive:false });
-
-game.addEventListener("touchend", (e)=>{
-  e.preventDefault();
-  touchMoveLock = 0;
-}, { passive:false });
-
-game.addEventListener("touchcancel", (e)=>{
-  e.preventDefault();
-  touchMoveLock = 0;
-}, { passive:false });
 
 document.addEventListener("pointerdown", ()=>{
   requestFullscreenSafe();
