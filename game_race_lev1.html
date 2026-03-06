@@ -259,6 +259,7 @@
     transform:rotate(180deg);
     transform-origin:center;
     box-shadow:0 16px 26px rgba(0,0,0,.35);
+    cursor:pointer;
   }
   #player .body{
     background:
@@ -476,7 +477,6 @@
   #rankList li:last-child{border-bottom:none;}
   .rankMe{background:rgba(0,255,204,.08);}
 
-  /*CASEMODE_HIDE_LEADERBOARD*/
   body.caseMode .leaderboard, body.caseMode #leaderboard{display:none !important;}
 
   @media (max-width: 768px){
@@ -522,7 +522,7 @@
     </div>
 
     <div id="penalty">⛔ 延誤 <strong>3</strong> 秒<span class="sub">（原地暫停，距離倒數不動）</span></div>
-    <div id="touchHint">左半邊：左移｜右半邊：右移｜雙指：震波</div>
+    <div id="touchHint">左半邊：左移｜右半邊：右移｜點車子：震波</div>
 
     <div id="player" class="carTop">
       <div class="body"></div>
@@ -543,7 +543,7 @@
         </div>
 
         <button class="accent" id="restartBtn" style="margin-top:12px;">再跑一次</button>
-        <div class="small" style="margin-top:10px">操作：桌機用 ⬅️➡️ / 空白鍵；手機用左半邊、右半邊換車道，雙指觸碰發射震波</div>
+        <div class="small" style="margin-top:10px">操作：桌機用 ⬅️➡️ / 空白鍵；手機用左半邊、右半邊換車道，點車子發射震波</div>
       </div>
     </div>
   </div>
@@ -713,6 +713,21 @@ function showTouchHint(){
   touchHint.classList.add('show');
   clearTimeout(touchHintTimer);
   touchHintTimer = setTimeout(()=> touchHint.classList.remove('show'), 2200);
+}
+
+function requestFullscreenSafe(){
+  const el = document.documentElement;
+  if(document.fullscreenElement) return;
+
+  try{
+    if(el.requestFullscreen){
+      el.requestFullscreen();
+    }else if(el.webkitRequestFullscreen){
+      el.webkitRequestFullscreen();
+    }else if(el.msRequestFullscreen){
+      el.msRequestFullscreen();
+    }
+  }catch(e){}
 }
 
 function laneCenters(){
@@ -988,7 +1003,7 @@ function renderRanks(arr){
   });
 }
 
-/* 距離=0 時：清空所有車/障礙/道具/震波 */
+/* 清空所有車/障礙/道具/震波 */
 function purgeAllEntities(){
   for(const e of entities){
     try{ e.el && e.el.remove && e.el.remove(); }catch{}
@@ -996,13 +1011,12 @@ function purgeAllEntities(){
   entities = [];
 }
 
-/* ====== 終點：入院動畫（清場 + 延後結算 2 秒） ====== */
+/* ====== 終點：入院動畫 ====== */
 function enterHospitalAndWin(now){
   if(finishing || over) return;
   finishing = true;
 
   purgeAllEntities();
-
   finish.style.top = "0%";
 
   const centers = laneCenters();
@@ -1259,19 +1273,32 @@ leftBtn.addEventListener("click", moveLeft);
 rightBtn.addEventListener("click", moveRight);
 shootBtn.addEventListener("click", ()=> tryShock(performance.now()));
 
+/* 點車子發射 */
+player.addEventListener("click", (e)=>{
+  e.stopPropagation();
+  requestFullscreenSafe();
+  tryShock(performance.now());
+});
+
+player.addEventListener("touchstart", (e)=>{
+  e.preventDefault();
+  e.stopPropagation();
+  requestFullscreenSafe();
+  tryShock(performance.now());
+}, { passive:false });
+
+/* 背景左右換道 */
 game.addEventListener("touchstart", (e)=>{
   if(over || finishing) return;
   if(performance.now() < pauseUntil) return;
+  if(e.target === player || player.contains(e.target)) return;
 
   e.preventDefault();
-
-  if(e.touches.length >= 2){
-    tryShock(performance.now());
-    touchLaneLock = 0;
-    return;
-  }
+  requestFullscreenSafe();
 
   const touch = e.touches[0];
+  if(!touch) return;
+
   const rect = game.getBoundingClientRect();
   const x = touch.clientX - rect.left;
   const side = (x < rect.width / 2) ? -1 : 1;
@@ -1286,12 +1313,13 @@ game.addEventListener("touchstart", (e)=>{
 game.addEventListener("touchmove", (e)=>{
   if(over || finishing) return;
   if(performance.now() < pauseUntil) return;
+  if(e.target === player || player.contains(e.target)) return;
 
   e.preventDefault();
 
-  if(e.touches.length >= 2) return;
-
   const touch = e.touches[0];
+  if(!touch) return;
+
   const rect = game.getBoundingClientRect();
   const x = touch.clientX - rect.left;
   const side = (x < rect.width / 2) ? -1 : 1;
@@ -1312,6 +1340,11 @@ game.addEventListener("touchcancel", (e)=>{
   e.preventDefault();
   touchLaneLock = 0;
 }, { passive:false });
+
+/* 第一次互動嘗試全螢幕 */
+document.addEventListener("pointerdown", ()=>{
+  requestFullscreenSafe();
+}, { once:true });
 
 function restart(){
   reset();
