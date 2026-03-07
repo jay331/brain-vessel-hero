@@ -69,7 +69,6 @@ header{
   padding: 0; 
 }
 
-/* ★ 重點修正：背景由 .stage 的 class 精準控制切換 */
 .stage{
   position:relative; width: 100%; height: 100%;
   overflow:hidden;
@@ -102,14 +101,13 @@ header{
 .content{
   position:absolute; inset:0; display:flex; flex-direction:column; padding:16px;
   z-index: 10;
-  overflow-y: auto; /* 讓整體內容可以滑動 */
+  overflow-y: auto; 
 }
 
-/* ★ 重點修正：畫面排版改為「自然堆疊」，消除詭異空白 */
 .screen {
-  flex: 0 0 auto; /* 不強制撐開，由內容決定高度 */
+  flex: 0 0 auto; 
   display: none; flex-direction: column; 
-  gap: 16px; /* 統一且固定的間距 */
+  gap: 16px; 
 }
 .screen.show{ display:flex; }
 
@@ -135,11 +133,11 @@ header{
 .bullet{margin:0; padding-left:18px; color:var(--muted); font-size:13.5px; line-height:1.65;}
 .bullet li{margin:8px 0;}
 
-/* 底部列自然跟隨在內容下方 */
 .bottomBar{
   display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap;
   padding:14px; border-radius:18px; background:rgba(10,14,28,.85); border:1px solid rgba(255,255,255,.15);
   flex-shrink: 0;
+  margin-top: auto; 
 }
 .icons{display:flex; gap:10px; align-items:center; width: 100%;}
 .actions{display:flex; gap:10px; flex-wrap:wrap; justify-content:space-between; width: 100%;}
@@ -171,11 +169,14 @@ header{
 
 /* ===== HOME ===== */
 #scrHome{
-  flex: 1 1 auto; /* 首頁特別設定：讓按鈕推到最下面 */
-  justify-content: flex-end;
-  padding-bottom: max(8vh, 30px); 
+  position:relative;
+  background: url('assets/bg_home_mockup.png') center/cover no-repeat;
+  margin: -16px; 
+  height: calc(100% + 32px);
+  flex-direction: column; justify-content: flex-end;
+  padding-bottom: max(8vh, 50px); 
 }
-#scrHome .homeBtns{ display:flex; gap:18px; justify-content:center; z-index:9999; }
+#scrHome .homeBtns{ display:flex; gap:18px; justify-content:center; padding:0 8%; z-index:9999; }
 #scrHome .homeBtns button{
   flex:1; height:min(14vh, 120px); border-radius:18px;
   background: rgba(255,255,255,0.01); border: 0; cursor:pointer;
@@ -211,7 +212,7 @@ header{
   display:flex; align-items:center; justify-content: space-between;
   background: linear-gradient(180deg, rgba(0,255,229,.25), rgba(10,14,28,.86));
 }
-#scrCase #caseHintTitle{ font-size: 16px; font-weight: 900; }
+#scrCase #caseHintTitle{ font-size: 15px; font-weight: 900; line-height: 1.4; }
 
 #scrBrief #briefTitle{
   margin: 0 0 12px 0; padding: 12px; font-size: 16px; font-weight: 900; text-align: center;
@@ -222,7 +223,6 @@ header{
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px);} to { opacity: 1; transform: translateY(0);} }
 
-/* ★ 展開時才顯示下方區塊的邏輯 */
 #scrBrief #briefDetail { display:none; }
 #scrBrief .bottomBar { display:none; }
 #scrBrief #briefDetail.open { display:block; animation: fadeIn 0.25s ease; }
@@ -314,7 +314,6 @@ header{
         </div>
 
         <div class="bottomBar">
-          <div style="width: 100%; font-size: 13px; color: var(--accent); font-weight: bold; margin-bottom: 8px;">選擇執行人員：</div>
           <div class="icons" id="roleIcons" style="width: 100%; justify-content: space-between;">
             <div class="iconTile" id="tileEMT"><span class="badge">GO</span><img src="assets/emt_card.png" alt=""><div class="lbl">EMT</div></div>
             <div class="iconTile locked" id="tileTEAM"><span class="badge">GO</span><img src="assets/team_card.png" alt=""><div class="lbl">取栓</div></div>
@@ -549,7 +548,6 @@ function show(which){
   [ui.scrHome,ui.scrList,ui.scrCase,ui.scrBrief,ui.scrRoleComplete,ui.scrCaseComplete].forEach(x=>x.classList.remove('show'));
   ({ home:ui.scrHome, list:ui.scrList, case:ui.scrCase, brief:ui.scrBrief, roleComplete:ui.scrRoleComplete, caseComplete:ui.scrCaseComplete }[which]).classList.add('show');
 
-  // ★ 背景切換：只有在首頁時才掛上 .is-home 顯示房間圖，其他時候露出 bg_base
   if(which === 'home') {
     ui.stage.classList.add('is-home');
   } else {
@@ -572,7 +570,7 @@ function show(which){
 function startMission(){
   requestFullscreenSafe(); updateCaseTitle(); caseState.isListMode=false; ui.subLine.textContent='任務模式';
   ui.doctorLine.textContent='一位45歲男性病人，下午2:30在公司上班時，被同事發現右側手腳無力、語言表達困難。高度懷疑急性缺血性中風。';
-  renderCaseDoctor(); show('case'); toast('任務開始：請點擊下方 EMT 進入第一關');
+  renderCaseDoctor(); show('case'); toast('任務開始：請點選查看任務並開始第一關');
 }
 
 function renderHud(){ ui.caseScore.textContent = String(caseState.caseScore); }
@@ -582,9 +580,18 @@ function renderCaseDoctor(){
   setTile(ui.tileTEAM, canClickRole('TEAM'));
   setTile(ui.tileNURSE,canClickRole('NURSE'));
 
-  if(caseState.currentRole==='EMT'){ ui.caseHintTitle.textContent='【 任務1 】協助院前送醫'; } 
-  else if(caseState.currentRole==='TEAM'){ ui.doctorLine.textContent='病人已順利到院。需要取栓團隊立即介入。'; ui.caseHintTitle.textContent='【 任務2 】協助取栓治療'; } 
-  else if(caseState.currentRole==='NURSE'){ ui.doctorLine.textContent='已完成再通治療。接下來需要護理衛教與照護建議。'; ui.caseHintTitle.textContent='【 任務3 】協助護理衛教'; }
+  // ★ 更新指示文字格式：【任務X】...，請向 OOO 報到
+  if(caseState.currentRole==='EMT'){ 
+    ui.caseHintTitle.textContent='【任務1】協助院前送醫，請向 EMT人員報到'; 
+  } 
+  else if(caseState.currentRole==='TEAM'){ 
+    ui.doctorLine.textContent='病人已順利到院。需要取栓團隊立即介入。'; 
+    ui.caseHintTitle.textContent='【任務2】協助取栓治療，請向 取栓團隊報到'; 
+  } 
+  else if(caseState.currentRole==='NURSE'){ 
+    ui.doctorLine.textContent='已完成再通治療。接下來需要護理衛教與照護建議。'; 
+    ui.caseHintTitle.textContent='【任務3】協助護理衛教，請向 護理師報到'; 
+  }
 }
 
 function setTile(tile, clickable){
