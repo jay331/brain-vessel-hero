@@ -55,7 +55,6 @@
     background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,0));
   }
 
-  /* 上方：距離 + 能量 + 時間 */
   #topHud{
     position:absolute;
     left:50%;
@@ -64,7 +63,7 @@
     z-index:12;
     padding:8px 12px;
     border-radius:14px;
-    background:linear-gradient(180deg, rgba(10,15,25,.80), rgba(10,15,25,.55));
+    background:linear-gradient(180deg, rgba(10,15,25,.82), rgba(10,15,25,.55));
     border:1px solid rgba(255,255,255,.12);
     box-shadow:0 10px 22px rgba(0,0,0,.28);
     font-weight:900;
@@ -82,9 +81,7 @@
   #topHud.boosting .num{
     filter:drop-shadow(0 0 10px rgba(0,255,204,.45));
   }
-  #ammoHud{opacity:.92;font-weight:900;}
-  #ammoHud b{color:var(--warn);font-variant-numeric:tabular-nums;}
-  #timeHud{opacity:.92;font-weight:900;}
+  #timeHud{opacity:.95;font-weight:900;}
   #timeHud b{color:#fff;font-variant-numeric:tabular-nums;}
 
   .road{
@@ -108,19 +105,19 @@
     100%{transform:translateX(40%) skewX(-12deg);}
   }
 
-  /* 三車道線 */
   #lanes{
     position:absolute;
     inset:0;
     pointer-events:none;
-    opacity:.85;
+    opacity:.9;
   }
   .edge{
     position:absolute;
     top:0;
     bottom:0;
-    width:3px;
-    background:linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,255,255,.08));
+    width:4px;
+    background:linear-gradient(180deg, rgba(255,255,255,.40), rgba(255,255,255,.16));
+    box-shadow:0 0 10px rgba(255,255,255,.08);
   }
   .edge.left{left:12%;}
   .edge.right{right:12%;}
@@ -128,14 +125,14 @@
     position:absolute;
     top:0;
     bottom:0;
-    width:3px;
-    background:repeating-linear-gradient(180deg, rgba(255,255,255,.16) 0 22px, rgba(255,255,255,0) 22px 56px);
-    opacity:.25;
+    width:4px;
+    background:repeating-linear-gradient(180deg, rgba(255,255,255,.30) 0 28px, rgba(255,255,255,0) 28px 54px);
+    opacity:.55;
+    filter:drop-shadow(0 0 4px rgba(255,255,255,.06));
   }
   .divider.one{left:36.5%;}
   .divider.two{left:63.5%;}
 
-  /* 終點：醫院 */
   #finish{
     position:absolute;
     left:0;
@@ -206,7 +203,6 @@
     font-weight:900;
   }
 
-  /* 右側：相對距離 */
   #rail{
     position:absolute;
     right:10px;
@@ -234,10 +230,7 @@
     place-items:center;
     font-size:18px;
   }
-  #trackBox{
-    flex:1;
-    position:relative;
-  }
+  #trackBox{flex:1;position:relative;}
   #trackLine{
     position:absolute;
     left:50%;
@@ -278,7 +271,6 @@
     white-space:nowrap;
   }
 
-  /* 車 */
   .carTop{
     position:absolute;
     width:48px;
@@ -299,9 +291,9 @@
     top:10px;
     height:16px;
     border-radius:10px;
-    background:linear-gradient(180deg, rgba(255,255,255,.35), rgba(255,255,255,.10));
+    background:linear-gradient(180deg, rgba(255,255,255,.38), rgba(255,255,255,.10));
     border:1px solid rgba(255,255,255,.12);
-    opacity:.9;
+    opacity:.92;
   }
   .carTop .lights{
     position:absolute;
@@ -317,7 +309,7 @@
   .carTop .lights span{
     flex:1;
     border-radius:7px;
-    background:linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.18));
+    background:linear-gradient(180deg, rgba(255,255,255,.58), rgba(255,255,255,.18));
     filter:drop-shadow(0 0 10px rgba(255,255,255,.12));
   }
   .carTop .wheels{
@@ -341,11 +333,10 @@
   .carTop .wheels::before{left:0;}
   .carTop .wheels::after{right:0;}
 
-  /* 玩家救護車 */
   #player{
     position:absolute;
     bottom:6%;
-    z-index:5;
+    z-index:7;
     transition:left 120ms ease;
     transform:rotate(180deg);
     transform-origin:center;
@@ -353,8 +344,32 @@
   }
   #player .body{
     background:
-      radial-gradient(26px 26px at 30% 20%, rgba(255,255,255,.55), rgba(255,255,255,0) 60%),
-      linear-gradient(180deg, #ff4d4d 0%, #e1162f 100%);
+      radial-gradient(26px 26px at 30% 20%, rgba(255,255,255,.95), rgba(255,255,255,0) 60%),
+      linear-gradient(180deg, #ffffff 0%, #e8edf5 100%);
+  }
+  #player::before{
+    content:"";
+    position:absolute;
+    left:50%;
+    top:10px;
+    transform:translateX(-50%);
+    width:14px;
+    height:36px;
+    border-radius:8px;
+    background:linear-gradient(180deg, #ff4d4d 0%, #d9102f 100%);
+    opacity:.96;
+    z-index:1;
+  }
+  #player::after{
+    content:"✚";
+    position:absolute;
+    left:50%;
+    top:26px;
+    transform:translateX(-50%) rotate(180deg);
+    font-size:12px;
+    font-weight:1000;
+    color:#d9102f;
+    z-index:2;
   }
   #player .sirens{
     position:absolute;
@@ -367,6 +382,7 @@
     filter:drop-shadow(0 0 10px rgba(0,255,204,.45));
     animation:flash 0.7s linear infinite;
     opacity:.95;
+    z-index:3;
   }
   #player.boosting{
     filter:drop-shadow(0 0 18px rgba(0,255,204,.35));
@@ -385,55 +401,41 @@
     50%{opacity:1}
     100%{opacity:.25}
   }
-#ammoFloat{
-  position:absolute;
-  left:50%;
-  bottom:-18px;
-  transform:translateX(-50%) rotate(180deg);
-  min-width:38px;
-  height:22px;
-  padding:0 8px;
-  border-radius:999px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:rgba(255,209,102,.92);
-  color:#1b1400;
-  font-size:12px;
-  font-weight:1000;
-  line-height:1;
-  box-shadow:0 6px 14px rgba(0,0,0,.28);
-  border:1px solid rgba(255,255,255,.35);
-  pointer-events:none;
-  z-index:12;
-}
-@media (max-width:768px){
 
   #ammoFloat{
-    bottom:-14px;
-    min-width:34px;
-    height:20px;
-    font-size:11px;
-    padding:0 7px;
+    position:absolute;
+    left:50%;
+    bottom:-18px;
+    transform:translateX(-50%) rotate(180deg);
+    min-width:38px;
+    height:22px;
+    padding:0 8px;
+    border-radius:999px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(255,209,102,.92);
+    color:#1b1400;
+    font-size:12px;
+    font-weight:1000;
+    line-height:1;
+    box-shadow:0 6px 14px rgba(0,0,0,.28);
+    border:1px solid rgba(255,255,255,.35);
+    pointer-events:none;
+    z-index:12;
+  }
+  #ammoFloat:not(.empty){
+    animation:ammoGlow 1.2s ease-in-out infinite alternate;
+  }
+  #ammoFloat.empty{
+    background:rgba(255,255,255,.22);
+    color:rgba(255,255,255,.78);
+  }
+  @keyframes ammoGlow{
+    from{ box-shadow:0 6px 14px rgba(0,0,0,.28), 0 0 8px rgba(255,209,102,.4); }
+    to{ box-shadow:0 6px 14px rgba(0,0,0,.28), 0 0 18px rgba(255,209,102,.8); }
   }
 
-}
-  #ammoFloat:not(.empty){
-  animation:ammoGlow 1.2s ease-in-out infinite alternate;
-}
-
-@keyframes ammoGlow{
-  from{ box-shadow:0 6px 14px rgba(0,0,0,.28), 0 0 8px rgba(255,209,102,.4); }
-  to{ box-shadow:0 6px 14px rgba(0,0,0,.28), 0 0 18px rgba(255,209,102,.8); }
-}
-  
-#ammoFloat.empty{
-  background:rgba(255,255,255,.22);
-  color:rgba(255,255,255,.78);
-}
-
-  
-  /* 對向來車 */
   .npcCar{
     position:absolute;
     width:48px;
@@ -445,11 +447,10 @@
   .npcCar .body{
     background:
       radial-gradient(26px 26px at 30% 20%, rgba(255,255,255,.18), rgba(255,255,255,0) 60%),
-      linear-gradient(180deg, #3b4252 0%, #1f2633 100%);
+      linear-gradient(180deg, #566070 0%, #232b38 100%);
     border-radius:14px;
   }
 
-  /* 加速道具 */
   .boost{
     position:absolute;
     width:46px;
@@ -464,7 +465,7 @@
     place-items:center;
   }
   .boost::before{
-    content:"»»";
+    content:">>";
     font-weight:1000;
     letter-spacing:-2px;
     font-size:20px;
@@ -473,7 +474,6 @@
     transform:translateY(-1px);
   }
 
-  /* 能量補給 */
   .ammoPick{
     position:absolute;
     width:44px;
@@ -490,7 +490,6 @@
   }
   .ammoPick::before{content:"⚡";}
 
-  /* 障礙物 */
   .obstacle{
     position:absolute;
     width:54px;
@@ -511,7 +510,6 @@
     font-size:22px;
   }
 
-  /* 震波 */
   .shock{
     position:absolute;
     width:18px;
@@ -528,7 +526,6 @@
     100%{transform:scale(1.45);opacity:0;filter:brightness(1.8) blur(1px);}
   }
 
-  /* 懲罰提示 */
   #penalty{
     position:absolute;
     left:50%;
@@ -554,7 +551,6 @@
     font-weight:700;
   }
 
-  /* 底部控制 */
   #controls{
     margin-top:10px;
     display:grid;
@@ -592,7 +588,6 @@
     box-shadow:0 10px 22px rgba(255,209,102,.10), 0 10px 22px rgba(0,0,0,.28);
   }
 
-  /* 結果覆蓋層 */
   #overlay{
     position:absolute;
     inset:0;
@@ -615,7 +610,6 @@
   #card p{margin:0 0 12px;opacity:.9;font-size:13px;line-height:1.4;}
   #card .small{opacity:.8;font-size:12px;}
 
-  /* 排行榜 */
   #rankBox{
     margin-top:10px;
     text-align:left;
@@ -653,7 +647,6 @@
   #rankList li:last-child{border-bottom:none;}
   .rankMe{background:rgba(0,255,204,.08);}
 
-  /* CASEMODE_HIDE_LEADERBOARD */
   body.caseMode .leaderboard,
   body.caseMode #leaderboard{
     display:none !important;
@@ -661,6 +654,87 @@
 
   @media (max-width:768px){
     #controls{display:none;}
+
+    .edge{
+      width:4px;
+      background:linear-gradient(180deg, rgba(255,255,255,.46), rgba(255,255,255,.18));
+    }
+    .divider{
+      width:4px;
+      background:repeating-linear-gradient(180deg, rgba(255,255,255,.34) 0 24px, rgba(255,255,255,0) 24px 48px);
+      opacity:.62;
+    }
+
+    .carTop,
+    .npcCar{
+      width:42px;
+      height:68px;
+    }
+
+    #player{
+      bottom:5.5%;
+    }
+
+    .carTop .glass{
+      left:8px;
+      right:8px;
+      top:9px;
+      height:14px;
+    }
+
+    .carTop .lights{
+      left:8px;
+      right:8px;
+      bottom:8px;
+      height:8px;
+      gap:6px;
+    }
+
+    .carTop .wheels{
+      left:4px;
+      right:4px;
+      top:14px;
+      bottom:14px;
+    }
+
+    #player::before{
+      top:9px;
+      width:12px;
+      height:31px;
+    }
+
+    #player::after{
+      top:23px;
+      font-size:11px;
+    }
+
+    #ammoFloat{
+      bottom:-12px;
+      min-width:32px;
+      height:18px;
+      font-size:10px;
+      padding:0 6px;
+    }
+
+    .boost{
+      width:40px;
+      height:40px;
+    }
+
+    .ammoPick{
+      width:38px;
+      height:38px;
+      font-size:16px;
+    }
+
+    .obstacle{
+      width:46px;
+      height:46px;
+    }
+
+    .obstacle::before{
+      font-size:18px;
+    }
   }
 </style>
 </head>
@@ -700,14 +774,14 @@
 
     <div id="penalty">⛔ 延誤 <strong>3</strong> 秒<span class="sub">（原地暫停，距離倒數不動）</span></div>
 
-<div id="player" class="carTop">
-  <div id="ammoFloat">⚡0</div>
-  <div class="body"></div>
-  <div class="glass"></div>
-  <div class="wheels"></div>
-  <div class="sirens"></div>
-  <div class="lights"><span></span><span></span></div>
-</div>
+    <div id="player" class="carTop">
+      <div id="ammoFloat">⚡0</div>
+      <div class="body"></div>
+      <div class="glass"></div>
+      <div class="wheels"></div>
+      <div class="sirens"></div>
+      <div class="lights"><span></span><span></span></div>
+    </div>
 
     <div id="overlay">
       <div id="card">
@@ -738,45 +812,36 @@
 </div>
 
 <script>
-const isCaseMode = new URLSearchParams(location.search).get('mode')==='case';
+const isCaseMode = new URLSearchParams(location.search).get('mode') === 'case';
 if(isCaseMode) document.body.classList.add('caseMode');
 
-/* ===================== 參數 ===================== */
 const GOAL_DISTANCE = 2000;
 const DIST_UNIT = 12;
-
 const BASE_FORWARD_SPEED = 1.0;
 const BOOST_MS = 3000;
 const BOOST_FORWARD_MULT = 3.0;
-
 const NPC_FALL_BASE = 235;
 const NPC_FALL_MIN_MULT = 0.90;
 const NPC_FALL_MAX_MULT = 1.40;
-
 const OB_FALL = 205;
 const OB_MIN_MS = 900;
 const OB_MAX_MS = 1500;
 const MAX_OB_ON_SCREEN = 2;
-
 const BOOST_FALL = 190;
 const BOOST_MIN_MS = 900;
 const BOOST_MAX_MS = 1400;
 const MAX_BOOST_ON_SCREEN = 2;
-
 const AMMO_FALL = 190;
 const AMMO_MIN_MS = 950;
 const AMMO_MAX_MS = 1600;
 const MAX_AMMO_ON_SCREEN = 2;
-
 const SHOCK_MAX_RADIUS = 74;
 const SHOCK_GROW_PX_PER_S = 520;
 const SHOCK_LIFETIME_MS = 260;
 const FIRE_COOLDOWN_MS = 240;
-
 const JUMP_DURATION_MS = 620;
 const JUMP_HEIGHT_PX = 112;
 const JUMP_COOLDOWN_MS = 180;
-
 const WAVE_MIN_MS = 520;
 const WAVE_MAX_MS = 980;
 const WAVE_TWO_CAR_PROB = 0.60;
@@ -784,33 +849,26 @@ const SAME_LANE_MIN_GAP = 240;
 const SPAWN_STAGGER_Y = 70;
 const SAFE_HORIZON_SEC = 1.0;
 const COLLISION_PAD = 6;
-
 const PENALTY_MS = 3000;
 const FINISH_RUNIN_MS = 650;
 const END_DELAY_MS = 2000;
-/* ====================================================== */
 
 const game = document.getElementById("game");
 const player = document.getElementById("player");
 const finish = document.getElementById("finish");
-
 const overlay = document.getElementById("overlay");
 const resultTitle = document.getElementById("resultTitle");
 const resultText = document.getElementById("resultText");
 const restartBtn = document.getElementById("restartBtn");
 const restartSmallBtn = document.getElementById("restartSmallBtn");
-
 const miniAmb = document.getElementById("miniAmb");
 const distanceText = document.getElementById("distanceText");
 const penaltyBox = document.getElementById("penalty");
 const topHud = document.getElementById("topHud");
 const distLeftEl = document.getElementById("distLeft");
-
-const ammoCountEl = document.getElementById("ammoCount");
 const ammoFloatEl = document.getElementById("ammoFloat");
 const timeNowEl = document.getElementById("timeNow");
 const rankListEl = document.getElementById("rankList");
-
 const leftBtn = document.getElementById("leftBtn");
 const rightBtn = document.getElementById("rightBtn");
 const shootBtn = document.getElementById("shootBtn");
@@ -820,38 +878,53 @@ let distance = 0;
 let entities = [];
 let over = false;
 let finishing = false;
-
 let lastFrame = performance.now();
 let pauseUntil = 0;
 let boostUntil = 0;
-
 let ammo = 0;
 let lastFireAt = 0;
 let lastJumpAt = -99999;
 let jumpUntil = 0;
 let jumpLift = 0;
-
-// 手機控制
 let carLongPressTimer = null;
 let carLongPressTriggered = false;
 const CAR_LONG_PRESS_MS = 260;
-
-// timer
 let runStartAt = 0;
 let elapsedMs = 0;
-
-// spawns
 let nextWaveAt = 0;
 let nextBoostAt = 0;
 let nextObAt = 0;
 let nextAmmoAt = 0;
-
-// ranks
 const RANK_KEY = "brain_ambulance_top10_v1";
 let lastRunTimeMs = null;
-
-// end delay handle
 let endScheduled = false;
+let audioCtx = null;
+
+function ensureAudio(){
+  if(!audioCtx){
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(AC) audioCtx = new AC();
+  }
+  if(audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+}
+function playTone(freq=440, dur=0.08, type="sine", volume=0.03){
+  ensureAudio();
+  if(!audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start();
+  osc.stop(audioCtx.currentTime + dur);
+}
+function sfxShoot(){ playTone(880, 0.05, "square", 0.025); setTimeout(()=>playTone(1180, 0.05, "square", 0.018), 35); }
+function sfxHit(){ playTone(180, 0.12, "sawtooth", 0.04); setTimeout(()=>playTone(120, 0.14, "sawtooth", 0.03), 40); }
+function sfxPickup(){ playTone(720, 0.05, "triangle", 0.025); setTimeout(()=>playTone(980, 0.06, "triangle", 0.02), 45); }
+function sfxGoal(){ playTone(660, 0.10, "triangle", 0.03); setTimeout(()=>playTone(880, 0.12, "triangle", 0.03), 110); setTimeout(()=>playTone(1180, 0.14, "triangle", 0.028), 230); }
 
 function clamp(n,a,b){ return Math.max(a, Math.min(b, n)); }
 function rand(msMin, msMax){ return msMin + Math.random() * (msMax - msMin); }
@@ -869,7 +942,7 @@ function laneCenters(){
 function setPlayerLane(idx){
   lane = clamp(idx, 0, 2);
   const centers = laneCenters();
-  player.style.left = (centers[lane] - player.offsetWidth/2) + "px";
+  player.style.left = (centers[lane] - player.offsetWidth / 2) + "px";
 }
 
 function updateRelativeDistance(prog){
@@ -882,10 +955,7 @@ function updateRelativeDistance(prog){
   distanceText.textContent = "距離 " + remain + "%";
 }
 
-function rectInflate(r, pad){
-  return { left:r.left+pad, right:r.right-pad, top:r.top+pad, bottom:r.bottom-pad };
-}
-
+function rectInflate(r, pad){ return { left:r.left+pad, right:r.right-pad, top:r.top+pad, bottom:r.bottom-pad }; }
 function hit(a,b){
   const ar0 = a.getBoundingClientRect();
   const br0 = b.getBoundingClientRect();
@@ -893,21 +963,11 @@ function hit(a,b){
   const br = rectInflate(br0, COLLISION_PAD);
   return !(ar.right < br.left || ar.left > br.right || ar.bottom < br.top || ar.top > br.bottom);
 }
-
 function isTapOnPlayer(clientX, clientY){
   const r = player.getBoundingClientRect();
-  return (
-    clientX >= r.left &&
-    clientX <= r.right &&
-    clientY >= r.top &&
-    clientY <= r.bottom
-  );
+  return clientX >= r.left && clientX <= r.right && clientY >= r.top && clientY <= r.bottom;
 }
-
-function countType(type){
-  return entities.filter(e=>e.type===type).length;
-}
-
+function countType(type){ return entities.filter(e => e.type === type).length; }
 function nearestTopInLane(ln, typeFilter){
   let minTop = Infinity;
   for(const e of entities){
@@ -919,56 +979,53 @@ function nearestTopInLane(ln, typeFilter){
   return minTop;
 }
 
-/* ====== 生成 ====== */
 function makeNpcCar(laneIndex){
   const el = document.createElement("div");
   el.className = "carTop npcCar";
   el.innerHTML = `<div class="body"></div><div class="glass"></div><div class="wheels"></div><div class="lights"><span></span><span></span></div>`;
   const mult = NPC_FALL_MIN_MULT + Math.random() * (NPC_FALL_MAX_MULT - NPC_FALL_MIN_MULT);
   const centers = laneCenters();
-  el.style.left = (centers[laneIndex] - 48/2) + "px";
+  el.style.left = (centers[laneIndex] - player.offsetWidth / 2) + "px";
   el.style.top = "-150px";
   return { type:"npc", el, v:mult, lane:laneIndex };
 }
-
 function makeBoost(laneIndex){
   const el = document.createElement("div");
   el.className = "boost";
   const centers = laneCenters();
-  el.style.left = (centers[laneIndex] - 46/2) + "px";
+  const size = window.innerWidth <= 768 ? 40 : 46;
+  el.style.left = (centers[laneIndex] - size / 2) + "px";
   el.style.top = "-110px";
   return { type:"boost", el, lane:laneIndex };
 }
-
 function makeObstacle(){
   const el = document.createElement("div");
   el.className = "obstacle";
   const centers = laneCenters();
-  el.style.left = (centers[1] - 54/2) + "px";
+  const size = window.innerWidth <= 768 ? 46 : 54;
+  el.style.left = (centers[1] - size / 2) + "px";
   el.style.top = "-120px";
   return { type:"ob", el, lane:1 };
 }
-
 function makeAmmo(laneIndex){
   const el = document.createElement("div");
   el.className = "ammoPick";
   const centers = laneCenters();
-  el.style.left = (centers[laneIndex] - 44/2) + "px";
+  const size = window.innerWidth <= 768 ? 38 : 44;
+  el.style.left = (centers[laneIndex] - size / 2) + "px";
   el.style.top = "-110px";
   return { type:"ammo", el, lane:laneIndex };
 }
-
 function makeShock(now){
   const el = document.createElement("div");
   el.className = "shock";
-  const cx = player.offsetLeft + player.offsetWidth/2;
-  const cy = player.offsetTop + player.offsetHeight/2;
+  const cx = player.offsetLeft + player.offsetWidth / 2;
+  const cy = player.offsetTop + player.offsetHeight / 2;
   el.style.left = (cx - 9) + "px";
   el.style.top = (cy - 9) + "px";
   return { type:"shock", el, born:now, r:9, cx, cy };
 }
 
-/* 安全判定 */
 function laneUnsafeWithin(ln, horizonSec){
   const playerTop = player.offsetTop;
   for(const e of entities){
@@ -984,49 +1041,40 @@ function laneUnsafeWithin(ln, horizonSec){
   }
   return false;
 }
-
-function laneSafeForHorizon(ln, horizonSec){
-  return !laneUnsafeWithin(ln, horizonSec);
-}
+function laneSafeForHorizon(ln, horizonSec){ return !laneUnsafeWithin(ln, horizonSec); }
 
 function spawnNpcWaveSmart(){
   const safeLanesNow = [0,1,2].filter(ln => laneSafeForHorizon(ln, SAFE_HORIZON_SEC));
   if(safeLanesNow.length === 0) return false;
-
   const wantTwo = Math.random() < WAVE_TWO_CAR_PROB;
   const count = wantTwo ? 2 : 1;
-
-  const reachable = [lane, lane-1, lane+1].filter(x=>x>=0 && x<=2);
+  const reachable = [lane, lane-1, lane+1].filter(x => x >= 0 && x <= 2);
   const preferred = safeLanesNow.filter(ln => reachable.includes(ln));
   const keepLanePool = preferred.length ? preferred : safeLanesNow;
   const keepLane = keepLanePool[Math.floor(Math.random() * keepLanePool.length)];
-
   let candidates = [0,2].filter(ln => ln !== keepLane);
   candidates = candidates.filter(ln => {
     const t = nearestTopInLane(ln, "npc");
     return (t === Infinity) || (t > SAME_LANE_MIN_GAP);
   });
   if(candidates.length === 0) return false;
-
   const actualCount = Math.min(count, candidates.length);
   const lanes = [];
   while(lanes.length < actualCount){
-    const pick = candidates[Math.floor(Math.random()*candidates.length)];
+    const pick = candidates[Math.floor(Math.random() * candidates.length)];
     if(!lanes.includes(pick)) lanes.push(pick);
   }
-
   lanes.forEach((ln, idx)=>{
     const obj = makeNpcCar(ln);
-    obj.el.style.top = (-150 - idx*SPAWN_STAGGER_Y) + "px";
+    obj.el.style.top = (-150 - idx * SPAWN_STAGGER_Y) + "px";
     game.appendChild(obj.el);
     entities.push(obj);
   });
-
   const safeAfter = [0,1,2].some(ln => laneSafeForHorizon(ln, SAFE_HORIZON_SEC));
   if(!safeAfter){
-    for(let i=entities.length-1; i>=0; i--){
+    for(let i = entities.length - 1; i >= 0; i--){
       const e = entities[i];
-      if(e.type==="npc" && lanes.includes(e.lane) && e.el.offsetTop < 0){
+      if(e.type === "npc" && lanes.includes(e.lane) && e.el.offsetTop < 0){
         e.el.remove();
         entities.splice(i,1);
       }
@@ -1044,132 +1092,93 @@ function spawnObstacle(){
   game.appendChild(obj.el);
   entities.push(obj);
 }
-
 function spawnBoost(){
   if(countType("boost") >= MAX_BOOST_ON_SCREEN) return;
   const preferred = [0,2].filter(ln => laneSafeForHorizon(ln, 0.8));
   const fallback = [0,1,2].filter(ln => laneSafeForHorizon(ln, 0.8));
   const list = preferred.length ? preferred : (fallback.length ? fallback : [0,2,1]);
-  const ln = list[Math.floor(Math.random()*list.length)];
+  const ln = list[Math.floor(Math.random() * list.length)];
   const obj = makeBoost(ln);
   game.appendChild(obj.el);
   entities.push(obj);
 }
-
 function spawnAmmo(){
   if(countType("ammo") >= MAX_AMMO_ON_SCREEN) return;
   const safe = [0,1,2].filter(ln => laneSafeForHorizon(ln, 0.8));
   const list = safe.length ? safe : [0,1,2];
-  const ln = list[Math.floor(Math.random()*list.length)];
+  const ln = list[Math.floor(Math.random() * list.length)];
   const obj = makeAmmo(ln);
   game.appendChild(obj.el);
   entities.push(obj);
 }
 
-/* ====== 效果 ====== */
 function applyPenalty(now){
+  sfxHit();
   pauseUntil = Math.max(pauseUntil, now + PENALTY_MS);
   penaltyBox.style.display = "block";
-  penaltyBox.querySelector("strong").textContent = String(Math.ceil((pauseUntil - now)/1000));
-  game.animate(
-    [{ transform:"translateX(0)" }, { transform:"translateX(-6px)" }, { transform:"translateX(6px)" }, { transform:"translateX(0)" }],
-    { duration:220, iterations:1 }
-  );
+  penaltyBox.querySelector("strong").textContent = String(Math.ceil((pauseUntil - now) / 1000));
+  game.animate([{ transform:"translateX(0)" }, { transform:"translateX(-6px)" }, { transform:"translateX(6px)" }, { transform:"translateX(0)" }], { duration:220, iterations:1 });
 }
-
 function applyBoost(now){
   boostUntil = Math.max(boostUntil, now + BOOST_MS);
   player.classList.add("boosting");
   topHud.classList.add("boosting");
 }
-
 function updateAmmoUI(){
-  if(ammoCountEl){
-    ammoCountEl.textContent = String(ammo);
-  }
-
   shootBtn.textContent = ammo > 0 ? `⚡ 震波 (${ammo})` : "⚡ 震波";
-
   if(ammoFloatEl){
     ammoFloatEl.textContent = `⚡${ammo}`;
     ammoFloatEl.classList.toggle("empty", ammo <= 0);
   }
 }
-
 function tryShock(now){
   if(over || finishing) return;
   if(now < pauseUntil) return;
   if(ammo <= 0) return;
   if(now - lastFireAt < FIRE_COOLDOWN_MS) return;
-
   ammo--;
   updateAmmoUI();
   lastFireAt = now;
-
+  sfxShoot();
   const s = makeShock(now);
   game.appendChild(s.el);
   entities.push(s);
-
-  player.animate(
-    [
-      { transform:"rotate(180deg) scale(1)" },
-      { transform:"rotate(180deg) scale(1.02)" },
-      { transform:"rotate(180deg) scale(1)" }
-    ],
-    { duration:150, iterations:1 }
-  );
+  player.animate([
+      { transform:`rotate(180deg) translateY(${-jumpLift}px) scale(1)` },
+      { transform:`rotate(180deg) translateY(${-jumpLift}px) scale(1.02)` },
+      { transform:`rotate(180deg) translateY(${-jumpLift}px) scale(1)` }
+    ], { duration:150, iterations:1 });
 }
-
 function tryJump(now){
   if(over || finishing) return;
   if(now < pauseUntil) return;
   if(now < jumpUntil) return;
   if(now < lastJumpAt + JUMP_COOLDOWN_MS) return;
-
   lastJumpAt = now;
   jumpUntil = now + JUMP_DURATION_MS;
   player.classList.add("jumping");
-
-  player.animate(
-    [
+  player.animate([
       { transform:`rotate(180deg) translateY(0px) scale(1)` },
       { transform:`rotate(180deg) translateY(${-JUMP_HEIGHT_PX}px) scale(1.04)` },
       { transform:`rotate(180deg) translateY(0px) scale(1)` }
-    ],
-    {
-      duration:JUMP_DURATION_MS,
-      easing:"cubic-bezier(.2,.8,.2,1)",
-      iterations:1
-    }
-  );
+    ], { duration:JUMP_DURATION_MS, easing:"cubic-bezier(.2,.8,.2,1)", iterations:1 });
 }
-
 function computeJumpLift(now){
   if(now >= jumpUntil) return 0;
   const start = jumpUntil - JUMP_DURATION_MS;
   const p = clamp((now - start) / JUMP_DURATION_MS, 0, 1);
   return Math.sin(Math.PI * p) * JUMP_HEIGHT_PX;
 }
+function isJumping(now){ return now < jumpUntil; }
 
-function isJumping(now){
-  return now < jumpUntil;
-}
-
-/* ====== 排行榜 ====== */
 function loadRanks(){
   try{
     const raw = localStorage.getItem(RANK_KEY);
     const arr = raw ? JSON.parse(raw) : [];
     return Array.isArray(arr) ? arr : [];
-  }catch{
-    return [];
-  }
+  }catch{ return []; }
 }
-
-function saveRanks(arr){
-  try{ localStorage.setItem(RANK_KEY, JSON.stringify(arr)); }catch{}
-}
-
+function saveRanks(arr){ try{ localStorage.setItem(RANK_KEY, JSON.stringify(arr)); }catch{} }
 function addRank(timeMs){
   const arr = loadRanks();
   arr.push({ t:timeMs, at:Date.now() });
@@ -1178,7 +1187,6 @@ function addRank(timeMs){
   saveRanks(top10);
   return top10;
 }
-
 function renderRanks(arr){
   rankListEl.innerHTML = "";
   if(!arr.length){
@@ -1196,7 +1204,6 @@ function renderRanks(arr){
   });
 }
 
-/* 清空所有實體 */
 function purgeAllEntities(){
   for(const e of entities){
     try{ e.el?.remove?.(); }catch{}
@@ -1204,34 +1211,26 @@ function purgeAllEntities(){
   entities = [];
 }
 
-/* 入院動畫 */
 function enterHospitalAndWin(){
   if(finishing || over) return;
   finishing = true;
-
   purgeAllEntities();
   finish.style.top = "0%";
-
   const centers = laneCenters();
-  const targetX = centers[1] - player.offsetWidth/2;
-
+  const targetX = centers[1] - player.offsetWidth / 2;
   player.classList.add("finishing");
   player.style.left = targetX + "px";
-
   const startTop = player.offsetTop;
   const endTop = -90;
-
   player.style.bottom = "auto";
   player.style.top = startTop + "px";
-
   const t0 = performance.now();
   const step = (t)=>{
-    const p = clamp((t - t0)/FINISH_RUNIN_MS, 0, 1);
+    const p = clamp((t - t0) / FINISH_RUNIN_MS, 0, 1);
     const ease = 1 - Math.pow(1 - p, 3);
     player.style.top = (startTop + (endTop - startTop) * ease) + "px";
-    if(p < 1){
-      requestAnimationFrame(step);
-    }else{
+    if(p < 1) requestAnimationFrame(step);
+    else{
       finish.classList.add("success");
       if(!endScheduled){
         endScheduled = true;
@@ -1242,50 +1241,39 @@ function enterHospitalAndWin(){
   requestAnimationFrame(step);
 }
 
-/* 重置 / 結束 */
 function reset(){
   purgeAllEntities();
   distance = 0;
   over = false;
   finishing = false;
   endScheduled = false;
-
   pauseUntil = 0;
   boostUntil = 0;
-
   ammo = 0;
   lastFireAt = 0;
   lastJumpAt = -99999;
   jumpUntil = 0;
   jumpLift = 0;
-
   clearTimeout(carLongPressTimer);
   carLongPressTriggered = false;
-
   runStartAt = performance.now();
   elapsedMs = 0;
   timeNowEl.textContent = "0";
-
   penaltyBox.style.display = "none";
   player.classList.remove("boosting","finishing","jumping");
   topHud.classList.remove("boosting");
-
   player.style.top = "";
   player.style.bottom = "6%";
   player.style.transform = "rotate(180deg) translateY(0px)";
-
   finish.style.top = "-38%";
   finish.classList.remove("success");
   overlay.style.display = "none";
-
   setPlayerLane(1);
   updateRelativeDistance(0);
   distLeftEl.textContent = String(GOAL_DISTANCE);
   updateAmmoUI();
-
   lastRunTimeMs = null;
   renderRanks(loadRanks());
-
   lastFrame = performance.now();
   const now = performance.now();
   nextWaveAt = now + rand(WAVE_MIN_MS, WAVE_MAX_MS);
@@ -1298,279 +1286,161 @@ function gameEnd(){
   if(over) return;
   over = true;
   overlay.style.display = "flex";
-
+  sfxGoal();
   lastRunTimeMs = elapsedMs;
   resultTitle.textContent = "✅ 成功抵達醫院！";
   resultText.textContent = `到院時間：${fmtSec(elapsedMs)} 秒（越快越好）`;
-
-  try{
-    parent.postMessage({type:'GAME_CLEAR', game:'race', time:Math.floor(elapsedMs/1000)}, '*');
-  }catch(e){}
-
+  try{ parent.postMessage({type:'GAME_CLEAR', game:'race', time:Math.floor(elapsedMs / 1000)}, '*'); }catch(e){}
   const top10 = addRank(elapsedMs);
   renderRanks(top10);
 }
 
 function tick(now){
   if(over) return;
-
-  const dt = Math.min(0.03, (now - lastFrame)/1000);
+  const dt = Math.min(0.03, (now - lastFrame) / 1000);
   lastFrame = now;
-
   elapsedMs = now - runStartAt;
-  timeNowEl.textContent = String(Math.floor(elapsedMs/1000));
-
+  timeNowEl.textContent = String(Math.floor(elapsedMs / 1000));
   jumpLift = computeJumpLift(now);
   player.style.transform = `rotate(180deg) translateY(${-jumpLift}px)`;
-
-  if(now >= jumpUntil){
-    player.classList.remove("jumping");
-  }
-
-  if(now >= boostUntil){
-    player.classList.remove("boosting");
-    topHud.classList.remove("boosting");
-  }
-
+  if(now >= jumpUntil) player.classList.remove("jumping");
+  if(now >= boostUntil){ player.classList.remove("boosting"); topHud.classList.remove("boosting"); }
   if(now < pauseUntil){
     penaltyBox.style.display = "block";
-    penaltyBox.querySelector("strong").textContent = String(Math.ceil((pauseUntil - now)/1000));
+    penaltyBox.querySelector("strong").textContent = String(Math.ceil((pauseUntil - now) / 1000));
     requestAnimationFrame(tick);
     return;
-  }else{
-    penaltyBox.style.display = "none";
-  }
+  }else penaltyBox.style.display = "none";
 
   const forwardMult = (now < boostUntil) ? BOOST_FORWARD_MULT : 1.0;
   distance += (BASE_FORWARD_SPEED * forwardMult) * DIST_UNIT * dt;
-
   const left = Math.max(0, Math.ceil(GOAL_DISTANCE - distance));
   distLeftEl.textContent = String(left);
-
   const prog = clamp((distance / GOAL_DISTANCE) * 100, 0, 100);
   updateRelativeDistance(prog);
-
   if(prog > 88){
     const t = (prog - 88) / 12;
     finish.style.top = (-38 + 38 * t) + "%";
   }
-
-  if(distance >= GOAL_DISTANCE){
-    enterHospitalAndWin();
-    return;
-  }
-
-  if(finishing){
-    requestAnimationFrame(tick);
-    return;
-  }
+  if(distance >= GOAL_DISTANCE){ enterHospitalAndWin(); return; }
+  if(finishing){ requestAnimationFrame(tick); return; }
 
   if(now >= nextWaveAt){
     const ok = spawnNpcWaveSmart();
     nextWaveAt = now + rand(WAVE_MIN_MS, WAVE_MAX_MS) + (ok ? 0 : 220);
   }
-  if(now >= nextObAt){
-    spawnObstacle();
-    nextObAt = now + rand(OB_MIN_MS, OB_MAX_MS);
-  }
-  if(now >= nextBoostAt){
-    spawnBoost();
-    nextBoostAt = now + rand(BOOST_MIN_MS, BOOST_MAX_MS);
-  }
-  if(now >= nextAmmoAt){
-    spawnAmmo();
-    nextAmmoAt = now + rand(AMMO_MIN_MS, AMMO_MAX_MS);
-  }
+  if(now >= nextObAt){ spawnObstacle(); nextObAt = now + rand(OB_MIN_MS, OB_MAX_MS); }
+  if(now >= nextBoostAt){ spawnBoost(); nextBoostAt = now + rand(BOOST_MIN_MS, BOOST_MAX_MS); }
+  if(now >= nextAmmoAt){ spawnAmmo(); nextAmmoAt = now + rand(AMMO_MIN_MS, AMMO_MAX_MS); }
 
   const jumping = isJumping(now);
-
   for(let i = entities.length - 1; i >= 0; i--){
     const e = entities[i];
-
     if(e.type === "npc"){
       e.el.style.top = (e.el.offsetTop + (NPC_FALL_BASE * e.v) * dt) + "px";
       if(!jumping && hit(player, e.el)){
-        e.el.remove();
-        entities.splice(i,1);
-        applyPenalty(now);
-        break;
+        e.el.remove(); entities.splice(i,1); applyPenalty(now); break;
       }
-      if(e.el.offsetTop > game.clientHeight + 160){
-        e.el.remove();
-        entities.splice(i,1);
-      }
+      if(e.el.offsetTop > game.clientHeight + 160){ e.el.remove(); entities.splice(i,1); }
     }
-
     if(e.type === "ob"){
       e.el.style.top = (e.el.offsetTop + OB_FALL * dt) + "px";
       if(!jumping && hit(player, e.el)){
-        e.el.remove();
-        entities.splice(i,1);
-        applyPenalty(now);
-        break;
+        e.el.remove(); entities.splice(i,1); applyPenalty(now); break;
       }
-      if(e.el.offsetTop > game.clientHeight + 160){
-        e.el.remove();
-        entities.splice(i,1);
-      }
+      if(e.el.offsetTop > game.clientHeight + 160){ e.el.remove(); entities.splice(i,1); }
     }
-
     if(e.type === "boost"){
       e.el.style.top = (e.el.offsetTop + BOOST_FALL * dt) + "px";
       if(hit(player, e.el)){
-        e.el.remove();
-        entities.splice(i,1);
-        applyBoost(now);
-        continue;
+        e.el.remove(); entities.splice(i,1); applyBoost(now); sfxPickup(); continue;
       }
-      if(e.el.offsetTop > game.clientHeight + 140){
-        e.el.remove();
-        entities.splice(i,1);
-      }
+      if(e.el.offsetTop > game.clientHeight + 140){ e.el.remove(); entities.splice(i,1); }
     }
-
     if(e.type === "ammo"){
       e.el.style.top = (e.el.offsetTop + AMMO_FALL * dt) + "px";
       if(hit(player, e.el)){
-        e.el.remove();
-        entities.splice(i,1);
-        ammo++;
-        updateAmmoUI();
-        continue;
+        e.el.remove(); entities.splice(i,1); ammo++; updateAmmoUI(); sfxPickup(); continue;
       }
-      if(e.el.offsetTop > game.clientHeight + 140){
-        e.el.remove();
-        entities.splice(i,1);
-      }
+      if(e.el.offsetTop > game.clientHeight + 140){ e.el.remove(); entities.splice(i,1); }
     }
-
     if(e.type === "shock"){
       const age = now - e.born;
-      const r = Math.min(SHOCK_MAX_RADIUS, 9 + (SHOCK_GROW_PX_PER_S * (age/1000)));
+      const r = Math.min(SHOCK_MAX_RADIUS, 9 + (SHOCK_GROW_PX_PER_S * (age / 1000)));
       e.r = r;
-
-      e.el.style.width = (r*2) + "px";
-      e.el.style.height = (r*2) + "px";
+      e.el.style.width = (r * 2) + "px";
+      e.el.style.height = (r * 2) + "px";
       e.el.style.left = (e.cx - r) + "px";
       e.el.style.top = (e.cy - r) + "px";
-      e.el.style.opacity = String(Math.max(0, 1 - age/SHOCK_LIFETIME_MS));
-
+      e.el.style.opacity = String(Math.max(0, 1 - age / SHOCK_LIFETIME_MS));
       for(let j = entities.length - 1; j >= 0; j--){
         const t = entities[j];
         if(t.type !== "ob") continue;
-
-        const ox = t.el.offsetLeft + t.el.offsetWidth/2;
-        const oy = t.el.offsetTop + t.el.offsetHeight/2;
+        const ox = t.el.offsetLeft + t.el.offsetWidth / 2;
+        const oy = t.el.offsetTop + t.el.offsetHeight / 2;
         const d = Math.hypot(ox - e.cx, oy - e.cy);
-
         if(d <= r + 18){
           t.el.classList.add("shatter");
           setTimeout(()=>{ try{ t.el.remove(); }catch{} }, 260);
           entities.splice(j,1);
         }
       }
-
-      if(age >= SHOCK_LIFETIME_MS){
-        e.el.remove();
-        entities.splice(i,1);
-      }
+      if(age >= SHOCK_LIFETIME_MS){ e.el.remove(); entities.splice(i,1); }
     }
   }
-
   requestAnimationFrame(tick);
 }
 
-/* 操作 */
-function moveLeft(){
-  if(performance.now() < pauseUntil || over || finishing) return;
-  setPlayerLane(lane - 1);
-}
+function moveLeft(){ if(performance.now() < pauseUntil || over || finishing) return; setPlayerLane(lane - 1); }
+function moveRight(){ if(performance.now() < pauseUntil || over || finishing) return; setPlayerLane(lane + 1); }
 
-function moveRight(){
-  if(performance.now() < pauseUntil || over || finishing) return;
-  setPlayerLane(lane + 1);
-}
-
-/* 桌機鍵盤 */
 document.addEventListener("keydown", e=>{
+  ensureAudio();
   if(e.repeat) return;
-
-  if(e.key==="ArrowLeft") moveLeft();
-  if(e.key==="ArrowRight") moveRight();
-
-  if(e.key==="ArrowUp"){
-    e.preventDefault();
-    tryShock(performance.now());
-  }
-
-  if(e.code==="Space"){
-    e.preventDefault();
-    tryJump(performance.now());
-  }
+  if(e.key === "ArrowLeft") moveLeft();
+  if(e.key === "ArrowRight") moveRight();
+  if(e.key === "ArrowUp"){ e.preventDefault(); tryShock(performance.now()); }
+  if(e.code === "Space"){ e.preventDefault(); tryJump(performance.now()); }
 });
+leftBtn.addEventListener("click", ()=>{ ensureAudio(); moveLeft(); });
+rightBtn.addEventListener("click", ()=>{ ensureAudio(); moveRight(); });
+shootBtn.addEventListener("click", ()=>{ ensureAudio(); tryShock(performance.now()); });
 
-/* 桌機按鈕 */
-leftBtn.addEventListener("click", moveLeft);
-rightBtn.addEventListener("click", moveRight);
-shootBtn.addEventListener("click", ()=> tryShock(performance.now()));
-
-/* 手機觸控 */
 game.addEventListener("touchstart", (e)=>{
+  ensureAudio();
   if(over || finishing) return;
   if(performance.now() < pauseUntil) return;
-
   const t = e.touches[0];
   if(!t) return;
-
   const x = t.clientX;
   const y = t.clientY;
-
   if(isTapOnPlayer(x, y)){
     e.preventDefault();
-
     carLongPressTriggered = false;
     clearTimeout(carLongPressTimer);
-
     carLongPressTimer = setTimeout(()=>{
       carLongPressTriggered = true;
       tryJump(performance.now());
     }, CAR_LONG_PRESS_MS);
-
     return;
   }
-
   const rect = game.getBoundingClientRect();
   const localX = x - rect.left;
-
   e.preventDefault();
-
-  if(localX < rect.width / 2){
-    moveLeft();
-  }else{
-    moveRight();
-  }
+  if(localX < rect.width / 2) moveLeft();
+  else moveRight();
 }, { passive:false });
 
 game.addEventListener("touchend", (e)=>{
   clearTimeout(carLongPressTimer);
-
   const t = e.changedTouches[0];
-  if(!t){
-    carLongPressTriggered = false;
-    return;
-  }
-
+  if(!t){ carLongPressTriggered = false; return; }
   const x = t.clientX;
   const y = t.clientY;
-
   if(isTapOnPlayer(x, y)){
     e.preventDefault();
-
-    if(!carLongPressTriggered){
-      tryShock(performance.now());
-    }
+    if(!carLongPressTriggered) tryShock(performance.now());
   }
-
   carLongPressTriggered = false;
 }, { passive:false });
 
@@ -1579,15 +1449,13 @@ game.addEventListener("touchcancel", ()=>{
   carLongPressTriggered = false;
 });
 
-function restart(){
-  reset();
-  requestAnimationFrame(tick);
-}
+document.addEventListener("pointerdown", ensureAudio, { once:true });
+document.addEventListener("touchstart", ensureAudio, { once:true, passive:true });
+document.addEventListener("keydown", ensureAudio, { once:true });
 
+function restart(){ reset(); requestAnimationFrame(tick); }
 restartBtn.addEventListener("click", restart);
 restartSmallBtn.addEventListener("click", restart);
-
-/* 初始化 */
 reset();
 requestAnimationFrame(tick);
 window.addEventListener("resize", ()=> setPlayerLane(lane));
