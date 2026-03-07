@@ -97,10 +97,9 @@ header{
 .content{
   position:absolute; inset:0; display:flex; flex-direction:column; padding:16px;
   z-index: 10;
-  overflow-y: auto; /* 讓整體內容可以滑動 */
+  overflow-y: auto;
 }
 
-/* ★ 重點修正：讓 screen 內容自然流動，不強制撐滿 */
 .screen {
   flex: 0 1 auto; 
   display: none; flex-direction: column; 
@@ -123,7 +122,6 @@ header{
 .talk .who{font-weight:1000; font-size:15px; letter-spacing: 0.5px;}
 .talk .say{margin-top:6px; color:var(--muted); font-size:13.5px; line-height:1.65;}
 
-/* ★ 改為 flex: 0 1 auto，高度會自然貼合內容 */
 .midPanel{
   flex: 0 1 auto; min-height:0; padding:14px; border-radius:18px; background:rgba(255,255,255,.03);
   border:1px solid rgba(255,255,255,.08); overflow-x:hidden;
@@ -133,7 +131,6 @@ header{
 .bullet{margin:0; padding-left:18px; color:var(--muted); font-size:13.5px; line-height:1.65;}
 .bullet li{margin:8px 0;}
 
-/* ★ 移除 margin-top: auto; 讓底部列自然跟在 midPanel 下方 */
 .bottomBar{
   display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap;
   padding:14px; border-radius:18px; background:rgba(10,14,28,.85); border:1px solid rgba(255,255,255,.15);
@@ -221,13 +218,18 @@ header{
 }
 .full-width-btn { width: 100%; text-align: center; font-size: 15px; padding: 14px;}
 
-#scrBrief #briefDetail.open{ display:block; animation: fadeIn 0.2s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px);} to { opacity: 1; transform: translateY(0);} }
 
-/* 隱藏/顯示邏輯 */
-#scrBrief #briefDetail{ display:none; }
-#scrCase .caseTaskWrap{ display:none; flex-direction: column; flex: 0 1 auto; min-height: 0; }
-#scrCase.taskOpen .caseTaskWrap{ display:flex; }
+/* ★ 重點修正：隱藏/顯示邏輯 (展開時才顯示任務卡片與底部按鈕) */
+#scrBrief #briefDetail { display:none; }
+#scrBrief #briefDetail.open { display:block; animation: fadeIn 0.2s ease; }
+#scrBrief .bottomBar { display:none; }
+#scrBrief #briefDetail.open ~ .bottomBar { display:flex; animation: fadeIn 0.2s ease; }
+
+#scrCase .caseTaskWrap { display:none; flex-direction: column; flex: 0 1 auto; min-height: 0; }
+#scrCase.taskOpen .caseTaskWrap { display:flex; animation: fadeIn 0.2s ease; }
+#scrCase .bottomBar { display:none; }
+#scrCase.taskOpen .bottomBar { display:flex; animation: fadeIn 0.2s ease; }
 
 /* 排行榜表格 */
 .rankTable{width:100%; border-collapse:collapse; margin-top:8px;}
