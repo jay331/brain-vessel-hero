@@ -186,7 +186,7 @@ header{
 
 /* ===== LIST ===== */
 #scrList .listBtn{
-  font-size: 16px; font-weight: 800; text-align: left; padding: 18px 20px;
+  font-size: 15px; font-weight: 800; text-align: left; padding: 16px 18px;
   border-radius: 18px; color: #eaf2ff;
   background: linear-gradient(180deg, rgba(20,30,55,.75), rgba(10,15,30,.85));
   border: 1px solid rgba(255,255,255,.18);
@@ -260,8 +260,15 @@ header{
 <body>
 <div class="app">
 <header>
-  <div class="brand"><div class="t" id="titleLine">腦脈先鋒</div><div class="s" id="subLine" style="display:none"></div></div>
-  <div class="hud"><div class="chip">總積分：<strong id="caseScore">0</strong></div><button class="btn secondary" style="padding: 8px 12px; font-size: 12px;" id="btnHome">首頁</button></div>
+  <div class="brand">
+    <div class="t" id="titleLine">腦脈先鋒</div>
+    <div class="s" id="subLine" style="display:none"></div>
+  </div>
+  <div class="hud">
+    <div class="chip">總積分：<strong id="caseScore">0</strong></div>
+    <button class="btn secondary" style="padding: 8px 12px; font-size: 12px;" id="btnHome">首頁</button>
+    <button class="btn danger" style="padding: 8px 12px; font-size: 12px;" id="btnReset">重置</button>
+  </div>
 </header>
 
 <div class="wrap">
@@ -384,8 +391,8 @@ header{
         <div class="topTalk" style="align-items: center;">
           <div class="avatar" style="width: 70px; height: 70px;"><img src="assets/doctor_card.png" alt=""></div>
           <div class="talk">
-            <div class="who">🎉 完美結訓！</div>
-            <div class="say">你已完成所有救護駕駛訓練與急救流程，成功解鎖【挑戰模式】！</div>
+            <div class="who">🎉 總任務完成</div>
+            <div class="say">你已完美結束本次的急救護理流程！挑戰模式已完全解鎖！</div>
           </div>
         </div>
 
@@ -427,9 +434,10 @@ header{
 </div>
 
 <script>
+// 常數與設定
 const KEY_RANK='BVP_MAIN_RANK_V2';
 
-// ★ 將賽車遊戲統一指向引擎檔案 game_race.html
+// 賽車引擎統一入口
 const GAME_FILES = {
   'race_engine': 'game_race.html', 
   'match-l1': 'game_match_lev1.html',
@@ -437,10 +445,11 @@ const GAME_FILES = {
   'shoot': 'game_shoot_lev1.html',
 };
 
+// 遊戲進度狀態
 const caseState = {
   caseScore: 0,
   currentRole: 'EMT', 
-  subStage: 1, // ★ 新增子關卡進度 (1,2,3)
+  subStage: 1, // 任務一的子關卡進度 (1,2,3)
   unlocked: { EMT:true, TEAM:false, NURSE:false },
   completed: { EMT:false, TEAM:false, NURSE:false },
   activeRole: null,
@@ -449,71 +458,87 @@ const caseState = {
   isListMode: false
 };
 
-// 安全獲取 DOM 元素的封裝
+// 安全獲取 DOM 元素
 function id(elementId) { return document.getElementById(elementId); }
 
-// --- 綁定事件 ---
-document.addEventListener('pointerdown', ()=>{ requestFullscreenSafe(); }, { once:true });
+// ==========================================
+// 綁定所有按鈕事件 (確保安全不報錯)
+// ==========================================
+window.onload = () => {
+    // 防止手機跳出選單
+    document.addEventListener('pointerdown', ()=>{ requestFullscreenSafe(); }, { once:true });
 
-id('btnMissionMode').onclick = startMission;
-id('btnListMode').onclick = () => {
-    if(!caseState.completed.NURSE) {
-        toast("🔒 請先完成「任務模式」全破才能解鎖挑戰！");
-        return;
-    }
-    requestFullscreenSafe(); caseState.isListMode=true; id('subLine').textContent='挑戰模式'; show('list');
+    // 主選單按鈕
+    id('btnMissionMode').onclick = startMission;
+    id('btnListMode').onclick = () => {
+        if(!caseState.completed.NURSE) {
+            toast("🔒 請先完成「任務模式」全破才能解鎖挑戰！");
+            return;
+        }
+        requestFullscreenSafe(); caseState.isListMode=true; id('subLine').textContent='挑戰模式'; show('list');
+    };
+    id('btnHome').onclick = goHome;
+    id('btnReset').onclick = resetAll;
+
+    // 任務模塊按鈕
+    id('tileEMT').onclick = ()=>openRole('EMT');
+    id('tileTEAM').onclick = ()=>openRole('TEAM');
+    id('tileNURSE').onclick = ()=>openRole('NURSE');
+
+    // 任務一的子關卡按鈕
+    id('subBtn1').onclick = ()=>openSubTask(1);
+    id('subBtn2').onclick = ()=>openSubTask(2);
+    id('subBtn3').onclick = ()=>openSubTask(3);
+
+    // 挑戰清單按鈕
+    id('btnChal1').onclick = ()=>startListGame('ch_farthest');
+    id('btnChal2').onclick = ()=>startListGame('ch_fastest');
+    id('btnChal3').onclick = ()=>startListGame('ch_music');
+    id('btnChal4').onclick = ()=>startListGame('shoot');
+    id('btnChal5').onclick = ()=>startListGame('match-l1');
+    id('btnListBack').onclick = goHome;
+
+    // 遊戲流程按鈕
+    id('btnBriefBack').onclick = ()=>show('case');
+    id('btnStartTask').onclick = startRoleGame;
+    id('btnRetryRole').onclick = ()=>{
+        if(caseState.activeRole==='EMT') openSubTask(caseState.activeSubStage);
+        else showBrief(caseState.activeRole);
+    };
+    id('btnFinishRole').onclick = finishRole;
+    id('btnReplayCase').onclick = ()=>{ resetCaseOnly(); goHome(); };
+
+    // 退出遊戲按鈕
+    id('btnExitGame').onclick = ()=>{
+        id('gameOverlay').style.display='none';
+        id('gameFrame').src='';
+        if(caseState.isListMode){ show('list'); toast('已返回清單'); } 
+        else { show('case'); toast('已中斷任務'); }
+    };
+
+    // 摺疊/展開選單按鈕
+    id('btnToggleBrief').onclick = function(){
+        const open = id('briefDetail').classList.toggle('open');
+        this.setAttribute('aria-expanded', open ? 'true' : 'false');
+        this.textContent = open ? '收合詳細指引 ▴' : '展開詳細指引 ▾';
+    };
+    id('btnToggleCaseTask').onclick = function(){
+        const scr = id('scrCase');
+        const open = scr.classList.toggle('taskOpen');
+        this.setAttribute('aria-expanded', open ? 'true' : 'false');
+        this.textContent = open ? '隱藏當前任務 ▴' : '查看當前任務目標 ▾';
+    };
+
+    id('gameOverlay').addEventListener('pointerdown', focusGameFrame);
+
+    // 初始化畫面
+    id('caseScore').textContent = "0";
+    goHome();
 };
-id('btnHome').onclick = goHome;
-id('btnReset').onclick = resetAll;
 
-id('tileEMT').onclick = ()=>openRole('EMT');
-id('tileTEAM').onclick = ()=>openRole('TEAM');
-id('tileNURSE').onclick = ()=>openRole('NURSE');
-
-id('subBtn1').onclick = ()=>openSubTask(1);
-id('subBtn2').onclick = ()=>openSubTask(2);
-id('subBtn3').onclick = ()=>openSubTask(3);
-
-id('btnChal1').onclick = ()=>startListGame('ch_farthest');
-id('btnChal2').onclick = ()=>startListGame('ch_fastest');
-id('btnChal3').onclick = ()=>startListGame('ch_music');
-id('btnChal4').onclick = ()=>startListGame('shoot');
-id('btnChal5').onclick = ()=>startListGame('match-l1');
-id('btnListBack').onclick = goHome;
-
-id('btnBriefBack').onclick = ()=>show('case');
-id('btnStartTask').onclick = ()=>startRoleGame();
-id('btnRetryRole').onclick = ()=>{
-    if(caseState.activeRole==='EMT') openSubTask(caseState.activeSubStage);
-    else showBrief(caseState.activeRole);
-};
-id('btnFinishRole').onclick = finishRole;
-id('btnReplayCase').onclick = ()=>{ resetCaseOnly(); goHome(); };
-
-id('btnExitGame').onclick = ()=>{
-    id('gameOverlay').style.display='none';
-    id('gameFrame').src='';
-    if(caseState.isListMode){ show('list'); toast('已返回清單'); } 
-    else { show('case'); toast('已中斷任務'); }
-};
-
-id('btnToggleBrief').onclick = function(){
-    const open = id('briefDetail').classList.toggle('open');
-    this.setAttribute('aria-expanded', open ? 'true' : 'false');
-    this.textContent = open ? '收合詳細指引 ▴' : '展開詳細指引 ▾';
-};
-
-id('btnToggleCaseTask').onclick = function(){
-    const scr = id('scrCase');
-    const open = scr.classList.toggle('taskOpen');
-    this.setAttribute('aria-expanded', open ? 'true' : 'false');
-    this.textContent = open ? '隱藏當前任務 ▴' : '查看當前任務目標 ▾';
-};
-
-// --- 初始化 ---
-id('caseScore').textContent = "0";
-goHome();
-
+// ==========================================
+// 核心邏輯區
+// ==========================================
 function requestFullscreenSafe(){
   const el = document.documentElement;
   if(document.fullscreenElement) return;
@@ -543,7 +568,8 @@ function show(which){
       if(el) el.classList.remove('show');
   });
   
-  const target = id({home:'scrHome', list:'scrList', case:'scrCase', brief:'scrBrief', roleComplete:'scrRoleComplete', caseComplete:'scrCaseComplete'}[which]);
+  const targetMap = {home:'scrHome', list:'scrList', case:'scrCase', brief:'scrBrief', roleComplete:'scrRoleComplete', caseComplete:'scrCaseComplete'};
+  const target = id(targetMap[which]);
   if(target) target.classList.add('show');
 
   if(which === 'home') {
@@ -595,15 +621,14 @@ function renderCaseDoctor(){
       id('caseHintTitle').textContent='【任務一】救護車駕駛訓練，請向教官報到'; 
       id('subTaskContainer').style.display = 'block';
       
-      // 更新子關卡狀態
       id('subBtn1').className = `subTaskBtn ${caseState.subStage > 1 ? 'completed' : ''}`;
       id('subBtn1').innerHTML = `1. 新手教學 (單純陸運) <span>${caseState.subStage > 1 ? '✅' : '▶'}</span>`;
       
       id('subBtn2').className = `subTaskBtn ${caseState.subStage >= 2 ? (caseState.subStage > 2 ? 'completed' : '') : 'locked'}`;
-      id('subBtn2').innerHTML = `2. 認路考驗 (字牌+盲盒) <span>${caseState.subStage > 2 ? '✅' : (caseState.subStage >= 2 ? '▶' : '🔒')}</span>`;
+      id('subBtn2').innerHTML = `2. 認路考驗 (字牌+變天) <span>${caseState.subStage > 2 ? '✅' : (caseState.subStage >= 2 ? '▶' : '🔒')}</span>`;
       
       id('subBtn3').className = `subTaskBtn ${caseState.subStage >= 3 ? (caseState.subStage > 3 ? 'completed' : '') : 'locked'}`;
-      id('subBtn3').innerHTML = `3. 全地形救援 (變形+盲盒) <span>${caseState.subStage > 3 ? '✅' : (caseState.subStage >= 3 ? '▶' : '🔒')}</span>`;
+      id('subBtn3').innerHTML = `3. 全地形救援 (變形+變天) <span>${caseState.subStage > 3 ? '✅' : (caseState.subStage >= 3 ? '▶' : '🔒')}</span>`;
 
   } else if(caseState.currentRole==='TEAM'){ 
       id('doctorLine').textContent='駕駛訓練完成！現在進入實戰，病人已順利到院。需要取栓團隊立即介入。'; 
@@ -639,10 +664,10 @@ function roleCfg(roleKey){
     return { avatar:'assets/emt_card.png', who:'駕駛特訓 1：新手上路', line:'熟悉車輛操作。沒有干擾，請在 50 秒內把車開到醫院。', title:'目標: 安全抵達', bullets:[ '🎯 距離 3500m，時限 50 秒', '🎮 點擊螢幕左右切換車道', '📢 點擊發射音波震碎前方障礙' ], gameId:'race_engine', modeParam: 'case1', reward:(p)=>{ const t = (p.timeSec==null)? 999 : p.timeSec; return { score: Math.max(10, Math.round(100 - t)) }; }, completeLine:(p)=> `順利到院！耗時 ${p.timeSec}s。`, completeBullets:(p,r)=>[ `⏱ 到院耗時：<strong>${p.timeSec}s</strong>`, `⭐ 獲得積分：<strong>+${r.score}</strong>` ] };
   }
   if(roleKey==='EMT_2'){
-    return { avatar:'assets/emt_card.png', who:'駕駛特訓 2：認路與盲盒', line:'加入字牌考驗與極端天氣！收集「亞東醫院」字牌。', title:'目標: 收集字牌並抵達', bullets:[ '🎯 距離 3500m，時限 75 秒', '👀 選對字牌可通過，選錯將倒車', '❓ 紫色盲盒會引發天氣變化' ], gameId:'race_engine', modeParam: 'case2', reward:(p)=>{ const t = (p.timeSec==null)? 999 : p.timeSec; return { score: Math.max(20, Math.round(150 - t)) }; }, completeLine:(p)=> `順利到院！耗時 ${p.timeSec}s。`, completeBullets:(p,r)=>[ `⏱ 到院耗時：<strong>${p.timeSec}s</strong>`, `⭐ 獲得積分：<strong>+${r.score}</strong>` ] };
+    return { avatar:'assets/emt_card.png', who:'駕駛特訓 2：認路與變天', line:'加入字牌考驗與極端天氣！收集「亞東醫院」字牌。', title:'目標: 收集字牌並抵達', bullets:[ '🎯 距離 3500m，時限 75 秒', '👀 選對字牌可通過，選錯將倒車', '❓ 紫色盲盒會引發天氣變化' ], gameId:'race_engine', modeParam: 'case2', reward:(p)=>{ const t = (p.timeSec==null)? 999 : p.timeSec; return { score: Math.max(20, Math.round(150 - t)) }; }, completeLine:(p)=> `順利到院！耗時 ${p.timeSec}s。`, completeBullets:(p,r)=>[ `⏱ 到院耗時：<strong>${p.timeSec}s</strong>`, `⭐ 獲得積分：<strong>+${r.score}</strong>` ] };
   }
   if(roleKey==='EMT_3'){
-    return { avatar:'assets/emt_card.png', who:'駕駛特訓 3：全地形救援', line:'通往醫院的道路崩塌了，準備啟動海空變形模式！', title:'目標: 克服全地形', bullets:[ '🎯 距離 5000m，時限 90 秒', '🚁 穿越傳送門改變載具型態' ], gameId:'race_engine', modeParam: 'case3', reward:(p)=>{ const t = (p.timeSec==null)? 999 : p.timeSec; return { score: Math.max(30, Math.round(200 - t)) }; }, completeLine:(p)=> `順利到院！耗時 ${p.timeSec}s。`, completeBullets:(p,r)=>[ `⏱ 到院耗時：<strong>${p.timeSec}s</strong>`, `⭐ 獲得積分：<strong>+${r.score}</strong>` ] };
+    return { avatar:'assets/emt_card.png', who:'駕駛特訓 3：全地形救援', line:'通往醫院的道路崩塌了，準備啟動海空變形模式！', title:'目標: 克服全地形', bullets:[ '🎯 距離 5000m，時限 90 秒', '🚁 穿越傳送門改變載具型態', '❓ 紫色盲盒會引發天氣變化' ], gameId:'race_engine', modeParam: 'case3', reward:(p)=>{ const t = (p.timeSec==null)? 999 : p.timeSec; return { score: Math.max(30, Math.round(200 - t)) }; }, completeLine:(p)=> `順利到院！耗時 ${p.timeSec}s。`, completeBullets:(p,r)=>[ `⏱ 到院耗時：<strong>${p.timeSec}s</strong>`, `⭐ 獲得積分：<strong>+${r.score}</strong>` ] };
   }
   if(roleKey==='TEAM'){
     return { avatar:'assets/team_card.png', who:'取栓團隊｜血管再通', line:'影像顯示疑似大血管阻塞。你需要完成取栓處置，讓血流恢復。', title:'目標: 清除血栓', bullets:[ '🎯 點擊相連的血栓方塊進行消除', '🧠 達成指定分數以完成手術' ], gameId:'shoot', reward:(p)=>({ score: 160 }), completeLine:(p)=>'手術成功，血管已再通！', completeBullets:(p,r)=>[ '✅ 血管再通率：TICI 3', `⭐ 獲得積分：<strong>+${r.score}</strong>` ] };
