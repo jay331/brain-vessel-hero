@@ -104,18 +104,19 @@
   @keyframes transformAnim { 50% { transform: scale(0.1) rotate(360deg); opacity: 0; filter: drop-shadow(0 0 40px var(--accent)); } 100% { transform: scale(1) rotate(720deg); opacity: 1; filter: drop-shadow(0 0 0px var(--accent)); } }
   .transforming { animation: transformAnim 3s forwards; }
 
+  /* 玩家狀態特效 */
   #player.flash-green { filter:drop-shadow(0 0 20px rgba(0,255,204,1)) brightness(1.3); }
-  #player.armed { filter:drop-shadow(0 0 20px rgba(255,235,59,0.8)); }
-  #player.jumping{ filter:drop-shadow(0 12px 20px rgba(122,168,255,.20)); }
+  #player.armed { filter:drop-shadow(0 0 20px rgba(255,235,59,0.8)) drop-shadow(0 0 10px rgba(255,152,0,0.6)); }
+  #player.jumping{ filter:drop-shadow(0 12px 20px rgba(122,168,255,.20)) drop-shadow(0 0 12px rgba(122,168,255,.18)); }
   #player.finishing{ transition:transform 600ms ease, top 600ms ease, left 250ms ease; filter:drop-shadow(0 0 18px rgba(0,255,204,.22)); }
   
   /* 彈藥標籤 */
   #ammoFloat{ position:absolute; left:50%; top:-30px; transform:translateX(-50%); min-width:40px; height:24px; padding:0 8px; border-radius:999px; display:flex; align-items:center; justify-content:center; background:rgba(10, 15, 25, 0.95); color:#ffff00; font-size:14px; font-weight:1000; line-height:1; border:1px solid rgba(255,255,0,.8); text-shadow: 0 0 5px rgba(255,255,0,0.5); pointer-events:none; z-index:15; }
   #ammoFloat.empty{ color:rgba(255,255,255,.4); border-color: rgba(255,255,255,.2); background:rgba(10, 15, 25, 0.8); box-shadow:none; text-shadow:none; }
 
-  /* 道具與門 */
+  /* --- 閘門與障礙物 --- */
   .gate { position: absolute; width: 80px; height: 80px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 16px; font-weight: 900; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.8); box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 10px rgba(255,255,255,0.5); z-index: 8; animation: gateFloat 1s infinite alternate; }
-  .gate.word { background: linear-gradient(180deg, #1e88e5, #1565c0); border: 2px solid #64b5f6; box-shadow: 0 10px 20px rgba(21, 101, 192, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.3); }
+  .gate.word { background: linear-gradient(180deg, #1e88e5, #1565c0); border: 2px solid #64b5f6; }
   .gate.mystery { background: linear-gradient(180deg, #9b59b6, #4a235a); border: 2px solid #d7bde2; box-shadow: 0 10px 20px rgba(155,89,182,0.6), inset 0 0 15px rgba(255,255,255,0.4); }
   .gate.trans { background: linear-gradient(180deg, #5dade2, #21618c); border: 2px solid #aed6f1; }
   .gate .icon { font-size: 40px; margin-top: 0; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
@@ -133,17 +134,21 @@
   .npcCar .wheels::before, .npcCar .wheels::after{ content:""; position:absolute; top:0; bottom:0; width:6px; border-radius:4px; background:#111; box-shadow:inset 0 2px 4px rgba(0,0,0,0.8); }
   .npcCar .wheels::before{left:0;} .npcCar .wheels::after{right:0;}
 
+  /* 加速器視覺 */
   .boost{ position:absolute; width:46px; height:46px; border-radius:50%; background:radial-gradient(circle, rgba(0,255,204,0.5) 0%, rgba(0,255,204,0.1) 70%); border:2px solid #00ffcc; box-shadow:0 8px 16px rgba(0,0,0,0.5), 0 0 15px rgba(0,255,204,0.6), inset 0 0 10px rgba(0,255,204,0.6); display:flex; flex-direction:column; align-items:center; justify-content:center; }
   .boost::before, .boost::after { content: ""; display: block; width: 12px; height: 12px; border-top: 4px solid #fff; border-left: 4px solid #fff; transform: rotate(45deg); filter: drop-shadow(0 0 4px #fff); }
   .boost::before { margin-top: 8px; margin-bottom: -6px; }
 
+  /* 彈藥包：黃色大聲公 */
   .ammoPick{ position:absolute; width:44px; height:44px; border-radius:14px; background:radial-gradient(20px 20px at 35% 35%, rgba(255,255,0,.3), rgba(255,255,0,.1) 60%); border:1px solid rgba(255,255,0,.6); box-shadow:0 14px 24px rgba(0,0,0,.28), 0 0 22px rgba(255,255,0,.4); display:grid; place-items:center; font-size:24px; }
   .ammoPick::before{content:"📣"; filter:drop-shadow(0 0 8px #ffff00) drop-shadow(0 0 15px #ffeb3b); brightness(1.2);} 
   
+  /* 障礙物視覺 (柔和橘色與藏青色) */
   .obstacle{ position:absolute; width:56px; height:26px; border-radius:4px; background:repeating-linear-gradient(45deg, #d35400, #d35400 10px, #2c3e50 10px, #2c3e50 20px); border:2px solid #1a252f; box-shadow:0 10px 15px rgba(0,0,0,0.6), inset 0 0 5px rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; }
   .obstacle::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #ff4d4d; box-shadow: 0 0 8px #ff4d4d; animation: obBlink 0.4s infinite alternate; }
   @keyframes obBlink { 0% { opacity: 0.3; } 100% { opacity: 1; box-shadow: 0 0 15px red; } }
 
+  /* 音波特效 */
   .shock{ position:absolute; width:18px; height:18px; border-radius:50%; border:2px solid #00ffcc; box-shadow:0 0 15px #00ffcc, inset 0 0 15px #00ffcc; background: radial-gradient(circle, rgba(0,255,204,0.1) 40%, rgba(0,255,204,0.5) 80%, transparent 100%); z-index:9; pointer-events:none; }
   .shatter{animation:shatter .28s ease-out forwards;}
   @keyframes shatter{ 0%{transform:scale(1);filter:brightness(1.1);} 100%{transform:scale(1.45);opacity:0;filter:brightness(1.8) blur(1px);} }
@@ -155,7 +160,7 @@
   .btnRow{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
   button{ border:none; border-radius:16px; padding:14px 12px; color:var(--text); background:linear-gradient(180deg, rgba(10,15,25,.85), rgba(10,15,25,.55)); border:1px solid rgba(255,255,255,.12); box-shadow:0 10px 22px rgba(0,0,0,.28); font-size:14px; font-weight:900; letter-spacing:.3px; cursor:pointer;}
   button:active{ transform:translateY(1px); box-shadow:0 6px 16px rgba(0,0,0,.30); }
-  .accent{ border-color:rgba(0,255,204,.35); box-shadow:0 10px 22px rgba(0,255,204,.10), 0 10px 22px rgba(0,0,0,.28); }
+  .accent{ border-color:rgba(0,255,204,.35); box-shadow:0 10px 22px rgba(0,255,204,.10), 0 10px 22px rgba(0,255,204,.28); }
   .danger{border-color:rgba(255,77,77,.35);}
   .shoot{ border-color:rgba(255,209,102,.35); box-shadow:0 10px 22px rgba(255,209,102,.10), 0 10px 22px rgba(0,0,0,.28); }
 
@@ -289,7 +294,7 @@ const currentMode = urlParams.get('mode') || 'case1';
 const cfg = MODE_CONFIGS[currentMode] || MODE_CONFIGS['case1'];
 document.title = "腦脈先鋒｜" + cfg.title;
 
-// 常數設定 (調整了距離單位，讓車子跑得動)
+// 常數設定
 const DIST_UNIT = 80; 
 const BOOST_MS = 2500; 
 const BOOST_FORWARD_MULT = 3.0;
@@ -439,7 +444,6 @@ function spawnNpcWaveSmart(){
 }
 function spawnObstacle(){
   if(isSpawningGates || entities.filter(e=>e.type==="ob").length >= 2) return;
-  // 隨機選一個安全的車道放障礙物
   let candidates = [0,1,2].filter(ln => !entities.some(e => e.lane === ln && (e.type==="npc" || e.type==="ob") && e.el.offsetTop < 300));
   if(candidates.length === 0) return;
   const ln = candidates[Math.floor(Math.random() * candidates.length)];
@@ -604,13 +608,26 @@ function reset(){
     setPlayerLane(1); updateAmmoUI(); renderRanks(loadRanks());
     buildSchedule();
     
+    // 初始化生成時間
     nextWaveAt = lastFrame + 1000; nextBoostAt = lastFrame + 2000; nextObAt = lastFrame + 1500; nextAmmoAt = lastFrame + 2500;
 }
 
-// 主遊戲迴圈
+// ★ 主遊戲迴圈 (加入了防呆機制，凍結隱藏時的時間)
 function tick(now){
-    // ★ 安全維度檢查：如果視窗尺寸改變，重新定位車道中心
-    if (game.clientWidth > 10 && game.clientWidth !== lastGameWidth) {
+    // ★ 防呆鎖：如果 iframe 寬度為 0 (隱藏狀態)，暫停執行並且凍結時間，避免時間耗盡與畫面卡死
+    if (game.clientWidth === 0 || game.clientHeight === 0) {
+        runStartAt = now;
+        lastFrame = now;
+        nextWaveAt = now + 1000; 
+        nextBoostAt = now + 2000; 
+        nextObAt = now + 1500; 
+        nextAmmoAt = now + 2500;
+        requestAnimationFrame(tick);
+        return;
+    }
+
+    // 視窗尺寸改變時更新車道位置
+    if (game.clientWidth !== lastGameWidth) {
         lastGameWidth = game.clientWidth;
         setPlayerLane(lane);
     }
