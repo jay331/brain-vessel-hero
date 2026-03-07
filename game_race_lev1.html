@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
-<title>腦脈先鋒｜黃金送醫（精緻車輛版）</title>
+<title>腦脈先鋒｜前往亞東醫院（字牌收集版）</title>
 
 <style>
   :root{
@@ -47,25 +47,37 @@
   #timeHud{opacity:.95;font-weight:900;}
   #timeHud b{color:#fff;font-variant-numeric:tabular-nums;}
 
-  /* --- 場景背景切換 --- */
+  /* --- 字牌收集 UI --- */
+  #wordCollection {
+    position: absolute; top: 60px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 8px; z-index: 12;
+  }
+  .word-slot {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: rgba(10, 15, 25, 0.8); border: 2px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 900; transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  }
+  .word-slot.active {
+    background: linear-gradient(180deg, #00ffcc, #00b38f); border-color: #00ffcc;
+    color: #000; box-shadow: 0 0 15px rgba(0, 255, 204, 0.8);
+  }
+  .word-slot.failed {
+    background: linear-gradient(180deg, #ff4d4d, #c62828); border-color: #ff4d4d;
+    color: #fff; box-shadow: 0 0 15px rgba(255, 77, 77, 0.8);
+  }
+
+  /* --- 場景背景 (維持全程陸地) --- */
   .road{ position:absolute; inset:0; transition: background 1s ease; background: radial-gradient(800px 420px at 50% 20%, rgba(0,255,204,.08), transparent 60%), linear-gradient(180deg, var(--road1) 0%, var(--road2) 100%); }
   .road::before{ content:""; position:absolute; inset:-10%; transition: background 1s ease; background:linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(255,255,255,.05) 30%, rgba(255,255,255,.03) 55%, rgba(0,0,0,0) 100%); transform:skewX(-12deg); animation:sweep 3.2s linear infinite; opacity:.55; }
   
-  body.phase-sky .road { background: radial-gradient(800px 420px at 50% 20%, rgba(255,255,255,.2), transparent 60%), linear-gradient(180deg, #5dade2 0%, #2e86c1 100%); }
-  body.phase-sky .road::before { background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.2) 30%, rgba(255,255,255,.1) 55%, rgba(255,255,255,0) 100%); }
-  body.phase-sea .road { background: radial-gradient(800px 420px at 50% 20%, rgba(0,255,204,.1), transparent 60%), linear-gradient(180deg, #117a65 0%, #0b5345 100%); }
-  body.phase-sea .road::before { background: linear-gradient(90deg, rgba(0,255,204,0) 0%, rgba(0,255,204,.15) 30%, rgba(0,255,204,.05) 55%, rgba(0,255,204,0) 100%); }
-
-  @keyframes sweep{ 0%{transform:translateX(-40%) skewX(-12deg);} 100%{transform:translateX(40%) skewX(-12deg);} }
-
   #lanes{ position:absolute; inset:0; pointer-events:none; opacity:.9; }
   .edge{ position:absolute; top:0; bottom:0; width:4px; transition: background 1s ease; background:linear-gradient(180deg, rgba(255,255,255,.40), rgba(255,255,255,.16)); box-shadow:0 0 10px rgba(255,255,255,.08); }
   .edge.left{left:12%;} .edge.right{right:12%;}
   .divider{ position:absolute; top:0; bottom:0; width:4px; transition: background 1s ease; background:repeating-linear-gradient(180deg, rgba(255,255,255,.30) 0 28px, rgba(255,255,255,0) 28px 54px); opacity:.55; filter:drop-shadow(0 0 4px rgba(255,255,255,.06)); }
   .divider.one{left:36.5%;} .divider.two{left:63.5%;}
-
-  body.phase-sky .edge, body.phase-sky .divider { background: rgba(255,255,255, 0.4); border: 1px dashed rgba(255,255,255, 0.6); box-shadow: 0 0 10px rgba(255,255,255,0.4); opacity: 0.6;}
-  body.phase-sea .edge, body.phase-sea .divider { background: repeating-linear-gradient(180deg, rgba(0,255,204,.35) 0 20px, rgba(0,255,204,0) 20px 40px); box-shadow: 0 0 10px rgba(0,255,204,0.3); opacity: 0.6;}
 
   /* --- 天氣與隨機事件特效層 --- */
   #weatherOverlay { position:absolute; inset:0; pointer-events:none; z-index:8; transition:all 1s ease; opacity:0; }
@@ -94,13 +106,6 @@
   #miniAmb{ position:absolute; left:50%; transform:translateX(-50%); bottom:10px; width:30px; height:30px; display:grid; place-items:center; border-radius:10px; background:rgba(0,255,204,.16); border:1px solid rgba(0,255,204,.35); box-shadow:0 10px 18px rgba(0,0,0,.25); font-size:18px; }
   #distanceText{ position:absolute; left:50%; transform:translateX(-50%); bottom:10px; margin-bottom:-32px; font-size:11px; opacity:.85; background:rgba(10,15,25,.55); border:1px solid rgba(255,255,255,.10); padding:4px 6px; border-radius:10px; white-space:nowrap; }
 
-  #transitionText {
-    position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
-    z-index: 50; color: var(--accent); font-size: 38px; font-weight: 1000; letter-spacing: 4px;
-    text-shadow: 0 0 20px rgba(0,255,204,0.8), 0 4px 10px rgba(0,0,0,0.8);
-    pointer-events: none; opacity: 0; transition: opacity 0.5s; text-align: center;
-  }
-
   /* --- 玩家容器 --- */
   #player{
     position:absolute; bottom:6%; z-index:7; transition:left 120ms ease;
@@ -121,36 +126,11 @@
   #playerSkin.carTop .wheels::before, #playerSkin.carTop .wheels::after{ content:""; position:absolute; top:0; bottom:0; width:6px; border-radius:4px; background:#102a43; box-shadow:inset 0 2px 4px rgba(0,0,0,0.8); }
   #playerSkin.carTop .wheels::before{left:0;} #playerSkin.carTop .wheels::after{right:0;}
 
-  #playerSkin.heliTop .tail { position: absolute; left: 22px; bottom: 0; width: 4px; height: 35px; background: #ddd; }
-  #playerSkin.heliTop .body { position: absolute; left: 12px; top: 10px; width: 24px; height: 45px; border-radius: 12px; background: linear-gradient(180deg, #ff4d4d, #d9102f); }
-  #playerSkin.heliTop .cabin { position: absolute; left: 16px; top: 16px; width: 16px; height: 14px; border-radius: 8px 8px 4px 4px; background: #111; opacity: 0.8; }
-  #playerSkin.heliTop .cross { position: absolute; left: 50%; top: 38px; transform: translate(-50%, -50%); color: white; font-weight: bold; font-size: 14px; z-index: 3; }
-  #playerSkin.heliTop .rotor { position: absolute; left: -11px; top: 30px; width: 70px; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.9); animation: spinRotor 0.15s linear infinite; z-index: 4; box-shadow: 0 0 5px rgba(0,0,0,0.2); }
-  #playerSkin.heliTop .rotor::after { content: ""; position: absolute; left: 32px; top: -32px; width: 6px; height: 70px; border-radius: 3px; background: rgba(255,255,255,0.9); box-shadow: 0 0 5px rgba(0,0,0,0.2); }
-  @keyframes spinRotor { 100% { transform: rotate(360deg); } }
-
-  #playerSkin.boatTop .wake { position: absolute; left: 0; right: 0; bottom: -15px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.6); filter: blur(4px); }
-  #playerSkin.boatTop .hull { position: absolute; left: 6px; top: 5px; width: 36px; height: 65px; border-radius: 50% 50% 10% 10%; background: linear-gradient(180deg, #ff4d4d, #d9102f); border: 2px solid rgba(255,255,255,0.8); box-shadow: 0 5px 10px rgba(0,0,0,0.4); }
-  #playerSkin.boatTop .cabin { position: absolute; left: 14px; top: 25px; width: 20px; height: 20px; border-radius: 6px; background: #111; border: 2px solid #fff; opacity: 0.9; }
-  #playerSkin.boatTop .cross { position: absolute; left: 50%; top: 48px; transform: translate(-50%, -50%); color: white; font-weight: bold; font-size: 12px; z-index: 3; }
-
-  @keyframes transformAnim {
-    0%   { transform: scale(1) rotate(0deg); opacity: 1; filter: drop-shadow(0 0 0px var(--accent)); }
-    20%  { transform: scale(1.4) rotate(180deg); opacity: 0.8; filter: drop-shadow(0 0 20px var(--accent)); }
-    50%  { transform: scale(0.1) rotate(360deg); opacity: 0; filter: drop-shadow(0 0 40px var(--accent)); }
-    80%  { transform: scale(1.4) rotate(540deg); opacity: 0.8; filter: drop-shadow(0 0 20px var(--accent)); }
-    100% { transform: scale(1) rotate(720deg); opacity: 1; filter: drop-shadow(0 0 0px var(--accent)); }
-  }
-  .transforming { animation: transformAnim 5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-
-  /* ★ 特效拆分：一般加速(青色) vs 真正無敵(黃金色) */
   #player.boosting { filter:drop-shadow(0 0 20px rgba(0,255,204,0.8)) drop-shadow(0 0 10px rgba(0,255,204,0.5)); }
   #player.invincible { filter:drop-shadow(0 0 25px #ffeb3b) drop-shadow(0 0 15px #ff9800) !important; }
-  
   #player.jumping{ filter:drop-shadow(0 12px 20px rgba(122,168,255,.20)) drop-shadow(0 0 12px rgba(122,168,255,.18)); }
   #player.finishing{ transition:transform 600ms ease, top 600ms ease, left 250ms ease; filter:drop-shadow(0 0 18px rgba(0,255,204,.22)); }
   
-  /* 修正彈藥標籤：移除不必要的發光動畫避免與無敵混淆 */
   #ammoFloat{
     position:absolute; left:50%; top:-30px; transform:translateX(-50%); 
     min-width:40px; height:24px; padding:0 8px;
@@ -161,7 +141,7 @@
   }
   #ammoFloat.empty{ color:rgba(255,255,255,.4); border-color: rgba(255,255,255,.2); background:rgba(10, 15, 25, 0.8); box-shadow:none; }
 
-  /* --- 選擇傳送門 --- */
+  /* --- 字牌與傳送門 --- */
   .gate {
     position: absolute; width: 80px; height: 80px; border-radius: 16px;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -169,14 +149,15 @@
     box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 10px rgba(255,255,255,0.5);
     z-index: 8; animation: gateFloat 1s infinite alternate;
   }
-  .gate.land { background: linear-gradient(180deg, #ff7a59, #c62828); border: 2px solid #ffb09c; }
-  .gate.air { background: linear-gradient(180deg, #5dade2, #21618c); border: 2px solid #aed6f1; }
-  .gate.sea { background: linear-gradient(180deg, #48c9b0, #0e6251); border: 2px solid #a2d9ce; }
+  /* 字牌款式 */
+  .gate.word { background: linear-gradient(180deg, #1e88e5, #1565c0); border: 2px solid #64b5f6; box-shadow: 0 10px 20px rgba(21, 101, 192, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.3); }
+  /* 盲盒款式 */
   .gate.mystery { background: linear-gradient(180deg, #9b59b6, #4a235a); border: 2px solid #d7bde2; box-shadow: 0 10px 20px rgba(155,89,182,0.6), inset 0 0 15px rgba(255,255,255,0.4); }
-  .gate .icon { font-size: 26px; margin-top: 4px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
+  
+  .gate .icon { font-size: 40px; margin-top: 0; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
   @keyframes gateFloat { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
 
-  /* --- 敵人容器 (維持黑灰色系，車頭朝下) --- */
+  /* --- 敵人容器 (純陸運黑灰車) --- */
   .npcCar{ 
     position:absolute; width:48px; height:78px; 
     border-radius:12px 12px 6px 6px; border:1px solid rgba(255,255,255,.15); 
@@ -193,26 +174,6 @@
   .npcCar .wheels::before, .npcCar .wheels::after{ content:""; position:absolute; top:0; bottom:0; width:6px; border-radius:4px; background:#111; box-shadow:inset 0 2px 4px rgba(0,0,0,0.8); }
   .npcCar .wheels::before{left:0;} .npcCar .wheels::after{right:0;}
 
-  .npcBird { position: absolute; width: 48px; height: 60px; transform: rotate(180deg); filter: drop-shadow(0 -15px 10px rgba(0,0,0,0.4)); }
-  .npcBird .body { position: absolute; left: 20px; top: 12px; width: 8px; height: 35px; border-radius: 4px 4px 8px 8px; background: #607D8B; }
-  .npcBird .body::before { content: ""; position: absolute; left: -2px; top: -8px; width: 12px; height: 12px; border-radius: 50%; background: #455A64; }
-  .npcBird .wing { position: absolute; top: 20px; width: 22px; height: 14px; background: #78909C; animation: flap 0.3s ease-in-out infinite alternate; }
-  .npcBird .wing.left { right: 50%; border-radius: 100% 0 0 100%; transform-origin: right center; }
-  .npcBird .wing.right { left: 50%; border-radius: 0 100% 100% 0; transform-origin: left center; }
-  @keyframes flap { 0% { transform: scaleX(1); } 100% { transform: scaleX(0.3); } }
-
-  .npcDolphin { position: absolute; width: 48px; height: 70px; animation: dolphinJump 1.5s infinite ease-in-out; }
-  .npcDolphin .body { position: absolute; left: 16px; top: 10px; width: 16px; height: 50px; border-radius: 50% 50% 10% 10%; background: #0091EA; }
-  .npcDolphin .body::after { content: ""; position: absolute; left: 4px; top: -6px; width: 8px; height: 10px; border-radius: 50%; background: #00B0FF; } 
-  .npcDolphin .fin { position: absolute; top: 25px; width: 14px; height: 8px; background: #0091EA; }
-  .npcDolphin .fin.left { right: 32px; border-radius: 100% 0 0 100%; transform: rotate(-25deg); }
-  .npcDolphin .fin.right { left: 32px; border-radius: 0 100% 100% 0; transform: rotate(25deg); }
-  .npcDolphin .tail { position: absolute; left: 10px; bottom: -2px; width: 28px; height: 12px; background: #0091EA; border-radius: 50% 50% 0 0; }
-  @keyframes dolphinJump {
-      0%, 100% { transform: scale(0.85) rotate(180deg); filter: drop-shadow(0 -5px 5px rgba(0,0,0,0.2)); opacity: 0.7; }
-      50% { transform: scale(1.15) rotate(180deg); filter: drop-shadow(0 -20px 15px rgba(0,0,0,0.4)); opacity: 1; }
-  }
-
   .boost{ position:absolute; width:46px; height:46px; border-radius:14px; background:radial-gradient(22px 22px at 35% 35%, rgba(255,255,255,.25), rgba(255,255,255,0) 60%), linear-gradient(180deg, rgba(0,255,204,.22), rgba(0,255,204,.08)); border:1px solid rgba(0,255,204,.35); box-shadow:0 14px 24px rgba(0,0,0,.28), 0 0 18px rgba(0,255,204,.10); display:grid; place-items:center; }
   .boost::before{ content:">>"; font-weight:1000; letter-spacing:-2px; font-size:20px; color:rgba(0,255,204,.95); filter:drop-shadow(0 0 10px rgba(0,255,204,.28)); transform:translateY(-1px); }
   .ammoPick{ position:absolute; width:44px; height:44px; border-radius:14px; background:radial-gradient(20px 20px at 35% 35%, rgba(255,255,255,.22), rgba(255,255,255,0) 60%), linear-gradient(180deg, rgba(255,209,102,.22), rgba(255,209,102,.08)); border:1px solid rgba(255,209,102,.35); box-shadow:0 14px 24px rgba(0,0,0,.28), 0 0 18px rgba(255,209,102,.10); display:grid; place-items:center; font-size:18px; }
@@ -228,7 +189,7 @@
   .btnRow{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
   button{ border:none; border-radius:16px; padding:14px 12px; color:var(--text); background:linear-gradient(180deg, rgba(10,15,25,.85), rgba(10,15,25,.55)); border:1px solid rgba(255,255,255,.12); box-shadow:0 10px 22px rgba(0,0,0,.28); font-size:14px; font-weight:900; letter-spacing:.3px; }
   button:active{ transform:translateY(1px); box-shadow:0 6px 16px rgba(0,0,0,.30); }
-  .accent{ border-color:rgba(0,255,204,.35); box-shadow:0 10px 22px rgba(0,255,204,.10), 0 10px 22px rgba(0,255,204,.28); }
+  .accent{ border-color:rgba(0,255,204,.35); box-shadow:0 10px 22px rgba(0,255,204,.10), 0 10px 22px rgba(0,0,0,.28); }
   .danger{border-color:rgba(255,77,77,.35);}
   .shoot{ border-color:rgba(255,209,102,.35); box-shadow:0 10px 22px rgba(255,209,102,.10), 0 10px 22px rgba(0,0,0,.28); }
 
@@ -261,6 +222,7 @@
     #ammoFloat{ top:-26px; bottom:auto; min-width:32px; height:20px; font-size:11px; padding:0 6px; }
     .boost{ width:40px; height:40px; } .ammoPick{ width:38px; height:38px; font-size:16px; } .obstacle{ width:46px; height:46px; } .obstacle::before{ font-size:18px; }
     .gate { width: 70px; height: 70px; font-size: 14px; }
+    .gate .icon { font-size: 32px; }
   }
 </style>
 </head>
@@ -280,7 +242,14 @@
       <div class="divider one"></div>
       <div class="divider two"></div>
     </div>
-    <div id="transitionText">進入天空</div>
+    
+    <div id="wordCollection">
+        <div class="word-slot" id="slot-0">亞</div>
+        <div class="word-slot" id="slot-1">東</div>
+        <div class="word-slot" id="slot-2">醫</div>
+        <div class="word-slot" id="slot-3">院</div>
+    </div>
+
     <div id="topHud" aria-live="polite">
       距離 <span class="num" id="distLeft">3500</span>
       <span id="timeHud">時間 <b id="timeNow">0</b>s</span>
@@ -337,10 +306,11 @@
 const isCaseMode = new URLSearchParams(location.search).get('mode') === 'case';
 if(isCaseMode) document.body.classList.add('caseMode');
 
+// 總里程 3500m
 const GOAL_DISTANCE = 3500;
 const DIST_UNIT = 12;
 const BASE_FORWARD_SPEED = 1.0;
-const BOOST_MS = 3000; /* 一般加速器持續 3 秒 */
+const BOOST_MS = 3000; 
 const BOOST_FORWARD_MULT = 3.0;
 const NPC_FALL_BASE = 235;
 const NPC_FALL_MIN_MULT = 0.90;
@@ -378,7 +348,6 @@ const END_DELAY_MS = 2000;
 const game = document.getElementById("game");
 const player = document.getElementById("player");
 const playerSkin = document.getElementById("playerSkin");
-const transitionTextEl = document.getElementById("transitionText");
 const finish = document.getElementById("finish");
 const overlay = document.getElementById("overlay");
 const resultTitle = document.getElementById("resultTitle");
@@ -400,35 +369,7 @@ const bgm = document.getElementById("bgm");
 const weatherOverlay = document.getElementById("weatherOverlay");
 const eventTextEl = document.getElementById("eventText");
 
-let currentPhase = 1; 
-let isTransitioning = false;
-let isSpawningGates = false;
-let transitionCount = 0;
-let transitionUntil = 0;
-let transitionSwapTime = 0;
-let nextPhaseTarget = 1;
-let skinSwapped = false;
-
-// 狀態管理分離：加速(boost) 與 無敵(invincible)
-let isSpawningMystery = false;
-let mysteryCount = 0;
-let weatherUntil = 0;
-let slowUntil = 0;
-let invincibleUntil = 0; // 新增：專門管理無敵狀態
-
-const MYSTERY_EVENTS = [
-  { id: 'fog', name: '🌫️ 大霧干擾！', type: 'weather', duration: 7000 },
-  { id: 'night', name: '🌙 黑夜降臨！', type: 'weather', duration: 7000 },
-  { id: 'boost', name: '🚀 無敵衝刺！', type: 'buff', duration: 5000 }, // 無敵盲盒事件
-  { id: 'slow', name: '🐢 泥濘減速！', type: 'debuff', duration: 4000 },
-  { id: 'ammo', name: '⚡ 物資補給 +5！', type: 'buff', amount: 5 }
-];
-
-const HTML_CAR = `<div class="body"></div><div class="glass"></div><div class="wheels"></div><div class="sirens"></div><div class="lights"><span></span><span></span></div>`;
-const HTML_HELI = `<div class="tail"></div><div class="body"></div><div class="cabin"></div><div class="rotor"></div><div class="cross">✚</div>`;
-const HTML_BOAT = `<div class="wake"></div><div class="hull"></div><div class="cabin"></div><div class="cross">✚</div>`;
-const HTML_NPC_CAR = `<div class="body"></div><div class="glass"></div><div class="rear-glass"></div><div class="wheels"></div><div class="lights"><span></span><span></span></div><div class="taillights"><span></span><span></span></div>`;
-
+// 狀態變數
 let lane = 1;
 let distance = 0;
 let entities = [];
@@ -437,6 +378,7 @@ let finishing = false;
 let lastFrame = performance.now();
 let pauseUntil = 0;
 let boostUntil = 0;
+let invincibleUntil = 0; 
 let ammo = 0;
 let lastFireAt = 0;
 let lastJumpAt = -99999;
@@ -453,6 +395,27 @@ let nextAmmoAt = 0;
 let lastRunTimeMs = null;
 let endScheduled = false;
 let audioCtx = null;
+
+// 字牌收集與盲盒變數
+let isSpawningGates = false;
+let wordCount = 0;
+let currentWordIndex = -1;
+let isSpawningMystery = false;
+let mysteryCount = 0;
+let weatherUntil = 0;
+let slowUntil = 0;
+
+const WORD_TARGETS = ['亞', '東', '醫', '院'];
+const DECOY_WORDS = ['台','大','馬','偕','長','庚','榮','總','慈','濟','新','光','聯','合'];
+
+const MYSTERY_EVENTS = [
+  { id: 'fog', name: '🌫️ 大霧干擾！', type: 'weather', duration: 7000 },
+  { id: 'night', name: '🌙 黑夜降臨！', type: 'weather', duration: 7000 },
+  { id: 'boost', name: '🚀 無敵衝刺！', type: 'buff', duration: 5000 },
+  { id: 'ammo', name: '⚡ 物資補給 +5！', type: 'buff', amount: 5 }
+];
+
+const HTML_NPC_CAR = `<div class="body"></div><div class="glass"></div><div class="rear-glass"></div><div class="wheels"></div><div class="lights"><span></span><span></span></div><div class="taillights"><span></span><span></span></div>`;
 
 function ensureAudio(){
   if(!audioCtx){
@@ -520,19 +483,13 @@ function nearestTopInLane(ln, typeFilter){
   return minTop;
 }
 
+// 產生敵車 (純陸運，黑灰色)
 function makeNpcCar(laneIndex){
   const el = document.createElement("div"); const centers = laneCenters();
   el.style.left = (centers[laneIndex] - 24) + "px"; el.style.top = "-150px";
   let vMult = NPC_FALL_MIN_MULT + Math.random() * (NPC_FALL_MAX_MULT - NPC_FALL_MIN_MULT);
-
-  if (currentPhase === 1 || currentPhase === 4) {
-    el.className = "npcCar";
-    el.innerHTML = HTML_NPC_CAR;
-  } else if (currentPhase === 2) {
-    el.className = "npcBird"; el.innerHTML = `<div class="body"></div><div class="wing left"></div><div class="wing right"></div>`; vMult *= 1.2;
-  } else if (currentPhase === 3) {
-    el.className = "npcDolphin"; el.innerHTML = `<div class="tail"></div><div class="fin left"></div><div class="fin right"></div><div class="body"></div>`; vMult *= 1.1;
-  }
+  el.className = "npcCar";
+  el.innerHTML = HTML_NPC_CAR;
   return { type:"npc", el, v:vMult, lane:laneIndex };
 }
 
@@ -573,7 +530,7 @@ function laneUnsafeWithin(ln, horizonSec){
 function laneSafeForHorizon(ln, horizonSec){ return !laneUnsafeWithin(ln, horizonSec); }
 
 function spawnNpcWaveSmart(){
-  if(isTransitioning || isSpawningGates || isSpawningMystery) return false;
+  if(isSpawningGates || isSpawningMystery) return false;
   const safeLanesNow = [0,1,2].filter(ln => laneSafeForHorizon(ln, SAFE_HORIZON_SEC));
   if(safeLanesNow.length === 0) return false;
   const wantTwo = Math.random() < WAVE_TWO_CAR_PROB; const count = wantTwo ? 2 : 1;
@@ -597,53 +554,49 @@ function spawnNpcWaveSmart(){
 }
 
 function spawnObstacle(){
-  if(isTransitioning || isSpawningGates || isSpawningMystery || countType("ob") >= MAX_OB_ON_SCREEN) return;
+  if(isSpawningGates || isSpawningMystery || countType("ob") >= MAX_OB_ON_SCREEN) return;
   const t = nearestTopInLane(1, "ob"); if(!(t === Infinity || t > 230)) return;
   const obj = makeObstacle(); game.appendChild(obj.el); entities.push(obj);
 }
 function spawnBoost(){
-  if(isTransitioning || isSpawningGates || isSpawningMystery || countType("boost") >= MAX_BOOST_ON_SCREEN) return;
+  if(isSpawningGates || isSpawningMystery || countType("boost") >= MAX_BOOST_ON_SCREEN) return;
   const list = [0,1,2].filter(ln => laneSafeForHorizon(ln, 0.8)); if(!list.length) return;
   const ln = list[Math.floor(Math.random() * list.length)];
   const obj = makeBoost(ln); game.appendChild(obj.el); entities.push(obj);
 }
 function spawnAmmo(){
-  if(isTransitioning || isSpawningGates || isSpawningMystery || countType("ammo") >= MAX_AMMO_ON_SCREEN) return;
+  if(isSpawningGates || isSpawningMystery || countType("ammo") >= MAX_AMMO_ON_SCREEN) return;
   const safe = [0,1,2].filter(ln => laneSafeForHorizon(ln, 0.8)); if(!safe.length) return;
   const ln = safe[Math.floor(Math.random() * safe.length)];
   const obj = makeAmmo(ln); game.appendChild(obj.el); entities.push(obj);
 }
 
-function spawnGates(isLast) {
+// ★ 新增：產生收集字牌門
+function spawnWordGates(index) {
   purgeEnemiesAndObstacles();
-  let options = [];
-  if (isLast) {
-    options = [
-      { ph: 1, txt: "陸運", cls: "land", icon: "🚑" },
-      { ph: 1, txt: "陸運", cls: "land", icon: "🚑" },
-      { ph: 1, txt: "陸運", cls: "land", icon: "🚑" }
-    ];
-    options.forEach((opt, idx) => opt.ln = idx);
-  } else {
-    options = [
-      { ph: 1, txt: "陸運", cls: "land", icon: "🚑" },
-      { ph: 2, txt: "空運", cls: "air", icon: "🚁" },
-      { ph: 3, txt: "海運", cls: "sea", icon: "🚤" }
-    ];
-    options.sort(() => Math.random() - 0.5);
-    options.forEach((opt, idx) => opt.ln = idx);
-  }
+  currentWordIndex = index;
+  const correctChar = WORD_TARGETS[index];
+  
+  // 挑選兩個不重複的干擾字
+  let shuffledDecoys = [...DECOY_WORDS].sort(() => Math.random() - 0.5);
+  
+  let options = [
+    { char: correctChar, isCorrect: true },
+    { char: shuffledDecoys[0], isCorrect: false },
+    { char: shuffledDecoys[1], isCorrect: false }
+  ];
+  options.sort(() => Math.random() - 0.5); // 打亂車道
 
-  options.forEach(opt => {
+  options.forEach((opt, laneIdx) => {
     const el = document.createElement("div");
-    el.className = "gate " + opt.cls;
-    el.innerHTML = `<span>${opt.txt}</span><span class="icon">${opt.icon}</span>`;
+    el.className = "gate word";
+    el.innerHTML = `<span class="icon" style="font-size:36px; margin:0;">${opt.char}</span>`;
     const centers = laneCenters();
     const size = window.innerWidth <= 768 ? 70 : 80;
-    el.style.left = (centers[opt.ln] - size/2) + "px";
+    el.style.left = (centers[laneIdx] - size/2) + "px";
     el.style.top = "-200px";
     game.appendChild(el);
-    entities.push({ type: "gate", el: el, lane: opt.ln, targetPhase: opt.ph, text: opt.txt });
+    entities.push({ type: "word_gate", el: el, lane: laneIdx, isCorrect: opt.isCorrect, char: opt.char });
   });
 }
 
@@ -663,29 +616,28 @@ function spawnMysteryGates() {
   });
 }
 
-function triggerMysteryEvent(ev, now) {
-  eventTextEl.textContent = ev.name;
+function triggerEventText(text) {
+  eventTextEl.textContent = text;
   eventTextEl.style.opacity = 1;
-  setTimeout(() => { eventTextEl.style.opacity = 0; }, 2500);
+  setTimeout(() => { eventTextEl.style.opacity = 0; }, 2000);
+}
 
+function triggerMysteryEvent(ev, now) {
+  triggerEventText(ev.name);
   if(ev.id === 'fog') {
       weatherOverlay.className = "fog"; weatherUntil = now + ev.duration;
   } else if(ev.id === 'night') {
       weatherOverlay.className = "night"; weatherUntil = now + ev.duration;
   } else if(ev.id === 'boost') {
-      // 盲盒抽中的無敵衝刺：加速 + 無敵發光
       boostUntil = Math.max(boostUntil, now + ev.duration);
       invincibleUntil = Math.max(invincibleUntil, now + ev.duration);
       player.classList.add("boosting", "invincible"); 
       topHud.classList.add("boosting");
-  } else if(ev.id === 'slow') {
-      slowUntil = Math.max(slowUntil, now + ev.duration);
   } else if(ev.id === 'ammo') {
       ammo += ev.amount; updateAmmoUI();
   }
 }
 
-// 一般加速（非無敵）
 function applyBoost(now){
   boostUntil = Math.max(boostUntil, now + BOOST_MS);
   player.classList.add("boosting"); topHud.classList.add("boosting");
@@ -694,12 +646,8 @@ function applyBoost(now){
 function applyPenalty(now){
   sfxHit(); 
   pauseUntil = Math.max(pauseUntil, now + PENALTY_MS);
-  
-  // 撞車時取消一切加速與無敵狀態
-  boostUntil = 0;
-  invincibleUntil = 0;
-  player.classList.remove("boosting", "invincible");
-  topHud.classList.remove("boosting");
+  boostUntil = 0; invincibleUntil = 0;
+  player.classList.remove("boosting", "invincible"); topHud.classList.remove("boosting");
 
   penaltyBox.style.display = "block";
   penaltyBox.querySelector("strong").textContent = String(Math.ceil((pauseUntil - now) / 1000));
@@ -710,16 +658,15 @@ function updateAmmoUI(){
   shootBtn.textContent = ammo > 0 ? `⚡ 震波 (${ammo})` : "⚡ 震波";
   if(ammoFloatEl){ ammoFloatEl.textContent = `⚡${ammo}`; ammoFloatEl.classList.toggle("empty", ammo <= 0); }
 }
-
 function tryShock(now){
-  if(over || finishing || isTransitioning) return;
+  if(over || finishing) return;
   if(now < pauseUntil || ammo <= 0 || now - lastFireAt < FIRE_COOLDOWN_MS) return;
   ammo--; updateAmmoUI(); lastFireAt = now; sfxShoot();
   const s = makeShock(now); game.appendChild(s.el); entities.push(s);
   player.animate([{ transform:`translateY(${-jumpLift}px) scale(1)` }, { transform:`translateY(${-jumpLift}px) scale(1.02)` }, { transform:`translateY(${-jumpLift}px) scale(1)` }], { duration:150, iterations:1 });
 }
 function tryJump(now){
-  if(over || finishing || isTransitioning) return;
+  if(over || finishing) return;
   if(now < pauseUntil || now < jumpUntil || now < lastJumpAt + JUMP_COOLDOWN_MS) return;
   lastJumpAt = now; jumpUntil = now + JUMP_DURATION_MS; player.classList.add("jumping");
   player.animate([{ transform:`translateY(0px) scale(1)` }, { transform:`translateY(${-JUMP_HEIGHT_PX}px) scale(1.04)` }, { transform:`translateY(0px) scale(1)` }], { duration:JUMP_DURATION_MS, easing:"cubic-bezier(.2,.8,.2,1)", iterations:1 });
@@ -752,28 +699,6 @@ function purgeEnemiesAndObstacles() {
   }
 }
 
-function setPlayerSkin(phase) {
-  if (phase === 1 || phase === 4) {
-    playerSkin.className = "carTop"; playerSkin.innerHTML = HTML_CAR; miniAmb.textContent = "🚑";
-  } else if (phase === 2) {
-    playerSkin.className = "heliTop"; playerSkin.innerHTML = HTML_HELI; miniAmb.textContent = "🚁";
-  } else if (phase === 3) {
-    playerSkin.className = "boatTop"; playerSkin.innerHTML = HTML_BOAT; miniAmb.textContent = "🚤";
-  }
-}
-function setEnvironment(phase) {
-  if (phase === 1 || phase === 4) document.body.className = "";
-  else if (phase === 2) document.body.className = "phase-sky";
-  else if (phase === 3) document.body.className = "phase-sea";
-}
-
-function startTransition(targetPhase, text) {
-  isTransitioning = true; nextPhaseTarget = targetPhase; const now = performance.now();
-  transitionUntil = now + 5000; transitionSwapTime = now + 2500; skinSwapped = false;
-  transitionTextEl.textContent = text; transitionTextEl.style.opacity = 1;
-  playerSkin.classList.add("transforming"); purgeEnemiesAndObstacles();
-}
-
 function enterHospitalAndWin(){
   if(finishing || over) return;
   finishing = true; purgeAllEntities(); finish.style.top = "0%";
@@ -800,10 +725,15 @@ function reset(){
   topHud.classList.remove("boosting"); player.style.top = ""; player.style.bottom = "6%"; player.style.transform = "translateY(0px)";
   finish.style.top = "-38%"; finish.classList.remove("success"); overlay.style.display = "none";
   
-  currentPhase = 1; isTransitioning = false; isSpawningGates = false; transitionCount = 0;
+  isSpawningGates = false; wordCount = 0; currentWordIndex = -1;
   isSpawningMystery = false; mysteryCount = 0; weatherUntil = 0; slowUntil = 0; weatherOverlay.className = "";
-  transitionTextEl.style.opacity = 0;
-  playerSkin.classList.remove("transforming"); setPlayerSkin(1); setEnvironment(1);
+  eventTextEl.style.opacity = 0;
+  
+  // 重置字牌 UI
+  for(let i=0; i<4; i++){
+      const slot = document.getElementById(`slot-${i}`);
+      if(slot) slot.className = "word-slot";
+  }
 
   setPlayerLane(1); updateRelativeDistance(0); distLeftEl.textContent = String(GOAL_DISTANCE);
   updateAmmoUI(); lastRunTimeMs = null; renderRanks(loadRanks()); lastFrame = performance.now();
@@ -824,7 +754,6 @@ function tick(now){
   elapsedMs = now - runStartAt; timeNowEl.textContent = String(Math.floor(elapsedMs / 1000));
   jumpLift = computeJumpLift(now); player.style.transform = `translateY(${-jumpLift}px)`;
   
-  // 狀態移除管理
   if(now >= jumpUntil) player.classList.remove("jumping");
   if(now >= invincibleUntil) player.classList.remove("invincible");
   if(now >= boostUntil){ player.classList.remove("boosting"); topHud.classList.remove("boosting"); }
@@ -848,23 +777,14 @@ function tick(now){
   if(distance >= GOAL_DISTANCE){ enterHospitalAndWin(); return; }
   if(finishing){ requestAnimationFrame(tick); return; }
 
-  if (!isTransitioning && !isSpawningGates && !isSpawningMystery) {
-    if (distance >= 500 && mysteryCount === 0) { isSpawningMystery = true; spawnMysteryGates(); }
-    else if (distance >= 1000 && transitionCount === 0) { isSpawningGates = true; spawnGates(false); }
-    else if (distance >= 1500 && mysteryCount === 1) { isSpawningMystery = true; spawnMysteryGates(); }
-    else if (distance >= 2000 && transitionCount === 1) { isSpawningGates = true; spawnGates(false); }
-    else if (distance >= 2500 && mysteryCount === 2) { isSpawningMystery = true; spawnMysteryGates(); }
-    else if (distance >= 3000 && transitionCount === 2) { isSpawningGates = true; spawnGates(true); }
-  }
-
-  if (isTransitioning) {
-    nextWaveAt = now + 1000; nextObAt = now + 1000; nextBoostAt = now + 1000; nextAmmoAt = now + 1000;
-    if (now >= transitionSwapTime && !skinSwapped) {
-        skinSwapped = true; setPlayerSkin(nextPhaseTarget); setEnvironment(nextPhaseTarget); currentPhase = nextPhaseTarget;
-    }
-    if (now >= transitionUntil) {
-        isTransitioning = false; transitionTextEl.style.opacity = 0; playerSkin.classList.remove("transforming");
-    }
+  // ★ 階段里程與字牌/盲盒觸發邏輯
+  if (!isSpawningGates && !isSpawningMystery) {
+    if (distance >= 500 && wordCount === 0) { isSpawningGates = true; spawnWordGates(wordCount); wordCount++; }
+    else if (distance >= 1000 && mysteryCount === 0) { isSpawningMystery = true; spawnMysteryGates(); mysteryCount++; }
+    else if (distance >= 1500 && wordCount === 1) { isSpawningGates = true; spawnWordGates(wordCount); wordCount++; }
+    else if (distance >= 2000 && mysteryCount === 1) { isSpawningMystery = true; spawnMysteryGates(); mysteryCount++; }
+    else if (distance >= 2500 && wordCount === 2) { isSpawningGates = true; spawnWordGates(wordCount); wordCount++; }
+    else if (distance >= 3000 && wordCount === 3) { isSpawningGates = true; spawnWordGates(wordCount); wordCount++; }
   }
 
   if(now >= nextWaveAt){ const ok = spawnNpcWaveSmart(); nextWaveAt = now + rand(WAVE_MIN_MS, WAVE_MAX_MS) + (ok ? 0 : 220); }
@@ -873,11 +793,12 @@ function tick(now){
   if(now >= nextAmmoAt){ spawnAmmo(); nextAmmoAt = now + rand(AMMO_MIN_MS, AMMO_MAX_MS); }
 
   const jumping = isJumping(now);
-  const isInvincible = (now < invincibleUntil); // 判斷是否具備無敵護盾
+  const isInvincible = (now < invincibleUntil);
 
   for(let i = entities.length - 1; i >= 0; i--){
     const e = entities[i];
 
+    // 盲盒門碰撞判定
     if(e.type === "mystery_gate") {
       e.el.style.top = (e.el.offsetTop + OB_FALL * dt) + "px";
       if(hit(player, e.el) || (e.el.offsetTop + e.el.offsetHeight > player.offsetTop && Math.abs(e.lane - lane) < 0.5)) {
@@ -885,27 +806,44 @@ function tick(now){
         for(let j = entities.length - 1; j >= 0; j--) {
           if(entities[j].type === "mystery_gate") { try{ entities[j].el.remove(); }catch{} entities.splice(j, 1); }
         }
-        isSpawningMystery = false; mysteryCount++;
+        isSpawningMystery = false;
         const ev = MYSTERY_EVENTS[Math.floor(Math.random() * MYSTERY_EVENTS.length)];
         triggerMysteryEvent(ev, now);
         break; 
       }
-      if(e.el.offsetTop > game.clientHeight + 160){ try{ e.el.remove(); }catch{} entities.splice(i,1); }
+      if(e.el.offsetTop > game.clientHeight + 160){ 
+          try{ e.el.remove(); }catch{} entities.splice(i,1); 
+          isSpawningMystery = false; // 沒吃到也解除鎖定
+      }
       continue;
     }
 
-    if(e.type === "gate") {
+    // 字牌門碰撞判定
+    if(e.type === "word_gate") {
       e.el.style.top = (e.el.offsetTop + OB_FALL * dt) + "px";
       if(hit(player, e.el) || (e.el.offsetTop + e.el.offsetHeight > player.offsetTop && Math.abs(e.lane - lane) < 0.5)) {
-        sfxPickup(); 
-        let chosenPhase = e.targetPhase; let chosenText = "進入" + e.text;
-        for(let j = entities.length - 1; j >= 0; j--) {
-          if(entities[j].type === "gate") { try{ entities[j].el.remove(); }catch{} entities.splice(j, 1); }
+        if(e.isCorrect) {
+            sfxPickup(); 
+            document.getElementById(`slot-${currentWordIndex}`).classList.add('active');
+            triggerEventText(`✅ 收集到「${e.char}」`);
+        } else {
+            applyPenalty(now);
+            document.getElementById(`slot-${currentWordIndex}`).classList.add('failed');
+            triggerEventText(`❌ 撞錯了！那是「${e.char}」`);
         }
-        isSpawningGates = false; transitionCount++; startTransition(chosenPhase, chosenText);
+        for(let j = entities.length - 1; j >= 0; j--) {
+          if(entities[j].type === "word_gate") { try{ entities[j].el.remove(); }catch{} entities.splice(j, 1); }
+        }
+        isSpawningGates = false;
         break; 
       }
-      if(e.el.offsetTop > game.clientHeight + 160){ try{ e.el.remove(); }catch{} entities.splice(i,1); }
+      if(e.el.offsetTop > game.clientHeight + 160){ 
+          if(e.isCorrect) { // 完全錯過正確字牌
+              document.getElementById(`slot-${currentWordIndex}`).classList.add('failed');
+              isSpawningGates = false;
+          }
+          try{ e.el.remove(); }catch{} entities.splice(i,1); 
+      }
       continue;
     }
 
@@ -914,7 +852,6 @@ function tick(now){
       e.el.style.top = (e.el.offsetTop + speed * dt) + "px";
       
       if(hit(player, e.el)){ 
-          // ★ 判斷是否為無敵狀態
           if (isInvincible) {
               sfxPickup();
               e.el.classList.add("shatter"); 
@@ -922,11 +859,7 @@ function tick(now){
               entities.splice(i,1); 
               continue;
           } else if (!jumping) {
-              // 只要不是無敵或跳躍，撞到就會死
-              e.el.remove(); 
-              entities.splice(i,1); 
-              applyPenalty(now); 
-              break; 
+              e.el.remove(); entities.splice(i,1); applyPenalty(now); break; 
           }
       }
       if(e.el.offsetTop > game.clientHeight + 160){ e.el.remove(); entities.splice(i,1); }
@@ -957,8 +890,8 @@ function tick(now){
   requestAnimationFrame(tick);
 }
 
-function moveLeft(){ if(performance.now() < pauseUntil || over || finishing || isTransitioning) return; setPlayerLane(lane - 1); }
-function moveRight(){ if(performance.now() < pauseUntil || over || finishing || isTransitioning) return; setPlayerLane(lane + 1); }
+function moveLeft(){ if(performance.now() < pauseUntil || over || finishing) return; setPlayerLane(lane - 1); }
+function moveRight(){ if(performance.now() < pauseUntil || over || finishing) return; setPlayerLane(lane + 1); }
 
 document.addEventListener("keydown", e=>{
   ensureAudio(); if(e.repeat) return;
