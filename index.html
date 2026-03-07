@@ -76,46 +76,88 @@ header{
   display: flex;
   flex-direction: column;
 }
-.stage.is-home { background: url('assets/bg_home_mockup.png') center/cover no-repeat; }
+.stage.is-home {
+  background: url('assets/bg_home_mockup.png') center/cover no-repeat;
+}
 .stage.is-home .vignette { display: none; }
 
 @media (min-width: 481px) {
   .wrap { padding: 24px; }
-  .stage { max-width: 440px; max-height: 850px; border-radius: 28px; border: 1px solid rgba(255,255,255,.15); box-shadow: 0 26px 80px rgba(0,0,0,.65); }
+  .stage {
+    max-width: 440px; 
+    max-height: 850px;
+    border-radius: 28px;
+    border: 1px solid rgba(255,255,255,.15);
+    box-shadow: 0 26px 80px rgba(0,0,0,.65);
+  }
 }
 
 .vignette{position:absolute; inset:0; background:radial-gradient(circle at 50% 35%, rgba(0,0,0,0), rgba(0,0,0,.55) 78%); pointer-events:none;}
 
-.content{ position:absolute; inset:0; display:flex; flex-direction:column; padding:16px; z-index: 10; overflow-y: auto; }
-.screen { flex: 0 0 auto; display: none; flex-direction: column; height: 100%; gap: 16px; }
+.content{
+  position:absolute; inset:0; display:flex; flex-direction:column; padding:16px;
+  z-index: 10;
+  overflow-y: auto; 
+}
+
+.screen {
+  flex: 0 0 auto; 
+  display: none; flex-direction: column; 
+  height: 100%;
+  gap: 16px; 
+}
 .screen.show{ display:flex; }
 
 /* 頂部對話框 */
-.topTalk{ display:flex; gap:12px; align-items:flex-start; padding:14px; border-radius:18px; background:var(--panel); border:1px solid rgba(255,255,255,.12); flex-shrink: 0; }
-.avatar{ width:64px; height:64px; border-radius:16px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.10); overflow:hidden; flex:0 0 auto; }
+.topTalk{
+  display:flex; gap:12px; align-items:flex-start; padding:14px; border-radius:18px;
+  background:var(--panel); border:1px solid rgba(255,255,255,.12);
+  flex-shrink: 0;
+}
+.avatar{
+  width:64px; height:64px; border-radius:16px; background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.10); overflow:hidden; flex:0 0 auto;
+}
 .avatar img{width:100%; height:100%; object-fit:cover;}
 .talk{min-width:0; padding-top: 2px;}
 .talk .who{font-weight:1000; font-size:15px; letter-spacing: 0.5px;}
 .talk .say{margin-top:6px; color:var(--muted); font-size:13.5px; line-height:1.65;}
 
 /* 中間容器 */
-.midPanel{ padding:14px; border-radius:18px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); }
+.midPanel{
+  padding:14px; border-radius:18px; background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.08); 
+}
 .midPanel h2{margin:0 0 10px; font-size:16px; color:var(--accent);}
 .bullet{margin:0; padding-left:18px; color:var(--muted); font-size:13.5px; line-height:1.65;}
 .bullet li{margin:8px 0;}
 
 /* 底部功能列 */
-.bottomBar{ display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; padding:14px; border-radius:18px; background:rgba(10,14,28,.95); border:1px solid rgba(255,255,255,.15); flex-shrink: 0; margin-top: auto; }
+.bottomBar{
+  display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+  padding:14px; border-radius:18px; background:rgba(10,14,28,.95); border:1px solid rgba(255,255,255,.15);
+  flex-shrink: 0;
+  margin-top: auto; 
+}
 .actions{display:flex; gap:10px; flex-wrap:wrap; justify-content:space-between; width: 100%;}
 .actions .btn { flex: 1; text-align: center; } 
 
-.toast{ position:absolute; left:50%; bottom:20px; transform:translateX(-50%); padding:12px 16px; border-radius:14px; background:rgba(10,14,28,.95); border:1px solid rgba(255,255,255,.15); box-shadow:0 18px 45px rgba(0,0,0,.65); font-size:14px; display:none; z-index:50; max-width:min(92vw,400px); text-align:center; font-weight:bold; color:var(--warn); }
+.toast{
+  position:absolute; left:50%; bottom:20px; transform:translateX(-50%);
+  padding:12px 16px; border-radius:14px; background:rgba(10,14,28,.95);
+  border:1px solid rgba(255,255,255,.15); box-shadow:0 18px 45px rgba(0,0,0,.65);
+  font-size:14px; display:none; z-index:50; max-width:min(92vw,400px); text-align:center; font-weight:bold; color:var(--warn);
+}
 .toast.show{display:block; animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);}
 @keyframes popUp { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
 
 /* ===== GAME OVERLAY ===== */
 .gameOverlay{ position:fixed; inset:0; display:none; background:#000; z-index:2000; flex-direction:column; }
-.gameTop{ padding:8px 12px; display:flex; align-items:center; justify-content:space-between; gap:8px; background:linear-gradient(180deg, rgba(10,14,28,.95), rgba(10,14,28,.75)); border-bottom:1px solid rgba(255,255,255,.12); z-index:20; }
+.gameTop{
+  padding:8px 12px; display:flex; align-items:center; justify-content:space-between; gap:8px;
+  background:linear-gradient(180deg, rgba(10,14,28,.95), rgba(10,14,28,.75));
+  border-bottom:1px solid rgba(255,255,255,.12); z-index:20;
+}
 #gameFrame{ flex:1; border:0; width:100%; height:100%; background:#000; }
 .gameTop .meta{ min-width:0; flex:1; }
 .gameTop .meta .h{ font-weight:900; font-size:14px; color:#fff;}
@@ -125,12 +167,28 @@ header{
 .miniBtn{ appearance:none; border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.1); color:var(--text); border-radius:999px; padding:7px 12px; font-size:12px; font-weight:900; cursor:pointer; }
 
 /* ===== HOME ===== */
-#scrHome{ position:relative; background: url('assets/bg_home_mockup.png') center/cover no-repeat; margin: -16px; height: calc(100% + 32px); flex-direction: column; justify-content: flex-end; padding-bottom: max(8vh, 50px); }
+#scrHome{
+  position:relative;
+  background: url('assets/bg_home_mockup.png') center/cover no-repeat;
+  margin: -16px; 
+  height: calc(100% + 32px);
+  flex-direction: column; justify-content: flex-end;
+  padding-bottom: max(8vh, 50px); 
+}
 #scrHome .homeBtns{ display:flex; gap:18px; justify-content:center; padding:0 8%; z-index:9999; }
-#scrHome .homeBtns button{ flex:1; height:min(14vh, 120px); border-radius:18px; background: rgba(255,255,255,0.01); border: 0; cursor:pointer; -webkit-tap-highlight-color: transparent; }
+#scrHome .homeBtns button{
+  flex:1; height:min(14vh, 120px); border-radius:18px;
+  background: rgba(255,255,255,0.01); border: 0; cursor:pointer;
+  -webkit-tap-highlight-color: transparent;
+}
 
 /* ===== CASE MODE (個案模式) ===== */
-#scrCase .iconTile{ flex: 1; aspect-ratio: 1/1; max-height: 100px; border-radius:18px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.12); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; cursor:pointer; position:relative; transition: all 0.2s; }
+#scrCase .iconTile{
+  flex: 1; aspect-ratio: 1/1; max-height: 100px;
+  border-radius:18px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.12);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+  cursor:pointer; position:relative; transition: all 0.2s;
+}
 #scrCase .iconTile img{ width:50%; height:50%; object-fit: contain; }
 #scrCase .iconTile.locked{ opacity:.3; filter: grayscale(1); pointer-events:none; }
 #scrCase .iconTile.active{ outline:2px solid rgba(0,255,229,.6); background:rgba(0,255,229,.1); transform: scale(1.05); }
@@ -138,32 +196,57 @@ header{
 #scrCase .iconTile.ready .badge{ display:block; }
 #scrCase .iconTile .lbl{ font-size: 13px; font-weight: 800; }
 
-#scrCase .caseTitleCard{ width:100%; border: 1px solid rgba(0,255,229,.25); border-radius: 18px; padding: 12px 16px; display:flex; align-items:center; justify-content: space-between; background: linear-gradient(180deg, rgba(0,255,229,.25), rgba(10,14,28,.86)); }
+#scrCase .caseTitleCard{
+  width:100%; border: 1px solid rgba(0,255,229,.25); border-radius: 18px; padding: 12px 16px;
+  display:flex; align-items:center; justify-content: space-between;
+  background: linear-gradient(180deg, rgba(0,255,229,.25), rgba(10,14,28,.86));
+}
 #scrCase #caseHintTitle{ font-size: 15px; font-weight: 900; line-height: 1.4; color: #fff;}
 
 #subTaskContainer { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto; padding-right: 4px; }
-.subTaskBtn { width: 100%; text-align: left; padding: 16px; font-size: 14px; font-weight: 800; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: var(--text); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.1s; }
+.subTaskBtn {
+    width: 100%; text-align: left; padding: 16px; 
+    font-size: 14px; font-weight: 800; border-radius: 12px;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15);
+    color: var(--text); display: flex; justify-content: space-between; align-items: center;
+    cursor: pointer; transition: all 0.1s;
+}
 .subTaskBtn:active { background: rgba(255,255,255,0.1); transform: scale(0.98); }
 .subTaskBtn.locked { opacity: 0.5; pointer-events: none; }
 .subTaskBtn.completed { border-color: var(--good); background: rgba(61, 255, 142, 0.1); }
 
-/* ===== CHALLENGE LIST MODE (清單模式) ===== */
+/* ===== CHALLENGE LIST MODE (挑戰模式) ===== */
 #challengeListContainer { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; padding-bottom: 20px; padding-top: 4px; }
 .module-group { display: flex; flex-direction: column; gap: 8px; }
 .module-header { display: flex; align-items: center; gap: 14px; margin-bottom: 4px; }
 .mod-avatar { width: 48px; height: 48px; border-radius: 12px; object-fit: cover; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-shrink: 0; }
 .mod-title { font-size: 16px; font-weight: 900; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-.challengeBtn { width: 100%; text-align: left; padding: 16px; font-size: 14px; font-weight: 800; border-radius: 14px; background: linear-gradient(180deg, rgba(30,40,65,.8), rgba(15,20,35,.9)); border: 1px solid rgba(255,255,255,.15); box-shadow: 0 8px 16px rgba(0,0,0,.4); color: var(--text); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: transform 0.1s; }
-.challengeBtn:active { transform: scale(0.97); background: linear-gradient(180deg, rgba(40,50,75,.8), rgba(25,30,45,.9)); }
+.challengeBtn { 
+    width: 100%; text-align: left; padding: 16px; font-size: 14px; font-weight: 800; border-radius: 14px; 
+    /* 這裡替換為個案模式的綠色底色 */
+    background: linear-gradient(180deg, #1e824c, #145a32); 
+    border: 1px solid #2ecc71; box-shadow: 0 8px 16px rgba(0,0,0,.4); color: #fff; 
+    display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: transform 0.1s; 
+}
+.challengeBtn:active { transform: scale(0.97); background: linear-gradient(180deg, #196f3d, #0f4021); }
+.chal-name { display: flex; align-items: center; gap: 8px; }
+.chal-best { font-size: 12px; font-weight: bold; opacity: 0.9; }
 
 /* ===== BRIEF & OTHERS ===== */
-#scrBrief #briefTitle{ margin: 0 0 12px 0; padding: 12px; font-size: 16px; font-weight: 900; text-align: center; background: linear-gradient(180deg, rgba(0,255,229,.25), rgba(10,14,28,.9)); border: 1px solid rgba(0,255,229,.35); border-radius: 16px; }
+#scrBrief #briefTitle{
+  margin: 0 0 12px 0; padding: 12px; font-size: 16px; font-weight: 900; text-align: center;
+  background: linear-gradient(180deg, rgba(0,255,229,.25), rgba(10,14,28,.9));
+  border: 1px solid rgba(0,255,229,.35); border-radius: 16px;
+}
 .full-width-btn { width: 100%; text-align: center; font-size: 15px; padding: 14px;}
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px);} to { opacity: 1; transform: translateY(0);} }
-#scrBrief #briefDetail { display:none; } #scrBrief .bottomBar { display:none; }
+
+#scrBrief #briefDetail { display:none; }
+#scrBrief .bottomBar { display:none; }
 #scrBrief #briefDetail.open { display:block; animation: fadeIn 0.25s ease; }
 #scrBrief #briefDetail.open ~ .bottomBar { display:flex; animation: fadeIn 0.25s ease; }
+
 #scrCase .caseTaskWrap { display:none; flex-direction: column; gap: 16px; }
 #scrCase .bottomBar { display:none; }
 #scrCase.taskOpen .caseTaskWrap { display:flex; animation: fadeIn 0.25s ease; }
@@ -293,7 +376,7 @@ header{
         <div class="bottomBar">
           <div class="actions">
             <button class="btn secondary" id="btnRetryRole" type="button">刷分重來</button>
-            <button class="btn primary" id="btnFinishRole" type="button">繼續推進</button>
+            <button class="btn primary" id="btnFinishRole" type="button">返回關卡清單</button>
           </div>
         </div>
       </section>
@@ -348,7 +431,7 @@ header{
 // ==========================================
 // 核心設定與資料結構
 // ==========================================
-const KEY_RANK='BVP_MAIN_RANK_V2';
+const KEY_RANK='BVP_MAIN_RANK_V4'; // 更新了快取金鑰，避免舊資料干擾
 
 // 賽車引擎統一入口
 const GAME_FILES = {
@@ -364,24 +447,24 @@ const CHALLENGE_DATA = [
         title: '任務一：駕駛與極限救援',
         avatar: 'assets/emt_card.png',
         levels: [
-            { id: 'EMT_4', name: '最遠距離挑戰 (無盡極速)', icon: '🔥' },
-            { id: 'EMT_5', name: '最快速度挑戰 (純競速)', icon: '⏱️' },
-            { id: 'EMT_6', name: '舒服兜風賽 (音樂盲盒)', icon: '🎵' }
+            { id: 'EMT_4', name: '最遠距離挑戰', icon: '🔥', format: 'm' },
+            { id: 'EMT_5', name: '最快速度挑戰', icon: '⏱️', format: 's' },
+            { id: 'EMT_6', name: '舒服兜風賽', icon: '🎵', format: 's' }
         ]
     },
     {
         title: '任務二：取栓團隊',
         avatar: 'assets/team_card.png',
         levels: [
-            { id: 'TEAM_1', name: '血管再通治療 (消消樂)', icon: '💉' }
+            { id: 'TEAM_1', name: '血管再通治療', icon: '💉', format: 'pt' }
         ]
     },
     {
         title: '任務三：護理衛教',
         avatar: 'assets/nurse_card.png',
         levels: [
-            { id: 'NURSE_1', name: '衛教方塊 Lv1', icon: '🧠' },
-            { id: 'NURSE_2', name: '衛教方塊 Lv2', icon: '🧠' }
+            { id: 'NURSE_1', name: '衛教方塊 Lv1', icon: '🧠', format: 'pt' },
+            { id: 'NURSE_2', name: '衛教方塊 Lv2', icon: '🧠', format: 'pt' }
         ]
     }
 ];
@@ -431,7 +514,10 @@ window.onload = () => {
         else showBrief(caseState.activeRole);
     };
     id('btnFinishRole').onclick = () => {
-        if(caseState.isListMode) { show('list'); toast('成績已記錄'); }
+        if(caseState.isListMode) { 
+            startChallengeList(); // 重新整理清單以顯示最新成績
+            toast('成績已記錄'); 
+        }
         else finishRole();
     };
     id('btnReplayCase').onclick = ()=>{ resetCaseOnly(); goHome(); };
@@ -513,6 +599,16 @@ function toast(msg){
     clearTimeout(el._t); el._t = setTimeout(()=>el.classList.remove('show'), 2000); 
 }
 
+// 取得最佳成績
+function getBestScore(levelId) {
+    const ranks = loadRank();
+    const scores = ranks.filter(r => r.levelId === levelId).map(r => r.score);
+    if(scores.length === 0) return null;
+    // 如果是計時賽 (s)，取最小值；如果是計分賽 (m, pt)，取最大值
+    const isTimer = ['EMT_1','EMT_2','EMT_3','EMT_5','EMT_6'].includes(levelId);
+    return isTimer ? Math.min(...scores) : Math.max(...scores);
+}
+
 // ==========================================
 // 挑戰模式 (清單動態生成)
 // ==========================================
@@ -539,7 +635,16 @@ function startChallengeList(){
         group.levels.forEach(level => {
             const btn = document.createElement('button');
             btn.className = 'challengeBtn';
-            btn.innerHTML = `${level.name} <span>${level.icon}</span>`;
+            
+            // 抓取最佳成績
+            const best = getBestScore(level.id);
+            const bestStr = best !== null ? `最佳：${best}${level.format}` : '尚未挑戰';
+
+            // ★ 圖示在前，文字在後，包含最佳成績
+            btn.innerHTML = `
+                <div class="chal-name"><span>${level.icon}</span> ${level.name}</div>
+                <div class="chal-best">${bestStr}</div>
+            `;
             btn.onclick = () => showBrief(level.id);
             wrap.appendChild(btn);
         });
@@ -633,7 +738,7 @@ function getLevelConfig(roleKey){
 }
 
 function showBrief(roleKey){
-  caseState.activeRole = roleKey; // 將 roleKey 直接存給 activeRole 方便追蹤
+  caseState.activeRole = roleKey; 
   const cfg = getLevelConfig(roleKey);
   id('briefAvatar').src = cfg.avatar; id('briefWho').textContent = cfg.who; id('briefLine').textContent = cfg.line; id('briefTitle').textContent = cfg.title;
   id('briefBullets').innerHTML = cfg.bullets.map(b=>`<li>${b}</li>`).join('');
@@ -648,14 +753,17 @@ function focusGameFrame(){
 
 function startRoleGame(){
   requestFullscreenSafe(); 
-  // 取得設定檔
   const cfg = getLevelConfig(caseState.activeRole);
   id('btnExitGame').textContent = '中斷並退出';
   
   caseState.lastPerf=null; id('gameTitle').textContent = cfg.who;
-  id('gameFrame').onload = () => { focusGameFrame(); };
   
-  // 判斷是否為賽車引擎，附加網址參數
+  // ★ 發送啟動訊號，喚醒引擎
+  id('gameFrame').onload = () => { 
+      focusGameFrame(); 
+      try { id('gameFrame').contentWindow.postMessage({ type: 'START_GAME' }, '*'); } catch(e) {}
+  };
+  
   if (cfg.gameId === 'race_engine') {
       id('gameFrame').src = `${GAME_FILES[cfg.gameId]}?mode=${cfg.modeParam}`;
   } else {
@@ -696,6 +804,14 @@ window.addEventListener('message',(e)=>{
     if(rawScore < target){ closeGame(); show('brief'); toast(`未達標：需要 ${target} 分`); return; }
   }
 
+  // ★ 將最佳成績寫入 LocalStorage
+  if(rawScore !== null || time !== null) {
+      const finalScore = rawScore !== null ? rawScore : time;
+      const rankData = loadRank();
+      rankData.push({ levelId: roleKey, score: finalScore, ts: Date.now() });
+      saveRank(rankData);
+  }
+
   const perf = { timeSec: time, score: rawScore, raw:d }; const reward = cfg.reward(perf);
   caseState.lastPerf = { roleKey: roleKey, perf, reward }; 
   closeGame(); showRoleComplete(cfg, perf, reward);
@@ -725,28 +841,16 @@ function finishRole(){
       show('case');
       toast('進度已更新！');
   } else {
-      // 挑戰模式直接回清單
-      show('list');
+      startChallengeList(); // 挑戰模式直接回清單並刷新最佳成績
       toast('紀錄已保存！');
   }
 }
 
 function finalizeCase(){
-  const entry = { name:'腦脈先鋒', score: caseState.caseScore, ts: Date.now() };
-  const rank = loadRank(); rank.push(entry); rank.sort((a,b)=>b.score-a.score || a.ts-b.ts);
-  const top = rank.slice(0,10); saveRank(top);
-
+  // 在總結算不寫入最佳成績，只展示結果
   id('caseResultBullets').innerHTML='';
   addRes(`<strong style="color:var(--accent);font-size:18px;">總得分：${caseState.caseScore}</strong>`);
   addRes('✅ 完成流程：駕駛特訓 → 取栓 → 護理');
-
-  id('rankTableBody').innerHTML='';
-  top.forEach((r,i)=>{
-    const tr=document.createElement('tr');
-    if(i===0) tr.style.color = 'var(--warn)';
-    tr.innerHTML = `<td>${i+1}</td><td>${esc(r.name)}</td><td>${r.score}</td>`;
-    id('rankTableBody').appendChild(tr);
-  });
   show('caseComplete');
 }
 
@@ -754,7 +858,6 @@ function addRes(t){ const li=document.createElement('li'); li.innerHTML=t; id('c
 
 function loadRank(){ try{ const raw = localStorage.getItem(KEY_RANK); const arr = raw ? JSON.parse(raw) : []; return Array.isArray(arr) ? arr : []; }catch(_){ return []; } }
 function saveRank(arr){ localStorage.setItem(KEY_RANK, JSON.stringify(arr)); }
-function esc(s){ return String(s??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#39;"); }
 
 </script>
 </body>
