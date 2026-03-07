@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
-<title>腦脈先鋒｜黃金送醫（精緻車輛版）</title>
+<title>腦脈先鋒｜黃金送醫（隨機事件突發版）</title>
 
 <style>
   :root{
@@ -67,6 +67,18 @@
   body.phase-sky .edge, body.phase-sky .divider { background: rgba(255,255,255, 0.4); border: 1px dashed rgba(255,255,255, 0.6); box-shadow: 0 0 10px rgba(255,255,255,0.4); opacity: 0.6;}
   body.phase-sea .edge, body.phase-sea .divider { background: repeating-linear-gradient(180deg, rgba(0,255,204,.35) 0 20px, rgba(0,255,204,0) 20px 40px); box-shadow: 0 0 10px rgba(0,255,204,0.3); opacity: 0.6;}
 
+  /* ★ 新增：天氣與隨機事件特效層 */
+  #weatherOverlay { position:absolute; inset:0; pointer-events:none; z-index:8; transition:all 1s ease; opacity:0; }
+  #weatherOverlay.fog { opacity:1; background:rgba(230,240,250,0.65); backdrop-filter:blur(3px); }
+  #weatherOverlay.night { opacity:1; background:radial-gradient(circle at 50% 85%, transparent 15%, rgba(0,0,0,0.95) 60%); }
+  
+  #eventText {
+    position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
+    z-index: 50; color: #fff; font-size: 32px; font-weight: 1000; letter-spacing: 2px;
+    text-shadow: 0 0 20px rgba(0,255,204,0.9), 0 4px 10px rgba(0,0,0,0.8);
+    pointer-events: none; opacity: 0; transition: opacity 0.3s ease; text-align: center; white-space: nowrap;
+  }
+
   #finish{ position:absolute; left:0; right:0; top:-38%; height:38%; display:flex; align-items:flex-end; justify-content:center; padding-bottom:14px; background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(230,236,255,.92)); color:#0b1220; border-bottom:1px solid rgba(0,0,0,.12); z-index:6; }
   #finish .hospital{ width:86%; height:72%; border-radius:16px; background:radial-gradient(120px 90px at 50% 35%, rgba(0,255,204,.25), transparent 55%), #ffffff; box-shadow:0 10px 30px rgba(0,0,0,.18); display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
   #finish .door{ position:absolute; bottom:10%; left:50%; transform:translateX(-50%); width:46%; height:26%; border-radius:14px; background:linear-gradient(180deg, rgba(11,18,32,.12), rgba(11,18,32,.04)); border:1px solid rgba(11,18,32,.18); box-shadow:inset 0 0 0 2px rgba(255,255,255,.35); }
@@ -82,13 +94,6 @@
   #miniAmb{ position:absolute; left:50%; transform:translateX(-50%); bottom:10px; width:30px; height:30px; display:grid; place-items:center; border-radius:10px; background:rgba(0,255,204,.16); border:1px solid rgba(0,255,204,.35); box-shadow:0 10px 18px rgba(0,0,0,.25); font-size:18px; }
   #distanceText{ position:absolute; left:50%; transform:translateX(-50%); bottom:10px; margin-bottom:-32px; font-size:11px; opacity:.85; background:rgba(10,15,25,.55); border:1px solid rgba(255,255,255,.10); padding:4px 6px; border-radius:10px; white-space:nowrap; }
 
-  #transitionText {
-    position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
-    z-index: 50; color: var(--accent); font-size: 38px; font-weight: 1000; letter-spacing: 4px;
-    text-shadow: 0 0 20px rgba(0,255,204,0.8), 0 4px 10px rgba(0,0,0,0.8);
-    pointer-events: none; opacity: 0; transition: opacity 0.5s; text-align: center;
-  }
-
   /* --- 玩家容器 --- */
   #player{
     position:absolute; bottom:6%; z-index:7; transition:left 120ms ease;
@@ -96,49 +101,17 @@
   }
   #playerSkin { width: 100%; height: 100%; position: relative; }
 
-  #playerSkin.carTop { 
-    border-radius:12px 12px 6px 6px; 
-    border:1px solid rgba(255,255,255,.3); 
-    box-shadow:0 12px 24px rgba(0,0,0,.6); 
-  }
-  #playerSkin.carTop .body{ 
-    position:absolute; inset:0; border-radius:inherit; 
-    background: linear-gradient(180deg, #f0f4f8 0%, #cbd5e1 100%); 
-  }
-  #playerSkin.carTop .glass{ 
-    position:absolute; left:6px; right:6px; top:12px; height:16px; 
-    border-radius:6px 6px 2px 2px; 
-    background:linear-gradient(180deg, #102a43, #334e68); border:2px solid #627d98; opacity:.95; 
-  }
-  #playerSkin.carTop .lights{ 
-    position:absolute; left:8px; right:8px; top:2px; height:6px; 
-    display:flex; justify-content:space-between; gap:10px; opacity:1; 
-  }
-  #playerSkin.carTop .lights span{ 
-    flex:1; border-radius:3px; background:#fff; box-shadow:0 -6px 12px rgba(255,255,255,0.9); 
-  }
-  #playerSkin.carTop .sirens{ 
-    position:absolute; left:8px; right:8px; top:8px; height:6px; border-radius:3px; 
-    background:linear-gradient(90deg, #e12d39 45%, #1992d4 55%); 
-    animation:sirenFlash 0.5s infinite alternate; z-index:3; 
-  }
-  @keyframes sirenFlash { 
-    0% { box-shadow:-12px 0 15px rgba(225,45,57,0.8), 12px 0 0px rgba(25,146,212,0); } 
-    100% { box-shadow:-12px 0 0px rgba(225,45,57,0), 12px 0 15px rgba(25,146,212,0.8); } 
-  }
-  #playerSkin.carTop::before{ 
-    content:""; position:absolute; left:50%; top:34px; bottom:8px; width:14px; 
-    transform:translateX(-50%); border-radius:4px; background:#e12d39; z-index:1; 
-  }
-  #playerSkin.carTop::after{ 
-    content:"✚"; position:absolute; left:50%; top:44px; transform:translateX(-50%); 
-    font-size:12px; font-weight:1000; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.5); z-index:2; 
-  }
+  #playerSkin.carTop { border-radius:12px 12px 6px 6px; border:1px solid rgba(255,255,255,.3); box-shadow:0 12px 24px rgba(0,0,0,.6); }
+  #playerSkin.carTop .body{ position:absolute; inset:0; border-radius:inherit; background: linear-gradient(180deg, #f0f4f8 0%, #cbd5e1 100%); }
+  #playerSkin.carTop .glass{ position:absolute; left:6px; right:6px; top:12px; height:16px; border-radius:6px 6px 2px 2px; background:linear-gradient(180deg, #102a43, #334e68); border:2px solid #627d98; opacity:.95; }
+  #playerSkin.carTop .lights{ position:absolute; left:8px; right:8px; top:2px; height:6px; display:flex; justify-content:space-between; gap:10px; opacity:1; }
+  #playerSkin.carTop .lights span{ flex:1; border-radius:3px; background:#fff; box-shadow:0 -6px 12px rgba(255,255,255,0.9); }
+  #playerSkin.carTop .sirens{ position:absolute; left:8px; right:8px; top:8px; height:6px; border-radius:3px; background:linear-gradient(90deg, #e12d39 45%, #1992d4 55%); animation:sirenFlash 0.5s infinite alternate; z-index:3; }
+  @keyframes sirenFlash { 0% { box-shadow:-12px 0 15px rgba(225,45,57,0.8), 12px 0 0px rgba(25,146,212,0); } 100% { box-shadow:-12px 0 0px rgba(225,45,57,0), 12px 0 15px rgba(25,146,212,0.8); } }
+  #playerSkin.carTop::before{ content:""; position:absolute; left:50%; top:34px; bottom:8px; width:14px; transform:translateX(-50%); border-radius:4px; background:#e12d39; z-index:1; }
+  #playerSkin.carTop::after{ content:"✚"; position:absolute; left:50%; top:44px; transform:translateX(-50%); font-size:12px; font-weight:1000; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.5); z-index:2; }
   #playerSkin.carTop .wheels{ position:absolute; left:-4px; right:-4px; top:14px; bottom:14px; pointer-events:none; }
-  #playerSkin.carTop .wheels::before, #playerSkin.carTop .wheels::after{ 
-    content:""; position:absolute; top:0; bottom:0; width:6px; border-radius:4px; 
-    background:#102a43; box-shadow:inset 0 2px 4px rgba(0,0,0,0.8); 
-  }
+  #playerSkin.carTop .wheels::before, #playerSkin.carTop .wheels::after{ content:""; position:absolute; top:0; bottom:0; width:6px; border-radius:4px; background:#102a43; box-shadow:inset 0 2px 4px rgba(0,0,0,0.8); }
   #playerSkin.carTop .wheels::before{left:0;} #playerSkin.carTop .wheels::after{right:0;}
 
   #playerSkin.heliTop .tail { position: absolute; left: 22px; bottom: 0; width: 4px; height: 35px; background: #ddd; }
@@ -163,7 +136,7 @@
   }
   .transforming { animation: transformAnim 5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
 
-  #player.boosting{ filter:drop-shadow(0 0 18px rgba(0,255,204,.35)); }
+  #player.boosting{ filter:drop-shadow(0 0 25px #ffeb3b) drop-shadow(0 0 10px #ff9800); }
   #player.jumping{ filter:drop-shadow(0 12px 20px rgba(122,168,255,.20)) drop-shadow(0 0 12px rgba(122,168,255,.18)); }
   #player.finishing{ transition:transform 600ms ease, top 600ms ease, left 250ms ease; filter:drop-shadow(0 0 18px rgba(0,255,204,.22)); }
   
@@ -179,6 +152,7 @@
   #ammoFloat.empty{ background:rgba(255,255,255,.22); color:rgba(255,255,255,.78); border-color: rgba(255,255,255,.2); }
   @keyframes ammoGlow{ from{ box-shadow:0 4px 10px rgba(0,0,0,.4), 0 0 8px rgba(255,209,102,.4); } to{ box-shadow:0 4px 10px rgba(0,0,0,.4), 0 0 20px rgba(255,209,102,1); } }
 
+  /* --- 選擇傳送門 --- */
   .gate {
     position: absolute; width: 80px; height: 80px; border-radius: 16px;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -189,49 +163,27 @@
   .gate.land { background: linear-gradient(180deg, #ff7a59, #c62828); border: 2px solid #ffb09c; }
   .gate.air { background: linear-gradient(180deg, #5dade2, #21618c); border: 2px solid #aed6f1; }
   .gate.sea { background: linear-gradient(180deg, #48c9b0, #0e6251); border: 2px solid #a2d9ce; }
+  .gate.mystery { background: linear-gradient(180deg, #9b59b6, #4a235a); border: 2px solid #d7bde2; box-shadow: 0 10px 20px rgba(155,89,182,0.6), inset 0 0 15px rgba(255,255,255,0.4); }
   .gate .icon { font-size: 26px; margin-top: 4px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
   @keyframes gateFloat { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
 
-  /* ★ 更新：對手車輛恢復為黑灰色，並保持車頭與白光向下 */
+  /* --- 敵人容器 --- */
   .npcCar{ 
     position:absolute; width:48px; height:78px; 
     border-radius:12px 12px 6px 6px; border:1px solid rgba(255,255,255,.15); 
-    box-shadow:0 -10px 20px rgba(0,0,0,.6); 
-    transform: rotate(180deg);
+    box-shadow:0 -10px 20px rgba(0,0,0,.6); transform: rotate(180deg);
   }
-  .npcCar .body{ 
-    position:absolute; inset:0; border-radius:inherit; 
-    background: linear-gradient(180deg, #566070 0%, #232b38 100%); /* 恢復黑灰色系漸層 */
-  }
-  .npcCar .glass{ 
-    position:absolute; left:6px; right:6px; top:12px; height:16px; 
-    border-radius:6px 6px 2px 2px; background:linear-gradient(180deg, #1c262b, #37474f); 
-    border:2px solid #455a64; opacity:.95; 
-  }
-  .npcCar .rear-glass{ 
-    position:absolute; left:8px; right:8px; bottom:8px; height:10px; 
-    border-radius:2px 2px 4px 4px; background:#1c262b; 
-  }
-  /* 車頭燈 (白光，因父層翻轉而實際朝下) */
-  .npcCar .lights{ 
-    position:absolute; left:8px; right:8px; top:2px; height:6px; 
-    display:flex; justify-content:space-between; gap:10px; opacity:1; 
-  }
+  .npcCar .body{ position:absolute; inset:0; border-radius:inherit; background: linear-gradient(180deg, #566070 0%, #232b38 100%); }
+  .npcCar .glass{ position:absolute; left:6px; right:6px; top:12px; height:16px; border-radius:6px 6px 2px 2px; background:linear-gradient(180deg, #1c262b, #37474f); border:2px solid #455a64; opacity:.95; }
+  .npcCar .rear-glass{ position:absolute; left:8px; right:8px; bottom:8px; height:10px; border-radius:2px 2px 4px 4px; background:#1c262b; }
+  .npcCar .lights{ position:absolute; left:8px; right:8px; top:2px; height:6px; display:flex; justify-content:space-between; gap:10px; opacity:1; }
   .npcCar .lights span{ flex:1; border-radius:3px; background:#fff; box-shadow:0 -6px 12px rgba(255,255,255,0.7); }
-  /* 車尾燈 (紅光，因父層翻轉而實際朝上) */
-  .npcCar .taillights{ 
-    position:absolute; left:8px; right:8px; bottom:2px; height:4px; 
-    display:flex; justify-content:space-between; gap:12px; opacity:.9; 
-  }
+  .npcCar .taillights{ position:absolute; left:8px; right:8px; bottom:2px; height:4px; display:flex; justify-content:space-between; gap:12px; opacity:.9; }
   .npcCar .taillights span{ flex:1; border-radius:2px; background:#ff5252; box-shadow:0 4px 8px rgba(255,82,82,0.8); }
   .npcCar .wheels{ position:absolute; left:-4px; right:-4px; top:14px; bottom:14px; pointer-events:none; }
-  .npcCar .wheels::before, .npcCar .wheels::after{ 
-    content:""; position:absolute; top:0; bottom:0; width:6px; border-radius:4px; 
-    background:#111; box-shadow:inset 0 2px 4px rgba(0,0,0,0.8); 
-  }
+  .npcCar .wheels::before, .npcCar .wheels::after{ content:""; position:absolute; top:0; bottom:0; width:6px; border-radius:4px; background:#111; box-shadow:inset 0 2px 4px rgba(0,0,0,0.8); }
   .npcCar .wheels::before{left:0;} .npcCar .wheels::after{right:0;}
 
-  /* 鳥與海豚也確實朝向玩家 */
   .npcBird { position: absolute; width: 48px; height: 60px; transform: rotate(180deg); filter: drop-shadow(0 -15px 10px rgba(0,0,0,0.4)); }
   .npcBird .body { position: absolute; left: 20px; top: 12px; width: 8px; height: 35px; border-radius: 4px 4px 8px 8px; background: #607D8B; }
   .npcBird .body::before { content: ""; position: absolute; left: -2px; top: -8px; width: 12px; height: 12px; border-radius: 50%; background: #455A64; }
@@ -297,7 +249,6 @@
     .npcCar .taillights { left:6px; right:6px; bottom:3px; height:3px; gap:10px; }
     .npcCar .rear-glass { left:6px; right:6px; bottom:6px; height:8px; }
     
-    /* 確保手機版子彈數量依然在上方 */
     #ammoFloat{ top:-26px; bottom:auto; min-width:32px; height:20px; font-size:11px; padding:0 6px; }
     .boost{ width:40px; height:40px; } .ammoPick{ width:38px; height:38px; font-size:16px; } .obstacle{ width:46px; height:46px; } .obstacle::before{ font-size:18px; }
     .gate { width: 70px; height: 70px; font-size: 14px; }
@@ -310,6 +261,9 @@
 
 <div id="wrap">
   <div id="game">
+    <div id="weatherOverlay"></div>
+    <div id="eventText">獲得超級加速！</div>
+
     <div class="road"></div>
     <div id="lanes">
       <div class="edge left"></div>
@@ -377,7 +331,7 @@ if(isCaseMode) document.body.classList.add('caseMode');
 const GOAL_DISTANCE = 3500;
 const DIST_UNIT = 12;
 const BASE_FORWARD_SPEED = 1.0;
-const BOOST_MS = 3000;
+const BOOST_MS = 5000;
 const BOOST_FORWARD_MULT = 3.0;
 const NPC_FALL_BASE = 235;
 const NPC_FALL_MIN_MULT = 0.90;
@@ -434,6 +388,8 @@ const leftBtn = document.getElementById("leftBtn");
 const rightBtn = document.getElementById("rightBtn");
 const shootBtn = document.getElementById("shootBtn");
 const bgm = document.getElementById("bgm");
+const weatherOverlay = document.getElementById("weatherOverlay");
+const eventTextEl = document.getElementById("eventText");
 
 let currentPhase = 1; 
 let isTransitioning = false;
@@ -443,6 +399,20 @@ let transitionUntil = 0;
 let transitionSwapTime = 0;
 let nextPhaseTarget = 1;
 let skinSwapped = false;
+
+// 盲盒系統變數
+let isSpawningMystery = false;
+let mysteryCount = 0;
+let weatherUntil = 0;
+let slowUntil = 0;
+
+const MYSTERY_EVENTS = [
+  { id: 'fog', name: '🌫️ 大霧干擾！', type: 'weather', duration: 7000 },
+  { id: 'night', name: '🌙 黑夜降臨！', type: 'weather', duration: 7000 },
+  { id: 'boost', name: '🚀 無敵衝刺！', type: 'buff', duration: 5000 },
+  { id: 'slow', name: '🐢 泥濘減速！', type: 'debuff', duration: 4000 },
+  { id: 'ammo', name: '⚡ 物資補給 +5！', type: 'buff', amount: 5 }
+];
 
 const HTML_CAR = `<div class="body"></div><div class="glass"></div><div class="wheels"></div><div class="sirens"></div><div class="lights"><span></span><span></span></div>`;
 const HTML_HELI = `<div class="tail"></div><div class="body"></div><div class="cabin"></div><div class="rotor"></div><div class="cross">✚</div>`;
@@ -480,11 +450,7 @@ function ensureAudio(){
     if(AC) audioCtx = new AC();
   }
   if(audioCtx && audioCtx.state === "suspended") audioCtx.resume().catch(()=>{});
-  
-  if(bgm && bgm.paused) {
-      bgm.volume = 0.3; 
-      bgm.play().catch(e => console.warn("背景音樂自動播放被阻擋：", e));
-  }
+  if(bgm && bgm.paused) { bgm.volume = 0.3; bgm.play().catch(e => console.warn("背景音樂自動播放被阻擋：", e)); }
 }
 function playTone(freq=440, dur=0.08, type="sine", volume=0.03){
   ensureAudio(); if(!audioCtx) return;
@@ -597,7 +563,7 @@ function laneUnsafeWithin(ln, horizonSec){
 function laneSafeForHorizon(ln, horizonSec){ return !laneUnsafeWithin(ln, horizonSec); }
 
 function spawnNpcWaveSmart(){
-  if(isTransitioning || isSpawningGates) return false;
+  if(isTransitioning || isSpawningGates || isSpawningMystery) return false;
   const safeLanesNow = [0,1,2].filter(ln => laneSafeForHorizon(ln, SAFE_HORIZON_SEC));
   if(safeLanesNow.length === 0) return false;
   const wantTwo = Math.random() < WAVE_TWO_CAR_PROB; const count = wantTwo ? 2 : 1;
@@ -621,18 +587,18 @@ function spawnNpcWaveSmart(){
 }
 
 function spawnObstacle(){
-  if(isTransitioning || isSpawningGates || countType("ob") >= MAX_OB_ON_SCREEN) return;
+  if(isTransitioning || isSpawningGates || isSpawningMystery || countType("ob") >= MAX_OB_ON_SCREEN) return;
   const t = nearestTopInLane(1, "ob"); if(!(t === Infinity || t > 230)) return;
   const obj = makeObstacle(); game.appendChild(obj.el); entities.push(obj);
 }
 function spawnBoost(){
-  if(isTransitioning || isSpawningGates || countType("boost") >= MAX_BOOST_ON_SCREEN) return;
+  if(isTransitioning || isSpawningGates || isSpawningMystery || countType("boost") >= MAX_BOOST_ON_SCREEN) return;
   const list = [0,1,2].filter(ln => laneSafeForHorizon(ln, 0.8)); if(!list.length) return;
   const ln = list[Math.floor(Math.random() * list.length)];
   const obj = makeBoost(ln); game.appendChild(obj.el); entities.push(obj);
 }
 function spawnAmmo(){
-  if(isTransitioning || isSpawningGates || countType("ammo") >= MAX_AMMO_ON_SCREEN) return;
+  if(isTransitioning || isSpawningGates || isSpawningMystery || countType("ammo") >= MAX_AMMO_ON_SCREEN) return;
   const safe = [0,1,2].filter(ln => laneSafeForHorizon(ln, 0.8)); if(!safe.length) return;
   const ln = safe[Math.floor(Math.random() * safe.length)];
   const obj = makeAmmo(ln); game.appendChild(obj.el); entities.push(obj);
@@ -669,6 +635,42 @@ function spawnGates(isLast) {
     game.appendChild(el);
     entities.push({ type: "gate", el: el, lane: opt.ln, targetPhase: opt.ph, text: opt.txt });
   });
+}
+
+// ★ 新增：產生隨機盲盒門
+function spawnMysteryGates() {
+  purgeEnemiesAndObstacles();
+  const options = [0, 1, 2];
+  options.forEach(ln => {
+    const el = document.createElement("div");
+    el.className = "gate mystery";
+    el.innerHTML = `<span>未知</span><span class="icon">❓</span>`;
+    const centers = laneCenters();
+    const size = window.innerWidth <= 768 ? 70 : 80;
+    el.style.left = (centers[ln] - size/2) + "px";
+    el.style.top = "-200px";
+    game.appendChild(el);
+    entities.push({ type: "mystery_gate", el: el, lane: ln });
+  });
+}
+
+function triggerMysteryEvent(ev, now) {
+  eventTextEl.textContent = ev.name;
+  eventTextEl.style.opacity = 1;
+  setTimeout(() => { eventTextEl.style.opacity = 0; }, 2500);
+
+  if(ev.id === 'fog') {
+      weatherOverlay.className = "fog"; weatherUntil = now + ev.duration;
+  } else if(ev.id === 'night') {
+      weatherOverlay.className = "night"; weatherUntil = now + ev.duration;
+  } else if(ev.id === 'boost') {
+      boostUntil = Math.max(boostUntil, now + ev.duration);
+      player.classList.add("boosting"); topHud.classList.add("boosting");
+  } else if(ev.id === 'slow') {
+      slowUntil = Math.max(slowUntil, now + ev.duration);
+  } else if(ev.id === 'ammo') {
+      ammo += ev.amount; updateAmmoUI();
+  }
 }
 
 function applyPenalty(now){
@@ -775,6 +777,7 @@ function reset(){
   finish.style.top = "-38%"; finish.classList.remove("success"); overlay.style.display = "none";
   
   currentPhase = 1; isTransitioning = false; isSpawningGates = false; transitionCount = 0;
+  isSpawningMystery = false; mysteryCount = 0; weatherUntil = 0; slowUntil = 0; weatherOverlay.className = "";
   transitionTextEl.style.opacity = 0;
   playerSkin.classList.remove("transforming"); setPlayerSkin(1); setEnvironment(1);
 
@@ -803,7 +806,14 @@ function tick(now){
     requestAnimationFrame(tick); return;
   }else penaltyBox.style.display = "none";
 
-  const forwardMult = (now < boostUntil) ? BOOST_FORWARD_MULT : 1.0;
+  // ★ 特效計時器管理
+  if (now >= weatherUntil && weatherOverlay.className !== "") { weatherOverlay.className = ""; }
+  const isBoosting = (now < boostUntil);
+  const isSlowed = (now < slowUntil);
+  let forwardMult = 1.0;
+  if (isBoosting) forwardMult = BOOST_FORWARD_MULT;
+  else if (isSlowed) forwardMult = 0.5;
+
   distance += (BASE_FORWARD_SPEED * forwardMult) * DIST_UNIT * dt;
   const left = Math.max(0, Math.ceil(GOAL_DISTANCE - distance)); distLeftEl.textContent = String(left);
   const prog = clamp((distance / GOAL_DISTANCE) * 100, 0, 100); updateRelativeDistance(prog);
@@ -811,10 +821,13 @@ function tick(now){
   if(distance >= GOAL_DISTANCE){ enterHospitalAndWin(); return; }
   if(finishing){ requestAnimationFrame(tick); return; }
 
-  // 【階段里程與傳送門觸發邏輯】
-  if (!isTransitioning && !isSpawningGates) {
-    if (distance >= 1000 && transitionCount === 0) { isSpawningGates = true; spawnGates(false); }
+  // 【階段里程與傳送門觸發邏輯，加入盲盒門】
+  if (!isTransitioning && !isSpawningGates && !isSpawningMystery) {
+    if (distance >= 500 && mysteryCount === 0) { isSpawningMystery = true; spawnMysteryGates(); }
+    else if (distance >= 1000 && transitionCount === 0) { isSpawningGates = true; spawnGates(false); }
+    else if (distance >= 1500 && mysteryCount === 1) { isSpawningMystery = true; spawnMysteryGates(); }
     else if (distance >= 2000 && transitionCount === 1) { isSpawningGates = true; spawnGates(false); }
+    else if (distance >= 2500 && mysteryCount === 2) { isSpawningMystery = true; spawnMysteryGates(); }
     else if (distance >= 3000 && transitionCount === 2) { isSpawningGates = true; spawnGates(true); }
   }
 
@@ -838,38 +851,53 @@ function tick(now){
   for(let i = entities.length - 1; i >= 0; i--){
     const e = entities[i];
 
-    if(e.type === "gate") {
+    if(e.type === "mystery_gate") {
       e.el.style.top = (e.el.offsetTop + OB_FALL * dt) + "px";
       if(hit(player, e.el) || (e.el.offsetTop + e.el.offsetHeight > player.offsetTop && Math.abs(e.lane - lane) < 0.5)) {
         sfxPickup(); 
-        let chosenPhase = e.targetPhase;
-        let chosenText = "進入" + e.text;
-        
         for(let j = entities.length - 1; j >= 0; j--) {
-          if(entities[j].type === "gate") {
-            try{ entities[j].el.remove(); }catch{}
-            entities.splice(j, 1);
-          }
+          if(entities[j].type === "mystery_gate") { try{ entities[j].el.remove(); }catch{} entities.splice(j, 1); }
         }
-        isSpawningGates = false;
-        transitionCount++;
-        startTransition(chosenPhase, chosenText);
+        isSpawningMystery = false; mysteryCount++;
+        const ev = MYSTERY_EVENTS[Math.floor(Math.random() * MYSTERY_EVENTS.length)];
+        triggerMysteryEvent(ev, now);
         break; 
       }
       if(e.el.offsetTop > game.clientHeight + 160){ try{ e.el.remove(); }catch{} entities.splice(i,1); }
       continue;
     }
 
-    if(e.type === "npc"){
-      e.el.style.top = (e.el.offsetTop + (NPC_FALL_BASE * e.v) * dt) + "px";
-      if(!jumping && hit(player, e.el)){ e.el.remove(); entities.splice(i,1); applyPenalty(now); break; }
-      if(e.el.offsetTop > game.clientHeight + 160){ e.el.remove(); entities.splice(i,1); }
-    }
-    if(e.type === "ob"){
+    if(e.type === "gate") {
       e.el.style.top = (e.el.offsetTop + OB_FALL * dt) + "px";
-      if(!jumping && hit(player, e.el)){ e.el.remove(); entities.splice(i,1); applyPenalty(now); break; }
-      if(e.el.offsetTop > game.clientHeight + 160){ e.el.remove(); entities.splice(i,1); }
+      if(hit(player, e.el) || (e.el.offsetTop + e.el.offsetHeight > player.offsetTop && Math.abs(e.lane - lane) < 0.5)) {
+        sfxPickup(); 
+        let chosenPhase = e.targetPhase; let chosenText = "進入" + e.text;
+        for(let j = entities.length - 1; j >= 0; j--) {
+          if(entities[j].type === "gate") { try{ entities[j].el.remove(); }catch{} entities.splice(j, 1); }
+        }
+        isSpawningGates = false; transitionCount++; startTransition(chosenPhase, chosenText);
+        break; 
+      }
+      if(e.el.offsetTop > game.clientHeight + 160){ try{ e.el.remove(); }catch{} entities.splice(i,1); }
+      continue;
     }
+
+    if(e.type === "npc" || e.type === "ob"){
+      let speed = e.type === "npc" ? (NPC_FALL_BASE * e.v) : OB_FALL;
+      e.el.style.top = (e.el.offsetTop + speed * dt) + "px";
+      if(hit(player, e.el)){ 
+          // ★ 如果處於「無敵加速」狀態，直接把障礙物撞碎，不受傷！
+          if(isBoosting) {
+             sfxPickup();
+             e.el.classList.add("shatter"); setTimeout(()=>{ try{ e.el.remove(); }catch{} }, 260); entities.splice(i,1); continue;
+          } else if (!jumping) {
+             e.el.remove(); entities.splice(i,1); applyPenalty(now); break; 
+          }
+      }
+      if(e.el.offsetTop > game.clientHeight + 160){ e.el.remove(); entities.splice(i,1); }
+      continue;
+    }
+
     if(e.type === "boost"){
       e.el.style.top = (e.el.offsetTop + BOOST_FALL * dt) + "px";
       if(hit(player, e.el)){ e.el.remove(); entities.splice(i,1); applyBoost(now); sfxPickup(); continue; }
@@ -884,7 +912,7 @@ function tick(now){
       const age = now - e.born; const r = Math.min(SHOCK_MAX_RADIUS, 9 + (SHOCK_GROW_PX_PER_S * (age / 1000)));
       e.r = r; e.el.style.width = (r * 2) + "px"; e.el.style.height = (r * 2) + "px"; e.el.style.left = (e.cx - r) + "px"; e.el.style.top = (e.cy - r) + "px"; e.el.style.opacity = String(Math.max(0, 1 - age / SHOCK_LIFETIME_MS));
       for(let j = entities.length - 1; j >= 0; j--){
-        const t = entities[j]; if(t.type !== "ob") continue;
+        const t = entities[j]; if(t.type !== "ob" && t.type !== "npc") continue;
         const ox = t.el.offsetLeft + t.el.offsetWidth / 2; const oy = t.el.offsetTop + t.el.offsetHeight / 2;
         if(Math.hypot(ox - e.cx, oy - e.cy) <= r + 18){ t.el.classList.add("shatter"); setTimeout(()=>{ try{ t.el.remove(); }catch{} }, 260); entities.splice(j,1); }
       }
