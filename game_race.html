@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<title>腦脈先鋒 萬用引擎</title>
+
+<style>
+  :root{ --bg:#07080b; --road1:#1b1f2a; --road2:#111521; --text:#e9edf7; --accent:#00ffcc; --warn:#ffd166; }
+  html,body{ width: 100%; height: 100%; margin:0; padding:0; overflow:hidden; background:#000; color:var(--text); font-family:system-ui,sans-serif; }
+  body{ display:flex; justify-content:center; align-items:stretch; }
+  #wrap{ position:relative; width:100%; max-width:420px; height:100%; display:flex; flex-direction:column; user-select:none; }
+  #game{ position:relative; flex:1; width:100%; min-height:0; border:1px solid rgba(255,255,255,.12); border-radius:18px; overflow:hidden; background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,0)); }
+
+  /* HUD */
+  #topHud{ position:absolute; left:50%; top:10px; transform:translateX(-50%); z-index:12; padding:8px 12px; border-radius:14px; background:linear-gradient(180deg, rgba(10,15,25,.82), rgba(10,15,25,.55)); border:1px solid rgba(255,255,255,.12); box-shadow:0 10px 22px rgba(0,0,0,.28); font-weight:900; font-size:13px; display:flex; align-items:center; gap:10px; }
+  #topHud .num{ color:var(--accent); font-variant-numeric:tabular-nums; }
+  #topHud.boosting .num{ filter:drop-shadow(0 0 10px rgba(0,255,204,.45)); }
+  #timeHud b{color:#fff; font-variant-numeric:tabular-nums; margin-left:4px;}
+  #timeHud.danger b{color:var(--danger); animation:pulse 0.5s infinite;}
+
+  /* 字牌 UI */
+  #wordCollection { position: absolute; top: 60px; left: 50%; transform: translateX(-50%); display: none; gap: 8px; z-index: 12; }
+  .word-slot { width: 36px; height: 36px; border-radius: 8px; background: rgba(10, 15, 25, 0.8); border: 2px solid rgba(255, 255, 255, 0.2); color: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; }
+  .word-slot.active { background: linear-gradient(180deg, #00ffcc, #00b38f); border-color: #00ffcc; color: #000; box-shadow: 0 0 15px rgba(0, 255, 204, 0.8); }
+  .word-slot.failed { background: linear-gradient(180deg, #ff4d4d, #c62828); border-color: #ff4d4d; color: #fff; }
+
+  /* 道路背景 */
+  .road{ position:absolute; inset:0; transition: background 1s ease; background: radial-gradient(800px 420px at 50% 20%, rgba(0,255,204,.08), transparent 60%), linear-gradient(180deg, var(--road1) 0%, var(--road2) 100%); }
+  .road::before{ content:""; position:absolute; inset:-10%; background:linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(255,255,255,.05) 30%, rgba(255,255,255,.03) 55%, rgba(0,0,0,0) 100%); transform:skewX(-12deg); animation:sweep 3.2s linear infinite; opacity:.55; }
+  @keyframes sweep{ 0%{transform:translateX(-40%) skewX(-12deg);} 100%{transform:translateX(40%) skewX(-12deg);} }
+  
+  /* 變形背景 */
+  body.phase-sky .road { background: radial-gradient(800px 420px at 50% 20%, rgba(255,255,255,.2), transparent 60%), linear-gradient(180deg, #5dade2 0%, #2e86c1 100%); }
+  body.phase-sky .road::before { background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.2) 30%, rgba(255,255,255,.1) 55%, rgba(255,255,255,0) 100%); }
+  body.phase-sea .road { background: radial-gradient(800px 420px at 50% 20%, rgba(0,255,204,.1), transparent 60%), linear-gradient(180deg, #117a65 0%, #0b5345 100%); }
+  body.phase-sea .road::before { background: linear-gradient(90deg, rgba(0,255,204,0) 0%, rgba(0,255,204,.15) 30%, rgba(0,255,204,.05) 55%, rgba(0,255,204,0) 100%); }
+
+  #lanes{ position:absolute; inset:0; pointer-events:none; opacity:.9; }
+  .edge{ position:absolute; top:0; bottom:0; width:4px; background:linear-gradient(180deg, rgba(255,255,255,.40), rgba(255,255,255,.16)); box-shadow:0 0 10px rgba(255,255,255,.08); } .edge.left{left:12%;} .edge.right{right:12%;}
+  .divider{ position:absolute; top:0; bottom:0; width:4px; background:repeating-linear-gradient(180deg, rgba(255,255,255,.30) 0 28px, rgba(255,255,255,0) 28px 54px); opacity:.55; filter:drop-shadow(0 0 4px rgba(255,255,255,.06)); } .divider.one{left:36.5%;} .divider.two{left:63.5%;}
+  body.phase-sky .edge, body.phase-sky .divider { background: rgba(255,255,255, 0.4); border: 1px dashed rgba(255,255,255, 0.6); box-shadow: 0 0 10px rgba(255,255,255,0.4); opacity: 0.6;}
+  body.phase-sea .edge, body.phase-sea .divider { background: repeating-linear-gradient(180deg, rgba(0,255,204,.35) 0 20px, rgba(0,255,204,0) 20px 40px); box-shadow: 0 0 10px rgba(0,255,204,0.3); opacity: 0.6;}
+
+  /* 天氣層 */
+  #weatherOverlay { position:absolute; inset:0; pointer-events:none; z-index:8; transition:all 1s ease; opacity:0; }
+  #weatherOverlay.fog { opacity:1; background:rgba(230,240,250,0.7); backdrop-filter:blur(4px); }
+  #weatherOverlay.night { opacity:1; background:radial-gradient(circle at 50% 85%, transparent 15%, rgba(0,0,0,0.98) 60%); }
+  #weatherOverlay.rain { opacity: 1; background: rgba(10, 20, 30, 0.4); }
+  #weatherOverlay.rain::before { content: ""; position: absolute; width: 200%; height: 200%; top: -50%; left: -50%; background-image: linear-gradient(transparent, rgba(255,255,255,0.6) 10%, transparent 12%), linear-gradient(transparent, rgba(255,255,255,0.4) 10%, transparent 12%); background-size: 20px 100px, 35px 140px; background-position: 0 0, 15px 50px; transform: rotate(15deg); animation: rainDrop 0.25s linear infinite; pointer-events: none; }
+  @keyframes rainDrop { 0% { background-position: 0 0, 15px 50px; } 100% { background-position: 0 500px, 15px 750px; } }
+  #eventText { position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%); z-index: 50; color: #fff; font-size: 30px; font-weight: 1000; letter-spacing: 2px; text-shadow: 0 0 20px rgba(0,255,204,0.9), 0 4px 10px rgba(0,0,0,0.8); pointer-events: none; opacity: 0; transition: opacity 0.3s ease; text-align: center; white-space: nowrap; }
+
+  /* 終點與 UI */
+  #finish{ position:absolute; left:0; right:0; top:-38%; height:38%; display:flex; align-items:flex-end; justify-content:center; padding-bottom:14px; background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(230,236,255,.92)); color:#0b1220; border-bottom:1px solid rgba(0,0,0,.12); z-index:6; }
+  #finish .hospital{ width:86%; height:72%; border-radius:16px; background:radial-gradient(120px 90px at 50% 35%, rgba(0,255,204,.25), transparent 55%), #ffffff; box-shadow:0 10px 30px rgba(0,0,0,.18); display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
+  #finish .door{ position:absolute; bottom:10%; left:50%; transform:translateX(-50%); width:46%; height:26%; border-radius:14px; background:linear-gradient(180deg, rgba(11,18,32,.12), rgba(11,18,32,.04)); border:1px solid rgba(11,18,32,.18); }
+  #finish .sign{ background:#0b1220; color:#fff; padding:10px 14px; border-radius:14px; font-size:16px; font-weight:900; opacity:0; transform:translateY(8px); transition:all .35s ease; } #finish.success .sign{ opacity:1; transform:translateY(0); }
+  #rail{ position:absolute; right:10px; top:10px; width:52px; height:78%; z-index:10; display:flex; flex-direction:column; align-items:center; gap:10px; pointer-events:none; }
+  .railPanel{ width:52px; border-radius:16px; background:linear-gradient(180deg, rgba(10,15,25,.72), rgba(10,15,25,.40)); border:1px solid rgba(255,255,255,.12); overflow:hidden; }
+  #trackBox{ flex:1; position:relative; } #trackLine{ position:absolute; left:50%; top:10px; bottom:10px; width:4px; transform:translateX(-50%); background:rgba(255,255,255,.18); border-radius:999px; }
+  #miniAmb{ position:absolute; left:50%; transform:translateX(-50%); bottom:10px; width:30px; height:30px; display:grid; place-items:center; border-radius:10px; background:rgba(0,255,204,.16); font-size:18px; }
+
+  /* 玩家車輛 */
+  #player{ position:absolute; bottom:6%; z-index:7; transition:left 120ms ease; transform-origin:center; width:48px; height:78px; }
+  #playerSkin { width: 100%; height: 100%; position: relative; }
+  #playerSkin.carTop { border-radius:12px 12px 6px 6px; border:1px solid rgba(255,255,255,.3); box-shadow:0 12px 24px rgba(0,0,0,.6); }
+  #playerSkin.carTop .body{ position:absolute; inset:0; border-radius:inherit; background: linear-gradient(180deg, #f0f4f8 0%, #cbd5e1 100%); }
+  #playerSkin.carTop .glass{ position:absolute; left:6px; right:6px; top:12px; height:16px; border-radius:6px 6px 2px 2px; background:#102a43; opacity:.95; }
+  #playerSkin.carTop .lights{ position:absolute; left:8px; right:8px; top:2px; height:6px; display:flex; justify-content:space-between; gap:10px; }
+  #playerSkin.carTop .lights span{ flex:1; border-radius:3px; background:#fff; box-shadow:0 -6px 12px rgba(255,255,255,0.9); }
+  #playerSkin.carTop .sirens{ position:absolute; left:8px; right:8px; top:8px; height:6px; background:linear-gradient(90deg, #e12d39 45%, #1992d4 55%); animation:sirenFlash 0.5s infinite alternate; z-index:3; }
+  @keyframes sirenFlash { 0% { box-shadow:-12px 0 15px rgba(225,45,57,0.8); } 100% { box-shadow:12px 0 15px rgba(25,146,212,0.8); } }
+  #playerSkin.carTop::before{ content:""; position:absolute; left:50%; top:34px; bottom:8px; width:14px; transform:translateX(-50%); background:#e12d39; z-index:1; }
+  #playerSkin.carTop::after{ content:"✚"; position:absolute; left:50%; top:44px; transform:translateX(-50%); font-size:12px; font-weight:1000; color:#fff; z-index:2; }
+  
+  /* 變形Skin */
+  #playerSkin.heliTop .body { position: absolute; left: 12px; top: 10px; width: 24px; height: 45px; border-radius: 12px; background: linear-gradient(180deg, #ff4d4d, #d9102f); }
+  #playerSkin.heliTop .rotor { position: absolute; left: -11px; top: 30px; width: 70px; height: 6px; background: rgba(255,255,255,0.9); animation: spinRotor 0.15s linear infinite; z-index: 4; }
+  @keyframes spinRotor { 100% { transform: rotate(360deg); } }
+  #playerSkin.boatTop .hull { position: absolute; left: 6px; top: 5px; width: 36px; height: 65px; border-radius: 50% 50% 10% 10%; background: linear-gradient(180deg, #ff4d4d, #d9102f); }
+
+  @keyframes transformAnim { 50% { transform: scale(0.1) rotate(360deg); opacity: 0; } 100% { transform: scale(1) rotate(720deg); opacity: 1; } }
+  .transforming { animation: transformAnim 3s forwards; }
+
+  #player.flash-green { filter:drop-shadow(0 0 20px rgba(0,255,204,1)) brightness(1.3); }
+  #player.armed { filter:drop-shadow(0 0 20px rgba(255,235,59,0.8)); }
+  #player.jumping{ filter:drop-shadow(0 12px 20px rgba(122,168,255,.20)); }
+  
+  #ammoFloat{ position:absolute; left:50%; top:-30px; transform:translateX(-50%); min-width:40px; height:24px; padding:0 8px; border-radius:999px; display:flex; align-items:center; justify-content:center; background:rgba(10, 15, 25, 0.95); color:#ffff00; font-size:14px; font-weight:1000; border:1px solid rgba(255,255,0,.8); text-shadow: 0 0 5px rgba(255,255,0,0.5); pointer-events:none; z-index:15; }
+  #ammoFloat.empty{ color:rgba(255,255,255,.4); border-color: rgba(255,255,255,.2); text-shadow:none; }
+
+  /* 道具與門 */
+  .gate { position: absolute; width: 80px; height: 80px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 16px; font-weight: 900; color: #fff; z-index: 8; animation: gateFloat 1s infinite alternate; }
+  .gate.word { background: linear-gradient(180deg, #1e88e5, #1565c0); border: 2px solid #64b5f6; }
+  .gate.mystery { background: linear-gradient(180deg, #9b59b6, #4a235a); border: 2px solid #d7bde2; box-shadow: 0 10px 20px rgba(155,89,182,0.6); }
+  .gate.trans { background: linear-gradient(180deg, #5dade2, #21618c); border: 2px solid #aed6f1; }
+  .gate .icon { font-size: 32px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
+  @keyframes gateFloat { 100% { transform: translateY(-8px); } }
+
+  .npcCar{ position:absolute; width:48px; height:78px; border-radius:12px 12px 6px 6px; border:1px solid rgba(255,255,255,.15); box-shadow:0 -10px 20px rgba(0,0,0,.6); transform: rotate(180deg); }
+  .npcCar .body{ position:absolute; inset:0; border-radius:inherit; background: linear-gradient(180deg, #566070 0%, #232b38 100%); }
+  .npcCar .glass{ position:absolute; left:6px; right:6px; top:12px; height:16px; border-radius:6px 6px 2px 2px; background:#1c262b; }
+  .npcCar .lights{ position:absolute; left:8px; right:8px; top:2px; height:6px; display:flex; justify-content:space-between; gap:10px; }
+  .npcCar .lights span{ flex:1; border-radius:3px; background:#fff; box-shadow:0 -6px 12px rgba(255,255,255,0.7); }
+  .npcCar .taillights{ position:absolute; left:8px; right:8px; bottom:2px; height:4px; display:flex; justify-content:space-between; gap:12px; }
+  .npcCar .taillights span{ flex:1; background:#ff5252; box-shadow:0 4px 8px rgba(255,82,82,0.8); }
+
+  .boost{ position:absolute; width:46px; height:46px; border-radius:50%; background:radial-gradient(circle, rgba(0,255,204,0.5) 0%, rgba(0,255,204,0.1) 70%); border:2px solid #00ffcc; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .boost::before, .boost::after { content: ""; display: block; width: 12px; height: 12px; border-top: 4px solid #fff; border-left: 4px solid #fff; transform: rotate(45deg); }
+  .boost::before { margin-top: 8px; margin-bottom: -6px; }
+
+  .ammoPick{ position:absolute; width:44px; height:44px; border-radius:14px; background:radial-gradient(20px 20px at 35% 35%, rgba(255,255,0,.3), rgba(255,255,0,.1) 60%); border:1px solid rgba(255,255,0,.6); display:grid; place-items:center; font-size:24px; }
+  .ammoPick::before{content:"📣"; filter:drop-shadow(0 0 8px #ffff00); } 
+  
+  .obstacle{ position:absolute; width:56px; height:26px; border-radius:4px; background:repeating-linear-gradient(45deg, #d35400, #d35400 10px, #2c3e50 10px, #2c3e50 20px); border:2px solid #1a252f; box-shadow:0 10px 15px rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; }
+  .obstacle::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #ff4d4d; box-shadow: 0 0 8px #ff4d4d; animation: obBlink 0.4s infinite alternate; }
+  @keyframes obBlink { 100% { opacity: 1; box-shadow: 0 0 15px red; } }
+
+  .shock{ position:absolute; width:18px; height:18px; border-radius:50%; border:2px solid #00ffcc; box-shadow:0 0 15px #00ffcc, inset 0 0 15px #00ffcc; z-index:9; pointer-events:none; }
+  .shatter{animation:shatter .28s ease-out forwards;}
+  @keyframes shatter{ 100%{transform:scale(1.45);opacity:0;filter:brightness(1.8) blur(1px);} }
+  
+  #penalty{ position:absolute; left:50%; top:54%; transform:translate(-50%,-50%); padding:10px 12px; border-radius:14px; background:rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.16); display:none; z-index:15; text-align:center; font-weight:900; }
+  #penalty strong{color:var(--warn);} #penalty .sub{ display:block; margin-top:4px; font-size:12px; opacity:.85; }
+  
+  #controls{ margin-top:10px; display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .btnRow{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  button{ border:none; border-radius:16px; padding:14px 12px; color:var(--text); background:linear-gradient(180deg, rgba(10,15,25,.85), rgba(10,15,25,.55)); border:1px solid rgba(255,255,255,.12); font-size:14px; font-weight:900; }
+  button:active{ transform:translateY(1px); }
+  .accent{ border-color:rgba(0,255,204,.35); } .danger{border-color:rgba(255,77,77,.35);} .shoot{ border-color:rgba(255,209,102,.35); }
+
+  #overlay{ position:absolute; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.65); z-index:20; backdrop-filter:blur(4px); }
+  #card{ width:min(88%, 340px); border-radius:18px; background:linear-gradient(180deg, rgba(10,15,25,.95), rgba(10,15,25,.80)); border:1px solid rgba(255,255,255,.14); padding:16px 14px; text-align:center; }
+  #rankList{ list-style:none; margin:0; padding:0; max-height:190px; overflow:auto; text-align:left;}
+  #rankList li{ display:flex; justify-content:space-between; padding:7px 10px; font-size:12px; border-bottom:1px solid rgba(255,255,255,.06); font-variant-numeric:tabular-nums; }
+  @media (max-width:768px){
+    #controls{display:none;}
+    #player { width: 40px; height: 66px; bottom: 8%; } .npcCar { width:40px; height:66px; }
+    .gate { width: 70px; height: 70px; font-size: 14px; } .gate .icon { font-size: 32px; }
+  }
+</style>
+</head>
+
+<body>
+<audio id="bgm" src="assets/Midnight_Siren_Serenade.mp3" loop preload="auto"></audio>
+
+<div id="wrap">
+  <div id="game">
+    <div id="weatherOverlay"></div>
+    <div id="eventText">準備出發！</div>
+    <div class="road"></div>
+    <div id="lanes"><div class="edge left"></div><div class="edge right"></div><div class="divider one"></div><div class="divider two"></div></div>
+    
+    <div id="wordCollection">
+        <div class="word-slot" id="slot-0">亞</div><div class="word-slot" id="slot-1">東</div><div class="word-slot" id="slot-2">醫</div><div class="word-slot" id="slot-3">院</div>
+    </div>
+
+    <div id="topHud" aria-live="polite">
+      <span id="distLabel">距離</span> <span class="num" id="distLeft">3500</span>
+      <span id="timeHud"><span id="timeLabel">時間</span> <b id="timeNow">0</b>s</span>
+    </div>
+
+    <div id="finish"><div class="hospital"><div class="door"></div><div class="sign"><span class="cross">✚</span> 到院成功</div></div></div>
+    <div id="rail"><div id="hospitalMark" class="railPanel">🏥</div><div id="trackBox" class="railPanel"><div id="trackLine"></div><div id="miniAmb">🚑</div><div id="distanceText">距離 100%</div></div></div>
+    <div id="penalty">⛔ 延誤 <strong>3</strong> 秒<span class="sub">倒車重來...</span></div>
+
+    <div id="player">
+      <div id="ammoFloat" class="empty">📣0</div>
+      <div id="playerSkin" class="carTop"><div class="body"></div><div class="glass"></div><div class="wheels"></div><div class="sirens"></div><div class="lights"><span></span><span></span></div></div>
+    </div>
+
+    <div id="overlay">
+      <div id="card">
+        <h2 id="resultTitle">結果</h2><p id="resultText">—</p>
+        <div style="margin-top:10px; background:rgba(255,255,255,.05); border-radius:12px; padding:10px;">
+          <div style="font-weight:900; font-size:12px; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,.1); padding-bottom:4px;">🏆 本機排行榜</div>
+          <ul id="rankList"></ul>
+        </div>
+        <button class="accent" id="restartBtn" style="margin-top:12px; width:100%;">重新挑戰</button>
+      </div>
+    </div>
+  </div>
+  <div id="controls">
+    <div class="btnRow"><button class="accent" id="leftBtn">⬅️ 左切</button><button class="accent" id="rightBtn">右切 ➡️</button></div>
+    <div class="btnRow"><button class="shoot" id="shootBtn">📣 鳴笛</button><button class="danger" id="restartSmallBtn">重來</button></div>
+  </div>
+</div>
+
+<script>
+// ==========================================
+// ⚙️ 關卡參數設定區 (可自由修改長度與時間)
+// ==========================================
+const MODE_CONFIGS = {
+    'case1': { title: "任務一：基礎陸運", distance: 3500, timeLimit: 50, transform: false, words: false, mystery: false, endless: false, suddenDeath: false },
+    'case2': { title: "任務二：認路與盲盒", distance: 3500, timeLimit: 75, transform: false, words: true, mystery: 'weather', endless: false, suddenDeath: false },
+    'case3': { title: "任務三：全地形救援", distance: 5000, timeLimit: 90, transform: true, words: true, mystery: 'weather', endless: false, suddenDeath: false },
+    'ch_farthest': { title: "挑戰：最遠距離", distance: Infinity, timeLimit: null, transform: false, words: false, mystery: false, endless: true, suddenDeath: true },
+    'ch_fastest': { title: "挑戰：最快速度", distance: 3500, timeLimit: null, transform: false, words: false, mystery: false, endless: false, suddenDeath: false },
+    'ch_music': { title: "挑戰：舒服兜風", distance: 5000, timeLimit: null, transform: true, words: false, mystery: 'music', endless: false, suddenDeath: false }
+};
+
+const urlParams = new URLSearchParams(window.location.search);
+const currentMode = urlParams.get('mode') || 'case2';
+const cfg = MODE_CONFIGS[currentMode] || MODE_CONFIGS['case2'];
+document.title = "腦脈先鋒｜" + cfg.title;
+
+const DIST_UNIT = 12;
+const BOOST_MS = 2500; 
+const BOOST_FORWARD_MULT = 3.0;
+const NPC_FALL_BASE = 235;
+const OB_FALL = 205;
+const FIRE_COOLDOWN_MS = 240;
+const JUMP_DURATION_MS = 620;
+const PENALTY_MS = 3000;
+const WORD_TARGETS = ['亞', '東', '醫', '院'];
+const DECOY_WORDS = ['台','大','馬','偕','長','庚','榮','總','慈','濟','新','光','聯','合'];
+const MUSIC_TRACKS = ["assets/bgm_music_1.mp3", "assets/bgm_music_2.mp3", "assets/bgm_music_3.mp3"];
+
+let lane = 1, distance = 0, entities = [], over = false, finishing = false;
+let lastFrame = performance.now(), pauseUntil = 0, boostUntil = 0, ammo = 0, lastFireAt = 0;
+let jumpUntil = 0, jumpLift = 0, runStartAt = 0, elapsedMs = 0;
+let scheduledEvents = []; // 儲存所有預定的閘門事件
+let weatherUntil = 0, currentWordIndex = 0, speedMultiplier = 1.0;
+let audioCtx = null;
+
+const player = document.getElementById("player");
+const game = document.getElementById("game");
+
+function buildSchedule() {
+    scheduledEvents = [];
+    // 根據總長度平均分配字牌
+    if (cfg.words) {
+        const step = cfg.distance / 5;
+        for(let i=0; i<4; i++) scheduledEvents.push({ d: step*(i+1), type: 'word', arg: i });
+    }
+    // 變形固定三段
+    if (cfg.transform) {
+        const step = cfg.distance / 4;
+        scheduledEvents.push({ d: step*1, type: 'trans', arg: { phase: 2, txt: '空運', icon: '🚁'} });
+        scheduledEvents.push({ d: step*2, type: 'trans', arg: { phase: 3, txt: '海運', icon: '🚤'} });
+        scheduledEvents.push({ d: step*3, type: 'trans', arg: { phase: 1, txt: '陸運', icon: '🚑'} });
+    }
+    // 盲盒數量與位置
+    if (cfg.mystery) {
+        const amount = cfg.transform ? 3 : 2; // 若地圖較長給三個
+        const step = cfg.distance / (amount+1);
+        for(let i=0; i<amount; i++) scheduledEvents.push({ d: step*(i+1) + 150, type: 'mystery' });
+    }
+    scheduledEvents.sort((a,b) => a.d - b.d);
+}
+
+function reset(){
+    entities.forEach(e => { try{e.el.remove();}catch{} });
+    entities = []; distance = 0; over = false; finishing = false; pauseUntil = 0; boostUntil = 0;
+    ammo = 0; jumpUntil = 0; jumpLift = 0; elapsedMs = 0; speedMultiplier = 1.0;
+    runStartAt = performance.now(); lastFrame = performance.now();
+    player.className = ""; document.getElementById('topHud').className = "";
+    document.getElementById('finish').style.top = "-38%"; document.getElementById('finish').classList.remove("success");
+    document.getElementById('overlay').style.display = "none";
+    document.getElementById('weatherOverlay').className = ""; weatherUntil = 0;
+    
+    // UI 適應
+    document.getElementById('wordCollection').style.display = cfg.words ? 'flex' : 'none';
+    for(let i=0; i<4; i++) { const s=document.getElementById(`slot-${i}`); if(s) s.className="word-slot"; }
+    currentWordIndex = 0;
+    
+    if(cfg.endless) {
+        document.getElementById('distLabel').textContent = "行駛";
+        document.getElementById('rail').style.display = 'none';
+    } else {
+        document.getElementById('distLabel').textContent = "剩餘";
+        document.getElementById('rail').style.display = 'flex';
+    }
+    
+    document.getElementById('timeLabel').textContent = cfg.timeLimit ? "倒數" : "時間";
+
+    setPlayerSkin(1); document.body.className = "";
+    setPlayerLane(1); updateAmmoUI(); renderRanks(loadRanks());
+    buildSchedule();
+}
+
+function gameEnd(success, reason){
+    if(over) return; over = true;
+    document.getElementById('overlay').style.display = "flex"; 
+    if(success) sfxGoal(); else sfxHit();
+    
+    let score = cfg.endless ? Math.floor(distance) : Math.floor(elapsedMs/1000);
+    document.getElementById('resultTitle').textContent = success ? "✅ 任務成功！" : "❌ 任務失敗";
+    document.getElementById('resultText').textContent = cfg.endless ? `行駛距離：${score} m` : `結算時間：${score} 秒\n(${reason})`;
+    
+    if(success || cfg.endless) renderRanks(addRank(score));
+    
+    // 通知父視窗 (主選單)
+    if(success && !cfg.endless) {
+        try{ parent.postMessage({type:'GAME_CLEAR', game:currentMode, time:score}, '*'); }catch(e){}
+    } else if(!success) {
+        try{ parent.postMessage({type:'GAME_FAILED', game:currentMode, reason:reason}, '*'); }catch(e){}
+    }
+}
+
+function tick(now){
+    if(over) return;
+    const dt = Math.max(0, Math.min(0.03, (now - lastFrame) / 1000)); lastFrame = now;
+    elapsedMs = now - runStartAt; 
+    
+    // 時間限制邏輯
+    if(cfg.timeLimit) {
+        let remain = cfg.timeLimit - (elapsedMs/1000);
+        document.getElementById('timeNow').textContent = Math.max(0, remain).toFixed(1);
+        document.getElementById('timeHud').classList.toggle('danger', remain <= 10);
+        if(remain <= 0) return gameEnd(false, "時間耗盡");
+    } else {
+        document.getElementById('timeNow').textContent = (elapsedMs/1000).toFixed(1);
+    }
+
+    jumpLift = clamp((now - (jumpUntil - JUMP_DURATION_MS)) / JUMP_DURATION_MS, 0, 1);
+    jumpLift = now >= jumpUntil ? 0 : Math.sin(Math.PI * jumpLift) * JUMP_HEIGHT_PX;
+    player.style.transform = `translateY(${-jumpLift}px)`;
+    
+    if(now >= jumpUntil) player.classList.remove("jumping");
+    if(now >= boostUntil){ player.classList.remove("boosting"); document.getElementById('topHud').classList.remove("boosting"); }
+    
+    if(now < pauseUntil){
+        document.getElementById('penalty').style.display = "block";
+        document.getElementById('penalty').querySelector("strong").textContent = String(Math.ceil((pauseUntil - now) / 1000));
+        requestAnimationFrame(tick); return;
+    }else document.getElementById('penalty').style.display = "none";
+
+    if (now >= weatherUntil && document.getElementById('weatherOverlay').className !== "") { document.getElementById('weatherOverlay').className = ""; }
+    
+    // 無盡模式加速
+    if(cfg.endless) speedMultiplier += (dt * 0.015);
+    let forwardMult = speedMultiplier * (now < boostUntil ? BOOST_FORWARD_MULT : 1.0);
+    
+    distance += (BASE_FORWARD_SPEED * forwardMult) * DIST_UNIT * dt;
+    
+    if(cfg.endless) {
+        document.getElementById('distLeft').textContent = Math.floor(distance);
+    } else {
+        const left = Math.max(0, Math.ceil(cfg.distance - distance));
+        document.getElementById('distLeft').textContent = left;
+        const prog = clamp((distance / cfg.distance) * 100, 0, 100); 
+        document.getElementById('miniAmb').style.bottom = (10 + (document.getElementById('trackBox').clientHeight - 40) * (prog / 100)) + "px";
+        document.getElementById('distanceText').textContent = "距離 " + Math.max(0, Math.round(100 - prog)) + "%";
+        if(prog > 88) document.getElementById('finish').style.top = (-38 + 38 * ((prog - 88) / 12)) + "%";
+        if(distance >= cfg.distance) {
+            if(!finishing) { finishing = true; document.getElementById('finish').style.top = "0%"; player.classList.add("finishing"); setTimeout(()=>gameEnd(true, "抵達醫院"), END_DELAY_MS); }
+            requestAnimationFrame(tick); return;
+        }
+    }
+
+    // 事件觸發機制
+    if (scheduledEvents.length > 0 && distance >= scheduledEvents[0].d) {
+        let ev = scheduledEvents.shift();
+        if (ev.type === 'word') spawnWordGates(ev.arg);
+        else if (ev.type === 'trans') spawnTransformGates(ev.arg);
+        else if (ev.type === 'mystery') spawnMysteryGates();
+    }
+
+    // 一般隨機生成
+    if(Math.random() < 0.02) {
+        let r = Math.random();
+        if(r<0.4) spawnObstacle();
+        else if(r<0.45) spawnBoost();
+        else if(r<0.50) spawnAmmo();
+        else spawnNpcWaveSmart();
+    }
+
+    // 實體碰撞與更新
+    const jumping = now < jumpUntil;
+    for(let i = entities.length - 1; i >= 0; i--){
+        const e = entities[i];
+        let speed = (e.type === "npc" ? NPC_FALL_BASE * e.v : OB_FALL);
+        e.el.style.top = (e.el.offsetTop + speed * dt) + "px";
+
+        if(hit(player, e.el) || (e.type.includes('gate') && e.el.offsetTop > player.offsetTop && Math.abs(e.lane - lane) < 0.5)) {
+            
+            if(e.type === "word_gate") {
+                if(e.isCorrect) {
+                    sfxPickup(); triggerEventText(`✅ 正確！`);
+                    document.getElementById(`slot-${currentWordIndex}`).classList.add('active');
+                    currentWordIndex++;
+                } else {
+                    applyPenalty(now); triggerEventText(`❌ 走錯路倒退`);
+                    distance = Math.max(0, distance - 250); 
+                    scheduledEvents.unshift({d: distance + 200, type: 'word', arg: currentWordIndex}); // 放回去重考
+                }
+                entities.filter(x=>x.type==='word_gate').forEach(x=>x.el.remove()); entities = entities.filter(x=>x.type!=='word_gate');
+                break;
+            }
+
+            if(e.type === "mystery_gate") {
+                sfxPickup();
+                entities.filter(x=>x.type==='mystery_gate').forEach(x=>x.el.remove()); entities = entities.filter(x=>x.type!=='mystery_gate');
+                if(cfg.mystery === 'music') {
+                    triggerEventText(`🎵 切換音樂風格`);
+                    document.getElementById('bgm').src = MUSIC_TRACKS[Math.floor(Math.random() * MUSIC_TRACKS.length)];
+                    document.getElementById('bgm').play();
+                } else {
+                    const mEvents = [{id:'fog',n:'🌫️ 大霧',d:15000},{id:'night',n:'🌙 黑夜',d:15000},{id:'rain',n:'🌧️ 暴雨',d:15000}];
+                    let ev = mEvents[Math.floor(Math.random()*mEvents.length)];
+                    triggerEventText(ev.n); document.getElementById('weatherOverlay').className = ev.id; weatherUntil = now + ev.d;
+                }
+                break;
+            }
+
+            if(e.type === "trans_gate") {
+                sfxPickup(); triggerEventText(e.txt);
+                entities.filter(x=>x.type==='trans_gate').forEach(x=>x.el.remove()); entities = entities.filter(x=>x.type!=='trans_gate');
+                playerSkin.className = "transforming"; setTimeout(()=>playerSkin.className="", 3000);
+                setTimeout(()=>{ setPlayerSkin(e.phase); setEnvironment(e.phase); }, 1500);
+                break;
+            }
+
+            if(e.type === "npc" || e.type === "ob"){
+                if (!jumping) {
+                    if(cfg.suddenDeath) { e.el.remove(); return gameEnd(false, "發生碰撞，車輛損毀"); }
+                    else { e.el.remove(); entities.splice(i,1); applyPenalty(now); break; }
+                }
+            }
+
+            if(e.type === "boost"){ e.el.remove(); entities.splice(i,1); applyBoost(now); sfxPickup(); continue; }
+            if(e.type === "ammo"){ e.el.remove(); entities.splice(i,1); ammo++; updateAmmoUI(); sfxPickup(); continue; }
+        }
+        
+        if(e.type === "shock"){
+            const age = now - e.born; const r = Math.min(SHOCK_MAX_RADIUS, 9 + (SHOCK_GROW_PX_PER_S * (age / 1000)));
+            e.el.style.width = (r * 2) + "px"; e.el.style.height = (r * 2) + "px"; e.el.style.left = (e.cx - r) + "px"; e.el.style.top = (e.cy - r) + "px"; e.el.style.opacity = String(Math.max(0, 1 - age / SHOCK_LIFETIME_MS));
+            for(let j = entities.length - 1; j >= 0; j--){
+                const t = entities[j]; if(t.type !== "ob") continue; 
+                if(Math.hypot((t.el.offsetLeft+28) - e.cx, (t.el.offsetTop+13) - e.cy) <= r + 18){ t.el.classList.add("shatter"); setTimeout(()=>t.el.remove(), 260); entities.splice(j,1); }
+            }
+            if(age >= SHOCK_LIFETIME_MS){ e.el.remove(); entities.splice(i,1); }
+        }
+
+        if(e.el.offsetTop > game.clientHeight + 160){
+            if(e.type === 'word_gate' && e.isCorrect) {
+                applyPenalty(now); triggerEventText(`❌ 錯過路線倒退`);
+                distance = Math.max(0, distance - 250); 
+                scheduledEvents.unshift({d: distance + 200, type: 'word', arg: currentWordIndex}); 
+                entities.filter(x=>x.type==='word_gate').forEach(x=>x.el.remove()); entities = entities.filter(x=>x.type!=='word_gate');
+            } else {
+                e.el.remove(); entities.splice(i,1);
+            }
+        }
+    }
+    requestAnimationFrame(tick);
+}
+
+// 產生器輔助
+function spawnWordGates(idx) {
+  let decoys = [...DECOY_WORDS].sort(()=>Math.random()-0.5);
+  let opts = [ {char: WORD_TARGETS[idx], c: true}, {char: decoys[0], c: false}, {char: decoys[1], c: false} ].sort(()=>Math.random()-0.5);
+  opts.forEach((opt, ln) => {
+    let el = document.createElement("div"); el.className = "gate word"; el.innerHTML = `<span class="icon">${opt.char}</span>`;
+    el.style.left = (laneCenters()[ln] - 35) + "px"; el.style.top = "-200px"; game.appendChild(el);
+    entities.push({ type: "word_gate", el: el, lane: ln, isCorrect: opt.c, char: opt.char });
+  });
+}
+function spawnTransformGates(arg) {
+  [0,1,2].forEach(ln => {
+    let el = document.createElement("div"); el.className = "gate trans"; el.innerHTML = `<span>${arg.txt}</span><span class="icon">${arg.icon}</span>`;
+    el.style.left = (laneCenters()[ln] - 35) + "px"; el.style.top = "-200px"; game.appendChild(el);
+    entities.push({ type: "trans_gate", el: el, lane: ln, phase: arg.phase, txt: `切換${arg.txt}` });
+  });
+}
+function spawnMysteryGates() {
+  [0,1,2].forEach(ln => {
+    let el = document.createElement("div"); el.className = "gate mystery"; el.innerHTML = `<span>${cfg.mystery==='music'?'音樂':'變天'}</span><span class="icon">❓</span>`;
+    el.style.left = (laneCenters()[ln] - 35) + "px"; el.style.top = "-200px"; game.appendChild(el);
+    entities.push({ type: "mystery_gate", el: el, lane: ln });
+  });
+}
+function triggerEventText(t) { eventTextEl.textContent = t; eventTextEl.style.opacity = 1; setTimeout(() => eventTextEl.style.opacity = 0, 2000); }
+
+// 控制
+function moveLeft(){ if(performance.now() < pauseUntil || over || finishing) return; setPlayerLane(lane - 1); }
+function moveRight(){ if(performance.now() < pauseUntil || over || finishing) return; setPlayerLane(lane + 1); }
+document.addEventListener("keydown", e=>{
+  ensureAudio(); if(e.repeat) return;
+  if(e.key === "ArrowLeft") moveLeft(); if(e.key === "ArrowRight") moveRight();
+  if(e.key === "ArrowUp"){ e.preventDefault(); tryShock(performance.now()); }
+  if(e.code === "Space"){ e.preventDefault(); tryJump(performance.now()); }
+});
+document.getElementById('leftBtn').onclick = ()=>{ ensureAudio(); moveLeft(); };
+document.getElementById('rightBtn').onclick = ()=>{ ensureAudio(); moveRight(); };
+document.getElementById('shootBtn').onclick = ()=>{ ensureAudio(); tryShock(performance.now()); };
+game.addEventListener("touchstart", e=>{
+  ensureAudio(); if(over || finishing || performance.now() < pauseUntil) return;
+  const t = e.touches[0]; if(!t) return;
+  if(isTapOnPlayer(t.clientX, t.clientY)){
+    e.preventDefault(); carLongPressTriggered = false; clearTimeout(carLongPressTimer);
+    carLongPressTimer = setTimeout(()=>{ carLongPressTriggered = true; tryJump(performance.now()); }, 260); return;
+  }
+  e.preventDefault(); if(t.clientX - game.getBoundingClientRect().left < game.clientWidth / 2) moveLeft(); else moveRight();
+}, { passive:false });
+game.addEventListener("touchend", e=>{
+  clearTimeout(carLongPressTimer); const t = e.changedTouches[0]; if(!t){ carLongPressTriggered = false; return; }
+  if(isTapOnPlayer(t.clientX, t.clientY)){ e.preventDefault(); if(!carLongPressTriggered) tryShock(performance.now()); }
+  carLongPressTriggered = false;
+}, { passive:false });
+document.addEventListener("pointerdown", ensureAudio, { once:true });
+
+function setPlayerSkin(phase) {
+  playerSkin.className = phase === 2 ? "heliTop" : phase === 3 ? "boatTop" : "carTop";
+  playerSkin.innerHTML = phase === 2 ? HTML_HELI : phase === 3 ? HTML_BOAT : HTML_CAR;
+  document.getElementById('miniAmb').textContent = phase === 2 ? "🚁" : phase === 3 ? "🚤" : "🚑";
+}
+function setEnvironment(phase) { document.body.className = phase === 2 ? "phase-sky" : phase === 3 ? "phase-sea" : ""; }
+
+function getRankKey() { return "bvp_rank_" + currentMode; }
+function loadRanks(){ try{ const r = localStorage.getItem(getRankKey()); return r ? JSON.parse(r) : []; }catch{ return []; } }
+function saveRanks(arr){ try{ localStorage.setItem(getRankKey(), JSON.stringify(arr)); }catch{} }
+function addRank(val){ const arr = loadRanks(); arr.push({ t:val, at:Date.now() }); arr.sort((a,b)=>cfg.endless ? b.t-a.t : a.t-b.t); const top10 = arr.slice(0,10); saveRanks(top10); return top10; }
+
+document.getElementById('restartBtn').onclick = ()=>{ reset(); requestAnimationFrame(tick); };
+document.getElementById('restartSmallBtn').onclick = ()=>{ reset(); requestAnimationFrame(tick); };
+window.addEventListener("resize", ()=> setPlayerLane(lane));
+
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { reset(); requestAnimationFrame(tick); });
+else { reset(); requestAnimationFrame(tick); }
+</script>
+</body>
+</html>
