@@ -13,7 +13,6 @@
   #wrap{ position:relative; width:100%; max-width:420px; height:100%; display:flex; flex-direction:column; user-select:none; -webkit-user-select:none; touch-action:manipulation; }
   #game{ position:relative; flex:1; width:100%; min-height:0; border:1px solid rgba(255,255,255,.12); border-radius:18px; box-shadow:var(--shadow); overflow:hidden; background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,0)); }
 
-  /* 頂部 HUD */
   #topHud{ position:absolute; left:50%; top:10px; transform:translateX(-50%); z-index:12; padding:8px 12px; border-radius:14px; background:linear-gradient(180deg, rgba(10,15,25,.82), rgba(10,15,25,.55)); border:1px solid rgba(255,255,255,.12); box-shadow:0 10px 22px rgba(0,0,0,.28); font-weight:900; letter-spacing:.3px; font-size:13px; white-space:nowrap; display:flex; align-items:center; gap:10px; }
   #topHud .num{ color:var(--accent); font-variant-numeric:tabular-nums; }
   #topHud.boosting .num{ filter:drop-shadow(0 0 10px rgba(0,255,204,.45)); }
@@ -22,13 +21,11 @@
   #timeHud.danger b{color:var(--danger); animation:pulse 0.5s infinite;}
   @keyframes pulse{ 0%{opacity:1;} 50%{opacity:0.3;} 100%{opacity:1;} }
 
-  /* 字牌 UI */
   #wordCollection { position: absolute; top: 60px; left: 50%; transform: translateX(-50%); display: none; gap: 8px; z-index: 12; }
   .word-slot { width: 36px; height: 36px; border-radius: 8px; background: rgba(10, 15, 25, 0.8); border: 2px solid rgba(255, 255, 255, 0.2); color: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
   .word-slot.active { background: linear-gradient(180deg, #00ffcc, #00b38f); border-color: #00ffcc; color: #000; box-shadow: 0 0 15px rgba(0, 255, 204, 0.8); }
   .word-slot.failed { background: linear-gradient(180deg, #ff4d4d, #c62828); border-color: #ff4d4d; color: #fff; box-shadow: 0 0 15px rgba(255, 77, 77, 0.8); }
 
-  /* 場景與背景 */
   .road{ position:absolute; inset:0; transition: background 1s ease; background: radial-gradient(800px 420px at 50% 20%, rgba(0,255,204,.08), transparent 60%), linear-gradient(180deg, var(--road1) 0%, var(--road2) 100%); }
   .road::before{ content:""; position:absolute; inset:-10%; background:linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(255,255,255,.05) 30%, rgba(255,255,255,.03) 55%, rgba(0,0,0,0) 100%); transform:skewX(-12deg); animation:sweep 3.2s linear infinite; opacity:.55; }
   @keyframes sweep{ 0%{transform:translateX(-40%) skewX(-12deg);} 100%{transform:translateX(40%) skewX(-12deg);} }
@@ -46,7 +43,6 @@
   body.phase-sky .edge, body.phase-sky .divider { background: rgba(255,255,255, 0.4); border: 1px dashed rgba(255,255,255, 0.6); box-shadow: 0 0 10px rgba(255,255,255,0.4); opacity: 0.6;}
   body.phase-sea .edge, body.phase-sea .divider { background: repeating-linear-gradient(180deg, rgba(0,255,204,.35) 0 20px, rgba(0,255,204,0) 20px 40px); box-shadow: 0 0 10px rgba(0,255,204,0.3); opacity: 0.6;}
 
-  /* 天氣層 */
   #weatherOverlay { position:absolute; inset:0; pointer-events:none; z-index:8; transition:all 1s ease; opacity:0; }
   #weatherOverlay.fog { opacity:1; background:rgba(230,240,250,0.7); backdrop-filter:blur(4px); }
   #weatherOverlay.night { opacity:1; background:radial-gradient(circle at 50% 85%, transparent 15%, rgba(0,0,0,0.98) 60%); }
@@ -55,96 +51,141 @@
   @keyframes rainDrop { 0% { background-position: 0 0, 15px 50px; } 100% { background-position: 0 500px, 15px 750px; } }
   #eventText { position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%); z-index: 50; color: #fff; font-size: 30px; font-weight: 1000; letter-spacing: 2px; text-shadow: 0 0 20px rgba(0,255,204,0.9), 0 4px 10px rgba(0,0,0,0.8); pointer-events: none; opacity: 0; transition: opacity 0.3s ease; text-align: center; white-space: nowrap; }
 
-  /* 終點與 UI */
   #finish{ position:absolute; left:0; right:0; top:-38%; height:38%; display:flex; align-items:flex-end; justify-content:center; padding-bottom:14px; background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(230,236,255,.92)); color:#0b1220; border-bottom:1px solid rgba(0,0,0,.12); z-index:6; }
   #finish .hospital{ width:86%; height:72%; border-radius:16px; background:radial-gradient(120px 90px at 50% 35%, rgba(0,255,204,.25), transparent 55%), #ffffff; box-shadow:0 10px 30px rgba(0,0,0,.18); display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
   #finish .door{ position:absolute; bottom:10%; left:50%; transform:translateX(-50%); width:46%; height:26%; border-radius:14px; background:linear-gradient(180deg, rgba(11,18,32,.12), rgba(11,18,32,.04)); border:1px solid rgba(11,18,32,.18); box-shadow:inset 0 0 0 2px rgba(255,255,255,.35); }
-  #finish .sign{ background:#0b1220; color:#fff; padding:10px 14px; border-radius:14px; font-size:16px; font-weight:900; opacity:0; transform:translateY(8px); transition:all .35s ease; } #finish.success .sign{ opacity:1; transform:translateY(0); }
+  #finish .sign{ background:#0b1220; color:#fff; padding:10px 14px; border-radius:14px; font-size:16px; font-weight:900; letter-spacing:.4px; display:flex; align-items:center; gap:10px; box-shadow:0 8px 18px rgba(0,0,0,.20); opacity:0; transform:translateY(8px); transition:opacity .35s ease, transform .35s ease; }
+  #finish.success .sign{ opacity:1; transform:translateY(0); }
+  #finish .cross{ width:24px; height:24px; border-radius:7px; background:var(--accent); display:grid; place-items:center; color:#00130f; font-weight:900; }
+
   #rail{ position:absolute; right:10px; top:10px; width:52px; height:78%; z-index:10; display:flex; flex-direction:column; align-items:center; gap:10px; pointer-events:none; }
   .railPanel{ width:52px; border-radius:16px; background:linear-gradient(180deg, rgba(10,15,25,.72), rgba(10,15,25,.40)); border:1px solid rgba(255,255,255,.12); box-shadow:0 10px 22px rgba(0,0,0,.28); overflow:hidden; }
-  #trackBox{ flex:1; position:relative; } #trackLine{ position:absolute; left:50%; top:10px; bottom:10px; width:4px; transform:translateX(-50%); background:rgba(255,255,255,.18); border-radius:999px; }
-  #miniAmb{ position:absolute; left:50%; transform:translateX(-50%); bottom:10px; width:30px; height:30px; display:grid; place-items:center; border-radius:10px; background:rgba(0,255,204,.16); font-size:18px; }
+  #hospitalMark{ height:40px; display:grid; place-items:center; font-size:18px; }
+  #trackBox{ flex:1; position:relative; }
+  #trackLine{ position:absolute; left:50%; top:10px; bottom:10px; width:4px; transform:translateX(-50%); background:linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06)); border-radius:999px; }
+  #miniAmb{ position:absolute; left:50%; transform:translateX(-50%); bottom:10px; width:30px; height:30px; display:grid; place-items:center; border-radius:10px; background:rgba(0,255,204,.16); border:1px solid rgba(0,255,204,.35); box-shadow:0 10px 18px rgba(0,0,0,.25); font-size:18px; transition: bottom 0.1s linear; }
+  #distanceText{ position:absolute; left:50%; transform:translateX(-50%); bottom:10px; margin-bottom:-32px; font-size:11px; opacity:.85; background:rgba(10,15,25,.55); border:1px solid rgba(255,255,255,.10); padding:4px 6px; border-radius:10px; white-space:nowrap; }
 
-  /* 玩家車輛 */
   #player{ position:absolute; bottom:6%; z-index:7; transition:left 120ms ease; transform-origin:center; width:48px; height:78px; }
   #playerSkin { width: 100%; height: 100%; position: relative; }
   #playerSkin.carTop { border-radius:12px 12px 6px 6px; border:1px solid rgba(255,255,255,.3); box-shadow:0 12px 24px rgba(0,0,0,.6); }
   #playerSkin.carTop .body{ position:absolute; inset:0; border-radius:inherit; background: linear-gradient(180deg, #f0f4f8 0%, #cbd5e1 100%); }
-  #playerSkin.carTop .glass{ position:absolute; left:6px; right:6px; top:12px; height:16px; border-radius:6px 6px 2px 2px; background:#102a43; opacity:.95; }
-  #playerSkin.carTop .lights{ position:absolute; left:8px; right:8px; top:2px; height:6px; display:flex; justify-content:space-between; gap:10px; }
+  #playerSkin.carTop .glass{ position:absolute; left:6px; right:6px; top:12px; height:16px; border-radius:6px 6px 2px 2px; background:linear-gradient(180deg, #102a43, #334e68); border:2px solid #627d98; opacity:.95; }
+  #playerSkin.carTop .lights{ position:absolute; left:8px; right:8px; top:2px; height:6px; display:flex; justify-content:space-between; gap:10px; opacity:1; }
   #playerSkin.carTop .lights span{ flex:1; border-radius:3px; background:#fff; box-shadow:0 -6px 12px rgba(255,255,255,0.9); }
-  #playerSkin.carTop .sirens{ position:absolute; left:8px; right:8px; top:8px; height:6px; background:linear-gradient(90deg, #e12d39 45%, #1992d4 55%); animation:sirenFlash 0.5s infinite alternate; z-index:3; }
-  @keyframes sirenFlash { 0% { box-shadow:-12px 0 15px rgba(225,45,57,0.8); } 100% { box-shadow:12px 0 15px rgba(25,146,212,0.8); } }
-  #playerSkin.carTop::before{ content:""; position:absolute; left:50%; top:34px; bottom:8px; width:14px; transform:translateX(-50%); background:#e12d39; z-index:1; }
-  #playerSkin.carTop::after{ content:"✚"; position:absolute; left:50%; top:44px; transform:translateX(-50%); font-size:12px; font-weight:1000; color:#fff; z-index:2; }
-  
-  /* 變形Skin */
-  #playerSkin.heliTop .body { position: absolute; left: 12px; top: 10px; width: 24px; height: 45px; border-radius: 12px; background: linear-gradient(180deg, #ff4d4d, #d9102f); }
-  #playerSkin.heliTop .rotor { position: absolute; left: -11px; top: 30px; width: 70px; height: 6px; background: rgba(255,255,255,0.9); animation: spinRotor 0.15s linear infinite; z-index: 4; }
-  @keyframes spinRotor { 100% { transform: rotate(360deg); } }
-  #playerSkin.boatTop .hull { position: absolute; left: 6px; top: 5px; width: 36px; height: 65px; border-radius: 50% 50% 10% 10%; background: linear-gradient(180deg, #ff4d4d, #d9102f); }
+  #playerSkin.carTop .sirens{ position:absolute; left:8px; right:8px; top:8px; height:6px; border-radius:3px; background:linear-gradient(90deg, #e12d39 45%, #1992d4 55%); animation:sirenFlash 0.5s infinite alternate; z-index:3; }
+  @keyframes sirenFlash { 0% { box-shadow:-12px 0 15px rgba(225,45,57,0.8), 12px 0 0px rgba(25,146,212,0); } 100% { box-shadow:-12px 0 0px rgba(225,45,57,0), 12px 0 15px rgba(25,146,212,0.8); } }
+  #playerSkin.carTop::before{ content:""; position:absolute; left:50%; top:34px; bottom:8px; width:14px; transform:translateX(-50%); border-radius:4px; background:#e12d39; z-index:1; }
+  #playerSkin.carTop::after{ content:"✚"; position:absolute; left:50%; top:44px; transform:translateX(-50%); font-size:12px; font-weight:1000; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.5); z-index:2; }
+  #playerSkin.carTop .wheels{ position:absolute; left:-4px; right:-4px; top:14px; bottom:14px; pointer-events:none; }
+  #playerSkin.carTop .wheels::before, #playerSkin.carTop .wheels::after{ content:""; position:absolute; top:0; bottom:0; width:6px; border-radius:4px; background:#102a43; box-shadow:inset 0 2px 4px rgba(0,0,0,0.8); }
+  #playerSkin.carTop .wheels::before{left:0;} #playerSkin.carTop .wheels::after{right:0;}
 
-  @keyframes transformAnim { 50% { transform: scale(0.1) rotate(360deg); opacity: 0; } 100% { transform: scale(1) rotate(720deg); opacity: 1; } }
+  #playerSkin.heliTop .tail { position: absolute; left: 22px; bottom: 0; width: 4px; height: 35px; background: #ddd; }
+  #playerSkin.heliTop .body { position: absolute; left: 12px; top: 10px; width: 24px; height: 45px; border-radius: 12px; background: linear-gradient(180deg, #ff4d4d, #d9102f); }
+  #playerSkin.heliTop .cabin { position: absolute; left: 16px; top: 16px; width: 16px; height: 14px; border-radius: 8px 8px 4px 4px; background: #111; opacity: 0.8; }
+  #playerSkin.heliTop .cross { position: absolute; left: 50%; top: 38px; transform: translate(-50%, -50%); color: white; font-weight: bold; font-size: 14px; z-index: 3; }
+  #playerSkin.heliTop .rotor { position: absolute; left: -11px; top: 30px; width: 70px; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.9); animation: spinRotor 0.15s linear infinite; z-index: 4; box-shadow: 0 0 5px rgba(0,0,0,0.2); }
+  #playerSkin.heliTop .rotor::after { content: ""; position: absolute; left: 32px; top: -32px; width: 6px; height: 70px; border-radius: 3px; background: rgba(255,255,255,0.9); box-shadow: 0 0 5px rgba(0,0,0,0.2); }
+  @keyframes spinRotor { 100% { transform: rotate(360deg); } }
+
+  #playerSkin.boatTop .wake { position: absolute; left: 0; right: 0; bottom: -15px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.6); filter: blur(4px); }
+  #playerSkin.boatTop .hull { position: absolute; left: 6px; top: 5px; width: 36px; height: 65px; border-radius: 50% 50% 10% 10%; background: linear-gradient(180deg, #ff4d4d, #d9102f); border: 2px solid rgba(255,255,255,0.8); box-shadow: 0 5px 10px rgba(0,0,0,0.4); }
+  #playerSkin.boatTop .cabin { position: absolute; left: 14px; top: 25px; width: 20px; height: 20px; border-radius: 6px; background: #111; border: 2px solid #fff; opacity: 0.9; }
+  #playerSkin.boatTop .cross { position: absolute; left: 50%; top: 48px; transform: translate(-50%, -50%); color: white; font-weight: bold; font-size: 12px; z-index: 3; }
+
+  @keyframes transformAnim { 50% { transform: scale(0.1) rotate(360deg); opacity: 0; filter: drop-shadow(0 0 40px var(--accent)); } 100% { transform: scale(1) rotate(720deg); opacity: 1; filter: drop-shadow(0 0 0px var(--accent)); } }
   .transforming { animation: transformAnim 3s forwards; }
 
   #player.flash-green { filter:drop-shadow(0 0 20px rgba(0,255,204,1)) brightness(1.3); }
   #player.armed { filter:drop-shadow(0 0 20px rgba(255,235,59,0.8)); }
   #player.jumping{ filter:drop-shadow(0 12px 20px rgba(122,168,255,.20)); }
+  #player.finishing{ transition:transform 600ms ease, top 600ms ease, left 250ms ease; filter:drop-shadow(0 0 18px rgba(0,255,204,.22)); }
   
-  #ammoFloat{ position:absolute; left:50%; top:-30px; transform:translateX(-50%); min-width:40px; height:24px; padding:0 8px; border-radius:999px; display:flex; align-items:center; justify-content:center; background:rgba(10, 15, 25, 0.95); color:#ffff00; font-size:14px; font-weight:1000; border:1px solid rgba(255,255,0,.8); text-shadow: 0 0 5px rgba(255,255,0,0.5); pointer-events:none; z-index:15; }
-  #ammoFloat.empty{ color:rgba(255,255,255,.4); border-color: rgba(255,255,255,.2); text-shadow:none; }
+  #ammoFloat{ position:absolute; left:50%; top:-30px; transform:translateX(-50%); min-width:40px; height:24px; padding:0 8px; border-radius:999px; display:flex; align-items:center; justify-content:center; background:rgba(10, 15, 25, 0.95); color:#ffff00; font-size:14px; font-weight:1000; line-height:1; border:1px solid rgba(255,255,0,.8); text-shadow: 0 0 5px rgba(255,255,0,0.5); pointer-events:none; z-index:15; }
+  #ammoFloat.empty{ color:rgba(255,255,255,.4); border-color: rgba(255,255,255,.2); background:rgba(10, 15, 25, 0.8); box-shadow:none; text-shadow:none; }
 
-  /* 道具與門 */
-  .gate { position: absolute; width: 80px; height: 80px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 16px; font-weight: 900; color: #fff; z-index: 8; animation: gateFloat 1s infinite alternate; }
+  .gate { position: absolute; width: 80px; height: 80px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 16px; font-weight: 900; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.8); box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 10px rgba(255,255,255,0.5); z-index: 8; animation: gateFloat 1s infinite alternate; }
   .gate.word { background: linear-gradient(180deg, #1e88e5, #1565c0); border: 2px solid #64b5f6; }
-  .gate.mystery { background: linear-gradient(180deg, #9b59b6, #4a235a); border: 2px solid #d7bde2; box-shadow: 0 10px 20px rgba(155,89,182,0.6); }
+  .gate.mystery { background: linear-gradient(180deg, #9b59b6, #4a235a); border: 2px solid #d7bde2; box-shadow: 0 10px 20px rgba(155,89,182,0.6), inset 0 0 15px rgba(255,255,255,0.4); }
   .gate.trans { background: linear-gradient(180deg, #5dade2, #21618c); border: 2px solid #aed6f1; }
-  .gate .icon { font-size: 32px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
+  .gate .icon { font-size: 40px; margin-top: 0; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
   @keyframes gateFloat { 100% { transform: translateY(-8px); } }
 
   .npcCar{ position:absolute; width:48px; height:78px; border-radius:12px 12px 6px 6px; border:1px solid rgba(255,255,255,.15); box-shadow:0 -10px 20px rgba(0,0,0,.6); transform: rotate(180deg); }
   .npcCar .body{ position:absolute; inset:0; border-radius:inherit; background: linear-gradient(180deg, #566070 0%, #232b38 100%); }
-  .npcCar .glass{ position:absolute; left:6px; right:6px; top:12px; height:16px; border-radius:6px 6px 2px 2px; background:#1c262b; }
-  .npcCar .lights{ position:absolute; left:8px; right:8px; top:2px; height:6px; display:flex; justify-content:space-between; gap:10px; }
+  .npcCar .glass{ position:absolute; left:6px; right:6px; top:12px; height:16px; border-radius:6px 6px 2px 2px; background:linear-gradient(180deg, #1c262b, #37474f); border:2px solid #455a64; opacity:.95; }
+  .npcCar .rear-glass{ position:absolute; left:8px; right:8px; bottom:8px; height:10px; border-radius:2px 2px 4px 4px; background:#1c262b; }
+  .npcCar .lights{ position:absolute; left:8px; right:8px; top:2px; height:6px; display:flex; justify-content:space-between; gap:10px; opacity:1; }
   .npcCar .lights span{ flex:1; border-radius:3px; background:#fff; box-shadow:0 -6px 12px rgba(255,255,255,0.7); }
-  .npcCar .taillights{ position:absolute; left:8px; right:8px; bottom:2px; height:4px; display:flex; justify-content:space-between; gap:12px; }
-  .npcCar .taillights span{ flex:1; background:#ff5252; box-shadow:0 4px 8px rgba(255,82,82,0.8); }
+  .npcCar .taillights{ position:absolute; left:8px; right:8px; bottom:2px; height:4px; display:flex; justify-content:space-between; gap:12px; opacity:.9; }
+  .npcCar .taillights span{ flex:1; border-radius:2px; background:#ff5252; box-shadow:0 4px 8px rgba(255,82,82,0.8); }
+  .npcCar .wheels{ position:absolute; left:-4px; right:-4px; top:14px; bottom:14px; pointer-events:none; }
+  .npcCar .wheels::before, .npcCar .wheels::after{ content:""; position:absolute; top:0; bottom:0; width:6px; border-radius:4px; background:#111; box-shadow:inset 0 2px 4px rgba(0,0,0,0.8); }
+  .npcCar .wheels::before{left:0;} .npcCar .wheels::after{right:0;}
 
-  .boost{ position:absolute; width:46px; height:46px; border-radius:50%; background:radial-gradient(circle, rgba(0,255,204,0.5) 0%, rgba(0,255,204,0.1) 70%); border:2px solid #00ffcc; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-  .boost::before, .boost::after { content: ""; display: block; width: 12px; height: 12px; border-top: 4px solid #fff; border-left: 4px solid #fff; transform: rotate(45deg); }
+  .boost{ position:absolute; width:46px; height:46px; border-radius:50%; background:radial-gradient(circle, rgba(0,255,204,0.5) 0%, rgba(0,255,204,0.1) 70%); border:2px solid #00ffcc; box-shadow:0 8px 16px rgba(0,0,0,0.5), 0 0 15px rgba(0,255,204,0.6), inset 0 0 10px rgba(0,255,204,0.6); display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .boost::before, .boost::after { content: ""; display: block; width: 12px; height: 12px; border-top: 4px solid #fff; border-left: 4px solid #fff; transform: rotate(45deg); filter: drop-shadow(0 0 4px #fff); }
   .boost::before { margin-top: 8px; margin-bottom: -6px; }
 
-  .ammoPick{ position:absolute; width:44px; height:44px; border-radius:14px; background:radial-gradient(20px 20px at 35% 35%, rgba(255,255,0,.3), rgba(255,255,0,.1) 60%); border:1px solid rgba(255,255,0,.6); display:grid; place-items:center; font-size:24px; }
+  .ammoPick{ position:absolute; width:44px; height:44px; border-radius:14px; background:radial-gradient(20px 20px at 35% 35%, rgba(255,255,0,.3), rgba(255,255,0,.1) 60%); border:1px solid rgba(255,255,0,.6); box-shadow:0 14px 24px rgba(0,0,0,.28), 0 0 22px rgba(255,255,0,.4); display:grid; place-items:center; font-size:24px; }
   .ammoPick::before{content:"📣"; filter:drop-shadow(0 0 8px #ffff00); } 
   
-  .obstacle{ position:absolute; width:56px; height:26px; border-radius:4px; background:repeating-linear-gradient(45deg, #d35400, #d35400 10px, #2c3e50 10px, #2c3e50 20px); border:2px solid #1a252f; box-shadow:0 10px 15px rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; }
+  .obstacle{ position:absolute; width:56px; height:26px; border-radius:4px; background:repeating-linear-gradient(45deg, #d35400, #d35400 10px, #2c3e50 10px, #2c3e50 20px); border:2px solid #1a252f; box-shadow:0 10px 15px rgba(0,0,0,0.6), inset 0 0 5px rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; }
   .obstacle::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #ff4d4d; box-shadow: 0 0 8px #ff4d4d; animation: obBlink 0.4s infinite alternate; }
-  @keyframes obBlink { 100% { opacity: 1; box-shadow: 0 0 15px red; } }
+  @keyframes obBlink { 0% { opacity: 0.3; } 100% { opacity: 1; box-shadow: 0 0 15px red; } }
 
-  .shock{ position:absolute; width:18px; height:18px; border-radius:50%; border:2px solid #00ffcc; box-shadow:0 0 15px #00ffcc, inset 0 0 15px #00ffcc; z-index:9; pointer-events:none; }
+  .shock{ position:absolute; width:18px; height:18px; border-radius:50%; border:2px solid #00ffcc; box-shadow:0 0 15px #00ffcc, inset 0 0 15px #00ffcc; background: radial-gradient(circle, rgba(0,255,204,0.1) 40%, rgba(0,255,204,0.5) 80%, transparent 100%); z-index:9; pointer-events:none; }
   .shatter{animation:shatter .28s ease-out forwards;}
-  @keyframes shatter{ 100%{transform:scale(1.45);opacity:0;filter:brightness(1.8) blur(1px);} }
+  @keyframes shatter{ 0%{transform:scale(1);filter:brightness(1.1);} 100%{transform:scale(1.45);opacity:0;filter:brightness(1.8) blur(1px);} }
   
-  #penalty{ position:absolute; left:50%; top:54%; transform:translate(-50%,-50%); padding:10px 12px; border-radius:14px; background:rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.16); display:none; z-index:15; text-align:center; font-weight:900; }
-  #penalty strong{color:var(--warn);} #penalty .sub{ display:block; margin-top:4px; font-size:12px; opacity:.85; }
+  #penalty{ position:absolute; left:50%; top:54%; transform:translate(-50%,-50%); padding:10px 12px; border-radius:14px; background:rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.16); box-shadow:0 12px 30px rgba(0,0,0,.45); display:none; z-index:15; text-align:center; font-weight:900; letter-spacing:.3px; }
+  #penalty strong{color:var(--warn);} #penalty .sub{ display:block; margin-top:4px; font-size:12px; opacity:.85; font-weight:700; }
   
   #controls{ margin-top:10px; display:grid; grid-template-columns:1fr 1fr; gap:10px; }
   .btnRow{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  button{ border:none; border-radius:16px; padding:14px 12px; color:var(--text); background:linear-gradient(180deg, rgba(10,15,25,.85), rgba(10,15,25,.55)); border:1px solid rgba(255,255,255,.12); font-size:14px; font-weight:900; }
-  button:active{ transform:translateY(1px); }
-  .accent{ border-color:rgba(0,255,204,.35); } .danger{border-color:rgba(255,77,77,.35);} .shoot{ border-color:rgba(255,209,102,.35); }
+  button{ border:none; border-radius:16px; padding:14px 12px; color:var(--text); background:linear-gradient(180deg, rgba(10,15,25,.85), rgba(10,15,25,.55)); border:1px solid rgba(255,255,255,.12); box-shadow:0 10px 22px rgba(0,0,0,.28); font-size:14px; font-weight:900; letter-spacing:.3px; }
+  button:active{ transform:translateY(1px); box-shadow:0 6px 16px rgba(0,0,0,.30); }
+  .accent{ border-color:rgba(0,255,204,.35); box-shadow:0 10px 22px rgba(0,255,204,.10), 0 10px 22px rgba(0,255,204,.28); }
+  .danger{border-color:rgba(255,77,77,.35);}
+  .shoot{ border-color:rgba(255,209,102,.35); box-shadow:0 10px 22px rgba(255,209,102,.10), 0 10px 22px rgba(0,0,0,.28); }
 
-  #overlay{ position:absolute; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.65); z-index:20; backdrop-filter:blur(4px); }
-  #card{ width:min(88%, 340px); border-radius:18px; background:linear-gradient(180deg, rgba(10,15,25,.95), rgba(10,15,25,.80)); border:1px solid rgba(255,255,255,.14); padding:16px 14px; text-align:center; }
-  #rankList{ list-style:none; margin:0; padding:0; max-height:190px; overflow:auto; text-align:left;}
-  #rankList li{ display:flex; justify-content:space-between; padding:7px 10px; font-size:12px; border-bottom:1px solid rgba(255,255,255,.06); font-variant-numeric:tabular-nums; }
+  #overlay{ position:absolute; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.55); z-index:20; backdrop-filter:blur(4px); }
+  #card{ width:min(88%, 340px); border-radius:18px; background:linear-gradient(180deg, rgba(10,15,25,.90), rgba(10,15,25,.70)); border:1px solid rgba(255,255,255,.14); box-shadow:var(--shadow); padding:16px 14px; text-align:center; }
+  #card h2{margin:6px 0 8px;font-size:18px;} #card p{margin:0 0 12px;opacity:.9;font-size:13px;line-height:1.4;} #card .small{opacity:.8;font-size:12px;}
+  #rankBox{ margin-top:10px; text-align:left; border-radius:14px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.04); overflow:hidden; }
+  #rankBox .head{ padding:8px 10px; font-weight:900; font-size:12px; opacity:.95; background:rgba(0,0,0,.18); border-bottom:1px solid rgba(255,255,255,.10); display:flex; justify-content:space-between; }
+  #rankList{ list-style:none; margin:0; padding:0; max-height:190px; overflow:auto; }
+  #rankList li{ display:flex; justify-content:space-between; gap:10px; padding:7px 10px; font-size:12px; border-bottom:1px solid rgba(255,255,255,.06); font-variant-numeric:tabular-nums; }
+  #rankList li:last-child{border-bottom:none;}
+
   @media (max-width:768px){
     #controls{display:none;}
-    #player { width: 40px; height: 66px; bottom: 8%; } .npcCar { width:40px; height:66px; }
-    .gate { width: 70px; height: 70px; font-size: 14px; } .gate .icon { font-size: 32px; }
+    .edge{ width:4px; background:linear-gradient(180deg, rgba(255,255,255,.46), rgba(255,255,255,.18)); }
+    .divider{ width:4px; background:repeating-linear-gradient(180deg, rgba(255,255,255,.34) 0 24px, rgba(255,255,255,0) 24px 48px); opacity:.62; }
+    
+    #player { width: 40px; height: 66px; bottom: 8%; }
+    .npcCar { width:40px; height:66px; }
+    
+    #playerSkin.carTop::before { top:28px; bottom:6px; width:10px; }
+    #playerSkin.carTop::after { top:36px; font-size:10px; }
+    #playerSkin.carTop .glass, .npcCar .glass { left:5px; right:5px; top:10px; height:12px; }
+    #playerSkin.carTop .lights, .npcCar .lights { left:6px; right:6px; top:3px; height:5px; gap:8px; }
+    #playerSkin.carTop .sirens { left:6px; right:6px; top:6px; height:5px; }
+    .npcCar .taillights { left:6px; right:6px; bottom:3px; height:3px; gap:10px; }
+    .npcCar .rear-glass { left:6px; right:6px; bottom:6px; height:8px; }
+    
+    #ammoFloat{ top:-26px; bottom:auto; min-width:32px; height:20px; font-size:11px; padding:0 6px; }
+    .boost{ width:40px; height:40px; } 
+    .boost::before, .boost::after { width: 10px; height: 10px; border-width: 3px; }
+    .ammoPick{ width:38px; height:38px; font-size:16px; } 
+    .obstacle{ width:48px; height:22px; }
+    .gate { width: 70px; height: 70px; font-size: 14px; }
+    .gate .icon { font-size: 32px; }
   }
 </style>
 </head>
+
 <body>
 <audio id="bgm" src="assets/Midnight_Siren_Serenade.mp3" loop preload="auto"></audio>
 
@@ -152,11 +193,20 @@
   <div id="game">
     <div id="weatherOverlay"></div>
     <div id="eventText">準備出發！</div>
+
     <div class="road"></div>
-    <div id="lanes"><div class="edge left"></div><div class="edge right"></div><div class="divider one"></div><div class="divider two"></div></div>
+    <div id="lanes">
+      <div class="edge left"></div>
+      <div class="edge right"></div>
+      <div class="divider one"></div>
+      <div class="divider two"></div>
+    </div>
     
     <div id="wordCollection">
-        <div class="word-slot" id="slot-0">亞</div><div class="word-slot" id="slot-1">東</div><div class="word-slot" id="slot-2">醫</div><div class="word-slot" id="slot-3">院</div>
+        <div class="word-slot" id="slot-0">亞</div>
+        <div class="word-slot" id="slot-1">東</div>
+        <div class="word-slot" id="slot-2">醫</div>
+        <div class="word-slot" id="slot-3">院</div>
     </div>
 
     <div id="topHud" aria-live="polite">
@@ -164,20 +214,35 @@
       <span id="timeHud"><span id="timeLabel">時間</span> <b id="timeNow">0</b>s</span>
     </div>
 
-    <div id="finish"><div class="hospital"><div class="door"></div><div class="sign"><span class="cross">✚</span> 到院成功</div></div></div>
-    <div id="rail"><div id="hospitalMark" class="railPanel">🏥</div><div id="trackBox" class="railPanel"><div id="trackLine"></div><div id="miniAmb">🚑</div><div id="distanceText">距離 100%</div></div></div>
-    <div id="penalty">⛔ 延誤 <strong>3</strong> 秒<span class="sub">倒車重來...</span></div>
+    <div id="finish">
+      <div class="hospital">
+        <div class="door"></div>
+        <div class="sign"><span class="cross">✚</span> 到院成功</div>
+      </div>
+    </div>
+    <div id="rail">
+      <div id="hospitalMark" class="railPanel">🏥</div>
+      <div id="trackBox" class="railPanel">
+        <div id="trackLine"></div>
+        <div id="miniAmb">🚑</div>
+        <div id="distanceText">距離 100%</div>
+      </div>
+    </div>
+    <div id="penalty">⛔ 延誤 <strong>3</strong> 秒<span class="sub">車輛重置中...</span></div>
 
     <div id="player">
       <div id="ammoFloat" class="empty">📣0</div>
-      <div id="playerSkin" class="carTop"><div class="body"></div><div class="glass"></div><div class="wheels"></div><div class="sirens"></div><div class="lights"><span></span><span></span></div></div>
+      <div id="playerSkin" class="carTop">
+        <div class="body"></div><div class="glass"></div><div class="wheels"></div><div class="sirens"></div><div class="lights"><span></span><span></span></div>
+      </div>
     </div>
 
     <div id="overlay">
       <div id="card">
-        <h2 id="resultTitle">結果</h2><p id="resultText">—</p>
-        <div style="margin-top:10px; background:rgba(255,255,255,.05); border-radius:12px; padding:10px;">
-          <div style="font-weight:900; font-size:12px; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,.1); padding-bottom:4px;">🏆 本機排行榜</div>
+        <h2 id="resultTitle">結果</h2>
+        <p id="resultText">—</p>
+        <div id="rankBox">
+          <div class="head"><span>🏁 最佳紀錄</span><span>越快越好</span></div>
           <ul id="rankList"></ul>
         </div>
         <button class="accent" id="restartBtn" style="margin-top:12px; width:100%;">重新挑戰</button>
@@ -185,8 +250,14 @@
     </div>
   </div>
   <div id="controls">
-    <div class="btnRow"><button class="accent" id="leftBtn">⬅️ 左切</button><button class="accent" id="rightBtn">右切 ➡️</button></div>
-    <div class="btnRow"><button class="shoot" id="shootBtn">📣 鳴笛</button><button class="danger" id="restartSmallBtn">重來</button></div>
+    <div class="btnRow">
+      <button class="accent" id="leftBtn">⬅️ 左切</button>
+      <button class="accent" id="rightBtn">右切 ➡️</button>
+    </div>
+    <div class="btnRow">
+      <button class="shoot" id="shootBtn">📣 鳴笛</button>
+      <button class="danger" id="restartSmallBtn">重來</button>
+    </div>
   </div>
 </div>
 
@@ -228,6 +299,11 @@ const AMMO_MIN_MS = 1200, AMMO_MAX_MS = 2000;
 const WORD_TARGETS = ['亞', '東', '醫', '院'];
 const DECOY_WORDS = ['台','大','馬','偕','長','庚','榮','總','慈','濟','新','光','聯','合'];
 const MUSIC_TRACKS = ["assets/bgm_music_1.mp3", "assets/bgm_music_2.mp3", "assets/bgm_music_3.mp3"];
+const MYSTERY_EVENTS = [
+  { id: 'fog', name: '🌫️ 大霧干擾！', type: 'weather', duration: 15000 },
+  { id: 'night', name: '🌙 黑夜降臨！', type: 'weather', duration: 15000 },
+  { id: 'rain', name: '🌧️ 暴雨襲來！', type: 'weather', duration: 15000 }
+];
 
 // 全域變數
 let lane = 1, distance = 0, entities = [], over = false, finishing = false;
@@ -245,6 +321,9 @@ let isSpawningGates = false;
 const game = document.getElementById("game");
 const player = document.getElementById("player");
 const playerSkin = document.getElementById("playerSkin");
+
+// ★ 視窗防呆維度
+let lastGameWidth = 0;
 
 // ==========================================
 // 遊戲核心函式
@@ -285,8 +364,7 @@ function isTapOnPlayer(clientX, clientY){
   const r = player.getBoundingClientRect(); return clientX >= r.left && clientX <= r.right && clientY >= r.top && clientY <= r.bottom;
 }
 
-// ★ 畫面與排版 (包含防錯機制，避免寬度為0時當機)
-let lastGameWidth = 0;
+// 畫面與排版
 function laneCenters(){
   let w = game.clientWidth; 
   if (w === 0) w = Math.min(window.innerWidth, 420);
@@ -311,28 +389,25 @@ function setPlayerSkin(phase) {
 // 動態事件行程表
 function buildSchedule() {
     scheduledEvents = [];
-    // 根據總長度平均分配字牌
     if (cfg.words) {
         const step = cfg.distance / 5;
         for(let i=0; i<4; i++) scheduledEvents.push({ d: step*(i+1), type: 'word', arg: i });
     }
-    // 變形固定三段
     if (cfg.transform) {
         const step = cfg.distance / 4;
         scheduledEvents.push({ d: step*1, type: 'trans', arg: { phase: 2, txt: '空運', icon: '🚁'} });
         scheduledEvents.push({ d: step*2, type: 'trans', arg: { phase: 3, txt: '海運', icon: '🚤'} });
         scheduledEvents.push({ d: step*3, type: 'trans', arg: { phase: 1, txt: '陸運', icon: '🚑'} });
     }
-    // 盲盒數量與位置
     if (cfg.mystery) {
-        const amount = cfg.transform ? 3 : 2; // 地圖較長給三個
+        const amount = cfg.transform ? 3 : 2;
         const step = cfg.distance / (amount+1);
         for(let i=0; i<amount; i++) scheduledEvents.push({ d: step*(i+1) + 150, type: 'mystery' });
     }
     scheduledEvents.sort((a,b) => a.d - b.d);
 }
 
-// 生成器
+// 產生器
 function spawnNpcCar(laneIndex){
   const el = document.createElement("div"); el.className = "npcCar";
   el.innerHTML = `<div class="body"></div><div class="glass"></div><div class="rear-glass"></div><div class="wheels"></div><div class="lights"><span></span><span></span></div><div class="taillights"><span></span><span></span></div>`;
@@ -342,7 +417,6 @@ function spawnNpcCar(laneIndex){
 function spawnNpcWaveSmart(){
   if(isSpawningGates) return false;
   const safeLanesNow = [0,1,2].filter(ln => {
-      // 確保該車道前方一段距離內沒有敵車或障礙物
       return !entities.some(e => e.lane === ln && (e.type==="npc" || e.type==="ob") && e.el.offsetTop < player.offsetTop && (player.offsetTop - e.el.offsetTop) < 250);
   });
   if(safeLanesNow.length === 0) return false;
@@ -479,7 +553,7 @@ function gameEnd(success, reason){
     
     if(success || cfg.endless) renderRanks(addRank(score));
     
-    // 通知父視窗
+    // 通知主畫面
     if(success && !cfg.endless) {
         try{ parent.postMessage({type:'GAME_CLEAR', game:currentMode, time:score}, '*'); }catch(e){}
     } else if(!success) {
@@ -497,7 +571,6 @@ function reset(){
     document.getElementById('overlay').style.display = "none";
     document.getElementById('weatherOverlay').className = ""; weatherUntil = 0;
     
-    // UI 適應
     document.getElementById('wordCollection').style.display = cfg.words ? 'flex' : 'none';
     for(let i=0; i<4; i++) { const s=document.getElementById(`slot-${i}`); if(s) s.className="word-slot"; }
     currentWordIndex = 0;
@@ -510,25 +583,24 @@ function reset(){
         document.getElementById('distLabel').textContent = "剩餘";
         document.getElementById('rail').style.display = 'flex';
     }
-    
     document.getElementById('timeLabel').textContent = cfg.timeLimit ? "倒數" : "時間";
 
     setPlayerSkin(1); document.body.className = "";
     setPlayerLane(1); updateAmmoUI(); renderRanks(loadRanks());
     buildSchedule();
     
-    // 初始化生成計時器
     nextWaveAt = lastFrame + 1000; nextBoostAt = lastFrame + 2000; nextObAt = lastFrame + 1500; nextAmmoAt = lastFrame + 2500;
 }
 
-// 主遊戲迴圈
+// ★ 主遊戲迴圈 (包含核心防呆機制)
 function tick(now){
-    // ★ 防呆鎖：如果 iframe 寬度為 0 (隱藏狀態)，暫停執行避免數學錯誤
+    // 防呆鎖：如果 iframe 還沒被正確展開 (寬高為0)，暫停計算
     if (game.clientWidth === 0 || game.clientHeight === 0) {
         requestAnimationFrame(tick);
         return;
     }
-    // 視窗尺寸改變時更新車道位置
+    
+    // 動態適應視窗大小
     if (game.clientWidth !== lastGameWidth) {
         lastGameWidth = game.clientWidth;
         setPlayerLane(lane);
@@ -566,7 +638,6 @@ function tick(now){
     // 無盡模式加速
     if(cfg.endless) speedMultiplier += (dt * 0.015);
     let forwardMult = speedMultiplier * (now < boostUntil ? BOOST_FORWARD_MULT : 1.0);
-    
     distance += (BASE_FORWARD_SPEED * forwardMult) * DIST_UNIT * dt;
     
     if(cfg.endless) {
@@ -584,7 +655,7 @@ function tick(now){
         }
     }
 
-    // 事件觸發機制 (排程隊列)
+    // 事件觸發機制
     if (scheduledEvents.length > 0 && distance >= scheduledEvents[0].d && !isSpawningGates) {
         let ev = scheduledEvents.shift();
         isSpawningGates = true;
@@ -593,7 +664,6 @@ function tick(now){
         else if (ev.type === 'mystery') spawnMysteryGates();
     }
 
-    // 一般隨機生成 (避免與門重疊)
     if(now >= nextWaveAt){ if(spawnNpcWaveSmart()) nextWaveAt = now + rand(WAVE_MIN_MS, WAVE_MAX_MS); }
     if(now >= nextObAt){ spawnObstacle(); nextObAt = now + rand(OB_MIN_MS, OB_MAX_MS); }
     if(now >= nextBoostAt){ spawnBoost(); nextBoostAt = now + rand(BOOST_MIN_MS, BOOST_MAX_MS); }
@@ -604,7 +674,7 @@ function tick(now){
     for(let i = entities.length - 1; i >= 0; i--){
         const e = entities[i];
         let speed = (e.type === "npc" ? NPC_FALL_BASE * e.v : OB_FALL);
-        if (e.type.includes('gate')) speed = OB_FALL * 1.3; // 門掉落快一點
+        if (e.type.includes('gate')) speed = OB_FALL * 1.3;
         e.el.style.top = (e.el.offsetTop + speed * dt) + "px";
 
         if(hit(player, e.el) || (e.type.includes('gate') && e.el.offsetTop > player.offsetTop && Math.abs(e.lane - lane) < 0.5)) {
@@ -617,7 +687,7 @@ function tick(now){
                 } else {
                     applyPenalty(now); triggerEventText(`❌ 走錯路倒退`);
                     distance = Math.max(0, distance - 50); 
-                    scheduledEvents.unshift({d: distance + 200, type: 'word', arg: currentWordIndex}); // 放回去重考
+                    scheduledEvents.unshift({d: distance + 200, type: 'word', arg: currentWordIndex}); 
                 }
                 entities.filter(x=>x.type==='word_gate').forEach(x=>x.el.remove()); entities = entities.filter(x=>x.type!=='word_gate');
                 isSpawningGates = false;
@@ -651,7 +721,7 @@ function tick(now){
 
             if(e.type === "npc" || e.type === "ob"){
                 if (!jumping) {
-                    if(cfg.suddenDeath) { e.el.remove(); return gameEnd(false, "發生碰撞，車輛損毀"); }
+                    if(cfg.suddenDeath) { e.el.remove(); return gameEnd(false, "發生車禍"); }
                     else { e.el.remove(); entities.splice(i,1); applyPenalty(now); break; }
                 }
             }
@@ -689,9 +759,10 @@ function tick(now){
     requestAnimationFrame(tick);
 }
 
-// 控制輸入
+// 輸入控制
 function moveLeft(){ if(performance.now() < pauseUntil || over || finishing) return; setPlayerLane(lane - 1); }
 function moveRight(){ if(performance.now() < pauseUntil || over || finishing) return; setPlayerLane(lane + 1); }
+
 document.addEventListener("keydown", e=>{
   ensureAudio(); if(e.repeat) return;
   if(e.key === "ArrowLeft") moveLeft(); if(e.key === "ArrowRight") moveRight();
