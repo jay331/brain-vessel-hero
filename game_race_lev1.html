@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
-<title>腦脈先鋒｜前往亞東醫院（字牌選路版）</title>
+<title>腦脈先鋒｜前往亞東醫院（音波與形近字挑戰版）</title>
 
 <style>
   :root{
@@ -127,7 +127,7 @@
   #playerSkin.carTop .wheels::before{left:0;} #playerSkin.carTop .wheels::after{right:0;}
 
   /* 狀態視覺效果 */
-  #player.flash-green { filter:drop-shadow(0 0 20px rgba(0,255,204,1)) drop-shadow(0 0 10px #00ffcc) brightness(1.2); }
+  #player.flash-green { filter:drop-shadow(0 0 20px rgba(0,255,204,1)) brightness(1.3); }
   #player.armed { filter:drop-shadow(0 0 20px rgba(255,235,59,0.8)) drop-shadow(0 0 10px rgba(255,152,0,0.6)); }
   #player.jumping{ filter:drop-shadow(0 12px 20px rgba(122,168,255,.20)) drop-shadow(0 0 12px rgba(122,168,255,.18)); }
   #player.finishing{ transition:transform 600ms ease, top 600ms ease, left 250ms ease; filter:drop-shadow(0 0 18px rgba(0,255,204,.22)); }
@@ -151,8 +151,11 @@
     box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 10px rgba(255,255,255,0.5);
     z-index: 8; animation: gateFloat 1s infinite alternate;
   }
+  /* 字牌款式 */
   .gate.word { background: linear-gradient(180deg, #1e88e5, #1565c0); border: 2px solid #64b5f6; box-shadow: 0 10px 20px rgba(21, 101, 192, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.3); }
+  /* 盲盒款式 */
   .gate.mystery { background: linear-gradient(180deg, #9b59b6, #4a235a); border: 2px solid #d7bde2; box-shadow: 0 10px 20px rgba(155,89,182,0.6), inset 0 0 15px rgba(255,255,255,0.4); }
+  
   .gate .icon { font-size: 40px; margin-top: 0; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
   @keyframes gateFloat { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
 
@@ -173,7 +176,7 @@
   .npcCar .wheels::before, .npcCar .wheels::after{ content:""; position:absolute; top:0; bottom:0; width:6px; border-radius:4px; background:#111; box-shadow:inset 0 2px 4px rgba(0,0,0,0.8); }
   .npcCar .wheels::before{left:0;} .npcCar .wheels::after{right:0;}
 
-  /* ★ 全新設計：加速器視覺 (科幻向上箭頭) */
+  /* 加速器視覺 */
   .boost{ 
     position:absolute; width:46px; height:46px; border-radius:50%; 
     background:radial-gradient(circle, rgba(0,255,204,0.5) 0%, rgba(0,255,204,0.1) 70%); 
@@ -188,7 +191,10 @@
   }
   .boost::before { margin-top: 8px; margin-bottom: -6px; }
 
-  /* ★ 全新設計：障礙物視覺 (黃黑相間施工路障 + 閃爍紅燈) */
+  .ammoPick{ position:absolute; width:44px; height:44px; border-radius:14px; background:radial-gradient(20px 20px at 35% 35%, rgba(255,255,255,.22), rgba(255,255,255,0) 60%), linear-gradient(180deg, rgba(255,209,102,.22), rgba(255,209,102,.08)); border:1px solid rgba(255,209,102,.35); box-shadow:0 14px 24px rgba(0,0,0,.28), 0 0 18px rgba(255,209,102,.10); display:grid; place-items:center; font-size:18px; }
+  .ammoPick::before{content:"🔊";} /* 替換為音波圖示 */
+  
+  /* 障礙物視覺 */
   .obstacle{ 
     position:absolute; width:56px; height:26px; border-radius:4px; 
     background:repeating-linear-gradient(45deg, #ffc107, #ffc107 10px, #212121 10px, #212121 20px); 
@@ -202,10 +208,13 @@
   }
   @keyframes obBlink { 0% { opacity: 0.3; } 100% { opacity: 1; box-shadow: 0 0 15px red; } }
 
-  .ammoPick{ position:absolute; width:44px; height:44px; border-radius:14px; background:radial-gradient(20px 20px at 35% 35%, rgba(255,255,255,.22), rgba(255,255,255,0) 60%), linear-gradient(180deg, rgba(255,209,102,.22), rgba(255,209,102,.08)); border:1px solid rgba(255,209,102,.35); box-shadow:0 14px 24px rgba(0,0,0,.28), 0 0 18px rgba(255,209,102,.10); display:grid; place-items:center; font-size:18px; }
-  .ammoPick::before{content:"⚡";}
-  
-  .shock{ position:absolute; width:18px; height:18px; border-radius:999px; border:2px solid rgba(255,209,102,.95); box-shadow:0 0 18px rgba(255,209,102,.18); z-index:9; pointer-events:none; }
+  /* ★ 新增：音波視覺特效 */
+  .shock{ 
+    position:absolute; width:18px; height:18px; border-radius:50%; 
+    border:2px solid #00ffcc; box-shadow:0 0 15px #00ffcc, inset 0 0 15px #00ffcc;
+    background: radial-gradient(circle, rgba(0,255,204,0.1) 40%, rgba(0,255,204,0.5) 80%, transparent 100%);
+    z-index:9; pointer-events:none; 
+  }
   .shatter{animation:shatter .28s ease-out forwards;}
   @keyframes shatter{ 0%{transform:scale(1);filter:brightness(1.1);} 100%{transform:scale(1.45);opacity:0;filter:brightness(1.8) blur(1px);} }
   
@@ -216,7 +225,7 @@
   .btnRow{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
   button{ border:none; border-radius:16px; padding:14px 12px; color:var(--text); background:linear-gradient(180deg, rgba(10,15,25,.85), rgba(10,15,25,.55)); border:1px solid rgba(255,255,255,.12); box-shadow:0 10px 22px rgba(0,0,0,.28); font-size:14px; font-weight:900; letter-spacing:.3px; }
   button:active{ transform:translateY(1px); box-shadow:0 6px 16px rgba(0,0,0,.30); }
-  .accent{ border-color:rgba(0,255,204,.35); box-shadow:0 10px 22px rgba(0,255,204,.10), 0 10px 22px rgba(0,255,204,.28); }
+  .accent{ border-color:rgba(0,255,204,.35); box-shadow:0 10px 22px rgba(0,255,204,.10), 0 10px 22px rgba(0,0,0,.28); }
   .danger{border-color:rgba(255,77,77,.35);}
   .shoot{ border-color:rgba(255,209,102,.35); box-shadow:0 10px 22px rgba(255,209,102,.10), 0 10px 22px rgba(0,0,0,.28); }
 
@@ -300,7 +309,7 @@
     <div id="penalty">⛔ 延誤 <strong>3</strong> 秒<span class="sub">（原地暫停，距離倒數不動）</span></div>
 
     <div id="player">
-      <div id="ammoFloat" class="empty">⚡0</div>
+      <div id="ammoFloat" class="empty">🔊0</div>
       <div id="playerSkin" class="carTop">
         <div class="body"></div><div class="glass"></div><div class="wheels"></div><div class="sirens"></div><div class="lights"><span></span><span></span></div>
       </div>
@@ -325,7 +334,7 @@
       <button class="accent" id="rightBtn">右 ➡️</button>
     </div>
     <div class="btnRow">
-      <button class="shoot" id="shootBtn">⚡ 震波</button>
+      <button class="shoot" id="shootBtn">🔊 音波</button>
       <button class="danger" id="restartSmallBtn">重來</button>
     </div>
   </div>
@@ -432,14 +441,20 @@ let isSpawningMystery = false;
 let mysteryCount = 0;
 let weatherUntil = 0;
 
+// ★ 新增形近字字典 (大幅提升認知難度)
 const WORD_TARGETS = ['亞', '東', '醫', '院'];
-const DECOY_WORDS = ['台','大','馬','偕','長','庚','榮','總','慈','濟','新','光','聯','合'];
+const DECOY_DICT = {
+  '亞': ['惡', '啞', '壺', '晉', '丫', '業'],
+  '東': ['車', '束', '柬', '陳', '凍', '重'],
+  '醫': ['醬', '翳', '繄', '殹', '毆', '鑒'],
+  '院': ['完', '陀', '阮', '陜', '皖', '浣']
+};
 
 // ★ 盲盒事件：時間加長為 15 秒，移除無敵與減速
 const MYSTERY_EVENTS = [
   { id: 'fog', name: '🌫️ 大霧干擾！', type: 'weather', duration: 15000 },
   { id: 'night', name: '🌙 黑夜降臨！', type: 'weather', duration: 15000 },
-  { id: 'ammo', name: '⚡ 震波補給 +5！', type: 'buff', amount: 5 }
+  { id: 'ammo', name: '🔊 震波補給 +5！', type: 'buff', amount: 5 }
 ];
 
 const HTML_NPC_CAR = `<div class="body"></div><div class="glass"></div><div class="rear-glass"></div><div class="wheels"></div><div class="lights"><span></span><span></span></div><div class="taillights"><span></span><span></span></div>`;
@@ -460,7 +475,11 @@ function playTone(freq=440, dur=0.08, type="sine", volume=0.03){
   gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
   osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + dur);
 }
-function sfxShoot(){ playTone(880, 0.05, "square", 0.025); setTimeout(()=>playTone(1180, 0.05, "square", 0.018), 35); }
+// ★ 替換為短促救護車鳴笛聲 (Hi-Low)
+function sfxShoot(){ 
+    playTone(960, 0.1, "sine", 0.05); 
+    setTimeout(()=>playTone(770, 0.1, "sine", 0.05), 100); 
+}
 function sfxHit(){ playTone(180, 0.12, "sawtooth", 0.04); setTimeout(()=>playTone(120, 0.14, "sawtooth", 0.03), 40); }
 function sfxPickup(){ playTone(720, 0.05, "triangle", 0.025); setTimeout(()=>playTone(980, 0.06, "triangle", 0.02), 45); }
 function sfxGoal(){ playTone(660, 0.10, "triangle", 0.03); setTimeout(()=>playTone(880, 0.12, "triangle", 0.03), 110); setTimeout(()=>playTone(1180, 0.14, "triangle", 0.028), 230); }
@@ -510,6 +529,7 @@ function nearestTopInLane(ln, typeFilter){
   return minTop;
 }
 
+// 產生敵車 (純陸運，黑灰色)
 function makeNpcCar(laneIndex){
   const el = document.createElement("div"); const centers = laneCenters();
   el.style.left = (centers[laneIndex] - 24) + "px"; el.style.top = "-150px";
@@ -597,18 +617,21 @@ function spawnAmmo(){
   const obj = makeAmmo(ln); game.appendChild(obj.el); entities.push(obj);
 }
 
+// ★ 字牌路口：產生包含正確目標字與專屬形近字的門
 function spawnWordGates(index) {
   purgeEnemiesAndObstacles();
   currentWordIndex = index;
   const correctChar = WORD_TARGETS[index];
   
-  let shuffledDecoys = [...DECOY_WORDS].sort(() => Math.random() - 0.5);
+  // 從字典中隨機挑選兩個形近字
+  let decoys = [...DECOY_DICT[correctChar]].sort(() => Math.random() - 0.5);
+  
   let options = [
     { char: correctChar, isCorrect: true },
-    { char: shuffledDecoys[0], isCorrect: false },
-    { char: shuffledDecoys[1], isCorrect: false }
+    { char: decoys[0], isCorrect: false },
+    { char: decoys[1], isCorrect: false }
   ];
-  options.sort(() => Math.random() - 0.5);
+  options.sort(() => Math.random() - 0.5); // 打亂車道
 
   options.forEach((opt, laneIdx) => {
     const el = document.createElement("div");
@@ -621,6 +644,18 @@ function spawnWordGates(index) {
     game.appendChild(el);
     entities.push({ type: "word_gate", el: el, lane: laneIdx, isCorrect: opt.isCorrect, char: opt.char });
   });
+
+  // 增加挑戰：在字牌前方隨機放置一個路障，強迫玩家必須走位或發射音波
+  setTimeout(() => {
+     const obsLane = Math.floor(Math.random() * 3);
+     const obs = makeObstacle();
+     const centers = laneCenters();
+     const size = window.innerWidth <= 768 ? 46 : 54;
+     obs.el.style.left = (centers[obsLane] - size / 2) + "px";
+     obs.el.style.top = "-50px"; 
+     game.appendChild(obs.el);
+     entities.push(obs);
+  }, 100);
 }
 
 function spawnMysteryGates() {
@@ -656,6 +691,7 @@ function triggerMysteryEvent(ev, now) {
   }
 }
 
+// 加速：瞬間閃光與加速，沒有無敵效果
 function applyBoost(now){
   boostUntil = Math.max(boostUntil, now + BOOST_MS);
   player.classList.add("flash-green");
@@ -666,6 +702,7 @@ function applyPenalty(now){
   sfxHit(); 
   pauseUntil = Math.max(pauseUntil, now + PENALTY_MS);
   
+  // 撞車時取消加速，但不影響武器(ammo)
   boostUntil = 0;
   player.classList.remove("flash-green");
 
@@ -675,11 +712,12 @@ function applyPenalty(now){
 }
 
 function updateAmmoUI(){
-  shootBtn.textContent = ammo > 0 ? `⚡ 震波 (${ammo})` : "⚡ 震波";
+  shootBtn.textContent = ammo > 0 ? `🔊 音波 (${ammo})` : "🔊 音波";
   if(ammoFloatEl){ 
-    ammoFloatEl.textContent = `⚡${ammo}`; 
+    ammoFloatEl.textContent = `🔊${ammo}`; 
     ammoFloatEl.classList.toggle("empty", ammo <= 0); 
   }
+  // 根據是否有子彈，給予主角車輛持續的發光狀態
   if (ammo > 0) { player.classList.add("armed"); } 
   else { player.classList.remove("armed"); }
 }
@@ -799,7 +837,7 @@ function tick(now){
   if(distance >= GOAL_DISTANCE){ enterHospitalAndWin(); return; }
   if(finishing){ requestAnimationFrame(tick); return; }
 
-  // 里程觸發邏輯
+  // ★ 階段里程與字牌/盲盒觸發邏輯
   if (!isSpawningGates && !isSpawningMystery) {
     if (distance >= 500 && wordCount === 0) { isSpawningGates = true; spawnWordGates(wordCount); wordCount++; }
     else if (distance >= 1000 && mysteryCount === 0) { isSpawningMystery = true; spawnMysteryGates(); mysteryCount++; }
@@ -838,9 +876,9 @@ function tick(now){
       continue;
     }
 
-    // ★ 撞字牌邏輯：選錯倒退 50 公尺
+    // ★ 撞字牌邏輯：選錯倒退 50 公尺，加快字牌掉落速度
     if(e.type === "word_gate") {
-      e.el.style.top = (e.el.offsetTop + OB_FALL * dt) + "px";
+      e.el.style.top = (e.el.offsetTop + (OB_FALL * 1.3) * dt) + "px";
       if(hit(player, e.el) || (e.el.offsetTop + e.el.offsetHeight > player.offsetTop && Math.abs(e.lane - lane) < 0.5)) {
         if(e.isCorrect) {
             sfxPickup(); 
@@ -849,7 +887,7 @@ function tick(now){
         } else {
             applyPenalty(now);
             triggerEventText(`❌ 走錯路了！倒車重選`);
-            distance = Math.max(0, distance - 50); // ★ 縮短懲罰為 50公尺
+            distance = Math.max(0, distance - 50); 
             wordCount--; 
         }
         for(let j = entities.length - 1; j >= 0; j--) {
@@ -862,7 +900,7 @@ function tick(now){
           if(e.isCorrect) { 
               applyPenalty(now);
               triggerEventText(`❌ 錯過路線了！倒車重選`);
-              distance = Math.max(0, distance - 50); // ★ 縮短懲罰為 50公尺
+              distance = Math.max(0, distance - 50); 
               wordCount--;
               isSpawningGates = false;
           }
@@ -895,13 +933,13 @@ function tick(now){
       if(e.el.offsetTop > game.clientHeight + 140){ e.el.remove(); entities.splice(i,1); }
     }
     
-    // ★ 震波(子彈)邏輯：只炸毀障礙物(ob)，不管敵人車輛(npc)
+    // ★ 震波(音波)邏輯：只炸毀障礙物(ob)，不管敵人車輛(npc)
     if(e.type === "shock"){
       const age = now - e.born; const r = Math.min(SHOCK_MAX_RADIUS, 9 + (SHOCK_GROW_PX_PER_S * (age / 1000)));
       e.r = r; e.el.style.width = (r * 2) + "px"; e.el.style.height = (r * 2) + "px"; e.el.style.left = (e.cx - r) + "px"; e.el.style.top = (e.cy - r) + "px"; e.el.style.opacity = String(Math.max(0, 1 - age / SHOCK_LIFETIME_MS));
       for(let j = entities.length - 1; j >= 0; j--){
         const t = entities[j]; 
-        if(t.type !== "ob") continue; // ★ 震波只能銷毀 "ob" (路障)
+        if(t.type !== "ob") continue; 
         const ox = t.el.offsetLeft + t.el.offsetWidth / 2; const oy = t.el.offsetTop + t.el.offsetHeight / 2;
         if(Math.hypot(ox - e.cx, oy - e.cy) <= r + 18){ t.el.classList.add("shatter"); setTimeout(()=>{ try{ t.el.remove(); }catch{} }, 260); entities.splice(j,1); }
       }
