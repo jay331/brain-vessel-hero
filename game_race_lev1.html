@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
-<title>腦脈先鋒｜前往亞東醫院（鳴笛變天版）</title>
+<title>腦脈先鋒｜前往亞東醫院（字牌選路版）</title>
 
 <style>
   :root{
@@ -68,7 +68,7 @@
     color: #fff; box-shadow: 0 0 15px rgba(255, 77, 77, 0.8);
   }
 
-  /* --- 場景背景 (全程陸路) --- */
+  /* --- 場景背景 (維持全程陸地) --- */
   .road{ position:absolute; inset:0; transition: background 1s ease; background: radial-gradient(800px 420px at 50% 20%, rgba(0,255,204,.08), transparent 60%), linear-gradient(180deg, var(--road1) 0%, var(--road2) 100%); }
   .road::before{ content:""; position:absolute; inset:-10%; background:linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(255,255,255,.05) 30%, rgba(255,255,255,.03) 55%, rgba(0,0,0,0) 100%); transform:skewX(-12deg); animation:sweep 3.2s linear infinite; opacity:.55; }
   @keyframes sweep{ 0%{transform:translateX(-40%) skewX(-12deg);} 100%{transform:translateX(40%) skewX(-12deg);} }
@@ -149,16 +149,22 @@
   #player.jumping{ filter:drop-shadow(0 12px 20px rgba(122,168,255,.20)) drop-shadow(0 0 12px rgba(122,168,255,.18)); }
   #player.finishing{ transition:transform 600ms ease, top 600ms ease, left 250ms ease; filter:drop-shadow(0 0 18px rgba(0,255,204,.22)); }
   
-  /* 彈藥標籤 (大聲公圖示) */
+  /* ★ 更新彈藥標籤：換成黃色大聲公，並強化純黃色發光效果 */
   #ammoFloat{
     position:absolute; left:50%; top:-30px; transform:translateX(-50%); 
     min-width:40px; height:24px; padding:0 8px;
     border-radius:999px; display:flex; align-items:center; justify-content:center; 
-    background:rgba(10, 15, 25, 0.95); color:var(--warn); font-size:13px;
-    font-weight:1000; line-height:1; border:1px solid rgba(255,209,102,.6); 
+    background:rgba(10, 15, 25, 0.95); color:#ffff00; font-size:14px;
+    font-weight:1000; line-height:1; border:1px solid rgba(255,255,0,.8); 
+    text-shadow: 0 0 5px rgba(255,255,0,0.5);
     pointer-events:none; z-index:15;
   }
-  #ammoFloat.empty{ color:rgba(255,255,255,.4); border-color: rgba(255,255,255,.2); background:rgba(10, 15, 25, 0.8); }
+  #ammoFloat:not(.empty){ animation:ammoGlow 1.2s ease-in-out infinite alternate; }
+  #ammoFloat.empty{ color:rgba(255,255,255,.4); border-color: rgba(255,255,255,.2); background:rgba(10, 15, 25, 0.8); box-shadow:none; text-shadow:none; }
+  @keyframes ammoGlow{ 
+      from{ box-shadow:0 4px 10px rgba(0,0,0,.4), 0 0 8px rgba(255,255,0,.6); } 
+      to{ box-shadow:0 4px 10px rgba(0,0,0,.4), 0 0 20px rgba(255,255,0,1); } 
+  }
 
   /* --- 字牌與盲盒門 --- */
   .gate {
@@ -205,10 +211,16 @@
   }
   .boost::before { margin-top: 8px; margin-bottom: -6px; }
 
-  .ammoPick{ position:absolute; width:44px; height:44px; border-radius:14px; background:radial-gradient(20px 20px at 35% 35%, rgba(255,255,255,.22), rgba(255,255,255,0) 60%), linear-gradient(180deg, rgba(255,209,102,.22), rgba(255,209,102,.08)); border:1px solid rgba(255,209,102,.35); box-shadow:0 14px 24px rgba(0,0,0,.28), 0 0 18px rgba(255,209,102,.10); display:grid; place-items:center; font-size:18px; }
-  .ammoPick::before{content:"📢"; filter:drop-shadow(0 0 4px #fff);} 
+  /* ★ 更新彈藥包：替換為黃色大聲公圖示 */
+  .ammoPick{ 
+      position:absolute; width:44px; height:44px; border-radius:14px; 
+      background:radial-gradient(20px 20px at 35% 35%, rgba(255,255,0,.3), rgba(255,255,0,.1) 60%); 
+      border:1px solid rgba(255,255,0,.6); box-shadow:0 14px 24px rgba(0,0,0,.28), 0 0 22px rgba(255,255,0,.4); 
+      display:grid; place-items:center; font-size:24px; 
+  }
+  .ammoPick::before{content:"📣"; filter:drop-shadow(0 0 8px #ffff00) drop-shadow(0 0 15px #ffeb3b); brightness(1.2);} 
   
-  /* ★ 障礙物視覺 (柔和橘色與藏青色相間) */
+  /* 障礙物視覺 (柔和橘色與藏青色相間) */
   .obstacle{ 
     position:absolute; width:56px; height:26px; border-radius:4px; 
     background:repeating-linear-gradient(45deg, #d35400, #d35400 10px, #2c3e50 10px, #2c3e50 20px); 
@@ -222,7 +234,7 @@
   }
   @keyframes obBlink { 0% { opacity: 0.3; } 100% { opacity: 1; box-shadow: 0 0 15px red; } }
 
-  /* ★ 音波視覺特效 */
+  /* 音波視覺特效 */
   .shock{ 
     position:absolute; width:18px; height:18px; border-radius:50%; 
     border:2px solid #00ffcc; box-shadow:0 0 15px #00ffcc, inset 0 0 15px #00ffcc;
@@ -268,7 +280,7 @@
     .npcCar .taillights { left:6px; right:6px; bottom:3px; height:3px; gap:10px; }
     .npcCar .rear-glass { left:6px; right:6px; bottom:6px; height:8px; }
     
-    #ammoFloat{ top:-26px; bottom:auto; min-width:32px; height:20px; font-size:11px; padding:0 6px; }
+    #ammoFloat{ top:-26px; bottom:auto; min-width:32px; height:20px; font-size:12px; padding:0 6px; }
     .boost{ width:40px; height:40px; } 
     .boost::before, .boost::after { width: 10px; height: 10px; border-width: 3px; }
     .ammoPick{ width:38px; height:38px; font-size:16px; } 
@@ -323,7 +335,7 @@
     <div id="penalty">⛔ 延誤 <strong>3</strong> 秒<span class="sub">（原地暫停，距離倒數不動）</span></div>
 
     <div id="player">
-      <div id="ammoFloat" class="empty">📢0</div>
+      <div id="ammoFloat" class="empty">📣0</div>
       <div id="playerSkin" class="carTop">
         <div class="body"></div><div class="glass"></div><div class="wheels"></div><div class="sirens"></div><div class="lights"><span></span><span></span></div>
       </div>
@@ -348,7 +360,7 @@
       <button class="accent" id="rightBtn">右 ➡️</button>
     </div>
     <div class="btnRow">
-      <button class="shoot" id="shootBtn">📢 鳴笛</button>
+      <button class="shoot" id="shootBtn">📣 鳴笛</button>
       <button class="danger" id="restartSmallBtn">重來</button>
     </div>
   </div>
@@ -430,6 +442,7 @@ let finishing = false;
 let lastFrame = performance.now();
 let pauseUntil = 0;
 let boostUntil = 0;
+let invincibleUntil = 0; 
 let ammo = 0;
 let lastFireAt = 0;
 let lastJumpAt = -99999;
@@ -485,7 +498,7 @@ function playTone(freq=440, dur=0.08, type="sine", volume=0.03){
   osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + dur);
 }
 
-// ★ 救護車短促鳴笛聲 "E-O"
+// 短促救護車鳴笛聲 (Hi-Low)
 function sfxShoot(){ 
     playTone(900, 0.15, "triangle", 0.05); 
     setTimeout(()=>playTone(700, 0.15, "triangle", 0.05), 150); 
@@ -539,7 +552,6 @@ function nearestTopInLane(ln, typeFilter){
   return minTop;
 }
 
-// 產生敵車 (純陸運，黑灰色)
 function makeNpcCar(laneIndex){
   const el = document.createElement("div"); const centers = laneCenters();
   el.style.left = (centers[laneIndex] - 24) + "px"; el.style.top = "-150px";
@@ -660,7 +672,6 @@ function spawnMysteryGates() {
   options.forEach(ln => {
     const el = document.createElement("div");
     el.className = "gate mystery";
-    // ★ 變更盲盒文字為變天
     el.innerHTML = `<span>變天</span><span class="icon">❓</span>`;
     const centers = laneCenters();
     const size = window.innerWidth <= 768 ? 70 : 80;
@@ -708,9 +719,9 @@ function applyPenalty(now){
 }
 
 function updateAmmoUI(){
-  shootBtn.textContent = ammo > 0 ? `📢 鳴笛 (${ammo})` : "📢 鳴笛";
+  shootBtn.textContent = ammo > 0 ? `📣 鳴笛 (${ammo})` : "📣 鳴笛";
   if(ammoFloatEl){ 
-    ammoFloatEl.textContent = `📢${ammo}`; 
+    ammoFloatEl.textContent = `📣${ammo}`; 
     ammoFloatEl.classList.toggle("empty", ammo <= 0); 
   }
   if (ammo > 0) { player.classList.add("armed"); } 
@@ -929,7 +940,7 @@ function tick(now){
       if(e.el.offsetTop > game.clientHeight + 140){ e.el.remove(); entities.splice(i,1); }
     }
     
-    // ★ 音波邏輯：只炸毀障礙物(ob)
+    // 音波邏輯：只炸毀障礙物(ob)
     if(e.type === "shock"){
       const age = now - e.born; const r = Math.min(SHOCK_MAX_RADIUS, 9 + (SHOCK_GROW_PX_PER_S * (age / 1000)));
       e.r = r; e.el.style.width = (r * 2) + "px"; e.el.style.height = (r * 2) + "px"; e.el.style.left = (e.cx - r) + "px"; e.el.style.top = (e.cy - r) + "px"; e.el.style.opacity = String(Math.max(0, 1 - age / SHOCK_LIFETIME_MS));
