@@ -385,7 +385,44 @@
     50%{opacity:1}
     100%{opacity:.25}
   }
+#ammoFloat{
+  position:absolute;
+  left:50%;
+  top:-18px;
+  transform:translateX(-50%) rotate(180deg);
+  min-width:38px;
+  height:22px;
+  padding:0 8px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(255,209,102,.92);
+  color:#1b1400;
+  font-size:12px;
+  font-weight:1000;
+  line-height:1;
+  box-shadow:0 6px 14px rgba(0,0,0,.28);
+  border:1px solid rgba(255,255,255,.35);
+  pointer-events:none;
+  z-index:12;
+}
 
+#ammoFloat.empty{
+  background:rgba(255,255,255,.22);
+  color:rgba(255,255,255,.78);
+}
+
+@media (max-width:768px){
+  #ammoFloat{
+    top:-16px;
+    min-width:34px;
+    height:20px;
+    font-size:11px;
+    padding:0 7px;
+  }
+}
+  
   /* 對向來車 */
   .npcCar{
     position:absolute;
@@ -632,7 +669,6 @@
 
     <div id="topHud" aria-live="polite">
       距離 <span class="num" id="distLeft">2000</span>
-      <span id="ammoHud">⚡ <b id="ammoCount">0</b></span>
       <span id="timeHud">時間 <b id="timeNow">0</b>s</span>
     </div>
 
@@ -654,13 +690,14 @@
 
     <div id="penalty">⛔ 延誤 <strong>3</strong> 秒<span class="sub">（原地暫停，距離倒數不動）</span></div>
 
-    <div id="player" class="carTop">
-      <div class="body"></div>
-      <div class="glass"></div>
-      <div class="wheels"></div>
-      <div class="sirens"></div>
-      <div class="lights"><span></span><span></span></div>
-    </div>
+<div id="player" class="carTop">
+  <div id="ammoFloat">⚡0</div>
+  <div class="body"></div>
+  <div class="glass"></div>
+  <div class="wheels"></div>
+  <div class="sirens"></div>
+  <div class="lights"><span></span><span></span></div>
+</div>
 
     <div id="overlay">
       <div id="card">
@@ -760,6 +797,7 @@ const topHud = document.getElementById("topHud");
 const distLeftEl = document.getElementById("distLeft");
 
 const ammoCountEl = document.getElementById("ammoCount");
+const ammoFloatEl = document.getElementById("ammoFloat");  
 const timeNowEl = document.getElementById("timeNow");
 const rankListEl = document.getElementById("rankList");
 
@@ -1036,8 +1074,16 @@ function applyBoost(now){
 }
 
 function updateAmmoUI(){
-  ammoCountEl.textContent = String(ammo);
+  if(ammoCountEl){
+    ammoCountEl.textContent = String(ammo);
+  }
+
   shootBtn.textContent = ammo > 0 ? `⚡ 震波 (${ammo})` : "⚡ 震波";
+
+  if(ammoFloatEl){
+    ammoFloatEl.textContent = `⚡${ammo}`;
+    ammoFloatEl.classList.toggle("empty", ammo <= 0);
+  }
 }
 
 function tryShock(now){
