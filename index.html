@@ -29,26 +29,27 @@ button{font-family:inherit}
 .app{height:100%; display:flex; flex-direction:column;}
 
 header{
-  padding:10px 12px; display:flex; align-items:center; justify-content:space-between; gap:10px;
-  background:linear-gradient(180deg, rgba(10,14,28,.92), rgba(10,14,28,.55));
+  padding:10px 16px; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  background:linear-gradient(180deg, rgba(10,14,28,.95), rgba(10,14,28,.65));
   border-bottom:1px solid var(--line);
   z-index: 100;
+  flex-shrink: 0;
 }
 .brand{min-width:0}
-.brand .t{font-weight:1000; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.brand .t{font-weight:1000; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .brand .s{font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 
 .hud{display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end}
 .chip{
-  padding:7px 10px; border-radius:999px; background:rgba(255,255,255,.05);
+  padding:7px 12px; border-radius:999px; background:rgba(255,255,255,.05);
   border:1px solid rgba(255,255,255,.10); color:var(--muted); font-size:12px
 }
 .chip strong{color:var(--text)}
 
 .btn{
-  appearance:none; border:0; cursor:pointer; padding:10px 12px; border-radius:14px;
+  appearance:none; border:0; cursor:pointer; padding:12px 14px; border-radius:14px;
   font-weight:1000; background:rgba(255,255,255,.05); color:var(--text);
-  border:1px solid rgba(255,255,255,.10); font-size:13px;
+  border:1px solid rgba(255,255,255,.15); font-size:14px;
   transition: transform 0.1s, filter 0.1s;
 }
 .btn:active{ transform: scale(0.96); }
@@ -57,7 +58,7 @@ header{
   border:1px solid rgba(0,255,229,.35);
   box-shadow:0 10px 24px rgba(0,255,229,.08)
 }
-.btn.secondary{background:rgba(255,255,255,.03)}
+.btn.secondary{background:rgba(255,255,255,.06)}
 .btn.danger{
   background:linear-gradient(180deg, rgba(255,77,109,.18), rgba(255,77,109,.06));
   border:1px solid rgba(255,77,109,.32)
@@ -82,11 +83,11 @@ header{
 
 /* 針對桌機/平板的響應式設計 */
 @media (min-width: 481px) {
-  .wrap { padding: 20px; }
+  .wrap { padding: 24px; }
   .stage {
     max-width: 440px; /* 限制最大寬度像手機 */
     max-height: 850px;
-    border-radius: 24px;
+    border-radius: 28px;
     border: 1px solid rgba(255,255,255,.15);
     box-shadow: 0 26px 80px rgba(0,0,0,.65);
   }
@@ -95,46 +96,53 @@ header{
 .vignette{position:absolute; inset:0; background:radial-gradient(circle at 50% 35%, rgba(0,0,0,0), rgba(0,0,0,.55) 78%); pointer-events:none;}
 
 .content{
-  position:absolute; inset:0; display:flex; flex-direction:column; gap:10px; padding:16px;
+  position:absolute; inset:0; display:flex; flex-direction:column; padding:16px;
   z-index: 10;
 }
-.screen{flex:1; min-height:0; display:none; flex-direction:column; gap:10px;}
+
+/* ★ 重點修正：畫面排版邏輯 */
+.screen {
+  flex: 1; min-height: 0; display: none; flex-direction: column; 
+  justify-content: flex-start; /* 確保內容往上靠攏 */
+  gap: 14px; /* 統一間距，消除大片空白 */
+}
 .screen.show{display:flex}
 
-/* ===== Common cards ===== */
 .topTalk{
-  display:flex; gap:10px; align-items:flex-start; padding:12px; border-radius:18px;
+  display:flex; gap:12px; align-items:flex-start; padding:14px; border-radius:18px;
   background:var(--panel); border:1px solid rgba(255,255,255,.12);
   flex-shrink: 0;
 }
 .avatar{
-  width:56px; height:56px; border-radius:16px; background:rgba(255,255,255,.05);
+  width:64px; height:64px; border-radius:16px; background:rgba(255,255,255,.05);
   border:1px solid rgba(255,255,255,.10); overflow:hidden; flex:0 0 auto;
 }
 .avatar img{width:100%; height:100%; object-fit:cover;}
-.talk{min-width:0;}
-.talk .who{font-weight:1000; font-size:14px;}
-.talk .say{margin-top:6px; color:var(--muted); font-size:12.5px; line-height:1.65; overflow-y:auto; max-height:15vh;}
+.talk{min-width:0; padding-top: 2px;}
+.talk .who{font-weight:1000; font-size:15px; letter-spacing: 0.5px;}
+.talk .say{margin-top:6px; color:var(--muted); font-size:13.5px; line-height:1.65; overflow-y:auto; max-height:15vh;}
 
 .midPanel{
-  flex:1; min-height:0; padding:12px; border-radius:18px; background:rgba(255,255,255,.03);
-  border:1px solid rgba(255,255,255,.10); overflow-y:auto; overflow-x:hidden;
+  flex:1; min-height:0; padding:14px; border-radius:18px; background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.08); overflow-y:auto; overflow-x:hidden;
 }
 .midPanel::-webkit-scrollbar { width: 4px; }
 .midPanel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
 
-.midPanel h2{margin:0 0 8px; font-size:14px;}
-.bullet{margin:0; padding-left:18px; color:var(--muted); font-size:12.5px; line-height:1.65;}
-.bullet li{margin:6px 0;}
+.midPanel h2{margin:0 0 10px; font-size:16px; color:var(--accent);}
+.bullet{margin:0; padding-left:18px; color:var(--muted); font-size:13.5px; line-height:1.65;}
+.bullet li{margin:8px 0;}
 
+/* ★ 重點修正：底部列永遠貼齊畫面最下方 */
 .bottomBar{
   display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap;
-  padding:12px; border-radius:18px; background:rgba(10,14,28,.72); border:1px solid rgba(255,255,255,.12);
+  padding:14px; border-radius:18px; background:rgba(10,14,28,.85); border:1px solid rgba(255,255,255,.15);
   flex-shrink: 0;
+  margin-top: auto; /* 將 bottomBar 推到最底部 */
 }
-.icons{display:flex; gap:10px; align-items:center;}
-.actions{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; width: 100%;}
-.actions .btn { flex: 1; text-align: center; } /* 讓按鈕在小螢幕均分 */
+.icons{display:flex; gap:10px; align-items:center; width: 100%;}
+.actions{display:flex; gap:10px; flex-wrap:wrap; justify-content:space-between; width: 100%;}
+.actions .btn { flex: 1; text-align: center; }
 
 .toast{
   position:absolute; left:50%; bottom:20px; transform:translateX(-50%);
@@ -146,9 +154,7 @@ header{
 @keyframes popUp { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
 
 /* ===== GAME OVERLAY ===== */
-.gameOverlay{
-  position:fixed; inset:0; display:none; background:#000; z-index:2000; flex-direction:column;
-}
+.gameOverlay{ position:fixed; inset:0; display:none; background:#000; z-index:2000; flex-direction:column; }
 .gameTop{
   padding:8px 12px; display:flex; align-items:center; justify-content:space-between; gap:8px;
   background:linear-gradient(180deg, rgba(10,14,28,.95), rgba(10,14,28,.75));
@@ -166,16 +172,12 @@ header{
 #scrHome{
   position:relative;
   background: url('assets/bg_home_mockup.png') center/cover no-repeat;
-  margin: -16px; /* 抵銷 content 的 padding 達成滿版 */
+  margin: -16px; 
   height: calc(100% + 32px);
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding-bottom: max(6vh, 40px); /* 動態適應底部空間 */
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding-bottom: max(8vh, 50px); 
 }
-#scrHome .homeBtns{
-  display:flex; gap:18px; justify-content:center; padding:0 8%; z-index:9999;
-}
+#scrHome .homeBtns{ display:flex; gap:18px; justify-content:center; padding:0 8%; z-index:9999; }
 #scrHome .homeBtns button{
   flex:1; height:min(14vh, 120px); border-radius:18px;
   background: rgba(255,255,255,0.01); border: 0; cursor:pointer;
@@ -185,54 +187,59 @@ header{
 
 /* ===== LIST ===== */
 #scrList .listBtn{
-  font-size: 17px; font-weight: 800; text-align: left; padding: 16px 20px;
+  font-size: 16px; font-weight: 800; text-align: left; padding: 18px 20px;
   border-radius: 18px; color: #eaf2ff;
   background: linear-gradient(180deg, rgba(20,30,55,.75), rgba(10,15,30,.85));
   border: 1px solid rgba(255,255,255,.18);
   box-shadow: 0 8px 22px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.12);
 }
-#scrList .btnHomeBack{ font-size: 14px; padding: 12px 18px; width: 100%; }
 
-/* ===== CASE & BRIEF Adjustments ===== */
+/* ===== CASE & BRIEF ===== */
 #scrCase .iconTile{
-  flex: 1; /* 讓卡片均分寬度 */
-  aspect-ratio: 1/1; /* 保持正方形 */
-  max-height: 110px;
-  border-radius:20px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.12);
+  flex: 1; aspect-ratio: 1/1; max-height: 100px;
+  border-radius:18px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.12);
   display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
   cursor:pointer; position:relative;
 }
-#scrCase .iconTile img{ width:60%; height:60%; object-fit: contain; }
+#scrCase .iconTile img{ width:50%; height:50%; object-fit: contain; }
 #scrCase .iconTile.locked{ opacity:.3; cursor:not-allowed; filter: grayscale(1); }
 #scrCase .iconTile.active{ outline:2px solid rgba(0,255,229,.6); background:rgba(0,255,229,.1); }
 #scrCase .iconTile .badge{ position:absolute; right:6px; top:6px; padding:3px 6px; border-radius:999px; background:var(--accent); color:#000; font-size:10px; font-weight:900; display:none; }
 #scrCase .iconTile.ready .badge{ display:block; }
+#scrCase .iconTile .lbl{ font-size: 13px; font-weight: 800; }
 
 #scrCase .caseTitleCard{
-  width:100%; border: 1px solid rgba(0,255,229,.25); border-radius: 20px; padding: 16px;
+  width:100%; border: 1px solid rgba(0,255,229,.25); border-radius: 18px; padding: 16px;
   display:flex; align-items:center; justify-content: space-between;
-  background: linear-gradient(180deg, rgba(0,255,229,.3), rgba(10,14,28,.86));
-  box-shadow: 0 10px 26px rgba(0,0,0,.35);
+  background: linear-gradient(180deg, rgba(0,255,229,.25), rgba(10,14,28,.86));
 }
-#scrCase #caseHintTitle{ font-size: 18px; font-weight: 900; }
+#scrCase #caseHintTitle{ font-size: 16px; font-weight: 900; }
 
 #scrBrief #briefTitle{
-  margin: 0 0 12px 0; padding: 12px; font-size: 18px; font-weight: 900; text-align: center;
-  background: linear-gradient(180deg, rgba(0,255,229,.3), rgba(10,14,28,.9));
+  margin: 0 0 12px 0; padding: 12px; font-size: 16px; font-weight: 900; text-align: center;
+  background: linear-gradient(180deg, rgba(0,255,229,.25), rgba(10,14,28,.9));
   border: 1px solid rgba(0,255,229,.35); border-radius: 16px;
 }
-#scrBrief .briefToggleBtn, #scrCase .caseToggleBtn { width: 100%; }
+.full-width-btn { width: 100%; text-align: center; font-size: 15px; padding: 14px;}
+
 #scrBrief #briefDetail.open{ display:block; animation: fadeIn 0.2s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px);} to { opacity: 1; transform: translateY(0);} }
 
-/* 隱藏/顯示邏輯維持原樣 */
+/* 隱藏/顯示邏輯 */
 #scrBrief #briefDetail{ display:none; }
-#scrBrief .bottomBar{ display: none; }
-#scrBrief #briefDetail.open ~ .bottomBar{ display: flex; }
 #scrCase .caseTaskWrap{ display:none; }
-#scrCase.taskOpen .caseTaskWrap{ display:block; }
-#scrCase .bottomBar{ display:none; }
-#scrCase.taskOpen .bottomBar{ display:flex; }
+#scrCase.taskOpen .caseTaskWrap{ display:flex; flex-direction: column; flex: 1; min-height: 0; }
+
+/* 排行榜表格 */
+.rankTable{width:100%; border-collapse:collapse; margin-top:8px;}
+.rankTable th, .rankTable td{ border-bottom:1px solid rgba(255,255,255,.08); padding:10px 6px; font-size:13px; color:var(--muted); text-align:left;}
+.rankTable th{color:rgba(234,242,255,.85); font-weight:1000;}
+
+@supports(padding:max(0px)){
+  header{padding-top:max(10px, env(safe-area-inset-top));}
+  .content{padding-bottom:max(16px, env(safe-area-inset-bottom));}
+  .toast{bottom:calc(20px + env(safe-area-inset-bottom));}
+}
 </style>
 </head>
 
@@ -245,8 +252,8 @@ header{
   </div>
   <div class="hud">
     <div class="chip">總積分：<strong id="caseScore">0</strong></div>
-    <button class="btn secondary" id="btnHome">首頁</button>
-    <button class="btn danger" id="btnReset">重置</button>
+    <button class="btn secondary" style="padding: 8px 12px; font-size: 12px;" id="btnHome">首頁</button>
+    <button class="btn danger" style="padding: 8px 12px; font-size: 12px;" id="btnReset">重置</button>
   </div>
 </header>
 
@@ -263,9 +270,10 @@ header{
 
       <section class="screen" id="scrList">
         <div class="topTalk" style="align-items: center;">
-          <div class="avatar" style="width:70px; height:70px;"><img src="assets/nurse_card.png" alt=""></div>
+          <div class="avatar"><img src="assets/nurse_card.png" alt=""></div>
           <div class="talk">
-            <div class="who" style="font-size: 20px;">挑戰模式</div>
+            <div class="who" style="font-size: 18px;">挑戰模式清單</div>
+            <div class="say" style="margin-top: 2px;">選擇關卡進行獨立訓練</div>
           </div>
         </div>
         <div class="midPanel">
@@ -277,7 +285,7 @@ header{
           </div>
         </div>
         <div class="bottomBar">
-          <div class="actions"><button class="btn secondary btnHomeBack" onclick="goHome()">回首頁</button></div>
+          <div class="actions"><button class="btn secondary full-width-btn" onclick="goHome()">返回首頁</button></div>
         </div>
       </section>
 
@@ -290,12 +298,12 @@ header{
           </div>
         </div>
 
-        <button id="btnToggleCaseTask" class="btn secondary caseToggleBtn" type="button" aria-expanded="false">
-          查看任務 ▾
+        <button id="btnToggleCaseTask" class="btn secondary full-width-btn" type="button" aria-expanded="false">
+          查看當前任務目標 ▾
         </button>
 
-        <div class="caseTaskWrap" style="flex:1; min-height:0; display:flex; flex-direction:column;">
-          <div class="midPanel" style="background:transparent; border:none; padding:0; overflow:visible;">
+        <div class="caseTaskWrap">
+          <div class="midPanel" style="background:transparent; border:none; padding:0;">
             <div id="caseTitleCard" class="caseTitleCard">
               <span id="caseHintTitle">任務</span>
             </div>
@@ -303,7 +311,8 @@ header{
         </div>
 
         <div class="bottomBar">
-          <div class="icons" id="roleIcons" style="width: 100%; justify-content: space-between;">
+          <div style="width: 100%; font-size: 13px; color: var(--accent); font-weight: bold; margin-bottom: 8px;">選擇執行人員：</div>
+          <div class="icons" id="roleIcons">
             <div class="iconTile" id="tileEMT"><span class="badge">GO</span><img src="assets/emt_card.png" alt=""><div class="lbl">EMT</div></div>
             <div class="iconTile locked" id="tileTEAM"><span class="badge">GO</span><img src="assets/team_card.png" alt=""><div class="lbl">取栓</div></div>
             <div class="iconTile locked" id="tileNURSE"><span class="badge">GO</span><img src="assets/nurse_card.png" alt=""><div class="lbl">護理</div></div>
@@ -320,8 +329,8 @@ header{
           </div>
         </div>
 
-        <button id="btnToggleBrief" class="btn secondary briefToggleBtn" aria-expanded="false" type="button">
-          查看任務目標 ▾
+        <button id="btnToggleBrief" class="btn secondary full-width-btn" aria-expanded="false" type="button">
+          展開詳細指引 ▾
         </button>
 
         <div class="midPanel" id="briefDetail">
@@ -331,14 +340,14 @@ header{
 
         <div class="bottomBar">
           <div class="actions">
-            <button class="btn secondary" id="btnBriefBack" type="button">返回醫師處</button>
-            <button class="btn primary" id="btnStartTask" type="button">開始任務</button>
+            <button class="btn secondary" id="btnBriefBack" type="button">返回</button>
+            <button class="btn primary" id="btnStartTask" type="button">開始執行</button>
           </div>
         </div>
       </section>
 
       <section class="screen" id="scrRoleComplete">
-        <div class="topTalk">
+        <div class="topTalk" style="align-items: center;">
           <div class="avatar" style="width: 70px; height: 70px;"><img id="rcAvatar" src="assets/emt_card.png" alt=""></div>
           <div class="talk">
             <div class="who" id="rcWho">✅ 任務完成</div>
@@ -347,32 +356,32 @@ header{
         </div>
 
         <div class="midPanel">
-          <h2 style="color:var(--accent); font-size: 16px;">本段結算</h2>
-          <ul class="bullet" id="rcBullets" style="font-size: 14px;"></ul>
+          <h2>本段結算</h2>
+          <ul class="bullet" id="rcBullets"></ul>
         </div>
 
         <div class="bottomBar">
           <div class="actions">
-            <button class="btn secondary" id="btnRetryRole" type="button">重來一次</button>
-            <button class="btn primary" id="btnFinishRole" type="button">完成任務</button>
+            <button class="btn secondary" id="btnRetryRole" type="button">刷分重來</button>
+            <button class="btn primary" id="btnFinishRole" type="button">推進主線</button>
           </div>
         </div>
       </section>
 
       <section class="screen" id="scrCaseComplete">
-        <div class="topTalk">
+        <div class="topTalk" style="align-items: center;">
           <div class="avatar" style="width: 70px; height: 70px;"><img src="assets/doctor_card.png" alt=""></div>
           <div class="talk">
             <div class="who">✅ 總任務完成</div>
-            <div class="say">你已完成 EMT → 取栓 → 護理流程。</div>
+            <div class="say">你已完美結束本次的急救護理流程！</div>
           </div>
         </div>
 
         <div class="midPanel">
-          <h2 style="color:var(--accent);">本次成績</h2>
+          <h2>本次成績</h2>
           <ul class="bullet" id="caseResultBullets"></ul>
 
-          <h2 style="margin-top:20px; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">🏆 排行榜</h2>
+          <h2 style="margin-top:24px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.1);">🏆 本機排行榜</h2>
           <table class="rankTable" id="rankTable">
             <thead><tr><th>#</th><th>玩家</th><th>分數</th></tr></thead>
             <tbody></tbody>
@@ -381,7 +390,7 @@ header{
 
         <div class="bottomBar">
           <div class="actions">
-            <button class="btn secondary" id="btnReplayCase" type="button">重新開始</button>
+            <button class="btn secondary full-width-btn" id="btnReplayCase" type="button">再挑戰一次</button>
           </div>
         </div>
       </section>
@@ -398,7 +407,7 @@ header{
       <div class="h" id="gameTitle">挑戰模式</div>
     </div>
     <div class="gameTopRight">
-      <div class="miniChip">本關 <strong id="stageTime">—</strong></div>
+      <div class="miniChip">耗時/積分 <strong id="stageTime">—</strong></div>
       <button class="miniBtn" id="btnExitGame" type="button">退出</button>
     </div>
   </div>
@@ -426,55 +435,29 @@ const caseState = {
 };
 
 const ui = {
-  subLine: qs('#subLine'),
-  caseScore: qs('#caseScore'),
-  toast: qs('#toast'),
+  subLine: qs('#subLine'), caseScore: qs('#caseScore'), toast: qs('#toast'),
+  scrHome: qs('#scrHome'), scrList: qs('#scrList'), scrCase: qs('#scrCase'),
+  scrBrief: qs('#scrBrief'), scrRoleComplete: qs('#scrRoleComplete'), scrCaseComplete: qs('#scrCaseComplete'),
 
-  scrHome: qs('#scrHome'),
-  scrList: qs('#scrList'),
-  scrCase: qs('#scrCase'),
-  scrBrief: qs('#scrBrief'),
-  scrRoleComplete: qs('#scrRoleComplete'),
-  scrCaseComplete: qs('#scrCaseComplete'),
+  btnMissionMode: qs('#btnMissionMode'), btnListMode: qs('#btnListMode'),
+  btnHome: qs('#btnHome'), btnReset: qs('#btnReset'),
 
-  btnMissionMode: qs('#btnMissionMode'),
-  btnListMode: qs('#btnListMode'),
-  btnHome: qs('#btnHome'),
-  btnReset: qs('#btnReset'),
+  doctorLine: qs('#doctorLine'), caseHintTitle: qs('#caseHintTitle'),
+  tileEMT: qs('#tileEMT'), tileTEAM: qs('#tileTEAM'), tileNURSE: qs('#tileNURSE'),
 
-  doctorLine: qs('#doctorLine'),
-  caseHintTitle: qs('#caseHintTitle'),
-  tileEMT: qs('#tileEMT'),
-  tileTEAM: qs('#tileTEAM'),
-  tileNURSE: qs('#tileNURSE'),
+  briefAvatar: qs('#briefAvatar'), briefWho: qs('#briefWho'), briefLine: qs('#briefLine'),
+  briefTitle: qs('#briefTitle'), briefBullets: qs('#briefBullets'),
+  btnBriefBack: qs('#btnBriefBack'), btnStartTask: qs('#btnStartTask'),
 
-  briefAvatar: qs('#briefAvatar'),
-  briefWho: qs('#briefWho'),
-  briefLine: qs('#briefLine'),
-  briefTitle: qs('#briefTitle'),
-  briefBullets: qs('#briefBullets'),
-  btnBriefBack: qs('#btnBriefBack'),
-  btnStartTask: qs('#btnStartTask'),
+  rcAvatar: qs('#rcAvatar'), rcWho: qs('#rcWho'), rcLine: qs('#rcLine'),
+  rcBullets: qs('#rcBullets'), btnRetryRole: qs('#btnRetryRole'), btnFinishRole: qs('#btnFinishRole'),
 
-  rcAvatar: qs('#rcAvatar'),
-  rcWho: qs('#rcWho'),
-  rcLine: qs('#rcLine'),
-  rcBullets: qs('#rcBullets'),
-  btnRetryRole: qs('#btnRetryRole'),
-  btnFinishRole: qs('#btnFinishRole'),
+  caseResultBullets: qs('#caseResultBullets'), rankTable: qs('#rankTable tbody'), btnReplayCase: qs('#btnReplayCase'),
 
-  caseResultBullets: qs('#caseResultBullets'),
-  rankTable: qs('#rankTable tbody'),
-  btnReplayCase: qs('#btnReplayCase'),
+  gameOverlay: qs('#gameOverlay'), gameFrame: qs('#gameFrame'), gameTitle: qs('#gameTitle'),
+  stageTime: qs('#stageTime'), btnExitGame: qs('#btnExitGame'),
 
-  gameOverlay: qs('#gameOverlay'),
-  gameFrame: qs('#gameFrame'),
-  gameTitle: qs('#gameTitle'),
-  stageTime: qs('#stageTime'),
-  btnExitGame: qs('#btnExitGame'),
-
-  btnToggleBrief: qs('#btnToggleBrief'),
-  briefDetail: qs('#briefDetail'),
+  btnToggleBrief: qs('#btnToggleBrief'), briefDetail: qs('#briefDetail'),
 };
 
 window.goHome = goHome;
@@ -522,7 +505,7 @@ function bind(){
     ui.btnToggleBrief.onclick = ()=>{
       const open = ui.briefDetail.classList.toggle('open');
       ui.btnToggleBrief.setAttribute('aria-expanded', open ? 'true' : 'false');
-      ui.btnToggleBrief.textContent = open ? '隱藏任務目標 ▴' : '查看任務目標 ▾';
+      ui.btnToggleBrief.textContent = open ? '收合詳細指引 ▴' : '展開詳細指引 ▾';
     };
   }
 
@@ -532,7 +515,7 @@ function bind(){
       const scr = ui.scrCase;
       const open = scr.classList.toggle('taskOpen');
       btnToggleCaseTask.setAttribute('aria-expanded', open ? 'true' : 'false');
-      btnToggleCaseTask.textContent = open ? '隱藏任務 ▴' : '查看任務 ▾';
+      btnToggleCaseTask.textContent = open ? '隱藏當前任務 ▴' : '查看當前任務目標 ▾';
     };
   }
 
@@ -546,7 +529,7 @@ function focusGameFrame(){
 }
 
 function resetAll(){
-  if(!confirm('重置目前進度與排行榜（本機）？')) return;
+  if(!confirm('確定要重置進度與排行榜嗎？')) return;
   resetCaseOnly(); localStorage.removeItem(KEY_RANK); renderHud(); goHome(); toast('已重置');
 }
 
@@ -565,20 +548,20 @@ function show(which){
   if(which==='brief' && ui.briefDetail && ui.btnToggleBrief){
     ui.briefDetail.classList.remove('open');
     ui.btnToggleBrief.setAttribute('aria-expanded','false');
-    ui.btnToggleBrief.textContent='查看任務目標 ▾';
+    ui.btnToggleBrief.textContent='展開詳細指引 ▾';
   }
 
   if(which==='case'){
     ui.scrCase.classList.remove('taskOpen');
     const btn = document.getElementById('btnToggleCaseTask');
-    if(btn){ btn.setAttribute('aria-expanded','false'); btn.textContent = '查看任務 ▾'; }
+    if(btn){ btn.setAttribute('aria-expanded','false'); btn.textContent = '查看當前任務目標 ▾'; }
   }
 }
 
 function startMission(){
   requestFullscreenSafe(); updateCaseTitle(); caseState.isListMode=false; ui.subLine.textContent='任務模式';
   ui.doctorLine.textContent='一位45歲男性病人，下午2:30在公司上班時，被同事發現右側手腳無力、語言表達困難。高度懷疑急性缺血性中風。';
-  renderCaseDoctor(); show('case'); toast('任務開始：點選 EMT');
+  renderCaseDoctor(); show('case'); toast('任務開始：請點擊下方 EMT 進入第一關');
 }
 
 function renderHud(){ ui.caseScore.textContent = String(caseState.caseScore); }
@@ -597,7 +580,7 @@ function setTile(tile, clickable){
   tile.classList.toggle('locked', !clickable); tile.classList.toggle('ready', clickable); tile.classList.toggle('active', clickable);
 }
 function canClickRole(role){ return caseState.currentRole===role; }
-function openRole(role){ if(!canClickRole(role)) return toast('目前不是這個職類的任務'); caseState.activeRole = role; showBrief(role); }
+function openRole(role){ if(!canClickRole(role)) return toast('請依序完成任務'); caseState.activeRole = role; showBrief(role); }
 
 function showBrief(role){
   const cfg = roleCfg(role);
@@ -608,12 +591,12 @@ function showBrief(role){
 
 function startRoleGame(role){
   requestFullscreenSafe(); const cfg = roleCfg(role);
-  ui.btnExitGame.textContent = caseState.isListMode ? '退出' : '退出';
-  if(!GAME_FILES[cfg.gameId]){ toast('找不到遊戲檔'); return; }
+  ui.btnExitGame.textContent = caseState.isListMode ? '退出' : '中斷並退出';
+  if(!GAME_FILES[cfg.gameId]){ toast('遊戲檔案不存在'); return; }
   caseState.lastPerf=null; ui.gameTitle.textContent = cfg.who;
   ui.gameFrame.onload = () => { focusGameFrame(); };
   ui.gameFrame.src = GAME_FILES[cfg.gameId]; ui.gameOverlay.style.display='flex'; setTimeout(focusGameFrame, 50);
-  toast('進入遊戲：通關後自動結算');
+  toast('遊戲開始！通關後自動結算');
 }
 
 function closeGame(){ ui.gameFrame.src=''; ui.gameOverlay.style.display='none'; }
@@ -621,16 +604,16 @@ function closeGame(){ ui.gameFrame.src=''; ui.gameOverlay.style.display='none'; 
 function startListGame(gameId){
   requestFullscreenSafe(); caseState.isListMode=true; ui.btnExitGame.textContent='退出'; ui.gameTitle.textContent='挑戰模式'; ui.stageTime.textContent='—';
   ui.gameFrame.onload = () => { focusGameFrame(); }; ui.gameFrame.src = GAME_FILES[gameId]; ui.gameOverlay.style.display='flex'; setTimeout(focusGameFrame, 50);
-  toast('挑戰模式：通關後可自行退出');
+  toast('挑戰開始！隨時可點右上角退出');
 }
 
 window.addEventListener('message',(e)=>{
   const d=e.data; if(!d || typeof d!=='object') return;
   if(d.type!=='GAME_CLEAR' && d.type!=='GAME_RESULT') return;
 
-  if(caseState.isListMode){ toast('挑戰模式：偵測到通關'); return; }
+  if(caseState.isListMode){ toast('通關完成！'); return; }
 
-  const role = caseState.activeRole; if(!role){ toast('未指定任務'); return; }
+  const role = caseState.activeRole; if(!role){ toast('發生錯誤：未指定任務'); return; }
 
   const cfg = roleCfg(role); const time = (typeof d.time==='number') ? Math.round(d.time) : null;
   ui.stageTime.textContent = time!=null ? `${time}s` : '完成';
@@ -638,7 +621,7 @@ window.addEventListener('message',(e)=>{
 
   if(role==='NURSE'){
     if(rawScore===null){ closeGame(); show('brief'); toast('未取得分數，請試一次'); return; }
-    if(rawScore < 1500){ closeGame(); show('brief'); toast('未達標：分數需 ≥ 1500'); return; }
+    if(rawScore < 1500){ closeGame(); show('brief'); toast('未達標：分數需大於 1500'); return; }
   }
 
   const perf = { timeSec: time, score: rawScore, raw:d }; const reward = cfg.reward(perf);
@@ -646,7 +629,7 @@ window.addEventListener('message',(e)=>{
 });
 
 function showRoleComplete(cfg, perf, reward){
-  ui.rcAvatar.src = cfg.avatar; ui.rcWho.textContent = `✅ ${cfg.who}｜任務完成`; ui.rcLine.textContent = cfg.completeLine(perf);
+  ui.rcAvatar.src = cfg.avatar; ui.rcWho.textContent = `✅ ${cfg.who}`; ui.rcLine.textContent = cfg.completeLine(perf);
   ui.rcBullets.innerHTML=''; cfg.completeBullets(perf, reward).forEach(s=>{ const li=document.createElement('li'); li.innerHTML=s; ui.rcBullets.appendChild(li); });
   show('roleComplete');
 }
