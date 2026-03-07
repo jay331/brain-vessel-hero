@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
-<title>腦脈先鋒｜黃金送醫（字牌選路版）</title>
+<title>腦脈先鋒｜前往亞東醫院（字牌選路版）</title>
 
 <style>
   :root{
@@ -105,12 +105,14 @@
   #playerSkin.carTop .wheels::before{left:0;} #playerSkin.carTop .wheels::after{right:0;}
 
   /* ★ 狀態視覺效果 */
-  #player.flash-green { filter:drop-shadow(0 0 20px rgba(0,255,204,1)) drop-shadow(0 0 10px #00ffcc) brightness(1.2); }
-  #player.armed { filter:drop-shadow(0 0 20px #ffeb3b) drop-shadow(0 0 10px #ff9800); }
+  /* 加速時瞬間變綠 */
+  #player.flash-green { filter:drop-shadow(0 0 25px rgba(0,255,204,1)) brightness(1.3); }
+  /* 持有子彈時持續變黃 */
+  #player.armed { filter:drop-shadow(0 0 20px rgba(255,235,59,0.8)) drop-shadow(0 0 10px rgba(255,152,0,0.6)); }
   #player.jumping{ filter:drop-shadow(0 12px 20px rgba(122,168,255,.20)) drop-shadow(0 0 12px rgba(122,168,255,.18)); }
   #player.finishing{ transition:transform 600ms ease, top 600ms ease, left 250ms ease; filter:drop-shadow(0 0 18px rgba(0,255,204,.22)); }
   
-  /* 彈藥標籤 (移除發光動畫) */
+  /* 彈藥標籤 */
   #ammoFloat{
     position:absolute; left:50%; top:-30px; transform:translateX(-50%); 
     min-width:40px; height:24px; padding:0 8px;
@@ -130,13 +132,14 @@
     z-index: 8; animation: gateFloat 1s infinite alternate;
   }
   /* 字牌款式 */
-  .gate.word { background: linear-gradient(180deg, #1e88e5, #1565c0); border: 2px solid #64b5f6; }
+  .gate.word { background: linear-gradient(180deg, #1e88e5, #1565c0); border: 2px solid #64b5f6; box-shadow: 0 10px 20px rgba(21, 101, 192, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.3); }
   /* 盲盒款式 */
   .gate.mystery { background: linear-gradient(180deg, #9b59b6, #4a235a); border: 2px solid #d7bde2; box-shadow: 0 10px 20px rgba(155,89,182,0.6), inset 0 0 15px rgba(255,255,255,0.4); }
+  
   .gate .icon { font-size: 40px; margin-top: 0; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
   @keyframes gateFloat { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
 
-  /* --- 敵人車輛 (黑灰色，車頭與白光向下) --- */
+  /* --- 敵人車輛 (黑灰色，車頭朝下) --- */
   .npcCar{ 
     position:absolute; width:48px; height:78px; 
     border-radius:12px 12px 6px 6px; border:1px solid rgba(255,255,255,.15); 
@@ -280,10 +283,11 @@
 const isCaseMode = new URLSearchParams(location.search).get('mode') === 'case';
 if(isCaseMode) document.body.classList.add('caseMode');
 
+// 總里程 3500m
 const GOAL_DISTANCE = 3500;
 const DIST_UNIT = 12;
 const BASE_FORWARD_SPEED = 1.0;
-const BOOST_MS = 2000; // 一般加速持續時間縮短
+const BOOST_MS = 2500; // 一般加速持續時間
 const BOOST_FORWARD_MULT = 3.0;
 const NPC_FALL_BASE = 235;
 const NPC_FALL_MIN_MULT = 0.90;
@@ -342,6 +346,7 @@ const bgm = document.getElementById("bgm");
 const weatherOverlay = document.getElementById("weatherOverlay");
 const eventTextEl = document.getElementById("eventText");
 
+// 集中所有全域變數，避免重複宣告
 let lane = 1;
 let distance = 0;
 let entities = [];
@@ -367,7 +372,6 @@ let lastRunTimeMs = null;
 let endScheduled = false;
 let audioCtx = null;
 
-// 字牌收集與盲盒變數
 let isSpawningGates = false;
 let wordCount = 0;
 let currentWordIndex = -1;
@@ -453,6 +457,7 @@ function nearestTopInLane(ln, typeFilter){
   return minTop;
 }
 
+// 產生敵車 (純陸運，黑灰色)
 function makeNpcCar(laneIndex){
   const el = document.createElement("div"); const centers = laneCenters();
   el.style.left = (centers[laneIndex] - 24) + "px"; el.style.top = "-150px";
@@ -600,11 +605,11 @@ function triggerMysteryEvent(ev, now) {
   }
 }
 
-// 吃到加速：只會有瞬間閃光與加速，沒有無敵效果
+// 加速：瞬間閃光與加速，沒有無敵效果
 function applyBoost(now){
   boostUntil = Math.max(boostUntil, now + BOOST_MS);
   player.classList.add("flash-green");
-  setTimeout(() => player.classList.remove("flash-green"), 500); // 瞬間閃綠光
+  setTimeout(() => player.classList.remove("flash-green"), 500); 
 }
 
 function applyPenalty(now){
@@ -702,7 +707,7 @@ function reset(){
   finish.style.top = "-38%"; finish.classList.remove("success"); overlay.style.display = "none";
   
   isSpawningGates = false; wordCount = 0; currentWordIndex = -1;
-  isSpawningMystery = false; mysteryCount = 0; weatherUntil = 0; slowUntil = 0; weatherOverlay.className = "";
+  isSpawningMystery = false; mysteryCount = 0; weatherUntil = 0; weatherOverlay.className = "";
   eventTextEl.style.opacity = 0;
   
   setPlayerLane(1); updateRelativeDistance(0); distLeftEl.textContent = String(GOAL_DISTANCE);
@@ -725,6 +730,7 @@ function tick(now){
   jumpLift = computeJumpLift(now); player.style.transform = `translateY(${-jumpLift}px)`;
   
   if(now >= jumpUntil) player.classList.remove("jumping");
+  if(now >= boostUntil){ player.classList.remove("boosting"); topHud.classList.remove("boosting"); }
   
   if(now < pauseUntil){
     penaltyBox.style.display = "block"; penaltyBox.querySelector("strong").textContent = String(Math.ceil((pauseUntil - now) / 1000));
@@ -763,6 +769,7 @@ function tick(now){
   for(let i = entities.length - 1; i >= 0; i--){
     const e = entities[i];
 
+    // 盲盒門碰撞判定
     if(e.type === "mystery_gate") {
       e.el.style.top = (e.el.offsetTop + OB_FALL * dt) + "px";
       if(hit(player, e.el) || (e.el.offsetTop + e.el.offsetHeight > player.offsetTop && Math.abs(e.lane - lane) < 0.5)) {
@@ -777,7 +784,7 @@ function tick(now){
       }
       if(e.el.offsetTop > game.clientHeight + 160){ 
           try{ e.el.remove(); }catch{} entities.splice(i,1); 
-          isSpawningMystery = false;
+          isSpawningMystery = false; 
       }
       continue;
     }
@@ -792,8 +799,8 @@ function tick(now){
         } else {
             applyPenalty(now);
             triggerEventText(`❌ 走錯路了！倒車重選`);
-            distance = Math.max(0, distance - 250); // 倒退 250m
-            wordCount--; // 進度倒退，稍後會重新生成字牌
+            distance = Math.max(0, distance - 250); 
+            wordCount--; // 倒退進度，稍後重新生成
         }
         for(let j = entities.length - 1; j >= 0; j--) {
           if(entities[j].type === "word_gate") { try{ entities[j].el.remove(); }catch{} entities.splice(j, 1); }
@@ -803,7 +810,6 @@ function tick(now){
       }
       if(e.el.offsetTop > game.clientHeight + 160){ 
           if(e.isCorrect) { 
-              // 玩家閃避了所有的門，等同於選錯
               applyPenalty(now);
               triggerEventText(`❌ 錯過路線了！倒車重選`);
               distance = Math.max(0, distance - 250);
@@ -852,8 +858,8 @@ function tick(now){
   requestAnimationFrame(tick);
 }
 
-function moveLeft(){ if(performance.now() < pauseUntil || over || finishing || isTransitioning) return; setPlayerLane(lane - 1); }
-function moveRight(){ if(performance.now() < pauseUntil || over || finishing || isTransitioning) return; setPlayerLane(lane + 1); }
+function moveLeft(){ if(performance.now() < pauseUntil || over || finishing) return; setPlayerLane(lane - 1); }
+function moveRight(){ if(performance.now() < pauseUntil || over || finishing) return; setPlayerLane(lane + 1); }
 
 document.addEventListener("keydown", e=>{
   ensureAudio(); if(e.repeat) return;
