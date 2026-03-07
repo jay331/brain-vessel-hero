@@ -111,16 +111,41 @@ header{
 }
 .toast.show{display:block}
 
-.gameOverlay{position:fixed;inset:0;display:none;flex-direction:column;background:#000;z-index:2000}
+.gameOverlay{
+  position:fixed;
+  inset:0;
+  display:none;
+  background:#000;
+  z-index:2000;
+}
+
 .gameTop{
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  z-index:20;
+
   padding:6px 8px;
   display:flex;
   align-items:center;
   justify-content:space-between;
   gap:8px;
-  background:linear-gradient(180deg, rgba(10,14,28,.88), rgba(10,14,28,.52));
-  border-bottom:1px solid rgba(255,255,255,.10);
+
+  background:linear-gradient(180deg, rgba(10,14,28,.78), rgba(10,14,28,.18));
+  border-bottom:1px solid rgba(255,255,255,.08);
   min-height:46px;
+
+  pointer-events:auto;
+}
+
+#gameFrame{
+  position:absolute;
+  inset:0;
+  border:0;
+  width:100%;
+  height:100%;
+  background:#000;
 }
 
 .gameTop .meta{
@@ -180,26 +205,29 @@ header{
 
 @media (max-width:768px){
   .gameTop{
-    padding:4px 6px;
-    min-height:40px;
+    padding:2px 6px;
+    min-height:32px;
   }
 
   .gameTop .meta .h{
-    font-size:12px;
+    font-size:11px;
+    line-height:1;
   }
 
   .miniChip{
-    padding:4px 8px;
+    padding:3px 7px;
     font-size:10px;
+    line-height:1;
   }
 
   .miniChip strong{
-    font-size:11px;
+    font-size:10px;
   }
 
   .miniBtn{
-    padding:5px 9px;
+    padding:4px 8px;
     font-size:10px;
+    line-height:1;
   }
 }
 
@@ -626,7 +654,7 @@ header{
 </div>
 
 <div class="gameOverlay" id="gameOverlay">
-  <div class="gameTop compact">
+  <div class="gameTop">
   <div class="meta">
     <div class="h" id="gameTitle">挑戰模式</div>
   </div>
@@ -635,7 +663,7 @@ header{
     <button class="miniBtn" id="btnExitGame" type="button">返回</button>
   </div>
 </div>
-  <iframe id="gameFrame" title="遊戲" allow="fullscreen"></iframe>
+<iframe id="gameFrame" title="遊戲" allowfullscreen></iframe>
 </div>
 
 <script>
@@ -942,7 +970,7 @@ function startRoleGame(role){
     focusGameFrame();
   };
   ui.gameFrame.src = GAME_FILES[cfg.gameId];
-  ui.gameOverlay.style.display='flex';
+  ui.gameOverlay.style.display='block';
   setTimeout(focusGameFrame, 50);
   toast('進入遊戲：通關後會回到任務指示結算');
 }
