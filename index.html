@@ -17,7 +17,7 @@
 
 html,body{
   margin:0; 
-  height: 100dvh; /* 修正手機瀏覽器網址列遮擋問題 */
+  height: 100dvh; 
   background:var(--bg); color:var(--text);
   font-family:"PingFang TC","Noto Sans TC",system-ui,-apple-system,sans-serif;
   overflow:hidden;
@@ -66,7 +66,7 @@ header{
 
 .wrap{
   flex:1; min-height:0; display:flex; align-items:center; justify-content:center;
-  padding: 0; /* 手機預設無邊距，全螢幕 */
+  padding: 0;
 }
 
 .stage{
@@ -81,11 +81,10 @@ header{
   flex-direction: column;
 }
 
-/* 針對桌機/平板的響應式設計 */
 @media (min-width: 481px) {
   .wrap { padding: 24px; }
   .stage {
-    max-width: 440px; /* 限制最大寬度像手機 */
+    max-width: 440px; 
     max-height: 850px;
     border-radius: 28px;
     border: 1px solid rgba(255,255,255,.15);
@@ -98,13 +97,15 @@ header{
 .content{
   position:absolute; inset:0; display:flex; flex-direction:column; padding:16px;
   z-index: 10;
+  overflow-y: auto; /* 讓整體內容可以滑動 */
 }
 
-/* ★ 重點修正：移除衝突的 flex 設定，讓顯示隱藏正常運作 */
+/* ★ 重點修正：讓 screen 內容自然流動，不強制撐滿 */
 .screen {
-  flex: 1; min-height: 0; display: none; flex-direction: column; 
-  justify-content: flex-start; /* 確保內容往上靠攏 */
-  gap: 14px; /* 統一間距 */
+  flex: 0 1 auto; 
+  display: none; flex-direction: column; 
+  justify-content: flex-start; 
+  gap: 14px; 
 }
 .screen.show{ display:flex; }
 
@@ -120,29 +121,27 @@ header{
 .avatar img{width:100%; height:100%; object-fit:cover;}
 .talk{min-width:0; padding-top: 2px;}
 .talk .who{font-weight:1000; font-size:15px; letter-spacing: 0.5px;}
-.talk .say{margin-top:6px; color:var(--muted); font-size:13.5px; line-height:1.65; overflow-y:auto; max-height:15vh;}
+.talk .say{margin-top:6px; color:var(--muted); font-size:13.5px; line-height:1.65;}
 
+/* ★ 改為 flex: 0 1 auto，高度會自然貼合內容 */
 .midPanel{
-  flex:1; min-height:0; padding:14px; border-radius:18px; background:rgba(255,255,255,.03);
-  border:1px solid rgba(255,255,255,.08); overflow-y:auto; overflow-x:hidden;
+  flex: 0 1 auto; min-height:0; padding:14px; border-radius:18px; background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.08); overflow-x:hidden;
 }
-.midPanel::-webkit-scrollbar { width: 4px; }
-.midPanel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
 
 .midPanel h2{margin:0 0 10px; font-size:16px; color:var(--accent);}
 .bullet{margin:0; padding-left:18px; color:var(--muted); font-size:13.5px; line-height:1.65;}
 .bullet li{margin:8px 0;}
 
-/* ★ 重點修正：底部列永遠貼齊畫面最下方 */
+/* ★ 移除 margin-top: auto; 讓底部列自然跟在 midPanel 下方 */
 .bottomBar{
   display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap;
   padding:14px; border-radius:18px; background:rgba(10,14,28,.85); border:1px solid rgba(255,255,255,.15);
   flex-shrink: 0;
-  margin-top: auto; /* 將 bottomBar 推到最底部，消滅空白！ */
 }
 .icons{display:flex; gap:10px; align-items:center; width: 100%;}
 .actions{display:flex; gap:10px; flex-wrap:wrap; justify-content:space-between; width: 100%;}
-.actions .btn { flex: 1; text-align: center; } /* 讓按鈕在小螢幕均分 */
+.actions .btn { flex: 1; text-align: center; }
 
 .toast{
   position:absolute; left:50%; bottom:20px; transform:translateX(-50%);
@@ -174,7 +173,6 @@ header{
   background: url('assets/bg_home_mockup.png') center/cover no-repeat;
   margin: -16px; 
   height: calc(100% + 32px);
-  /* 移除這裡的 display: flex，交給 .show 控制，避免首頁永遠存在 */
   flex-direction: column; justify-content: flex-end;
   padding-bottom: max(8vh, 50px); 
 }
@@ -226,9 +224,9 @@ header{
 #scrBrief #briefDetail.open{ display:block; animation: fadeIn 0.2s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px);} to { opacity: 1; transform: translateY(0);} }
 
-/* 隱藏/顯示邏輯，移除干擾底層的隱藏規則 */
+/* 隱藏/顯示邏輯 */
 #scrBrief #briefDetail{ display:none; }
-#scrCase .caseTaskWrap{ display:none; flex-direction: column; flex: 1; min-height: 0; }
+#scrCase .caseTaskWrap{ display:none; flex-direction: column; flex: 0 1 auto; min-height: 0; }
 #scrCase.taskOpen .caseTaskWrap{ display:flex; }
 
 /* 排行榜表格 */
