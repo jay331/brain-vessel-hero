@@ -88,37 +88,40 @@
     pointer-events: none; opacity: 0; transition: opacity 0.5s; text-align: center;
   }
 
-  /* --- 玩家容器 --- */
+  /* --- 玩家容器 (修正方向，不再翻轉 180 度，車頭確實朝上) --- */
   #player{
     position:absolute; bottom:6%; z-index:7; transition:left 120ms ease;
-    transform:rotate(180deg); transform-origin:center; width:48px; height:78px; 
+    transform-origin:center; width:48px; height:78px; 
   }
   #playerSkin { width: 100%; height: 100%; position: relative; }
 
+  /* 1. 救護車俯視 (車頭確實朝上) */
   #playerSkin.carTop { border-radius:14px; border:1px solid rgba(255,255,255,.14); box-shadow:0 16px 26px rgba(0,0,0,.35); }
   #playerSkin.carTop .body{ position:absolute; inset:0; border-radius:14px; background: radial-gradient(26px 26px at 30% 20%, rgba(255,255,255,.95), rgba(255,255,255,0) 60%), linear-gradient(180deg, #ffffff 0%, #e8edf5 100%); }
-  #playerSkin.carTop::before{ content:""; position:absolute; left:50%; top:10px; transform:translateX(-50%); width:14px; height:36px; border-radius:8px; background:linear-gradient(180deg, #ff4d4d 0%, #d9102f 100%); opacity:.96; z-index:1; }
-  #playerSkin.carTop::after{ content:"✚"; position:absolute; left:50%; top:26px; transform:translateX(-50%) rotate(180deg); font-size:12px; font-weight:1000; color:#d9102f; z-index:2; }
-  #playerSkin.carTop .glass{ position:absolute; left:9px; right:9px; top:10px; height:16px; border-radius:10px; background:linear-gradient(180deg, rgba(255,255,255,.38), rgba(255,255,255,.10)); border:1px solid rgba(255,255,255,.12); opacity:.92; }
-  #playerSkin.carTop .lights{ position:absolute; left:9px; right:9px; bottom:9px; height:9px; display:flex; justify-content:space-between; gap:7px; opacity:.9; }
-  #playerSkin.carTop .lights span{ flex:1; border-radius:7px; background:linear-gradient(180deg, rgba(255,255,255,.58), rgba(255,255,255,.18)); filter:drop-shadow(0 0 10px rgba(255,255,255,.12)); }
+  #playerSkin.carTop::before{ content:""; position:absolute; left:50%; top:26px; transform:translateX(-50%); width:14px; height:36px; border-radius:8px; background:linear-gradient(180deg, #ff4d4d 0%, #d9102f 100%); opacity:.96; z-index:1; }
+  #playerSkin.carTop::after{ content:"✚"; position:absolute; left:50%; top:32px; transform:translateX(-50%); font-size:12px; font-weight:1000; color:#d9102f; z-index:2; }
+  #playerSkin.carTop .glass{ position:absolute; left:9px; right:9px; top:12px; height:16px; border-radius:10px; background:linear-gradient(180deg, rgba(255,255,255,.8), rgba(255,255,255,.3)); border:1px solid rgba(255,255,255,.12); opacity:.92; }
+  #playerSkin.carTop .lights{ position:absolute; left:9px; right:9px; top:4px; height:6px; display:flex; justify-content:space-between; gap:7px; opacity:.9; }
+  #playerSkin.carTop .lights span{ flex:1; border-radius:4px; background:linear-gradient(180deg, #fff, rgba(255,255,255,.5)); box-shadow:0 -4px 10px rgba(255,255,255,.8); }
   #playerSkin.carTop .wheels{ position:absolute; left:4px; right:4px; top:16px; bottom:16px; pointer-events:none; }
   #playerSkin.carTop .wheels::before, #playerSkin.carTop .wheels::after{ content:""; position:absolute; top:0; bottom:0; width:7px; border-radius:9px; background:rgba(0,0,0,.35); }
   #playerSkin.carTop .wheels::before{left:0;} #playerSkin.carTop .wheels::after{right:0;}
-  #playerSkin.carTop .sirens{ position:absolute; left:9px; right:9px; top:32px; height:12px; border-radius:9px; background:linear-gradient(90deg, rgba(0,255,204,.10), rgba(0,255,204,.92), rgba(0,255,204,.10)); filter:drop-shadow(0 0 10px rgba(0,255,204,.45)); animation:flash 0.7s linear infinite; opacity:.95; z-index:3; }
+  #playerSkin.carTop .sirens{ position:absolute; left:9px; right:9px; top:36px; height:10px; border-radius:6px; background:linear-gradient(90deg, rgba(0,255,204,.10), rgba(0,255,204,.92), rgba(0,255,204,.10)); filter:drop-shadow(0 0 10px rgba(0,255,204,.45)); animation:flash 0.7s linear infinite; opacity:.95; z-index:3; }
 
-  #playerSkin.heliTop .tail { position: absolute; left: 22px; top: 0; width: 4px; height: 35px; background: #ddd; }
-  #playerSkin.heliTop .body { position: absolute; left: 12px; bottom: 10px; width: 24px; height: 45px; border-radius: 12px; background: linear-gradient(180deg, #d9102f, #ff4d4d); }
-  #playerSkin.heliTop .cabin { position: absolute; left: 16px; bottom: 16px; width: 16px; height: 14px; border-radius: 4px 4px 8px 8px; background: #111; opacity: 0.8; }
-  #playerSkin.heliTop .cross { position: absolute; left: 50%; bottom: 38px; transform: translate(-50%, 50%) rotate(180deg); color: white; font-weight: bold; font-size: 14px; z-index: 3; }
-  #playerSkin.heliTop .rotor { position: absolute; left: -11px; bottom: 30px; width: 70px; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.9); animation: spinRotor 0.15s linear infinite; z-index: 4; box-shadow: 0 0 5px rgba(0,0,0,0.2); }
+  /* 2. 救護直升機俯視 (機頭朝上) */
+  #playerSkin.heliTop .tail { position: absolute; left: 22px; bottom: 0; width: 4px; height: 35px; background: #ddd; }
+  #playerSkin.heliTop .body { position: absolute; left: 12px; top: 10px; width: 24px; height: 45px; border-radius: 12px; background: linear-gradient(180deg, #ff4d4d, #d9102f); }
+  #playerSkin.heliTop .cabin { position: absolute; left: 16px; top: 16px; width: 16px; height: 14px; border-radius: 8px 8px 4px 4px; background: #111; opacity: 0.8; }
+  #playerSkin.heliTop .cross { position: absolute; left: 50%; top: 38px; transform: translate(-50%, -50%); color: white; font-weight: bold; font-size: 14px; z-index: 3; }
+  #playerSkin.heliTop .rotor { position: absolute; left: -11px; top: 30px; width: 70px; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.9); animation: spinRotor 0.15s linear infinite; z-index: 4; box-shadow: 0 0 5px rgba(0,0,0,0.2); }
   #playerSkin.heliTop .rotor::after { content: ""; position: absolute; left: 32px; top: -32px; width: 6px; height: 70px; border-radius: 3px; background: rgba(255,255,255,0.9); box-shadow: 0 0 5px rgba(0,0,0,0.2); }
   @keyframes spinRotor { 100% { transform: rotate(360deg); } }
 
-  #playerSkin.boatTop .wake { position: absolute; left: 0; right: 0; top: -15px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.6); filter: blur(4px); }
-  #playerSkin.boatTop .hull { position: absolute; left: 6px; bottom: 5px; width: 36px; height: 65px; border-radius: 10% 10% 50% 50%; background: linear-gradient(180deg, #d9102f, #ff4d4d); border: 2px solid rgba(255,255,255,0.8); box-shadow: 0 -5px 10px rgba(0,0,0,0.4); }
-  #playerSkin.boatTop .cabin { position: absolute; left: 14px; bottom: 25px; width: 20px; height: 20px; border-radius: 6px; background: #111; border: 2px solid #fff; opacity: 0.9; }
-  #playerSkin.boatTop .cross { position: absolute; left: 50%; bottom: 52px; transform: translate(-50%, 50%) rotate(180deg); color: white; font-weight: bold; font-size: 12px; z-index: 3; }
+  /* 3. 救護船俯視 (船頭朝上) */
+  #playerSkin.boatTop .wake { position: absolute; left: 0; right: 0; bottom: -15px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.6); filter: blur(4px); }
+  #playerSkin.boatTop .hull { position: absolute; left: 6px; top: 5px; width: 36px; height: 65px; border-radius: 50% 50% 10% 10%; background: linear-gradient(180deg, #ff4d4d, #d9102f); border: 2px solid rgba(255,255,255,0.8); box-shadow: 0 5px 10px rgba(0,0,0,0.4); }
+  #playerSkin.boatTop .cabin { position: absolute; left: 14px; top: 25px; width: 20px; height: 20px; border-radius: 6px; background: #111; border: 2px solid #fff; opacity: 0.9; }
+  #playerSkin.boatTop .cross { position: absolute; left: 50%; top: 48px; transform: translate(-50%, -50%); color: white; font-weight: bold; font-size: 12px; z-index: 3; }
 
   @keyframes transformAnim {
     0%   { transform: scale(1) rotate(0deg); opacity: 1; filter: drop-shadow(0 0 0px var(--accent)); }
@@ -135,7 +138,7 @@
   @keyframes flash{ 0%{opacity:.25} 50%{opacity:1} 100%{opacity:.25} }
 
   #ammoFloat{
-    position:absolute; left:50%; bottom:-18px; transform:translateX(-50%) rotate(180deg); min-width:38px; height:22px; padding:0 8px;
+    position:absolute; left:50%; bottom:-24px; transform:translateX(-50%); min-width:38px; height:22px; padding:0 8px;
     border-radius:999px; display:flex; align-items:center; justify-content:center; background:rgba(255,209,102,.92); color:#1b1400; font-size:12px;
     font-weight:1000; line-height:1; box-shadow:0 6px 14px rgba(0,0,0,.28); border:1px solid rgba(255,255,255,.35); pointer-events:none; z-index:12;
   }
@@ -157,19 +160,26 @@
   .gate .icon { font-size: 26px; margin-top: 4px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
   @keyframes gateFloat { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
 
-  /* --- 敵人容器 --- */
+  /* --- 敵人容器 (加入 rotate(180deg) 使車頭確實朝向玩家) --- */
   .npcCar{ 
     position:absolute; width:48px; height:78px; border-radius:14px; 
-    border:1px solid rgba(255,255,255,.3); box-shadow:0 10px 20px rgba(0,0,0,.6), 0 0 12px rgba(255,100,50,.5); 
+    border:1px solid rgba(255,255,255,.3); 
+    box-shadow:0 -10px 20px rgba(0,0,0,.6), 0 0 12px rgba(255,100,50,.5); /* 陰影隨之反轉，保持光影正確 */
+    transform: rotate(180deg);
   }
   .npcCar .body{ background: radial-gradient(26px 26px at 30% 20%, rgba(255,255,255,.5), rgba(255,255,255,0) 60%), linear-gradient(180deg, #ff7a59 0%, #c62828 100%); border-radius:14px; }
-  .npcCar .glass{ position:absolute; left:9px; right:9px; top:10px; height:16px; border-radius:10px; background:linear-gradient(180deg, rgba(255,255,255,.8), rgba(255,255,255,.3)); border:1px solid rgba(255,255,255,.5); opacity:.92; }
-  .npcCar .lights{ position:absolute; left:9px; right:9px; bottom:9px; height:9px; display:flex; justify-content:space-between; gap:7px; opacity:.9; }
+  .npcCar .glass{ position:absolute; left:9px; right:9px; top:12px; height:16px; border-radius:10px; background:linear-gradient(180deg, rgba(255,255,255,.8), rgba(255,255,255,.3)); border:1px solid rgba(255,255,255,.5); opacity:.92; }
+  /* 新增：車頭燈與車尾燈，加強視覺方向感 */
+  .npcCar .lights{ position:absolute; left:9px; right:9px; top:4px; height:6px; display:flex; justify-content:space-between; gap:7px; opacity:.9; }
+  .npcCar .lights span{ flex:1; border-radius:4px; background:linear-gradient(180deg, #fff, rgba(255,255,255,.5)); box-shadow:0 -4px 10px rgba(255,255,255,.8); }
+  .npcCar .taillights{ position:absolute; left:9px; right:9px; bottom:4px; height:4px; display:flex; justify-content:space-between; gap:7px; opacity:.8; }
+  .npcCar .taillights span{ flex:1; border-radius:4px; background:#ff4d4d; box-shadow:0 0 6px red; }
   .npcCar .wheels{ position:absolute; left:4px; right:4px; top:16px; bottom:16px; pointer-events:none; }
   .npcCar .wheels::before, .npcCar .wheels::after{ content:""; position:absolute; top:0; bottom:0; width:7px; border-radius:9px; background:rgba(0,0,0,.8); }
   .npcCar .wheels::before{left:0;} .npcCar .wheels::after{right:0;}
 
-  .npcBird { position: absolute; width: 48px; height: 60px; transform: rotate(180deg); filter: drop-shadow(0 -15px 10px rgba(0,0,0,0.4)); }
+  /* 鳥與海豚也確實朝向玩家 */
+  .npcBird { position: absolute; width: 48px; height: 60px; transform: rotate(180deg); filter: drop-shadow(0 -10px 10px rgba(0,0,0,0.4)); }
   .npcBird .body { position: absolute; left: 20px; top: 12px; width: 8px; height: 35px; border-radius: 4px 4px 8px 8px; background: #607D8B; }
   .npcBird .body::before { content: ""; position: absolute; left: -2px; top: -8px; width: 12px; height: 12px; border-radius: 50%; background: #455A64; }
   .npcBird .wing { position: absolute; top: 20px; width: 22px; height: 14px; background: #78909C; animation: flap 0.3s ease-in-out infinite alternate; }
@@ -224,12 +234,13 @@
     .divider{ width:4px; background:repeating-linear-gradient(180deg, rgba(255,255,255,.34) 0 24px, rgba(255,255,255,0) 24px 48px); opacity:.62; }
     #player { width: 42px; height: 68px; bottom: 5.5%; }
     .npcCar { width:42px; height:68px; }
-    #playerSkin.carTop::before { top:9px; width:12px; height:31px; }
-    #playerSkin.carTop::after { top:23px; font-size:11px; }
-    #playerSkin.carTop .glass{ left:8px; right:8px; top:9px; height:14px; }
-    #playerSkin.carTop .lights{ left:8px; right:8px; bottom:8px; height:8px; gap:6px; }
+    #playerSkin.carTop::before { top:22px; width:12px; height:31px; }
+    #playerSkin.carTop::after { top:28px; font-size:11px; }
+    #playerSkin.carTop .glass{ left:8px; right:8px; top:10px; height:14px; }
+    #playerSkin.carTop .lights{ left:8px; right:8px; top:4px; height:6px; gap:6px; }
+    #playerSkin.carTop .sirens{ left:8px; right:8px; top:30px; height:10px; }
     #playerSkin.carTop .wheels{ left:4px; right:4px; top:14px; bottom:14px; }
-    #ammoFloat{ bottom:-12px; min-width:32px; height:18px; font-size:10px; padding:0 6px; }
+    #ammoFloat{ bottom:-20px; min-width:32px; height:18px; font-size:10px; padding:0 6px; }
     .boost{ width:40px; height:40px; } .ammoPick{ width:38px; height:38px; font-size:16px; } .obstacle{ width:46px; height:46px; } .obstacle::before{ font-size:18px; }
     .gate { width: 70px; height: 70px; font-size: 14px; }
   }
@@ -379,6 +390,7 @@ let skinSwapped = false;
 const HTML_CAR = `<div class="body"></div><div class="glass"></div><div class="wheels"></div><div class="sirens"></div><div class="lights"><span></span><span></span></div>`;
 const HTML_HELI = `<div class="tail"></div><div class="body"></div><div class="cabin"></div><div class="rotor"></div><div class="cross">✚</div>`;
 const HTML_BOAT = `<div class="wake"></div><div class="hull"></div><div class="cabin"></div><div class="cross">✚</div>`;
+const HTML_NPC_CAR = `<div class="body"></div><div class="glass"></div><div class="wheels"></div><div class="lights"><span></span><span></span></div><div class="taillights"><span></span><span></span></div>`;
 
 let lane = 1;
 let distance = 0;
@@ -484,7 +496,7 @@ function makeNpcCar(laneIndex){
 
   if (currentPhase === 1 || currentPhase === 4) {
     el.className = "npcCar";
-    el.innerHTML = `<div class="body"></div><div class="glass"></div><div class="wheels"></div><div class="lights"><span></span><span></span></div>`;
+    el.innerHTML = HTML_NPC_CAR;
   } else if (currentPhase === 2) {
     el.className = "npcBird"; el.innerHTML = `<div class="body"></div><div class="wing left"></div><div class="wing right"></div>`; vMult *= 1.2;
   } else if (currentPhase === 3) {
@@ -571,12 +583,10 @@ function spawnAmmo(){
   const obj = makeAmmo(ln); game.appendChild(obj.el); entities.push(obj);
 }
 
-// 【新增功能：生成傳送門選擇器】
 function spawnGates(isLast) {
   purgeEnemiesAndObstacles();
   let options = [];
   if (isLast) {
-    // 最後一段強制陸運
     options = [
       { ph: 1, txt: "陸運", cls: "land", icon: "🚑" },
       { ph: 1, txt: "陸運", cls: "land", icon: "🚑" },
@@ -589,7 +599,6 @@ function spawnGates(isLast) {
       { ph: 2, txt: "空運", cls: "air", icon: "🚁" },
       { ph: 3, txt: "海運", cls: "sea", icon: "🚤" }
     ];
-    // 打亂出現的車道順序
     options.sort(() => Math.random() - 0.5);
     options.forEach((opt, idx) => opt.ln = idx);
   }
@@ -626,13 +635,13 @@ function tryShock(now){
   if(now < pauseUntil || ammo <= 0 || now - lastFireAt < FIRE_COOLDOWN_MS) return;
   ammo--; updateAmmoUI(); lastFireAt = now; sfxShoot();
   const s = makeShock(now); game.appendChild(s.el); entities.push(s);
-  player.animate([{ transform:`rotate(180deg) translateY(${-jumpLift}px) scale(1)` }, { transform:`rotate(180deg) translateY(${-jumpLift}px) scale(1.02)` }, { transform:`rotate(180deg) translateY(${-jumpLift}px) scale(1)` }], { duration:150, iterations:1 });
+  player.animate([{ transform:`translateY(${-jumpLift}px) scale(1)` }, { transform:`translateY(${-jumpLift}px) scale(1.02)` }, { transform:`translateY(${-jumpLift}px) scale(1)` }], { duration:150, iterations:1 });
 }
 function tryJump(now){
   if(over || finishing || isTransitioning) return;
   if(now < pauseUntil || now < jumpUntil || now < lastJumpAt + JUMP_COOLDOWN_MS) return;
   lastJumpAt = now; jumpUntil = now + JUMP_DURATION_MS; player.classList.add("jumping");
-  player.animate([{ transform:`rotate(180deg) translateY(0px) scale(1)` }, { transform:`rotate(180deg) translateY(${-JUMP_HEIGHT_PX}px) scale(1.04)` }, { transform:`rotate(180deg) translateY(0px) scale(1)` }], { duration:JUMP_DURATION_MS, easing:"cubic-bezier(.2,.8,.2,1)", iterations:1 });
+  player.animate([{ transform:`translateY(0px) scale(1)` }, { transform:`translateY(${-JUMP_HEIGHT_PX}px) scale(1.04)` }, { transform:`translateY(0px) scale(1)` }], { duration:JUMP_DURATION_MS, easing:"cubic-bezier(.2,.8,.2,1)", iterations:1 });
 }
 function computeJumpLift(now){
   if(now >= jumpUntil) return 0;
@@ -707,7 +716,7 @@ function reset(){
   clearTimeout(carLongPressTimer); carLongPressTriggered = false;
   runStartAt = performance.now(); elapsedMs = 0; timeNowEl.textContent = "0";
   penaltyBox.style.display = "none"; player.classList.remove("boosting","finishing","jumping");
-  topHud.classList.remove("boosting"); player.style.top = ""; player.style.bottom = "6%"; player.style.transform = "rotate(180deg) translateY(0px)";
+  topHud.classList.remove("boosting"); player.style.top = ""; player.style.bottom = "6%"; player.style.transform = "translateY(0px)";
   finish.style.top = "-38%"; finish.classList.remove("success"); overlay.style.display = "none";
   
   currentPhase = 1; isTransitioning = false; isSpawningGates = false; transitionCount = 0;
@@ -730,7 +739,7 @@ function tick(now){
   if(over) return;
   const dt = Math.max(0, Math.min(0.03, (now - lastFrame) / 1000)); lastFrame = now;
   elapsedMs = now - runStartAt; timeNowEl.textContent = String(Math.floor(elapsedMs / 1000));
-  jumpLift = computeJumpLift(now); player.style.transform = `rotate(180deg) translateY(${-jumpLift}px)`;
+  jumpLift = computeJumpLift(now); player.style.transform = `translateY(${-jumpLift}px)`;
   if(now >= jumpUntil) player.classList.remove("jumping");
   if(now >= boostUntil){ player.classList.remove("boosting"); topHud.classList.remove("boosting"); }
   if(now < pauseUntil){
@@ -773,16 +782,13 @@ function tick(now){
   for(let i = entities.length - 1; i >= 0; i--){
     const e = entities[i];
 
-    // 【新增：傳送門碰撞邏輯】
     if(e.type === "gate") {
       e.el.style.top = (e.el.offsetTop + OB_FALL * dt) + "px";
-      // 只要碰到，或是門已經完全掃過玩家當前所在的車道
       if(hit(player, e.el) || (e.el.offsetTop + e.el.offsetHeight > player.offsetTop && Math.abs(e.lane - lane) < 0.5)) {
-        sfxPickup(); // 發出正面音效
+        sfxPickup(); 
         let chosenPhase = e.targetPhase;
         let chosenText = "進入" + e.text;
         
-        // 刪除畫面上的所有傳送門
         for(let j = entities.length - 1; j >= 0; j--) {
           if(entities[j].type === "gate") {
             try{ entities[j].el.remove(); }catch{}
@@ -792,7 +798,7 @@ function tick(now){
         isSpawningGates = false;
         transitionCount++;
         startTransition(chosenPhase, chosenText);
-        break; // 離開迴圈，避免出錯
+        break; 
       }
       if(e.el.offsetTop > game.clientHeight + 160){ try{ e.el.remove(); }catch{} entities.splice(i,1); }
       continue;
