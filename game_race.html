@@ -294,7 +294,8 @@ const currentMode = urlParams.get('mode') || 'case1';
 const cfg = MODE_CONFIGS[currentMode] || MODE_CONFIGS['case1'];
 document.title = "腦脈先鋒｜" + cfg.title;
 
-// 常數設定
+// ★ 核心常數 (絕對不能刪掉 BASE_FORWARD_SPEED)
+const BASE_FORWARD_SPEED = 1.0; 
 const DIST_UNIT = 80; 
 const BOOST_MS = 2500; 
 const BOOST_FORWARD_MULT = 3.0;
@@ -321,7 +322,7 @@ const MYSTERY_EVENTS = [
 ];
 
 // 全域狀態變數
-let gameActive = false; // ★ 新增啟動旗標，預設為 false，等待主機喚醒
+let engineStarted = false; // ★ 智慧啟動旗標
 let lane = 1, distance = 0, entities = [], over = false, finishing = false;
 let lastFrame = performance.now(), pauseUntil = 0, boostUntil = 0, ammo = 0, lastFireAt = 0;
 let jumpUntil = 0, jumpLift = 0, runStartAt = 0, elapsedMs = 0;
@@ -338,13 +339,7 @@ const game = document.getElementById("game");
 const player = document.getElementById("player");
 const playerSkin = document.getElementById("playerSkin");
 
-// ★ 監聽主畫面傳來的 START_GAME 訊號
-window.addEventListener('message', (e) => {
-    if (e.data && e.data.type === 'START_GAME') {
-        gameActive = true;
-        reset(); // 收到訊號才正式重置與啟動計時
-    }
-});
+let lastGameWidth = 0;
 
 // ==========================================
 // 遊戲核心函式
@@ -611,14 +606,27 @@ function reset(){
     nextWaveAt = lastFrame + 1000; nextBoostAt = lastFrame + 2000; nextObAt = lastFrame + 1500; nextAmmoAt = lastFrame + 2500;
 }
 
-// ★ 主遊戲迴圈
+// ★ 主遊戲迴圈 (智慧甦醒機制)
 function tick(now){
-
-    // 只有當 gameActive 為 true 時，才推進時間與畫面
-    if (!gameActive) {
-        lastFrame = now; // 保持時間靜止
+    // 防呆鎖：如果 iframe 寬度太小 (被隱藏)，就不跑邏輯，凍結時間
+    if (game.clientWidth < 10 || game.clientHeight < 10) {
+        lastFrame = now;
         requestAnimationFrame(tick);
         return;
+    }
+
+    // 當第一次獲得正確尺寸，或從隱藏變為顯示時，正式啟動並重置時間
+    if (!engineStarted) {
+        engineStarted = true;
+        reset();
+        requestAnimationFrame(tick);
+        return;
+    }
+
+    // 視窗尺寸改變時更新車道位置
+    if (game.clientWidth !== lastGameWidth) {
+        lastGameWidth = game.clientWidth;
+        setPlayerLane(lane);
     }
 
     if(over) return;
@@ -759,7 +767,7 @@ function tick(now){
         }
 
         // 錯過閘門邏輯
-        if(e.el.offsetTop > 850){
+        if(e.el.offsetTop > (game.clientHeight || window.innerHeight) + 160){
             if(e.type === 'word_gate' && e.isCorrect) {
                 applyPenalty(now); triggerEventText(`❌ 錯過路線倒退`);
                 distance = Math.max(0, distance - 50); 
@@ -814,11 +822,11 @@ game.addEventListener("touchend", e=>{
 document.addEventListener("pointerdown", ensureAudio, { once:true });
 
 const restartBtn = document.getElementById('restartBtn');
-if(restartBtn) restartBtn.onclick = ()=>{ reset(); };
+if(restartBtn) restartBtn.onclick = ()=>{ reset(); requestAnimationFrame(tick); };
 const restartSmallBtn = document.getElementById('restartSmallBtn');
-if(restartSmallBtn) restartSmallBtn.onclick = ()=>{ reset(); };
+if(restartSmallBtn) restartSmallBtn.onclick = ()=>{ reset(); requestAnimationFrame(tick); };
 
-// 預設為等待狀態，等待主機喚醒
+// 初始化進入等待循環
 requestAnimationFrame(tick);
 
 </script>
