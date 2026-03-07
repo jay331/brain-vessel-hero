@@ -106,8 +106,8 @@
 
   /* 玩家狀態特效 */
   #player.flash-green { filter:drop-shadow(0 0 20px rgba(0,255,204,1)) brightness(1.3); }
-  #player.armed { filter:drop-shadow(0 0 20px rgba(255,235,59,0.8)) drop-shadow(0 0 10px rgba(255,152,0,0.6)); }
-  #player.jumping{ filter:drop-shadow(0 12px 20px rgba(122,168,255,.20)) drop-shadow(0 0 12px rgba(122,168,255,.18)); }
+  #player.armed { filter:drop-shadow(0 0 20px rgba(255,235,59,0.8)); }
+  #player.jumping{ filter:drop-shadow(0 12px 20px rgba(122,168,255,.20)); }
   #player.finishing{ transition:transform 600ms ease, top 600ms ease, left 250ms ease; filter:drop-shadow(0 0 18px rgba(0,255,204,.22)); }
   
   /* 彈藥標籤 */
@@ -321,6 +321,7 @@ const MYSTERY_EVENTS = [
 ];
 
 // 全域狀態變數
+let gameActive = false; // ★ 新增啟動旗標，預設為 false，等待主機喚醒
 let lane = 1, distance = 0, entities = [], over = false, finishing = false;
 let lastFrame = performance.now(), pauseUntil = 0, boostUntil = 0, ammo = 0, lastFireAt = 0;
 let jumpUntil = 0, jumpLift = 0, runStartAt = 0, elapsedMs = 0;
@@ -336,6 +337,14 @@ let isSpawningGates = false;
 const game = document.getElementById("game");
 const player = document.getElementById("player");
 const playerSkin = document.getElementById("playerSkin");
+
+// ★ 監聽主畫面傳來的 START_GAME 訊號
+window.addEventListener('message', (e) => {
+    if (e.data && e.data.type === 'START_GAME') {
+        gameActive = true;
+        reset(); // 收到訊號才正式重置與啟動計時
+    }
+});
 
 // ==========================================
 // 遊戲核心函式
@@ -380,9 +389,8 @@ function isTapOnPlayer(clientX, clientY){
   const r = player.getBoundingClientRect(); return clientX >= r.left && clientX <= r.right && clientY >= r.top && clientY <= r.bottom;
 }
 
-// 畫面排版 (移除了對絕對高度與寬度的依賴)
+// 畫面排版
 function laneCenters(){
-  // 不使用 clientWidth，直接抓取父層或預設值
   const w = window.innerWidth <= 420 ? window.innerWidth : 420;
   const leftEdge = w * 0.12; const step = (w * 0.88 - leftEdge) / 3;
   return [ leftEdge + step*0.5, leftEdge + step*1.5, leftEdge + step*2.5 ];
@@ -432,7 +440,6 @@ function spawnNpcCar(laneIndex){
 }
 function spawnNpcWaveSmart(){
   if(isSpawningGates) return false;
-  // ★ 移除絕對像素判斷，改用簡單陣列過濾
   const ln = Math.floor(Math.random() * 3);
   const obj = spawnNpcCar(ln); game.appendChild(obj.el); entities.push(obj);
   return true;
@@ -604,14 +611,20 @@ function reset(){
     nextWaveAt = lastFrame + 1000; nextBoostAt = lastFrame + 2000; nextObAt = lastFrame + 1500; nextAmmoAt = lastFrame + 2500;
 }
 
-// ★ 主遊戲迴圈 
+// ★ 主遊戲迴圈
 function tick(now){
+
+    // 只有當 gameActive 為 true 時，才推進時間與畫面
+    if (!gameActive) {
+        lastFrame = now; // 保持時間靜止
+        requestAnimationFrame(tick);
+        return;
+    }
 
     if(over) return;
     const dt = Math.max(0, Math.min(0.05, (now - lastFrame) / 1000)); 
     lastFrame = now;
 
-    // ★ 取消凍結，無論 iframe 狀態如何，都繼續運行
     elapsedMs += dt * 1000; 
     
     // 時間限制邏輯
@@ -801,14 +814,12 @@ game.addEventListener("touchend", e=>{
 document.addEventListener("pointerdown", ensureAudio, { once:true });
 
 const restartBtn = document.getElementById('restartBtn');
-if(restartBtn) restartBtn.onclick = ()=>{ reset(); requestAnimationFrame(tick); };
+if(restartBtn) restartBtn.onclick = ()=>{ reset(); };
 const restartSmallBtn = document.getElementById('restartSmallBtn');
-if(restartSmallBtn) restartSmallBtn.onclick = ()=>{ reset(); requestAnimationFrame(tick); };
+if(restartSmallBtn) restartSmallBtn.onclick = ()=>{ reset(); };
 
-// 啟動邏輯
-function initGame() { reset(); requestAnimationFrame(tick); }
-if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ()=>setTimeout(initGame, 50));
-else setTimeout(initGame, 50);
+// 預設為等待狀態，等待主機喚醒
+requestAnimationFrame(tick);
 
 </script>
 </body>
