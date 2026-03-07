@@ -294,7 +294,7 @@ const currentMode = urlParams.get('mode') || 'case1';
 const cfg = MODE_CONFIGS[currentMode] || MODE_CONFIGS['case1'];
 document.title = "腦脈先鋒｜" + cfg.title;
 
-// 常數設定
+// ★ 核心常數 (絕對不能刪掉)
 const BASE_FORWARD_SPEED = 1.0; 
 const DIST_UNIT = 80; 
 const BOOST_MS = 2500; 
@@ -310,6 +310,11 @@ const WAVE_MIN_MS = 520, WAVE_MAX_MS = 980;
 const OB_MIN_MS = 900, OB_MAX_MS = 1500;
 const BOOST_MIN_MS = 1500, BOOST_MAX_MS = 2500;
 const AMMO_MIN_MS = 1200, AMMO_MAX_MS = 2000;
+
+// ★ 震波特效常數 (之前遺漏導致當機的元兇)
+const SHOCK_MAX_RADIUS = 74;
+const SHOCK_GROW_PX_PER_S = 520;
+const SHOCK_LIFETIME_MS = 260;
 
 // 字牌與盲盒設定
 const WORD_TARGETS = ['亞', '東', '醫', '院'];
@@ -329,7 +334,7 @@ let scheduledEvents = [];
 let weatherUntil = 0, currentWordIndex = 0, speedMultiplier = 1.0;
 let audioCtx = null;
 let carLongPressTimer = null, carLongPressTriggered = false;
-let lastRunTimeMs = null, endScheduled = false;
+let lastRunTimeMs = null;
 let nextWaveAt = 0, nextBoostAt = 0, nextObAt = 0, nextAmmoAt = 0;
 let isSpawningGates = false;
 
@@ -337,6 +342,8 @@ let isSpawningGates = false;
 const game = document.getElementById("game");
 const player = document.getElementById("player");
 const playerSkin = document.getElementById("playerSkin");
+
+let lastGameWidth = 0;
 
 // ==========================================
 // 遊戲核心函式
@@ -381,19 +388,18 @@ function isTapOnPlayer(clientX, clientY){
   const r = player.getBoundingClientRect(); return clientX >= r.left && clientX <= r.right && clientY >= r.top && clientY <= r.bottom;
 }
 
-// ★ 完全移除對 DOM 尺寸的依賴，強制使用 3 等分
+// 畫面排版
 function laneCenters(){
-  // 不論 iframe 多大，甚至被隱藏，我們都假設寬度是 420 或是視窗寬度，避免計算出錯
-  const w = window.innerWidth <= 420 ? window.innerWidth : 420;
+  // 即使在 iframe 隱藏狀態，也保證有寬度計算
+  let w = game.clientWidth;
+  if (w < 10) w = Math.min(window.innerWidth, 420);
   const leftEdge = w * 0.12; const step = (w * 0.88 - leftEdge) / 3;
   return [ leftEdge + step*0.5, leftEdge + step*1.5, leftEdge + step*2.5 ];
 }
-
 function setPlayerLane(idx){
   lane = clamp(idx, 0, 2); 
   player.style.left = (laneCenters()[lane] - 24) + "px"; 
 }
-
 function setPlayerSkin(phase) {
   playerSkin.className = phase === 2 ? "heliTop" : phase === 3 ? "boatTop" : "carTop";
   const htmlMap = {
@@ -435,14 +441,19 @@ function spawnNpcCar(laneIndex){
 }
 function spawnNpcWaveSmart(){
   if(isSpawningGates) return false;
-  // ★ 放棄 offsetTop 的距離判斷，改用簡單陣列以防 DOM 高度為 0 
-  const ln = Math.floor(Math.random() * 3);
+  // ★ 敵車只生成在左側(0)或右側(2)，絕對不從中間(1)過來
+  const candidates = [0, 2].filter(ln => !entities.some(e => e.lane === ln && e.type==="npc" && e.el.offsetTop < 300));
+  if(candidates.length === 0) return false;
+  const ln = candidates[Math.floor(Math.random() * candidates.length)];
   const obj = spawnNpcCar(ln); game.appendChild(obj.el); entities.push(obj);
   return true;
 }
 function spawnObstacle(){
   if(isSpawningGates || entities.filter(e=>e.type==="ob").length >= 2) return;
-  const ln = Math.floor(Math.random() * 3);
+  // 障礙物可以隨機在任何車道
+  const candidates = [0,1,2].filter(ln => !entities.some(e => e.lane === ln && (e.type==="npc" || e.type==="ob") && e.el.offsetTop < 300));
+  if(candidates.length === 0) return;
+  const ln = candidates[Math.floor(Math.random() * candidates.length)];
   const el = document.createElement("div"); el.className = "obstacle";
   el.style.left = (laneCenters()[ln] - 28) + "px"; el.style.top = "-120px";
   game.appendChild(el); entities.push({ type:"ob", el, lane:ln });
@@ -581,7 +592,6 @@ function reset(){
     entities = []; distance = 0; over = false; finishing = false; pauseUntil = 0; boostUntil = 0;
     ammo = 0; jumpUntil = 0; jumpLift = 0; elapsedMs = 0; speedMultiplier = 1.0;
     
-    // 確保時間從現在開始算
     const now = performance.now();
     runStartAt = now; 
     lastFrame = now;
@@ -614,21 +624,23 @@ function reset(){
 
 // ★ 主遊戲迴圈
 function tick(now){
-    // ★ 如果處於隱藏狀態 (寬高為0)，凍結更新，但不報錯
-    if (game.clientWidth === 0 || game.clientHeight === 0) {
+    // ★ 若寬度過小(隱藏狀態)，凍結時間但不停止 requestAnimationFrame
+    if (game.clientWidth < 10) {
         lastFrame = now;
-        runStartAt += (now - lastFrame); // 推遲開始時間
         requestAnimationFrame(tick);
         return;
     }
 
+    // 視窗尺寸改變時更新車道位置
+    if (game.clientWidth !== lastGameWidth) {
+        lastGameWidth = game.clientWidth;
+        setPlayerLane(lane);
+    }
+
     if(over) return;
     
-    // 避免因為瀏覽器切換分頁導致 dt 暴增
     const dt = Math.max(0, Math.min(0.05, (now - lastFrame) / 1000)); 
     lastFrame = now;
-
-    // 這裡改為累加 dt，確保時間流逝是平滑的
     elapsedMs += dt * 1000; 
     
     // 時間限制邏輯
@@ -763,7 +775,7 @@ function tick(now){
         }
 
         // 錯過閘門邏輯
-        if(e.el.offsetTop > 850){
+        if(e.el.offsetTop > (game.clientHeight || window.innerHeight) + 160){
             if(e.type === 'word_gate' && e.isCorrect) {
                 applyPenalty(now); triggerEventText(`❌ 錯過路線倒退`);
                 distance = Math.max(0, distance - 50); 
