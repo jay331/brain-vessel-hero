@@ -16,52 +16,50 @@
     --danger:#ff4d4d;
     --shadow:0 12px 40px rgba(0,0,0,.55);
   }
+
   html,body{
-    height:100%; margin:0;
-    background:radial-gradient(1200px 700px at 50% 0%, #111827 0%, var(--bg) 55%, #000 100%);
+    height:100%;
+    margin:0;
+    overflow:hidden;
+    background:#000;
     color:var(--text);
     font-family:"PingFang TC","Noto Sans TC",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
   }
-  body{display:flex; justify-content:center; align-items:flex-start; padding:14px 0;}
+
+  body{
+    display:flex;
+    justify-content:center;
+    align-items:stretch;
+  }
+
   #wrap{
     position:relative;
-    width:min(380px, 96vw);
-    user-select:none; -webkit-user-select:none;
+    width:min(420px,100vw);
+    height:100dvh;
+    display:flex;
+    flex-direction:column;
+    user-select:none;
+    -webkit-user-select:none;
     touch-action:manipulation;
   }
-html,body{
-  height:100%;
-  margin:0;
-  overflow:hidden;
-}
 
-body{
-  display:flex;
-  justify-content:center;
-  align-items:stretch;
-  background:#000;
-}
+  #game{
+    position:relative;
+    flex:1;
+    width:100%;
+    min-height:0;
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:18px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+    background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,0));
+  }
 
-#wrap{
-  width:min(420px,100vw);
-  height:100dvh;
-  display:flex;
-  flex-direction:column;
-}
-
-#game{
-  position:relative;
-  flex:1;
-  width:100%;
-  min-height:0;
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:18px;
-  overflow:hidden;
-}
-
-  /* 上方：距離 + 能量 + 時間（整數秒，文字） */
+  /* 上方：距離 + 能量 + 時間 */
   #topHud{
-    position:absolute; left:50%; top:10px;
+    position:absolute;
+    left:50%;
+    top:10px;
     transform:translateX(-50%);
     z-index:12;
     padding:8px 12px;
@@ -73,27 +71,33 @@ body{
     letter-spacing:.3px;
     font-size:13px;
     white-space:nowrap;
-    display:flex; align-items:center; gap:10px;
+    display:flex;
+    align-items:center;
+    gap:10px;
   }
   #topHud .num{
     color:var(--accent);
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric:tabular-nums;
   }
-  #topHud.boosting .num{filter:drop-shadow(0 0 10px rgba(0,255,204,.45));}
-  #ammoHud{opacity:.92; font-weight:900;}
-  #ammoHud b{color:var(--warn); font-variant-numeric: tabular-nums;}
-  #timeHud{opacity:.92; font-weight:900;}
-  #timeHud b{color:#fff; font-variant-numeric: tabular-nums;}
+  #topHud.boosting .num{
+    filter:drop-shadow(0 0 10px rgba(0,255,204,.45));
+  }
+  #ammoHud{opacity:.92;font-weight:900;}
+  #ammoHud b{color:var(--warn);font-variant-numeric:tabular-nums;}
+  #timeHud{opacity:.92;font-weight:900;}
+  #timeHud b{color:#fff;font-variant-numeric:tabular-nums;}
 
   .road{
-    position:absolute; inset:0;
+    position:absolute;
+    inset:0;
     background:
       radial-gradient(800px 420px at 50% 20%, rgba(0,255,204,.08), transparent 60%),
       linear-gradient(180deg, var(--road1) 0%, var(--road2) 100%);
   }
   .road::before{
     content:"";
-    position:absolute; inset:-10%;
+    position:absolute;
+    inset:-10%;
     background:linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(255,255,255,.05) 30%, rgba(255,255,255,.03) 55%, rgba(0,0,0,0) 100%);
     transform:skewX(-12deg);
     animation:sweep 3.2s linear infinite;
@@ -105,12 +109,26 @@ body{
   }
 
   /* 三車道線 */
-  #lanes{position:absolute; inset:0; pointer-events:none; opacity:.85;}
-  .edge{position:absolute; top:0; bottom:0; width:3px; background:linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,255,255,.08));}
+  #lanes{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    opacity:.85;
+  }
+  .edge{
+    position:absolute;
+    top:0;
+    bottom:0;
+    width:3px;
+    background:linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,255,255,.08));
+  }
   .edge.left{left:12%;}
   .edge.right{right:12%;}
   .divider{
-    position:absolute; top:0; bottom:0; width:3px;
+    position:absolute;
+    top:0;
+    bottom:0;
+    width:3px;
     background:repeating-linear-gradient(180deg, rgba(255,255,255,.16) 0 22px, rgba(255,255,255,0) 22px 56px);
     opacity:.25;
   }
@@ -119,9 +137,14 @@ body{
 
   /* 終點：醫院 */
   #finish{
-    position:absolute; left:0; right:0;
-    top:-38%; height:38%;
-    display:flex; align-items:flex-end; justify-content:center;
+    position:absolute;
+    left:0;
+    right:0;
+    top:-38%;
+    height:38%;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
     padding-bottom:14px;
     background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(230,236,255,.92));
     color:#0b1220;
@@ -129,11 +152,14 @@ body{
     z-index:6;
   }
   #finish .hospital{
-    width:86%; height:72%;
+    width:86%;
+    height:72%;
     border-radius:16px;
     background:radial-gradient(120px 90px at 50% 35%, rgba(0,255,204,.25), transparent 55%), #ffffff;
     box-shadow:0 10px 30px rgba(0,0,0,.18);
-    display:flex; align-items:center; justify-content:center;
+    display:flex;
+    align-items:center;
+    justify-content:center;
     position:relative;
     overflow:hidden;
   }
@@ -150,30 +176,47 @@ body{
     box-shadow:inset 0 0 0 2px rgba(255,255,255,.35);
   }
   #finish .sign{
-    background:#0b1220; color:#fff;
-    padding:10px 14px; border-radius:14px;
-    font-size:16px; font-weight:900; letter-spacing:.4px;
-    display:flex; align-items:center; gap:10px;
+    background:#0b1220;
+    color:#fff;
+    padding:10px 14px;
+    border-radius:14px;
+    font-size:16px;
+    font-weight:900;
+    letter-spacing:.4px;
+    display:flex;
+    align-items:center;
+    gap:10px;
     box-shadow:0 8px 18px rgba(0,0,0,.20);
     opacity:0;
     transform:translateY(8px);
     transition:opacity .35s ease, transform .35s ease;
   }
-  #finish.success .sign{opacity:1; transform:translateY(0);}
+  #finish.success .sign{
+    opacity:1;
+    transform:translateY(0);
+  }
   #finish .cross{
-    width:24px; height:24px; border-radius:7px;
+    width:24px;
+    height:24px;
+    border-radius:7px;
     background:var(--accent);
-    display:grid; place-items:center;
-    color:#00130f; font-weight:900;
+    display:grid;
+    place-items:center;
+    color:#00130f;
+    font-weight:900;
   }
 
   /* 右側：相對距離 */
   #rail{
     position:absolute;
-    right:10px; top:10px;
-    width:52px; height:78%;
+    right:10px;
+    top:10px;
+    width:52px;
+    height:78%;
     z-index:10;
-    display:flex; flex-direction:column; align-items:center;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
     gap:10px;
     pointer-events:none;
   }
@@ -185,20 +228,35 @@ body{
     box-shadow:0 10px 22px rgba(0,0,0,.28);
     overflow:hidden;
   }
-  #hospitalMark{height:40px; display:grid; place-items:center; font-size:18px;}
-  #trackBox{flex:1; position:relative;}
+  #hospitalMark{
+    height:40px;
+    display:grid;
+    place-items:center;
+    font-size:18px;
+  }
+  #trackBox{
+    flex:1;
+    position:relative;
+  }
   #trackLine{
-    position:absolute; left:50%; top:10px; bottom:10px;
-    width:4px; transform:translateX(-50%);
+    position:absolute;
+    left:50%;
+    top:10px;
+    bottom:10px;
+    width:4px;
+    transform:translateX(-50%);
     background:linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
     border-radius:999px;
   }
   #miniAmb{
-    position:absolute; left:50%;
+    position:absolute;
+    left:50%;
     transform:translateX(-50%);
     bottom:10px;
-    width:30px; height:30px;
-    display:grid; place-items:center;
+    width:30px;
+    height:30px;
+    display:grid;
+    place-items:center;
     border-radius:10px;
     background:rgba(0,255,204,.16);
     border:1px solid rgba(0,255,204,.35);
@@ -206,7 +264,8 @@ body{
     font-size:18px;
   }
   #distanceText{
-    position:absolute; left:50%;
+    position:absolute;
+    left:50%;
     transform:translateX(-50%);
     bottom:10px;
     margin-bottom:-32px;
@@ -219,50 +278,70 @@ body{
     white-space:nowrap;
   }
 
-  /* 車（俯視） */
+  /* 車 */
   .carTop{
     position:absolute;
-    width:48px; height:78px;
+    width:48px;
+    height:78px;
     border-radius:14px;
     border:1px solid rgba(255,255,255,.14);
     display:block;
   }
-  .carTop .body{position:absolute; inset:0; border-radius:14px;}
+  .carTop .body{
+    position:absolute;
+    inset:0;
+    border-radius:14px;
+  }
   .carTop .glass{
-    position:absolute; left:9px; right:9px;
-    top:10px; height:16px;
+    position:absolute;
+    left:9px;
+    right:9px;
+    top:10px;
+    height:16px;
     border-radius:10px;
     background:linear-gradient(180deg, rgba(255,255,255,.35), rgba(255,255,255,.10));
     border:1px solid rgba(255,255,255,.12);
     opacity:.9;
   }
   .carTop .lights{
-    position:absolute; left:9px; right:9px;
-    bottom:9px; height:9px;
-    display:flex; justify-content:space-between; gap:7px;
+    position:absolute;
+    left:9px;
+    right:9px;
+    bottom:9px;
+    height:9px;
+    display:flex;
+    justify-content:space-between;
+    gap:7px;
     opacity:.9;
   }
   .carTop .lights span{
-    flex:1; border-radius:7px;
+    flex:1;
+    border-radius:7px;
     background:linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.18));
     filter:drop-shadow(0 0 10px rgba(255,255,255,.12));
   }
   .carTop .wheels{
-    position:absolute; left:4px; right:4px;
-    top:16px; bottom:16px;
+    position:absolute;
+    left:4px;
+    right:4px;
+    top:16px;
+    bottom:16px;
     pointer-events:none;
   }
   .carTop .wheels::before,
   .carTop .wheels::after{
     content:"";
-    position:absolute; top:0; bottom:0;
-    width:7px; border-radius:9px;
+    position:absolute;
+    top:0;
+    bottom:0;
+    width:7px;
+    border-radius:9px;
     background:rgba(0,0,0,.35);
   }
   .carTop .wheels::before{left:0;}
   .carTop .wheels::after{right:0;}
 
-  /* 玩家救護車（朝上） */
+  /* 玩家救護車 */
   #player{
     position:absolute;
     bottom:6%;
@@ -278,15 +357,20 @@ body{
       linear-gradient(180deg, #ff4d4d 0%, #e1162f 100%);
   }
   #player .sirens{
-    position:absolute; left:9px; right:9px;
-    top:32px; height:12px;
+    position:absolute;
+    left:9px;
+    right:9px;
+    top:32px;
+    height:12px;
     border-radius:9px;
     background:linear-gradient(90deg, rgba(0,255,204,.10), rgba(0,255,204,.92), rgba(0,255,204,.10));
     filter:drop-shadow(0 0 10px rgba(0,255,204,.45));
     animation:flash 0.7s linear infinite;
     opacity:.95;
   }
-  #player.boosting{filter:drop-shadow(0 0 18px rgba(0,255,204,.35));}
+  #player.boosting{
+    filter:drop-shadow(0 0 18px rgba(0,255,204,.35));
+  }
   #player.jumping{
     filter:
       drop-shadow(0 12px 20px rgba(122,168,255,.20))
@@ -296,12 +380,17 @@ body{
     transition:transform 600ms ease, top 600ms ease, left 250ms ease;
     filter:drop-shadow(0 0 18px rgba(0,255,204,.22));
   }
-  @keyframes flash{ 0%{opacity:.25} 50%{opacity:1} 100%{opacity:.25} }
+  @keyframes flash{
+    0%{opacity:.25}
+    50%{opacity:1}
+    100%{opacity:.25}
+  }
 
   /* 對向來車 */
   .npcCar{
     position:absolute;
-    width:48px; height:78px;
+    width:48px;
+    height:78px;
     border-radius:14px;
     border:1px solid rgba(255,255,255,.10);
     box-shadow:0 14px 24px rgba(0,0,0,.32);
@@ -316,14 +405,16 @@ body{
   /* 加速道具 */
   .boost{
     position:absolute;
-    width:46px; height:46px;
+    width:46px;
+    height:46px;
     border-radius:14px;
     background:
       radial-gradient(22px 22px at 35% 35%, rgba(255,255,255,.25), rgba(255,255,255,0) 60%),
       linear-gradient(180deg, rgba(0,255,204,.22), rgba(0,255,204,.08));
     border:1px solid rgba(0,255,204,.35);
     box-shadow:0 14px 24px rgba(0,0,0,.28), 0 0 18px rgba(0,255,204,.10);
-    display:grid; place-items:center;
+    display:grid;
+    place-items:center;
   }
   .boost::before{
     content:"»»";
@@ -338,38 +429,46 @@ body{
   /* 能量補給 */
   .ammoPick{
     position:absolute;
-    width:44px; height:44px;
+    width:44px;
+    height:44px;
     border-radius:14px;
     background:
       radial-gradient(20px 20px at 35% 35%, rgba(255,255,255,.22), rgba(255,255,255,0) 60%),
       linear-gradient(180deg, rgba(255,209,102,.22), rgba(255,209,102,.08));
     border:1px solid rgba(255,209,102,.35);
     box-shadow:0 14px 24px rgba(0,0,0,.28), 0 0 18px rgba(255,209,102,.10);
-    display:grid; place-items:center;
+    display:grid;
+    place-items:center;
     font-size:18px;
   }
-  .ammoPick::before{ content:"⚡"; }
+  .ammoPick::before{content:"⚡";}
 
-  /* 障礙物（中道） */
+  /* 障礙物 */
   .obstacle{
     position:absolute;
-    width:54px; height:54px;
+    width:54px;
+    height:54px;
     border-radius:18px;
     background:
       radial-gradient(18px 18px at 35% 35%, rgba(255,255,255,.08), rgba(255,255,255,0) 60%),
       linear-gradient(180deg, rgba(255,77,77,.18), rgba(255,77,77,.06));
     border:1px solid rgba(255,77,77,.25);
     box-shadow:0 16px 26px rgba(0,0,0,.38);
-    display:grid; place-items:center;
+    display:grid;
+    place-items:center;
     font-weight:1000;
     color:rgba(255,77,77,.92);
   }
-  .obstacle::before{ content:"⛔"; font-size:22px; }
+  .obstacle::before{
+    content:"⛔";
+    font-size:22px;
+  }
 
   /* 震波 */
   .shock{
     position:absolute;
-    width:18px; height:18px;
+    width:18px;
+    height:18px;
     border-radius:999px;
     border:2px solid rgba(255,209,102,.95);
     box-shadow:0 0 18px rgba(255,209,102,.18);
@@ -378,14 +477,15 @@ body{
   }
   .shatter{animation:shatter .28s ease-out forwards;}
   @keyframes shatter{
-    0%{transform:scale(1); filter:brightness(1.1);}
-    100%{transform:scale(1.45); opacity:0; filter:brightness(1.8) blur(1px);}
+    0%{transform:scale(1);filter:brightness(1.1);}
+    100%{transform:scale(1.45);opacity:0;filter:brightness(1.8) blur(1px);}
   }
 
   /* 懲罰提示 */
   #penalty{
     position:absolute;
-    left:50%; top:54%;
+    left:50%;
+    top:54%;
     transform:translate(-50%,-50%);
     padding:10px 12px;
     border-radius:14px;
@@ -399,30 +499,59 @@ body{
     letter-spacing:.3px;
   }
   #penalty strong{color:var(--warn);}
-  #penalty .sub{display:block; margin-top:4px; font-size:12px; opacity:.85; font-weight:700;}
+  #penalty .sub{
+    display:block;
+    margin-top:4px;
+    font-size:12px;
+    opacity:.85;
+    font-weight:700;
+  }
 
   /* 底部控制 */
-  #controls{margin-top:10px; display:grid; grid-template-columns:1fr 1fr; gap:10px;}
-  .btnRow{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  #controls{
+    margin-top:10px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  .btnRow{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
   button{
-    border:none; border-radius:16px;
+    border:none;
+    border-radius:16px;
     padding:14px 12px;
     color:var(--text);
     background:linear-gradient(180deg, rgba(10,15,25,.85), rgba(10,15,25,.55));
     border:1px solid rgba(255,255,255,.12);
     box-shadow:0 10px 22px rgba(0,0,0,.28);
-    font-size:14px; font-weight:900; letter-spacing:.3px;
+    font-size:14px;
+    font-weight:900;
+    letter-spacing:.3px;
   }
-  button:active{transform:translateY(1px); box-shadow:0 6px 16px rgba(0,0,0,.30);}
-  .accent{border-color:rgba(0,255,204,.35); box-shadow:0 10px 22px rgba(0,255,204,.10), 0 10px 22px rgba(0,0,0,.28);}
+  button:active{
+    transform:translateY(1px);
+    box-shadow:0 6px 16px rgba(0,0,0,.30);
+  }
+  .accent{
+    border-color:rgba(0,255,204,.35);
+    box-shadow:0 10px 22px rgba(0,255,204,.10), 0 10px 22px rgba(0,0,0,.28);
+  }
   .danger{border-color:rgba(255,77,77,.35);}
-  .shoot{border-color:rgba(255,209,102,.35); box-shadow:0 10px 22px rgba(255,209,102,.10), 0 10px 22px rgba(0,0,0,.28);}
+  .shoot{
+    border-color:rgba(255,209,102,.35);
+    box-shadow:0 10px 22px rgba(255,209,102,.10), 0 10px 22px rgba(0,0,0,.28);
+  }
 
   /* 結果覆蓋層 */
   #overlay{
-    position:absolute; inset:0;
+    position:absolute;
+    inset:0;
     display:none;
-    align-items:center; justify-content:center;
+    align-items:center;
+    justify-content:center;
     background:rgba(0,0,0,.55);
     z-index:20;
   }
@@ -435,9 +564,9 @@ body{
     padding:16px 14px;
     text-align:center;
   }
-  #card h2{margin:6px 0 8px; font-size:18px;}
-  #card p{margin:0 0 12px; opacity:.9; font-size:13px; line-height:1.4;}
-  #card .small{opacity:.8; font-size:12px;}
+  #card h2{margin:6px 0 8px;font-size:18px;}
+  #card p{margin:0 0 12px;opacity:.9;font-size:13px;line-height:1.4;}
+  #card .small{opacity:.8;font-size:12px;}
 
   /* 排行榜 */
   #rankBox{
@@ -455,50 +584,37 @@ body{
     opacity:.95;
     background:rgba(0,0,0,.18);
     border-bottom:1px solid rgba(255,255,255,.10);
-    display:flex; justify-content:space-between;
+    display:flex;
+    justify-content:space-between;
   }
   #rankList{
-    list-style:none; margin:0; padding:0;
-    max-height:190px; overflow:auto;
+    list-style:none;
+    margin:0;
+    padding:0;
+    max-height:190px;
+    overflow:auto;
   }
   #rankList li{
-    display:flex; justify-content:space-between; gap:10px;
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
     padding:7px 10px;
     font-size:12px;
     border-bottom:1px solid rgba(255,255,255,.06);
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric:tabular-nums;
   }
   #rankList li:last-child{border-bottom:none;}
   .rankMe{background:rgba(0,255,204,.08);}
 
-/*CASEMODE_HIDE_LEADERBOARD*/
-body.caseMode .leaderboard, body.caseMode #leaderboard{display:none !important;}
-
-  #touchHint{
-    position:absolute;
-    left:50%;
-    bottom:18px;
-    transform:translateX(-50%);
-    z-index:14;
-    padding:10px 12px;
-    border-radius:14px;
-    background:rgba(10,15,25,.72);
-    border:1px solid rgba(255,255,255,.12);
-    box-shadow:0 10px 22px rgba(0,0,0,.28);
-    font-size:12px;
-    line-height:1.45;
-    text-align:center;
-    white-space:nowrap;
-    opacity:0;
-    pointer-events:none;
-    transition:opacity .25s ease;
+  /* CASEMODE_HIDE_LEADERBOARD */
+  body.caseMode .leaderboard,
+  body.caseMode #leaderboard{
+    display:none !important;
   }
-  #touchHint.show{opacity:1;}
 
-  @media (max-width: 768px){
+  @media (max-width:768px){
     #controls{display:none;}
   }
-
 </style>
 </head>
 
@@ -557,7 +673,7 @@ body.caseMode .leaderboard, body.caseMode #leaderboard{display:none !important;}
         </div>
 
         <button class="accent" id="restartBtn" style="margin-top:12px;">再跑一次</button>
-        <div class="small" style="margin-top:10px">桌機：← → 換車道、↑ 發射、Space 跳起｜手機：左滑 / 右滑 / 上滑 / 點擊</div>
+        <div class="small" style="margin-top:10px">桌機：← → 換車道、↑ 發射、Space 跳起｜手機：點左/右半邊移動、點車子發射、長按車子跳起</div>
       </div>
     </div>
   </div>
@@ -577,6 +693,7 @@ body.caseMode .leaderboard, body.caseMode #leaderboard{display:none !important;}
 <script>
 const isCaseMode = new URLSearchParams(location.search).get('mode')==='case';
 if(isCaseMode) document.body.classList.add('caseMode');
+
 /* ===================== 參數 ===================== */
 const GOAL_DISTANCE = 2000;
 const DIST_UNIT = 12;
@@ -622,15 +739,13 @@ const SAFE_HORIZON_SEC = 1.0;
 const COLLISION_PAD = 6;
 
 const PENALTY_MS = 3000;
-
 const FINISH_RUNIN_MS = 650;
-const END_DELAY_MS = 2000; // ✅ 最後畫面延後 2 秒
+const END_DELAY_MS = 2000;
 /* ====================================================== */
 
 const game = document.getElementById("game");
 const player = document.getElementById("player");
 const finish = document.getElementById("finish");
-const touchHint = document.getElementById("touchHint");
 
 const overlay = document.getElementById("overlay");
 const resultTitle = document.getElementById("resultTitle");
@@ -646,7 +761,6 @@ const distLeftEl = document.getElementById("distLeft");
 
 const ammoCountEl = document.getElementById("ammoCount");
 const timeNowEl = document.getElementById("timeNow");
-
 const rankListEl = document.getElementById("rankList");
 
 const leftBtn = document.getElementById("leftBtn");
@@ -655,7 +769,7 @@ const shootBtn = document.getElementById("shootBtn");
 
 let lane = 1;
 let distance = 0;
-let entities = [];  // {type:"npc"|"boost"|"ob"|"ammo"|"shock", el, v?, lane?, born?}
+let entities = [];
 let over = false;
 let finishing = false;
 
@@ -669,12 +783,12 @@ let lastJumpAt = -99999;
 let jumpUntil = 0;
 let jumpLift = 0;
 
-let touchStartX = 0;
-let touchStartY = 0;
-let touchActive = false;
-let touchHintTimer = null;
+// 手機控制
+let carLongPressTimer = null;
+let carLongPressTriggered = false;
+const CAR_LONG_PRESS_MS = 260;
 
-// timer（顯示整數秒）
+// timer
 let runStartAt = 0;
 let elapsedMs = 0;
 
@@ -695,24 +809,6 @@ function clamp(n,a,b){ return Math.max(a, Math.min(b, n)); }
 function rand(msMin, msMax){ return msMin + Math.random() * (msMax - msMin); }
 function fmtSec(ms){ return (ms/1000).toFixed(1); }
 
-function requestFullscreenSafe(){
-  const el = document.documentElement;
-  if(document.fullscreenElement) return;
-  try{
-    if(el.requestFullscreen) el.requestFullscreen();
-    else if(el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-    else if(el.msRequestFullscreen) el.msRequestFullscreen();
-  }catch(e){}
-}
-
-function showTouchHint(){
-  const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
-  if(!isTouch || !touchHint) return;
-  touchHint.classList.add('show');
-  clearTimeout(touchHintTimer);
-  touchHintTimer = setTimeout(()=> touchHint.classList.remove('show'), 2200);
-}
-
 function laneCenters(){
   const w = game.clientWidth;
   const leftEdge = w * 0.12;
@@ -721,11 +817,13 @@ function laneCenters(){
   const step = usable / 3;
   return [ leftEdge + step*0.5, leftEdge + step*1.5, leftEdge + step*2.5 ];
 }
+
 function setPlayerLane(idx){
   lane = clamp(idx, 0, 2);
   const centers = laneCenters();
   player.style.left = (centers[lane] - player.offsetWidth/2) + "px";
 }
+
 function updateRelativeDistance(prog){
   const trackBox = miniAmb.parentElement;
   const boxH = trackBox.clientHeight;
@@ -735,9 +833,11 @@ function updateRelativeDistance(prog){
   const remain = Math.max(0, Math.round(100 - prog));
   distanceText.textContent = "距離 " + remain + "%";
 }
+
 function rectInflate(r, pad){
   return { left:r.left+pad, right:r.right-pad, top:r.top+pad, bottom:r.bottom-pad };
 }
+
 function hit(a,b){
   const ar0 = a.getBoundingClientRect();
   const br0 = b.getBoundingClientRect();
@@ -745,7 +845,21 @@ function hit(a,b){
   const br = rectInflate(br0, COLLISION_PAD);
   return !(ar.right < br.left || ar.left > br.right || ar.bottom < br.top || ar.top > br.bottom);
 }
-function countType(type){ return entities.filter(e=>e.type===type).length; }
+
+function isTapOnPlayer(clientX, clientY){
+  const r = player.getBoundingClientRect();
+  return (
+    clientX >= r.left &&
+    clientX <= r.right &&
+    clientY >= r.top &&
+    clientY <= r.bottom
+  );
+}
+
+function countType(type){
+  return entities.filter(e=>e.type===type).length;
+}
+
 function nearestTopInLane(ln, typeFilter){
   let minTop = Infinity;
   for(const e of entities){
@@ -766,32 +880,36 @@ function makeNpcCar(laneIndex){
   const centers = laneCenters();
   el.style.left = (centers[laneIndex] - 48/2) + "px";
   el.style.top = "-150px";
-  return { type:"npc", el, v:mult, lane: laneIndex };
+  return { type:"npc", el, v:mult, lane:laneIndex };
 }
+
 function makeBoost(laneIndex){
   const el = document.createElement("div");
   el.className = "boost";
   const centers = laneCenters();
   el.style.left = (centers[laneIndex] - 46/2) + "px";
   el.style.top = "-110px";
-  return { type:"boost", el, lane: laneIndex };
+  return { type:"boost", el, lane:laneIndex };
 }
+
 function makeObstacle(){
   const el = document.createElement("div");
   el.className = "obstacle";
   const centers = laneCenters();
   el.style.left = (centers[1] - 54/2) + "px";
   el.style.top = "-120px";
-  return { type:"ob", el, lane: 1 };
+  return { type:"ob", el, lane:1 };
 }
+
 function makeAmmo(laneIndex){
   const el = document.createElement("div");
   el.className = "ammoPick";
   const centers = laneCenters();
   el.style.left = (centers[laneIndex] - 44/2) + "px";
   el.style.top = "-110px";
-  return { type:"ammo", el, lane: laneIndex };
+  return { type:"ammo", el, lane:laneIndex };
 }
+
 function makeShock(now){
   const el = document.createElement("div");
   el.className = "shock";
@@ -799,7 +917,7 @@ function makeShock(now){
   const cy = player.offsetTop + player.offsetHeight/2;
   el.style.left = (cx - 9) + "px";
   el.style.top = (cy - 9) + "px";
-  return { type:"shock", el, born: now, r: 9, cx, cy };
+  return { type:"shock", el, born:now, r:9, cx, cy };
 }
 
 /* 安全判定 */
@@ -818,9 +936,12 @@ function laneUnsafeWithin(ln, horizonSec){
   }
   return false;
 }
-function laneSafeForHorizon(ln, horizonSec){ return !laneUnsafeWithin(ln, horizonSec); }
 
-function spawnNpcWaveSmart(now){
+function laneSafeForHorizon(ln, horizonSec){
+  return !laneUnsafeWithin(ln, horizonSec);
+}
+
+function spawnNpcWaveSmart(){
   const safeLanesNow = [0,1,2].filter(ln => laneSafeForHorizon(ln, SAFE_HORIZON_SEC));
   if(safeLanesNow.length === 0) return false;
 
@@ -858,7 +979,8 @@ function spawnNpcWaveSmart(now){
     for(let i=entities.length-1; i>=0; i--){
       const e = entities[i];
       if(e.type==="npc" && lanes.includes(e.lane) && e.el.offsetTop < 0){
-        e.el.remove(); entities.splice(i,1);
+        e.el.remove();
+        entities.splice(i,1);
       }
     }
     return false;
@@ -903,7 +1025,7 @@ function applyPenalty(now){
   penaltyBox.querySelector("strong").textContent = String(Math.ceil((pauseUntil - now)/1000));
   game.animate(
     [{ transform:"translateX(0)" }, { transform:"translateX(-6px)" }, { transform:"translateX(6px)" }, { transform:"translateX(0)" }],
-    { duration: 220, iterations: 1 }
+    { duration:220, iterations:1 }
   );
 }
 
@@ -933,11 +1055,14 @@ function tryShock(now){
   entities.push(s);
 
   player.animate(
-    [{ transform:"rotate(180deg) scale(1)" }, { transform:"rotate(180deg) scale(1.02)" }, { transform:"rotate(180deg) scale(1)" }],
+    [
+      { transform:"rotate(180deg) scale(1)" },
+      { transform:"rotate(180deg) scale(1.02)" },
+      { transform:"rotate(180deg) scale(1)" }
+    ],
     { duration:150, iterations:1 }
   );
 }
-
 
 function tryJump(now){
   if(over || finishing) return;
@@ -975,23 +1100,29 @@ function isJumping(now){
 }
 
 /* ====== 排行榜 ====== */
-
 function loadRanks(){
   try{
     const raw = localStorage.getItem(RANK_KEY);
     const arr = raw ? JSON.parse(raw) : [];
     return Array.isArray(arr) ? arr : [];
-  }catch{ return []; }
+  }catch{
+    return [];
+  }
 }
-function saveRanks(arr){ try{ localStorage.setItem(RANK_KEY, JSON.stringify(arr)); }catch{} }
+
+function saveRanks(arr){
+  try{ localStorage.setItem(RANK_KEY, JSON.stringify(arr)); }catch{}
+}
+
 function addRank(timeMs){
   const arr = loadRanks();
-  arr.push({ t: timeMs, at: Date.now() });
+  arr.push({ t:timeMs, at:Date.now() });
   arr.sort((a,b)=>a.t-b.t);
   const top10 = arr.slice(0,10);
   saveRanks(top10);
   return top10;
 }
+
 function renderRanks(arr){
   rankListEl.innerHTML = "";
   if(!arr.length){
@@ -1009,27 +1140,22 @@ function renderRanks(arr){
   });
 }
 
-/* ✅ 距離=0 時：清空所有車/障礙/道具/震波 */
+/* 清空所有實體 */
 function purgeAllEntities(){
   for(const e of entities){
-    try{ e.el && e.el.remove && e.el.remove(); }catch{}
+    try{ e.el?.remove?.(); }catch{}
   }
   entities = [];
 }
 
-/* ====== 終點：入院動畫（清場 + 延後結算 2 秒） ====== */
-function enterHospitalAndWin(now){
+/* 入院動畫 */
+function enterHospitalAndWin(){
   if(finishing || over) return;
   finishing = true;
 
-  // ✅ 清場（避免車子/障礙還在）
   purgeAllEntities();
-
-  // ✅ 停止生成（透過 finishing=true 讓 tick 不再 spawn）
-  // 醫院滑到底
   finish.style.top = "0%";
 
-  // 對齊中道入口後往前衝
   const centers = laneCenters();
   const targetX = centers[1] - player.offsetWidth/2;
 
@@ -1051,8 +1177,6 @@ function enterHospitalAndWin(now){
       requestAnimationFrame(step);
     }else{
       finish.classList.add("success");
-
-      // ✅ 最後畫面再晚 2 秒
       if(!endScheduled){
         endScheduled = true;
         setTimeout(()=> gameEnd(), END_DELAY_MS);
@@ -1062,7 +1186,7 @@ function enterHospitalAndWin(now){
   requestAnimationFrame(step);
 }
 
-/* ====== 重置/結束 ====== */
+/* 重置 / 結束 */
 function reset(){
   purgeAllEntities();
   distance = 0;
@@ -1078,7 +1202,9 @@ function reset(){
   lastJumpAt = -99999;
   jumpUntil = 0;
   jumpLift = 0;
-  touchActive = false;
+
+  clearTimeout(carLongPressTimer);
+  carLongPressTriggered = false;
 
   runStartAt = performance.now();
   elapsedMs = 0;
@@ -1110,7 +1236,6 @@ function reset(){
   nextBoostAt = now + rand(BOOST_MIN_MS, BOOST_MAX_MS);
   nextObAt = now + rand(OB_MIN_MS, OB_MAX_MS);
   nextAmmoAt = now + rand(AMMO_MIN_MS, AMMO_MAX_MS);
-  showTouchHint();
 }
 
 function gameEnd(){
@@ -1122,7 +1247,9 @@ function gameEnd(){
   resultTitle.textContent = "✅ 成功抵達醫院！";
   resultText.textContent = `到院時間：${fmtSec(elapsedMs)} 秒（越快越好）`;
 
-  try{ parent.postMessage({type:'GAME_CLEAR', game:'race', time: Math.floor(elapsedMs/1000)}, '*'); }catch(e){}
+  try{
+    parent.postMessage({type:'GAME_CLEAR', game:'race', time:Math.floor(elapsedMs/1000)}, '*');
+  }catch(e){}
 
   const top10 = addRank(elapsedMs);
   renderRanks(top10);
@@ -1134,12 +1261,12 @@ function tick(now){
   const dt = Math.min(0.03, (now - lastFrame)/1000);
   lastFrame = now;
 
-  // ✅ 時間：整數秒顯示（不含小數）
   elapsedMs = now - runStartAt;
   timeNowEl.textContent = String(Math.floor(elapsedMs/1000));
 
   jumpLift = computeJumpLift(now);
   player.style.transform = `rotate(180deg) translateY(${-jumpLift}px)`;
+
   if(now >= jumpUntil){
     player.classList.remove("jumping");
   }
@@ -1149,7 +1276,6 @@ function tick(now){
     topHud.classList.remove("boosting");
   }
 
-  // 暫停：距離不動、生成不動、下落不動
   if(now < pauseUntil){
     penaltyBox.style.display = "block";
     penaltyBox.querySelector("strong").textContent = String(Math.ceil((pauseUntil - now)/1000));
@@ -1159,7 +1285,6 @@ function tick(now){
     penaltyBox.style.display = "none";
   }
 
-  // 距離倒數
   const forwardMult = (now < boostUntil) ? BOOST_FORWARD_MULT : 1.0;
   distance += (BASE_FORWARD_SPEED * forwardMult) * DIST_UNIT * dt;
 
@@ -1174,21 +1299,18 @@ function tick(now){
     finish.style.top = (-38 + 38 * t) + "%";
   }
 
-  // ✅ 0 距離：清場→入院→延後結算
   if(distance >= GOAL_DISTANCE){
-    enterHospitalAndWin(now);
+    enterHospitalAndWin();
     return;
   }
 
-  // ✅ 若已進入入院階段，不再生成也不再移動物件
   if(finishing){
     requestAnimationFrame(tick);
     return;
   }
 
-  // 生成
   if(now >= nextWaveAt){
-    const ok = spawnNpcWaveSmart(now);
+    const ok = spawnNpcWaveSmart();
     nextWaveAt = now + rand(WAVE_MIN_MS, WAVE_MAX_MS) + (ok ? 0 : 220);
   }
   if(now >= nextObAt){
@@ -1204,53 +1326,65 @@ function tick(now){
     nextAmmoAt = now + rand(AMMO_MIN_MS, AMMO_MAX_MS);
   }
 
-  // 物件移動 + 碰撞（含震波）
   const jumping = isJumping(now);
+
   for(let i = entities.length - 1; i >= 0; i--){
     const e = entities[i];
 
     if(e.type === "npc"){
       e.el.style.top = (e.el.offsetTop + (NPC_FALL_BASE * e.v) * dt) + "px";
       if(!jumping && hit(player, e.el)){
-        e.el.remove(); entities.splice(i,1);
-        applyPenalty(now); break;
+        e.el.remove();
+        entities.splice(i,1);
+        applyPenalty(now);
+        break;
       }
       if(e.el.offsetTop > game.clientHeight + 160){
-        e.el.remove(); entities.splice(i,1);
+        e.el.remove();
+        entities.splice(i,1);
       }
     }
 
     if(e.type === "ob"){
       e.el.style.top = (e.el.offsetTop + OB_FALL * dt) + "px";
       if(!jumping && hit(player, e.el)){
-        e.el.remove(); entities.splice(i,1);
-        applyPenalty(now); break;
+        e.el.remove();
+        entities.splice(i,1);
+        applyPenalty(now);
+        break;
       }
       if(e.el.offsetTop > game.clientHeight + 160){
-        e.el.remove(); entities.splice(i,1);
+        e.el.remove();
+        entities.splice(i,1);
       }
     }
 
     if(e.type === "boost"){
       e.el.style.top = (e.el.offsetTop + BOOST_FALL * dt) + "px";
       if(hit(player, e.el)){
-        e.el.remove(); entities.splice(i,1);
-        applyBoost(now); continue;
+        e.el.remove();
+        entities.splice(i,1);
+        applyBoost(now);
+        continue;
       }
       if(e.el.offsetTop > game.clientHeight + 140){
-        e.el.remove(); entities.splice(i,1);
+        e.el.remove();
+        entities.splice(i,1);
       }
     }
 
     if(e.type === "ammo"){
       e.el.style.top = (e.el.offsetTop + AMMO_FALL * dt) + "px";
       if(hit(player, e.el)){
-        e.el.remove(); entities.splice(i,1);
-        ammo++; updateAmmoUI();
+        e.el.remove();
+        entities.splice(i,1);
+        ammo++;
+        updateAmmoUI();
         continue;
       }
       if(e.el.offsetTop > game.clientHeight + 140){
-        e.el.remove(); entities.splice(i,1);
+        e.el.remove();
+        entities.splice(i,1);
       }
     }
 
@@ -1262,10 +1396,9 @@ function tick(now){
       e.el.style.width = (r*2) + "px";
       e.el.style.height = (r*2) + "px";
       e.el.style.left = (e.cx - r) + "px";
-      e.el.style.top  = (e.cy - r) + "px";
+      e.el.style.top = (e.cy - r) + "px";
       e.el.style.opacity = String(Math.max(0, 1 - age/SHOCK_LIFETIME_MS));
 
-      // ✅ 只震碎障礙物
       for(let j = entities.length - 1; j >= 0; j--){
         const t = entities[j];
         if(t.type !== "ob") continue;
@@ -1282,7 +1415,8 @@ function tick(now){
       }
 
       if(age >= SHOCK_LIFETIME_MS){
-        e.el.remove(); entities.splice(i,1);
+        e.el.remove();
+        entities.splice(i,1);
       }
     }
   }
@@ -1291,77 +1425,109 @@ function tick(now){
 }
 
 /* 操作 */
-function moveLeft(){ if(performance.now() < pauseUntil || over || finishing) return; setPlayerLane(lane - 1); }
-function moveRight(){ if(performance.now() < pauseUntil || over || finishing) return; setPlayerLane(lane + 1); }
+function moveLeft(){
+  if(performance.now() < pauseUntil || over || finishing) return;
+  setPlayerLane(lane - 1);
+}
 
+function moveRight(){
+  if(performance.now() < pauseUntil || over || finishing) return;
+  setPlayerLane(lane + 1);
+}
+
+/* 桌機鍵盤 */
 document.addEventListener("keydown", e=>{
   if(e.repeat) return;
+
   if(e.key==="ArrowLeft") moveLeft();
   if(e.key==="ArrowRight") moveRight();
-  if(e.key==="ArrowUp"){ e.preventDefault(); tryShock(performance.now()); }
-  if(e.code==="Space"){ e.preventDefault(); tryJump(performance.now()); }
+
+  if(e.key==="ArrowUp"){
+    e.preventDefault();
+    tryShock(performance.now());
+  }
+
+  if(e.code==="Space"){
+    e.preventDefault();
+    tryJump(performance.now());
+  }
 });
 
+/* 桌機按鈕 */
 leftBtn.addEventListener("click", moveLeft);
 rightBtn.addEventListener("click", moveRight);
 shootBtn.addEventListener("click", ()=> tryShock(performance.now()));
 
+/* 手機觸控 */
 game.addEventListener("touchstart", (e)=>{
   if(over || finishing) return;
   if(performance.now() < pauseUntil) return;
-  if(e.touches.length !== 1) return;
 
   const t = e.touches[0];
-  touchStartX = t.clientX;
-  touchStartY = t.clientY;
-  touchActive = true;
-}, { passive:true });
+  if(!t) return;
 
-game.addEventListener("touchend", (e)=>{
-  if(!touchActive) return;
-  touchActive = false;
-  if(over || finishing) return;
-  if(e.changedTouches.length !== 1) return;
+  const x = t.clientX;
+  const y = t.clientY;
+
+  if(isTapOnPlayer(x, y)){
+    e.preventDefault();
+
+    carLongPressTriggered = false;
+    clearTimeout(carLongPressTimer);
+
+    carLongPressTimer = setTimeout(()=>{
+      carLongPressTriggered = true;
+      tryJump(performance.now());
+    }, CAR_LONG_PRESS_MS);
+
+    return;
+  }
+
+  const rect = game.getBoundingClientRect();
+  const localX = x - rect.left;
 
   e.preventDefault();
-  requestFullscreenSafe();
 
-  const t = e.changedTouches[0];
-  const dx = t.clientX - touchStartX;
-  const dy = t.clientY - touchStartY;
-  const absX = Math.abs(dx);
-  const absY = Math.abs(dy);
-
-  if(absX < 12 && absY < 12){
-    tryShock(performance.now());
-    return;
-  }
-
-  if(absX > absY){
-    if(absX >= 24){
-      if(dx > 0) moveRight();
-      else moveLeft();
-    }
-    return;
-  }
-
-  if(dy < -24){
-    tryJump(performance.now());
+  if(localX < rect.width / 2){
+    moveLeft();
+  }else{
+    moveRight();
   }
 }, { passive:false });
 
-game.addEventListener("touchcancel", ()=>{
-  touchActive = false;
-}, { passive:true });
+game.addEventListener("touchend", (e)=>{
+  clearTimeout(carLongPressTimer);
 
-document.addEventListener("pointerdown", ()=>{
-  requestFullscreenSafe();
-}, { once:true });
+  const t = e.changedTouches[0];
+  if(!t){
+    carLongPressTriggered = false;
+    return;
+  }
+
+  const x = t.clientX;
+  const y = t.clientY;
+
+  if(isTapOnPlayer(x, y)){
+    e.preventDefault();
+
+    if(!carLongPressTriggered){
+      tryShock(performance.now());
+    }
+  }
+
+  carLongPressTriggered = false;
+}, { passive:false });
+
+game.addEventListener("touchcancel", ()=>{
+  clearTimeout(carLongPressTimer);
+  carLongPressTriggered = false;
+});
 
 function restart(){
   reset();
   requestAnimationFrame(tick);
 }
+
 restartBtn.addEventListener("click", restart);
 restartSmallBtn.addEventListener("click", restart);
 
@@ -1370,6 +1536,5 @@ reset();
 requestAnimationFrame(tick);
 window.addEventListener("resize", ()=> setPlayerLane(lane));
 </script>
-
 </body>
 </html>
