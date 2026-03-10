@@ -11,8 +11,8 @@
             --danger: #ff4d4d;
             --safe: #00ffcc;
             --hospital: #00a0e9;
-            --panel: #1a1a1a;
-            --border: #444;
+            --panel: #151515;
+            --border: #333;
         }
 
         * { box-sizing: border-box; }
@@ -20,80 +20,96 @@
         html, body {
             margin: 0;
             padding: 0;
+            width: 100%;
+            height: 100%;
             background: #000;
             color: #fff;
             font-family: "PingFang TC", "Noto Sans TC", sans-serif;
-            width: 100%;
-            height: 100%;
             overflow: hidden;
             touch-action: manipulation;
         }
 
         body {
+            min-height: 100dvh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 8px;
+        }
+
+        #app {
+            width: 100%;
+            max-width: 980px;
+            height: 100%;
+            max-height: 100dvh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100dvh;
-            padding: 10px;
+            gap: 8px;
         }
 
-        #game-layout {
+        /* ===== 頂部精簡 HUD ===== */
+        #top-hud {
             width: 100%;
-            max-width: 980px;
-            height: calc(100dvh - 20px);
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            gap: 18px;
-        }
-
-        .sidebar {
-            width: 170px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+            max-width: 420px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
             flex-shrink: 0;
         }
 
-        .stat-box {
-            background: var(--panel);
-            padding: 12px;
+        .mini-box {
+            background: rgba(20,20,20,0.95);
             border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 10px;
             text-align: center;
-            border-radius: 8px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.35);
         }
 
-        .stat-val {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: var(--danger);
+        .mini-label {
+            font-size: 0.72rem;
+            color: #999;
+            margin-bottom: 4px;
+            line-height: 1.2;
         }
+
+        .mini-value {
+            font-size: 1.25rem;
+            font-weight: 900;
+            line-height: 1.1;
+        }
+
+        #blockage { color: var(--danger); }
+        #score { color: var(--safe); }
 
         #alert-signal {
-            font-weight: bold;
-            font-size: 0.85rem;
             margin-top: 5px;
-            padding: 6px;
-            border-radius: 4px;
+            font-size: 0.68rem;
+            line-height: 1.2;
+            padding: 4px 6px;
+            border-radius: 6px;
             min-height: 1.2em;
+            font-weight: 800;
         }
 
         .status-normal {
             color: #00ffcc;
-            border: 1px solid #00ffcc22;
+            border: 1px solid rgba(0,255,204,0.18);
+            background: rgba(0,255,204,0.04);
         }
 
         .status-warning {
             color: #ffcc00;
-            background: rgba(255, 204, 0, 0.2);
-            border: 1px solid #ffcc00;
+            background: rgba(255, 204, 0, 0.12);
+            border: 1px solid rgba(255, 204, 0, 0.45);
         }
 
         .status-danger {
             color: #ff4d4d;
-            background: rgba(255, 77, 77, 0.2);
-            border: 1px solid #ff4d4d;
+            background: rgba(255, 77, 77, 0.14);
+            border: 1px solid rgba(255, 77, 77, 0.55);
             animation: blink 1s infinite;
         }
 
@@ -101,29 +117,33 @@
             50% { opacity: 0.6; }
         }
 
-        #vessel-wrap {
+        /* ===== 主遊戲區 ===== */
+        #game-wrap {
+            width: 100%;
+            flex: 1;
+            min-height: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
-            flex: 0 1 auto;
+            justify-content: center;
+            gap: 6px;
         }
 
         #vessel-container {
             position: relative;
-            width: min(280px, 90vw);
-            height: min(525px, 68dvh);
+            width: min(280px, 72vw);
             aspect-ratio: 280 / 525;
             background: var(--blood-bg);
             border: 2px solid #333;
             border-top: 25px solid var(--vessel-wall);
             border-bottom: 22px solid var(--vessel-wall);
-            box-shadow: 0 0 50px rgba(255, 0, 0, 0.4);
+            box-shadow: 0 0 40px rgba(255, 0, 0, 0.28);
             overflow: hidden;
             touch-action: none;
             user-select: none;
             -webkit-user-select: none;
             -webkit-touch-callout: none;
+            flex-shrink: 0;
         }
 
         #vessel-container::after {
@@ -133,10 +153,10 @@
             left: 0;
             width: 100%;
             text-align: center;
-            color: rgba(255,255,255,0.7);
-            font-size: 0.65rem;
+            color: rgba(255,255,255,0.72);
+            font-size: 0.62rem;
             font-weight: bold;
-            letter-spacing: 1px;
+            letter-spacing: 0.8px;
             z-index: 10;
             pointer-events: none;
         }
@@ -150,25 +170,53 @@
             z-index: 1;
         }
 
+        /* ===== 下方簡化資訊 ===== */
+        #bottom-info {
+            width: 100%;
+            max-width: 420px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
         #touch-hint {
-            font-size: 0.78rem;
+            font-size: 0.72rem;
             color: #bbb;
-            background: #111;
-            border: 1px solid #333;
+            background: #101010;
+            border: 1px solid #2d2d2d;
             border-radius: 8px;
-            padding: 8px 10px;
+            padding: 7px 10px;
             text-align: center;
-            line-height: 1.45;
-            max-width: 320px;
+            line-height: 1.35;
         }
 
         #log-box {
-            font-size: 0.8rem;
+            font-size: 0.72rem;
             color: #ffcc00;
-            height: 180px;
-            border-top: 1px solid #333;
-            padding-top: 10px;
+            background: #111;
+            border: 1px solid #2b2b2b;
+            border-radius: 8px;
+            padding: 8px 10px;
+            min-height: 64px;
+            max-height: 88px;
             overflow: hidden;
+            line-height: 1.35;
+        }
+
+        #log-title {
+            color: #ddd;
+            font-weight: 800;
+            margin-bottom: 4px;
+            font-size: 0.72rem;
+        }
+
+        #tech-box {
+            font-size: 0.64rem;
+            color: #999;
+            text-align: center;
+            line-height: 1.3;
+            padding: 4px 6px;
         }
 
         #game-over {
@@ -185,18 +233,18 @@
 
         .over-card {
             background: #1a0000;
-            padding: 30px;
+            padding: 26px 22px;
             border: 2px solid #f00;
-            border-radius: 8px;
+            border-radius: 10px;
             text-align: center;
             max-width: 360px;
             width: 100%;
         }
 
         #leaderboard {
-            margin: 20px 0;
+            margin: 18px 0;
             text-align: left;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             border-top: 1px solid #444;
             padding-top: 10px;
         }
@@ -217,215 +265,179 @@
             background: #f00;
             color: #fff;
             border: none;
-            padding: 12px 30px;
+            padding: 12px 20px;
             cursor: pointer;
-            border-radius: 4px;
+            border-radius: 6px;
             font-weight: bold;
             width: 100%;
-            font-size: 1rem;
+            font-size: 0.98rem;
         }
 
         #start-hint {
             position: fixed;
-            bottom: 16px;
+            bottom: max(8px, env(safe-area-inset-bottom));
             left: 50%;
             transform: translateX(-50%);
             color: #888;
-            font-size: 0.82rem;
+            font-size: 0.72rem;
             text-align: center;
-            width: calc(100% - 24px);
-            max-width: 560px;
+            width: calc(100% - 18px);
+            max-width: 520px;
             background: rgba(0,0,0,0.45);
-            padding: 6px 10px;
+            padding: 5px 10px;
             border-radius: 999px;
             backdrop-filter: blur(3px);
         }
 
-        /*CASEMODE_HIDE_LEADERBOARD*/
         body.caseMode .leaderboard,
         body.caseMode #leaderboard {
             display: none !important;
         }
 
+        /* ===== 手機優化 ===== */
         @media (max-width: 900px) {
             body {
-                justify-content: flex-start;
-                padding: 8px;
-                overflow: hidden;
-            }
-
-            #game-layout {
-                flex-direction: column;
                 align-items: center;
                 justify-content: flex-start;
-                gap: 8px;
-                max-width: 100%;
-                height: calc(100dvh - 16px);
-                overflow: hidden;
+                padding: 6px;
             }
 
-            .sidebar {
-                width: min(520px, 94vw);
-                gap: 8px;
-            }
-
-            .sidebar:first-child {
-                order: 1;
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 8px;
-            }
-
-            #vessel-wrap {
-                order: 2;
-                width: 100%;
+            #app {
                 gap: 6px;
+                justify-content: flex-start;
+                max-height: 100dvh;
             }
 
-            .sidebar:last-child {
-                order: 3;
-                width: min(520px, 94vw);
+            #top-hud,
+            #bottom-info {
+                max-width: 360px;
             }
 
             #vessel-container {
-                width: min(260px, 78vw);
-                height: min(52dvh, 500px);
-            }
-
-            #touch-hint {
-                max-width: min(320px, 90vw);
-                font-size: 0.74rem;
-                padding: 6px 8px;
-                line-height: 1.35;
-            }
-
-            #log-box {
-                height: auto;
-                min-height: 72px;
-                max-height: 92px;
-                overflow: hidden;
-                font-size: 0.72rem;
-                padding-top: 6px;
-            }
-
-            .stat-box {
-                min-height: 74px;
-                padding: 10px;
-            }
-
-            .stat-val {
-                font-size: 1.35rem;
-            }
-
-            #start-hint {
-                font-size: 0.72rem;
-                bottom: 8px;
-                padding: 5px 10px;
+                width: min(270px, 70vw);
             }
         }
 
         @media (max-width: 480px) {
             body {
-                padding: 6px;
+                padding: 5px;
             }
 
-            #game-layout {
-                height: calc(100dvh - 12px);
-                gap: 6px;
+            #app {
+                gap: 5px;
             }
 
-            .sidebar {
-                width: 96vw;
-                gap: 6px;
+            #top-hud,
+            #bottom-info {
+                max-width: 330px;
+                gap: 5px;
             }
 
-            .sidebar:first-child {
-                grid-template-columns: 1fr 1fr;
-                gap: 6px;
+            .mini-box {
+                padding: 7px 8px;
+                border-radius: 8px;
+            }
+
+            .mini-label {
+                font-size: 0.66rem;
+            }
+
+            .mini-value {
+                font-size: 1.05rem;
+            }
+
+            #alert-signal {
+                font-size: 0.62rem;
+                padding: 3px 5px;
+                margin-top: 4px;
             }
 
             #vessel-container {
-                width: min(230px, 74vw);
-                height: min(46dvh, 430px);
+                width: min(250px, 68vw);
                 border-top-width: 20px;
                 border-bottom-width: 18px;
             }
 
             #vessel-container::after {
-                font-size: 0.56rem;
-                top: -19px;
-                letter-spacing: 0.5px;
-            }
-
-            .stat-box {
-                min-height: 66px;
-                padding: 8px;
-                border-radius: 7px;
-            }
-
-            .stat-val {
-                font-size: 1.15rem;
-            }
-
-            #alert-signal {
-                font-size: 0.72rem;
-                padding: 4px;
-                margin-top: 4px;
+                font-size: 0.54rem;
+                top: -18px;
+                letter-spacing: 0.4px;
             }
 
             #touch-hint {
-                font-size: 0.68rem;
-                width: 92vw;
+                font-size: 0.66rem;
                 padding: 6px 8px;
             }
 
             #log-box {
-                min-height: 60px;
-                max-height: 78px;
+                font-size: 0.66rem;
+                min-height: 56px;
+                max-height: 76px;
+                padding: 7px 8px;
+            }
+
+            #log-title {
                 font-size: 0.68rem;
             }
 
+            #tech-box {
+                font-size: 0.58rem;
+                padding: 2px 4px;
+            }
+
             #start-hint {
-                font-size: 0.68rem;
-                bottom: 6px;
+                font-size: 0.66rem;
+                padding: 5px 8px;
+            }
+        }
+
+        /* 很矮的手機再進一步精簡 */
+        @media (max-height: 760px) {
+            #vessel-container {
+                width: min(230px, 62vw);
+            }
+
+            #log-box {
+                max-height: 64px;
+            }
+
+            #tech-box {
+                display: none;
             }
         }
     </style>
 </head>
 <body>
 
-<div id="game-layout">
-    <div class="sidebar">
-        <div class="stat-box">
-            <div style="font-size:0.8rem;color:#aaa">血管狹窄度</div>
-            <div id="blockage" class="stat-val">--%</div>
+<div id="app">
+    <div id="top-hud">
+        <div class="mini-box">
+            <div class="mini-label">血管狹窄度</div>
+            <div id="blockage" class="mini-value">--%</div>
             <div id="alert-signal" class="status-normal">臨床掃描啟動</div>
         </div>
-        <div class="stat-box">
-            <div style="font-size:0.8rem;color:#aaa">健康積分</div>
-            <div id="score" class="stat-val" style="color:var(--safe)">0</div>
+        <div class="mini-box">
+            <div class="mini-label">健康積分</div>
+            <div id="score" class="mini-value">0</div>
         </div>
     </div>
 
-    <div id="vessel-wrap">
+    <div id="game-wrap">
         <div id="vessel-container">
             <canvas id="tetris" width="280" height="525"></canvas>
         </div>
-        <div id="touch-hint">
-            手機操作：<b>左滑</b>往左、<b>右滑</b>往右、<b>點一下</b>旋轉、<b>下滑</b>快速降下
-        </div>
     </div>
 
-    <div class="sidebar">
-        <div id="log-box">
-            <strong>🩺 臨床影像診斷</strong><br>
-            <div id="log-list" style="margin-top:5px;"></div>
+    <div id="bottom-info">
+        <div id="touch-hint">
+            手機：<b>左滑</b>左移、<b>右滑</b>右移、<b>點一下</b>旋轉、<b>下滑</b>快速降下
         </div>
-        <div style="font-size:0.7rem; color:#bbb; background: #220505; padding: 8px; border: 1px solid #400; line-height: 1.4; border-radius: 8px;">
-            <b>技術支援：</b><br>
-            • 單位：亞東中風中心<br>
-            • 判定：超過頂端或狹窄100%才失敗<br>
-            • 排行榜：自動記錄前10名
+        <div id="log-box">
+            <div id="log-title">🩺 臨床影像診斷</div>
+            <div id="log-list"></div>
+        </div>
+        <div id="tech-box">
+            亞東中風中心｜超過頂端或狹窄 100% 即失敗｜排行榜記錄前 10 名
         </div>
     </div>
 </div>
@@ -442,7 +454,7 @@
     </div>
 </div>
 
-<div id="start-hint">桌機：方向鍵操作｜手機：左滑/右滑/點擊/下滑</div>
+<div id="start-hint">桌機：方向鍵｜手機：左滑 / 右滑 / 點擊 / 下滑</div>
 
 <script>
 const isCaseMode =
@@ -580,7 +592,7 @@ function updateLog(msg) {
     const entry = document.createElement('div');
     entry.innerText = `> ${msg}`;
     list.prepend(entry);
-    if (list.children.length > 5) list.lastElementChild.remove();
+    if (list.children.length > 4) list.lastElementChild.remove();
 }
 
 const player = { pos: { x: 0, y: 0 }, matrix: null };
@@ -628,11 +640,8 @@ function rotateMatrix(matrix, dir = 1) {
             [matrix[x][y], matrix[y][x]] = [matrix[y][x], matrix[x][y]];
         }
     }
-    if (dir > 0) {
-        matrix.forEach(row => row.reverse());
-    } else {
-        matrix.reverse();
-    }
+    if (dir > 0) matrix.forEach(row => row.reverse());
+    else matrix.reverse();
 }
 
 function playerRotate() {
@@ -701,9 +710,7 @@ function playerDrop() {
 function hardDrop() {
     if (gameOver) return;
     initGame();
-    while (!collide(arena, player)) {
-        player.pos.y++;
-    }
+    while (!collide(arena, player)) player.pos.y++;
     player.pos.y--;
     playerDrop();
 }
@@ -741,14 +748,14 @@ function checkVesselStatus(fullness) {
     const now = Date.now();
 
     if (fullness >= 70) {
-        alertEl.innerText = "🚨 嚴重狹窄 (70%↑)";
+        alertEl.innerText = "🚨 嚴重狹窄";
         alertEl.className = "status-danger";
         if (now - lastSoundTime > 600) {
             AudioEngine.playDanger();
             lastSoundTime = now;
         }
     } else if (fullness >= 50) {
-        alertEl.innerText = "⚠️ 預警訊號 (50%↑)";
+        alertEl.innerText = "⚠️ 預警";
         alertEl.className = "status-warning";
         if (now - lastSoundTime > 1500) {
             AudioEngine.playWarning();
@@ -875,7 +882,6 @@ document.addEventListener('touchstart', initGame, { passive: true });
 let touchStartX = 0;
 let touchStartY = 0;
 let touchStartTime = 0;
-let touchMoved = false;
 
 vesselContainer.addEventListener('touchstart', (e) => {
     if (!e.changedTouches || !e.changedTouches.length) return;
@@ -884,11 +890,9 @@ vesselContainer.addEventListener('touchstart', (e) => {
     touchStartX = t.clientX;
     touchStartY = t.clientY;
     touchStartTime = Date.now();
-    touchMoved = false;
 }, { passive: false });
 
 vesselContainer.addEventListener('touchmove', (e) => {
-    touchMoved = true;
     e.preventDefault();
 }, { passive: false });
 
@@ -912,9 +916,7 @@ vesselContainer.addEventListener('touchend', (e) => {
     }
 
     if (ady > SWIPE_THRESHOLD && ady > adx) {
-        if (dy > 0) {
-            hardDrop();
-        }
+        if (dy > 0) hardDrop();
         return;
     }
 
@@ -924,7 +926,7 @@ vesselContainer.addEventListener('touchend', (e) => {
     }
 }, { passive: false });
 
-vesselContainer.addEventListener('click', (e) => {
+vesselContainer.addEventListener('click', () => {
     if ('ontouchstart' in window) return;
     initGame();
 }, false);
