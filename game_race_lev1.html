@@ -707,6 +707,12 @@ let transitionUntil = 0;
 let nextPhaseTarget = 1;
 let skinSwapped = false;
 
+let touchStartX = 0;
+let touchStartY = 0;
+let touchStartOnPlayer = false;
+const SWIPE_THRESHOLD = 30;
+const SWIPE_VERTICAL_TOLERANCE = 24;
+  
 let isSpawningGates = false;
 let infoGateCount = 0;
 let transportGateCount = 0;
@@ -1925,13 +1931,24 @@ leftBtn.addEventListener("click", () => { ensureAudio(); moveLeft(); });
 rightBtn.addEventListener("click", () => { ensureAudio(); moveRight(); });
 shootBtn.addEventListener("click", () => { ensureAudio(); tryShock(performance.now()); });
 
+let touchStartX = 0;
+let touchStartY = 0;
+let touchStartOnPlayer = false;
+const SWIPE_THRESHOLD = 30;
+const SWIPE_VERTICAL_TOLERANCE = 24;
+
 game.addEventListener("touchstart", (e) => {
   ensureAudio();
   if(!gameRunning || over || finishing || performance.now() < pauseUntil || isTransitioning) return;
+
   const t = e.touches[0];
   if(!t) return;
 
-  if(isTapOnPlayer(t.clientX, t.clientY)){
+  touchStartX = t.clientX;
+  touchStartY = t.clientY;
+  touchStartOnPlayer = isTapOnPlayer(t.clientX, t.clientY);
+
+  if(touchStartOnPlayer){
     e.preventDefault();
     carLongPressTriggered = false;
     clearTimeout(carLongPressTimer);
@@ -1939,24 +1956,53 @@ game.addEventListener("touchstart", (e) => {
       carLongPressTriggered = true;
       tryJump(performance.now());
     }, CAR_LONG_PRESS_MS);
-    return;
   }
-
-  const rect = game.getBoundingClientRect();
-  e.preventDefault();
-  if(t.clientX - rect.left < rect.width / 2) moveLeft();
-  else moveRight();
 }, { passive:false });
 
 game.addEventListener("touchend", (e) => {
   clearTimeout(carLongPressTimer);
+
   const t = e.changedTouches[0];
-  if(!t){ carLongPressTriggered = false; return; }
-  if(isTapOnPlayer(t.clientX, t.clientY)){
-    e.preventDefault();
-    if(!carLongPressTriggered) tryShock(performance.now());
+  if(!t){
+    carLongPressTriggered = false;
+    touchStartOnPlayer = false;
+    return;
   }
+
+  const dx = t.clientX - touchStartX;
+  const dy = t.clientY - touchStartY;
+  const absDx = Math.abs(dx);
+  const absDy = Math.abs(dy);
+
+  // 1. 起點在車子上：保留原本短按/長按邏輯
+  if(touchStartOnPlayer){
+    e.preventDefault();
+    if(!carLongPressTriggered){
+      // 若有明顯滑動，可選擇忽略，不視為鳴笛
+      if(absDx < SWIPE_THRESHOLD && absDy < SWIPE_VERTICAL_TOLERANCE){
+        tryShock(performance.now());
+      }
+    }
+    carLongPressTriggered = false;
+    touchStartOnPlayer = false;
+    return;
+  }
+
+  // 2. 非車子區：先判斷 swipe
+  if(absDx >= SWIPE_THRESHOLD && absDx > absDy){
+    e.preventDefault();
+    if(dx < 0) moveLeft();
+    else moveRight();
+  }else{
+    // 3. 不是 swipe，才用原本點左右半邊
+    const rect = game.getBoundingClientRect();
+    e.preventDefault();
+    if(t.clientX - rect.left < rect.width / 2) moveLeft();
+    else moveRight();
+  }
+
   carLongPressTriggered = false;
+  touchStartOnPlayer = false;
 }, { passive:false });
 
 game.addEventListener("touchcancel", () => {
