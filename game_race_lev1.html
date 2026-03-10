@@ -888,7 +888,12 @@ function hit(a, b){
 
 function isTapOnPlayer(clientX, clientY){
   const r = player.getBoundingClientRect();
-  return clientX >= r.left && clientX <= r.right && clientY >= r.top && clientY <= r.bottom;
+  const padding = 30; // 隱形觸控範圍向外擴張 30 像素 (數值可自行微調)
+  
+  return clientX >= (r.left - padding) && 
+         clientX <= (r.right + padding) && 
+         clientY >= (r.top - padding) && 
+         clientY <= (r.bottom + padding);
 }
 
 function countType(type){
