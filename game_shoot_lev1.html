@@ -2,154 +2,186 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover" />
-<title>腦脈先鋒｜血塊消消樂（滿版橫向手勢版）</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<title>腦脈先鋒｜血塊消消樂（浮動搖桿進化版）</title>
 <style>
   :root{
-    --bg:#000; /* 全螢幕時背景用純黑最自然 */
-    --panel:rgba(10,14,28,.65);
-    --line:rgba(0,255,255,.25);
+    --bg:#060912;
+    --panel:rgba(14,18,35,.65);
+    --line:rgba(0,255,255,.18);
     --text:#eaf2ff;
   }
   html,body{
-    margin:0; padding:0; height:100%; width: 100%;
-    background:var(--bg); color:var(--text);
+    margin:0; height:100%; 
+    background:var(--bg); color:var(--text); 
     font-family:"PingFang TC","Noto Sans TC",sans-serif;
-    touch-action: none; /* 絕對禁止預設的滑動與縮放 */
-    overflow: hidden; 
+    overflow:hidden; touch-action:none; /* 嚴格禁止網頁滑動縮放 */
   }
   
-  /* ✅ 利用 fixed 與 inset:0 霸佔整個螢幕 (包含瀏海區塊) */
-  #app {
-    position: fixed; inset: 0;
-    display: flex; justify-content: center; align-items: center;
-    background: #060912;
-  }
-
-  /* ✅ 狀態列：改為「浮動」在畫布上方，完全不佔用排版空間 */
-  #hud {
-    position: absolute;
-    top: 15px; left: 15px; right: 15px;
-    display: flex; justify-content: space-between; align-items: flex-start;
-    pointer-events: none; /* 讓觸控穿透 UI，直接點到遊戲 */
-    z-index: 10;
-  }
-  
-  .hud-side { display: flex; flex-direction: column; gap: 8px; }
-  
-  .box {
-    background: var(--panel); border: 1px solid var(--line);
-    border-radius: 10px; padding: 6px 12px; 
-    backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-    font-size: 13px; font-weight: bold;
-    display: flex; align-items: center; gap: 6px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-  }
-  
-  #timeText { font-size: 24px; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,40,80,.6); }
-  
-  /* 操作提示浮水印 (放中間底部) */
-  #controlHint {
-    position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%);
-    font-size: 12px; color: rgba(0,255,255,0.4); font-weight: bold;
-    pointer-events: none; z-index: 10; letter-spacing: 1px;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-  }
-
-  /* ✅ 畫布本身：使用 100% 寬高搭配 object-fit: contain 自動撐到最大 */
-  canvas {
-    display: block;
+  .wrap{
+    display:flex; flex-direction:column; align-items:center; 
     width: 100%; height: 100%;
-    max-width: 100vw; max-height: 100dvh;
-    object-fit: contain; 
-    /* 這裡刻意不用 border 和圓角，讓它看起來像真正的全螢幕遊戲 */
-    background: linear-gradient(180deg, rgba(16,20,40,1), rgba(6,9,18,1));
+    padding:6px; box-sizing:border-box;
+  }
+  
+  h1{margin:2px 0 6px; font-size:18px; font-weight:700; flex-shrink:0;}
+
+  #hud{
+    width:100%; max-width:980px;
+    display:flex; gap:6px; flex-wrap:wrap; justify-content:center;
+    font-size:12px; opacity:.95; flex-shrink:0; margin-bottom: 6px;
+  }
+  .box{
+    background:var(--panel); border:1px solid var(--line);
+    border-radius:10px; padding:6px 10px; backdrop-filter:blur(6px);
+    display:flex; align-items:center; justify-content:center;
+  }
+  kbd{background:#0f1426;border:1px solid rgba(255,255,255,.18);padding:1px 6px;border-radius:6px}
+
+  .timerBox{ gap:8px; }
+  .timerLabel{ font-weight:900; opacity:.92; }
+  #timeText{ font-size:24px; font-weight:900; text-shadow:0 0 15px rgba(255,40,80,.45); }
+
+  #game{
+    width:100%; max-width:980px;
+    flex: 1 1 auto; 
+    min-height: 0; 
+    border-radius:16px; position:relative; overflow:hidden;
+    border:1px solid rgba(255,255,255,.06);
+    box-shadow:0 0 26px rgba(0,255,255,.14), 0 0 42px rgba(255,0,60,.10);
+    background:linear-gradient(180deg, rgba(16,20,40,.95), rgba(6,9,18,.98));
+    display: flex; align-items: center; justify-content: center;
+  }
+  canvas{
+    max-width:100%; max-height:100%; 
+    object-fit:contain; 
+    aspect-ratio: 980 / 560;
+  }
+
+  /* ✅ 革命性升級：全螢幕隱形觸控層 */
+  #touchZone {
+    position: absolute; inset: 0; z-index: 20; touch-action: none;
+    display: none; /* 電腦版隱藏，只在手機版啟動 */
+  }
+  
+  /* 搖桿與按鈕視覺（不阻擋觸控，交由 touchZone 統一處理） */
+  #joyBase {
+    position: absolute; width: 110px; height: 110px; border-radius: 50%;
+    background: rgba(255,255,255,0.08); border: 2px solid rgba(0,255,255,0.25);
+    transform: translate(-50%, -50%); display: none; pointer-events: none;
+  }
+  #joyStick {
+    position: absolute; top: 50%; left: 50%; width: 45px; height: 45px; border-radius: 50%;
+    background: rgba(0,255,255,0.6); transform: translate(-50%, -50%);
+    box-shadow: 0 0 15px rgba(0,255,255,0.4); pointer-events: none;
+  }
+  #btnZoneShoot, #btnZoneJump {
+    position: absolute; border-radius: 50%;
+    background: rgba(14, 18, 35, 0.5); border: 2px solid rgba(0,255,255,0.3);
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.8); font-weight: 900; font-size: 16px;
+    user-select: none; pointer-events: none; transition: background 0.1s, transform 0.1s;
+  }
+  /* 排列在右下角符合人體工學 */
+  #btnZoneShoot { width: 75px; height: 75px; right: 130px; bottom: 35px; }
+  #btnZoneJump { width: 95px; height: 95px; right: 20px; bottom: 20px; }
+
+  /* 手機版排版響應式 */
+  @media (max-width: 900px), (max-height: 600px) {
+    .desktop-only { display: none !important; }
+    h1 { display: none; } 
+    .wrap { padding: 0; }
+    #hud { margin-bottom: 2px; gap: 4px; }
+    .box { padding: 4px 8px; }
+    #timeText { font-size: 18px; }
+    #game { border-radius: 0; border: none; }
+    #touchZone { display: block; } /* 啟動觸控系統 */
   }
 
   /* 排行榜覆蓋層 */
-  #overlay {
-    position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
-    background: rgba(3,6,16,.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 20;
-    pointer-events: auto; 
+  #overlay{
+    position:absolute; inset:0; display:none;
+    align-items:center; justify-content:center;
+    background:rgba(3,6,16,.78); backdrop-filter:blur(6px); z-index:30;
   }
-  .board {
-    width: min(600px, 90%); border-radius: 16px; border: 1px solid rgba(0,255,255,.3);
-    background: rgba(10,14,28,.95); padding: 20px; box-shadow: 0 10px 40px rgba(0,255,255,0.15);
+  .board{
+    width:min(720px, 92%); border-radius:18px; border:1px solid rgba(0,255,255,.20);
+    box-shadow:0 0 30px rgba(0,255,255,.14); background:rgba(10,14,28,.85); padding:16px;
   }
-  .board h2 { margin: 0 0 12px; font-size: 20px; text-align: center; }
-  .board .meta { display: flex; justify-content: space-between; font-size: 13px; opacity: .85; margin-bottom: 12px; }
-  table { width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 16px; }
-  th,td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,.08); }
-  th { text-align: left; opacity: .85; color: #00ffff; }
-  td:nth-child(3) { text-align: right; font-variant-numeric: tabular-nums; font-weight: bold; }
-  .hint { display: flex; justify-content: center; gap: 12px; }
-  button.sys-btn {
-    cursor: pointer; border: none; border-radius: 10px; padding: 10px 20px;
-    color: var(--text); background: rgba(0,255,255,.15); font-weight: 800; font-size: 14px;
-    border: 1px solid rgba(0,255,255,0.3); transition: 0.1s; pointer-events: auto;
+  .board h2{ margin:0 0 10px; font-size:20px; text-align:center;}
+  .board .meta{ display:flex; justify-content:space-between; font-size:12px; margin-bottom:10px; opacity:.85;}
+  table{ width:100%; border-collapse:collapse; font-size:14px; margin-bottom:10px; }
+  th,td{ padding:8px; border-bottom:1px solid rgba(255,255,255,.08); text-align:center;}
+  th{ opacity:.85; font-weight:700;}
+  .btnRow{ display:flex; gap:10px; justify-content:center; }
+  button{
+    cursor:pointer; border:none; border-radius:10px; padding:8px 16px;
+    color:var(--text); background:rgba(0,255,255,.15); font-weight:800;
   }
-  button.sys-btn:active { background: rgba(0,255,255,.3); transform: scale(0.95); }
-  
-  /* ✅ 直向時的防呆提示 (要求轉橫) */
-  #rotatePrompt {
-    display: none; position: fixed; inset: 0; background: #060912; z-index: 9999;
-    color: white; align-items: center; justify-content: center; font-size: 18px; font-weight: bold;
-    text-align: center; line-height: 1.6; padding: 20px;
-  }
-  @media screen and (orientation: portrait) {
-    #rotatePrompt { display: flex; }
-    #app { display: none; }
-  }
+  body.caseMode .leaderboard, body.caseMode #leaderboard{display:none !important;}
 </style>
 </head>
 <body>
 
-<div id="rotatePrompt">📱 為了獲得最佳遊戲視野<br>請將手機轉為橫向進行遊戲</div>
+<div class="wrap">
+  <h1>🧠 腦脈先鋒｜血塊消消樂（通關3秒→前十名排行榜）</h1>
 
-<div id="app">
   <div id="hud">
-    <div class="hud-side">
-      <div class="box">
-        ⏱ <span id="timeText">0.0</span> 秒
-      </div>
+    <div class="box desktop-only" style="flex:1 1 100%">
+      <div><b>操作</b>：<kbd>A</kbd>/<kbd>D</kbd> 移動，<kbd>W</kbd>/<kbd>Space</kbd> 跳，<kbd>J</kbd> 發射，<kbd>R</kbd> 重來。提示：掉下去會回到最上平台。</div>
     </div>
-    <div class="hud-side" style="align-items: flex-end;">
-      <div class="box">
-        彈藥 <span id="ammoText" style="font-size:16px; margin:0 4px;">0</span>
-        <span id="ammoColor"></span>
-      </div>
+    <div class="box timerBox">
+      <span class="timerLabel">⏱</span>
+      <span id="timeText">0.0</span>
+      <span class="timerUnit">秒</span>
+    </div>
+    <div class="box">
+      <b>彈藥</b>：<span id="ammoText">0</span>
+      <span id="ammoColor" style="margin-left:4px;"></span>
+    </div>
+    <div class="box" id="status" style="flex:1 1 auto; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+      目標：同色≥3相連消除，打通左至右的血流
     </div>
   </div>
 
-  <div id="controlHint">◀ 左半邊控制移動 ｜ 右半邊點擊射擊 ｜ 向上滑動跳躍 ▶</div>
+  <div id="game">
+    <canvas id="c" width="980" height="560"></canvas>
 
-  <canvas id="c" width="980" height="560"></canvas>
-  
-  <div id="overlay">
-    <div class="board">
-      <h2>🏆 排行榜</h2>
-      <div class="meta">
-        <span>本次成績：<b id="lastTime" style="color:#ff4d4d; font-size:16px;">—</b> 秒</span>
-      </div>
-      <table>
-        <thead><tr><th>名次</th><th>名稱</th><th>秒數</th></tr></thead>
-        <tbody id="rankBody"></tbody>
-      </table>
-      <div class="hint">
-        <button id="btnRestart" class="sys-btn">再玩一次</button>
-        <button id="btnClear" class="sys-btn">清空</button>
+    <div id="touchZone">
+      <div id="joyBase"><div id="joyStick"></div></div>
+      <div id="btnZoneShoot"><span>射(J)</span></div>
+      <div id="btnZoneJump"><span>跳(W)</span></div>
+    </div>
+
+    <div id="overlay">
+      <div class="board">
+        <h2>🏆 前十名排行榜</h2>
+        <div class="meta">
+          <div>本次成績：<b id="lastTime">—</b> 秒</div>
+          <div>提示：可按 <b>R</b> 重新挑戰</div>
+        </div>
+        <table>
+          <thead><tr><th>名次</th><th>名稱</th><th>秒數</th></tr></thead>
+          <tbody id="rankBody"></tbody>
+        </table>
+        <div class="btnRow">
+          <button id="btnRestart">再玩一次（R）</button>
+          <button id="btnClear">清空榜單</button>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
+const isCaseMode = new URLSearchParams(location.search).get('mode')==='case';
+if(isCaseMode) document.body.classList.add('caseMode');
 (() => {
   const canvas = document.getElementById('c');
   const ctx = canvas.getContext('2d');
-  
   const W = canvas.width, H = canvas.height;
 
+  const statusEl = document.getElementById('status');
   const ammoTextEl = document.getElementById('ammoText');
   const ammoColorEl = document.getElementById('ammoColor');
   const timeTextEl = document.getElementById('timeText');
@@ -172,7 +204,7 @@
     {name:'紫', hex:'#c77dff'},
   ];
 
-  // ===== INPUT (Keyboard for testing) =====
+  // ===== INPUT =====
   const keys = new Set();
   window.addEventListener('keydown', (e)=>{
     const k = e.key.toLowerCase();
@@ -181,66 +213,110 @@
   }, {passive:false});
   window.addEventListener('keyup', (e)=> keys.delete(e.key.toLowerCase()));
 
-  // ===== 全螢幕隱形手勢 =====
-  const activeTouches = {};
-  
-  document.addEventListener('touchstart', (e) => {
-    // 允許點擊 UI 按鈕
-    if(e.target.tagName.toLowerCase() === 'button') return;
-    e.preventDefault(); 
-    
-    const screenW = window.innerWidth;
-    
-    for(let i=0; i<e.changedTouches.length; i++) {
-      const t = e.changedTouches[i];
-      const x = t.clientX;
-      activeTouches[t.identifier] = { startY: t.clientY, action: null };
+  // ==========================================
+  // ✅ 全新進化：全螢幕智能觸控系統
+  // ==========================================
+  const touchZone = document.getElementById('touchZone');
+  const joyBase = document.getElementById('joyBase');
+  const joyStick = document.getElementById('joyStick');
+  const btnZoneShoot = document.getElementById('btnZoneShoot');
+  const btnZoneJump = document.getElementById('btnZoneJump');
 
-      // 橫向手勢分配
-      if (x < screenW * 0.25) {
-        activeTouches[t.identifier].action = 'a'; // 最左側 1/4 -> 向左
-        keys.add('a');
-      } else if (x >= screenW * 0.25 && x < screenW * 0.5) {
-        activeTouches[t.identifier].action = 'd'; // 左偏中 1/4 -> 向右
-        keys.add('d');
-      } else {
-        activeTouches[t.identifier].action = 'j'; // 右半邊全區 -> 射擊
-        keys.add('j');
+  let joyTouchId = null;
+  let joyOrigin = {x: 0, y: 0};
+  const JOY_DEADZONE = 10;
+  const JOY_MAX = 40;
+  const activeTouches = new Map();
+
+  function processTouchStart(t) {
+    const rect = touchZone.getBoundingClientRect();
+    
+    // 如果點在左半邊 -> 啟動浮動搖桿
+    if (t.clientX < window.innerWidth / 2) {
+      if (joyTouchId === null) {
+        joyTouchId = t.identifier;
+        joyOrigin = { x: t.clientX, y: t.clientY };
+        joyBase.style.display = 'block';
+        joyBase.style.left = (t.clientX - rect.left) + 'px';
+        joyBase.style.top = (t.clientY - rect.top) + 'px';
+        joyStick.style.transform = `translate(-50%, -50%)`;
       }
-    }
-  }, {passive: false});
+    } else {
+      // 如果點在右半邊 -> 智能按鍵判定
+      const rectS = btnZoneShoot.getBoundingClientRect();
+      const rectJ = btnZoneJump.getBoundingClientRect();
+      // 計算圓心
+      const cxS = rectS.left + rectS.width/2;
+      const cyS = rectS.top + rectS.height/2;
+      const cxJ = rectJ.left + rectJ.width/2;
+      const cyJ = rectJ.top + rectJ.height/2;
 
-  document.addEventListener('touchmove', (e) => {
-    if(e.target.tagName.toLowerCase() === 'button') return;
-    e.preventDefault();
+      // 算觸控點與兩個按鈕的距離
+      const distS = Math.hypot(t.clientX - cxS, t.clientY - cyS);
+      const distJ = Math.hypot(t.clientX - cxJ, t.clientY - cyJ);
 
-    for(let i=0; i<e.changedTouches.length; i++) {
-      const t = e.changedTouches[i];
-      const touchData = activeTouches[t.identifier];
+      // 寬容判定：只要比較靠近跳躍鍵，或者點擊在極端右下角，就算跳躍；其他都算射擊
+      let action = (distJ < distS || (t.clientX > window.innerWidth * 0.65 && t.clientY > window.innerHeight * 0.6)) ? 'w' : 'j';
       
-      // 上滑偵測跳躍
-      if (touchData && (touchData.startY - t.clientY > 30)) {
-         keys.add('w');
+      keys.add(action);
+      activeTouches.set(t.identifier, action);
+
+      // 給予視覺回饋
+      if (action === 'w') {
+        btnZoneJump.style.background = 'rgba(0, 255, 255, 0.4)';
+        btnZoneJump.style.transform = 'scale(0.9)';
+      } else {
+        btnZoneShoot.style.background = 'rgba(0, 255, 255, 0.4)';
+        btnZoneShoot.style.transform = 'scale(0.9)';
       }
     }
-  }, {passive: false});
+  }
 
-  const handleTouchEnd = (e) => {
-    if(e.target.tagName.toLowerCase() === 'button') return;
-    e.preventDefault();
+  function processTouchMove(t) {
+    if (t.identifier === joyTouchId) {
+      let dx = t.clientX - joyOrigin.x;
+      let dy = t.clientY - joyOrigin.y;
+      let dist = Math.hypot(dx, dy);
+      
+      // 限制搖桿推動範圍
+      if (dist > JOY_MAX) { dx = (dx/dist)*JOY_MAX; dy = (dy/dist)*JOY_MAX; }
+      joyStick.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
 
-    for(let i=0; i<e.changedTouches.length; i++) {
-      const t = e.changedTouches[i];
-      const touchData = activeTouches[t.identifier];
-      if (touchData) {
-        if (touchData.action) keys.delete(touchData.action);
-        keys.delete('w'); 
-        delete activeTouches[t.identifier];
+      // 將搖桿物理位移轉換為虛擬按鍵
+      keys.delete('a'); keys.delete('d');
+      if (dx < -JOY_DEADZONE) keys.add('a');
+      if (dx > JOY_DEADZONE) keys.add('d');
+    }
+  }
+
+  function processTouchEnd(t) {
+    if (t.identifier === joyTouchId) {
+      joyTouchId = null;
+      joyBase.style.display = 'none';
+      keys.delete('a'); keys.delete('d');
+    } else if (activeTouches.has(t.identifier)) {
+      const action = activeTouches.get(t.identifier);
+      keys.delete(action);
+      activeTouches.delete(t.identifier);
+      
+      // 恢復按鍵外觀
+      if (action === 'w') {
+        btnZoneJump.style.background = ''; btnZoneJump.style.transform = '';
+      } else {
+        btnZoneShoot.style.background = ''; btnZoneShoot.style.transform = '';
       }
     }
-  };
-  document.addEventListener('touchend', handleTouchEnd, {passive: false});
-  document.addEventListener('touchcancel', handleTouchEnd, {passive: false});
+  }
+
+  // 綁定所有觸控事件至全螢幕隱形層
+  if(touchZone) {
+      touchZone.addEventListener('touchstart', (e) => { e.preventDefault(); for(let t of e.changedTouches) processTouchStart(t); }, {passive: false});
+      touchZone.addEventListener('touchmove', (e) => { e.preventDefault(); for(let t of e.changedTouches) processTouchMove(t); }, {passive: false});
+      const handleEnd = (e) => { e.preventDefault(); for(let t of e.changedTouches) processTouchEnd(t); };
+      touchZone.addEventListener('touchend', handleEnd, {passive: false});
+      touchZone.addEventListener('touchcancel', handleEnd, {passive: false});
+  }
+  // ==========================================
 
   // ===== PHYS =====
   const GRAV = 0.85;
@@ -251,6 +327,7 @@
   const COYOTE_FRAMES = 8;
   const JUMPBUF_FRAMES = 8;
 
+  // ===== TIMER =====
   let startMs = 0, endMs = 0;
   function nowMs(){ return performance.now(); }
   function elapsedSec(){ return Math.max(0, ((won ? endMs : nowMs()) - startMs) / 1000); }
@@ -258,14 +335,12 @@
   function fmt2(s){ return s.toFixed(2); }
 
   // ===== RANKING =====
-  const LS_KEY = "naomai_clot_rank_full";
+  const LS_KEY = "naomai_clot_rank_v1";
   function loadRanks(){ try{ return JSON.parse(localStorage.getItem(LS_KEY))||[]; }catch(e){ return []; } }
   function saveRanks(arr){ try{ localStorage.setItem(LS_KEY, JSON.stringify(arr)); }catch(e){} }
   function upsertRank(name, time){
-    const list = loadRanks();
-    list.push({name, time, at: Date.now()});
-    list.sort((a,b)=>a.time-b.time);
-    const top10 = list.slice(0,10);
+    const list = loadRanks(); list.push({name, time, at: Date.now()});
+    list.sort((a,b)=>a.time-b.time); const top10 = list.slice(0,10);
     saveRanks(top10); return top10;
   }
   function clearRanks(){ try{ localStorage.removeItem(LS_KEY); }catch(e){} }
@@ -273,12 +348,13 @@
     rankBody.innerHTML = "";
     for(let i=0;i<10;i++){
       const r = list[i], tr = document.createElement('tr');
-      tr.innerHTML = `<td>${i+1}</td><td>${r ? String(r.name).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) : "—"}</td><td>${r ? fmt2(r.time) : "—"}</td>`;
+      tr.innerHTML = `<td>${i+1}</td><td>${r ? escapeHtml(r.name) : "—"}</td><td>${r ? fmt2(r.time) : "—"}</td>`;
       rankBody.appendChild(tr);
     }
   }
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
-  // ===== LAYOUT (橫向經典配置) =====
+  // ===== LAYOUT =====
   const clotArea = { x: Math.floor(W * (2/3)), y: 0, w: W - Math.floor(W * (2/3)), h: H };
   const platforms = [
     {x: 0,   y: H-60,  w: clotArea.x-10, h: 60},
@@ -287,14 +363,14 @@
     {x: clotArea.x-210, y: H-295, w: 180, h: 18},
   ];
 
+  // ===== GRID =====
   const CELL = 26;
-  const cols = Math.floor(clotArea.w / CELL);
-  const rows = Math.floor(clotArea.h / CELL);
+  const cols = Math.floor(clotArea.w / CELL), rows = Math.floor(clotArea.h / CELL);
   let gridColor = [];
 
   function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
   function inGrid(gx,gy){ return gx>=0 && gx<cols && gy>=0 && gy<rows; }
-  function worldToGrid(x,y){ return { gx: Math.floor((x - clotArea.x) / CELL), gy: Math.floor((y - clotArea.y) / CELL) }; }
+  function worldToGrid(x,y){ return { gx: Math.floor((x - clotArea.x)/CELL), gy: Math.floor((y - clotArea.y)/CELL) }; }
   function gridToWorldCenter(gx,gy){ return { x: clotArea.x + gx*CELL + CELL*0.5, y: clotArea.y + gy*CELL + CELL*0.5 }; }
 
   function resetGrid(){
@@ -303,66 +379,79 @@
   }
   function clearAllClots(){ for(let r=0;r<rows;r++) for(let c=0;c<cols;c++) gridColor[r][c] = -1; }
 
+  // ===== PLAYER =====
   const player = { x: 34, y: LUMEN_TOP - 160, w: 28, h: 44, vx: 0, vy: 0, onGround: false, face: 1, shootCD: 0, coyote: 0, jumpBuf: 0 };
 
+  // ===== AMMO =====
   let ammo = 0, ammoColorIdx = 0;
   function updateAmmoUI(){
-    ammoTextEl.textContent = ammo; const cc = COLORS[ammoColorIdx];
-    ammoColorEl.innerHTML = `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${cc?cc.hex:'#fff'};vertical-align:middle; box-shadow:0 0 5px ${cc?cc.hex:'#fff'};"></span>`;
+    ammoTextEl.textContent = ammo;
+    const cc = COLORS[ammoColorIdx];
+    ammoColorEl.innerHTML = `（<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${cc?cc.hex:'#fff'};vertical-align:middle;"></span>${cc?cc.name:''}）`;
   }
 
+  // ===== ORBS =====
   let orbs = [], bullets = [];
   const ORB_LIFETIME_MS = 5000;
   let nextDropMs = 0;
   function scheduleNextDrop(now){ nextDropMs = now + (1100 + Math.random()*900); }
   function spawnFallingOrb(now){
-    const margin = 30, x = margin + Math.random()*(clotArea.x - margin*2);
-    orbs.push({ x, y:LUMEN_TOP-20, vx:(Math.random()-0.5)*0.9, vy:0, r:10, c:Math.floor(Math.random()*COLORS.length), taken:false, despawnMs:now+ORB_LIFETIME_MS });
+    const margin = 30, x = margin + Math.random() * (clotArea.x - margin*2);
+    orbs.push({ x, y:LUMEN_TOP-30, vx:(Math.random()-0.5)*0.9, vy:0, r:10, c:Math.floor(Math.random()*COLORS.length), taken:false, despawnMs:now+ORB_LIFETIME_MS });
   }
 
+  // ===== FLOW / WIN =====
   let won = false, openFlow = [], preFlow = [];
-  let winTimeoutId = null;
+  const WIN_TEXT_BASE = "打通血栓 ! 血流灌注成功";
+  let winBanner = { active:false, t:0, text:"" };
 
   function initOpenFlow(){
     openFlow = [];
     for(let i=0;i<420;i++) openFlow.push({ x:-60+Math.random()*(W+120), y:LUMEN_TOP+Math.random()*LUMEN_H, vx:3+Math.random()*5, vy:(Math.random()-0.5)*0.65, a:0.1+Math.random()*0.35, r:1.6+Math.random()*2.4 });
   }
   function updateOpenFlow(){
-    openFlow.forEach(p => { p.x+=p.vx; p.y+=p.vy; p.y=clamp(p.y, LUMEN_TOP+4, LUMEN_BOT-4); if(p.x>W+80){ p.x=-80-Math.random()*120; p.y=LUMEN_TOP+Math.random()*LUMEN_H; } });
+    for(const p of openFlow){
+      p.x += p.vx; p.y += p.vy; p.y = clamp(p.y, LUMEN_TOP+4, LUMEN_BOT-4);
+      if(p.x > W + 80){ p.x = -80-Math.random()*120; p.y = LUMEN_TOP+Math.random()*LUMEN_H; p.vx = 3+Math.random()*5; p.vy = (Math.random()-0.5)*0.65; p.a = 0.1+Math.random()*0.35; p.r = 1.6+Math.random()*2.4; }
+    }
   }
   function initPreFlow(){
     preFlow = [];
     for(let i=0;i<140;i++) preFlow.push({ x:Math.random()*(clotArea.x-20), y:LUMEN_TOP+Math.random()*LUMEN_H, vx:1.6+Math.random()*2.6, vy:(Math.random()-0.5)*0.6, a:0.08+Math.random()*0.18, r:1.6+Math.random()*1.6 });
   }
   function updatePreFlow(){
-    preFlow.forEach(p => { p.x+=p.vx; p.y+=p.vy; p.y=clamp(p.y, LUMEN_TOP+3, LUMEN_BOT-3); if(p.x>clotArea.x-14){ p.x=6+Math.random()*12; p.y=LUMEN_TOP+Math.random()*LUMEN_H; } });
+    for(const p of preFlow){
+      p.x += p.vx; p.y += p.vy; p.y = clamp(p.y, LUMEN_TOP+3, LUMEN_BOT-3);
+      if(p.x > clotArea.x-14){ p.x = 6+Math.random()*12; p.y = LUMEN_TOP+Math.random()*LUMEN_H; p.vx = 1.6+Math.random()*2.6; p.vy = (Math.random()-0.5)*0.6; p.a = 0.08+Math.random()*0.18; p.r = 1.6+Math.random()*1.6; }
+    }
   }
 
+  // ===== COLLISION =====
   function rectIntersect(ax,ay,aw,ah,bx,by,bw,bh){ return ax < bx+bw && ax+aw > bx && ay < by+bh && ay+ah > by; }
   function circleRectHit(cx,cy,r, rx,ry,rw,rh){ const nx=clamp(cx,rx,rx+rw), ny=clamp(cy,ry,ry+rh); return ((cx-nx)**2 + (cy-ny)**2) <= r*r; }
 
   function resolvePlayerVsPlatforms(){
     player.onGround = false;
-    platforms.forEach(p => {
+    for(const p of platforms){
       if(rectIntersect(player.x, player.y, player.w, player.h, p.x, p.y, p.w, p.h)){
         if(player.vy > 0){ player.y = p.y - player.h; player.vy = 0; player.onGround = true; }
         else if(player.vy < 0){ player.y = p.y + p.h; player.vy = 0; }
       }
-    });
+    }
     player.coyote = player.onGround ? COYOTE_FRAMES : Math.max(0, player.coyote - 1);
   }
 
   function resolvePlayerVsClots(){
     if(won) return;
     const gx1 = Math.floor((player.x - clotArea.x)/CELL)-1, gx2 = Math.floor((player.x+player.w - clotArea.x)/CELL)+1;
-    const gy1 = Math.floor(player.y/CELL)-1, gy2 = Math.floor((player.y+player.h)/CELL)+1;
+    const gy1 = Math.floor((player.y)/CELL)-1, gy2 = Math.floor((player.y+player.h)/CELL)+1;
     for(let gy=gy1; gy<=gy2; gy++) for(let gx=gx1; gx<=gx2; gx++){
       if(!inGrid(gx,gy) || gridColor[gy][gx] === -1) continue;
-      const rx = clotArea.x+gx*CELL, ry = gy*CELL;
+      const rx = clotArea.x + gx*CELL, ry = gy*CELL;
       if(rectIntersect(player.x, player.y, player.w, player.h, rx, ry, CELL, CELL)){
         const ox1=(player.x+player.w)-rx, ox2=(rx+CELL)-player.x, oy1=(player.y+player.h)-ry, oy2=(ry+CELL)-player.y;
         if(Math.min(ox1,ox2) < Math.min(oy1,oy2)){ player.x += (ox1 < ox2) ? -ox1 : ox2; player.vx = 0; }
-        else { player.y += (oy1 < oy2) ? -oy1 : oy2; player.vy = 0; if(oy1 < oy2){ player.onGround = true; player.coyote = COYOTE_FRAMES; } }
+        else{ player.y += (oy1 < oy2) ? -oy1 : oy2; player.vy = 0; if(oy1 < oy2){ player.onGround = true; player.coyote = COYOTE_FRAMES; } }
       }
     }
   }
@@ -380,25 +469,23 @@
     }
     return group;
   }
-  function removeGroup(group){ group.forEach(([x,y]) => gridColor[y][x] = -1); }
 
   function placeBulletAttached(b){
     const now = worldToGrid(b.x, b.y);
-    let anchor = (b.x >= clotArea.x+clotArea.w-2) ? {gx:cols-1, gy:clamp(now.gy,0,rows-1)} : 
-                 (inGrid(now.gx,now.gy) && gridColor[now.gy][now.gx] !== -1) ? {gx:now.gx, gy:now.gy} : null;
+    let anchor = (b.x >= clotArea.x+clotArea.w-2) ? {gx:cols-1, gy:clamp(now.gy,0,rows-1)} : (inGrid(now.gx,now.gy) && gridColor[now.gy][now.gx] !== -1) ? {gx:now.gx, gy:now.gy} : null;
     if(!anchor) return false;
     const cands = [];
     for(const [dx,dy] of NEI8){
       const gx=anchor.gx+dx, gy=anchor.gy+dy;
       if(inGrid(gx,gy) && gridColor[gy][gx]===-1 && NEI8.some(([nx,ny])=>inGrid(gx+nx,gy+ny) && gridColor[gy+ny][gx+nx]!==-1)){
-        const p = gridToWorldCenter(gx,gy); cands.push({gx,gy,d:(p.x-b.px)**2+(p.y-b.py)**2});
+        const p = gridToWorldCenter(gx,gy); cands.push({gx,gy,d2:(p.x-b.px)**2+(p.y-b.py)**2});
       }
     }
     if(!cands.length) return false;
-    cands.sort((a,b)=>a.d-b.d); const spot = cands[0];
+    cands.sort((a,b)=>a.d2-b.d2); const spot = cands[0];
     gridColor[spot.gy][spot.gx] = b.c;
     const grp = floodSame(spot.gx, spot.gy);
-    if(grp.length >= 3) removeGroup(grp);
+    if(grp.length >= 3) grp.forEach(([x,y]) => gridColor[y][x] = -1);
     return true;
   }
 
@@ -422,49 +509,57 @@
     player.shootCD = 10;
   }
 
+  let winTimeoutId = null, lastWinTime = 0;
   function startWin(){
-    won = true; endMs = nowMs(); const t = elapsedSec();
-    timeTextEl.textContent = fmt1(t);
+    won = true; endMs = nowMs(); lastWinTime = elapsedSec();
+    try{ parent.postMessage({type:'GAME_CLEAR', game:'shoot', time:lastWinTime}, '*'); }catch(e){}
+    timeTextEl.textContent = fmt1(lastWinTime);
+    winBanner.text = `${WIN_TEXT_BASE} (${fmt1(lastWinTime)} 秒)`;
+    statusEl.innerHTML = winBanner.text;
     clearAllClots(); orbs = []; bullets = []; initOpenFlow();
-    document.getElementById('controlHint').style.display = 'none';
-    
-    // 中間的勝利字體特效
-    ctx.save(); ctx.translate(W/2, H/2);
-    ctx.font = '900 48px "PingFang TC"'; ctx.fillStyle = '#eaf2ff'; 
-    ctx.shadowColor = 'rgba(255,40,80,0.8)'; ctx.shadowBlur = 25;
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; 
-    ctx.fillText(`打通血栓！ (${fmt1(t)} 秒)`, 0, 0);
-    ctx.restore();
-
+    winBanner.active = true; winBanner.t = 0;
     if(winTimeoutId) clearTimeout(winTimeoutId);
     winTimeoutId = setTimeout(()=>{
       const name = prompt("恭喜通關！請輸入名稱（排行榜顯示用）", "匿名") || "匿名";
-      renderRanks(upsertRank(name.slice(0,16), t));
-      lastTimeEl.textContent = fmt2(t);
+      renderRanks(upsertRank(name.trim().slice(0,16), lastWinTime));
+      lastTimeEl.textContent = fmt2(lastWinTime);
       overlay.style.display = "flex";
-    }, 2500);
-  }
-
-  function resetAll(){
-    won = false; bullets = []; orbs = []; openFlow = [];
-    overlay.style.display = "none";
-    document.getElementById('controlHint').style.display = 'block';
-    ammo = 0; ammoColorIdx = 0; updateAmmoUI();
-    player.x = 34; player.y = LUMEN_TOP - 160; player.vx = player.vy = player.shootCD = player.coyote = player.jumpBuf = 0; player.face = 1;
-    resetGrid(); initPreFlow(); scheduleNextDrop(nowMs());
-    startMs = endMs = nowMs(); timeTextEl.textContent = "0.0";
-    if(winTimeoutId) { clearTimeout(winTimeoutId); winTimeoutId = null; }
-    renderRanks(loadRanks());
+    }, 3000);
   }
 
   btnRestart.addEventListener('click', resetAll);
   btnClear.addEventListener('click', ()=>{ clearRanks(); renderRanks(loadRanks()); });
 
+  function roundRect(x,y,w,h,r){
+    const rr=Math.min(r,w/2,h/2); ctx.beginPath(); ctx.moveTo(x+rr,y); ctx.arcTo(x+w,y,x+w,y+h,rr); ctx.arcTo(x+w,y+h,x,y+h,rr); ctx.arcTo(x,y+h,x,y,rr); ctx.arcTo(x,y,x+w,y,rr); ctx.closePath();
+  }
+  function drawCenterWinBanner(){
+    if(!winBanner.active) return;
+    const k = clamp(winBanner.t/1.4, 0, 1), s = 0.92+0.18*(1+2.70158*(k-1)**3+1.70158*(k-1)**2), alpha = 0.15+0.85*k;
+    ctx.save(); ctx.translate(W/2, H/2); ctx.scale(s,s);
+    ctx.font = '900 36px "PingFang TC","Noto Sans TC",sans-serif';
+    const bw = ctx.measureText(winBanner.text).width+44, bh = 90;
+    ctx.globalAlpha = alpha*0.75; ctx.fillStyle='rgba(10,14,28,0.72)'; roundRect(-bw/2,-bh/2,bw,bh,16); ctx.fill();
+    ctx.globalAlpha = alpha*0.9; ctx.strokeStyle='rgba(0,255,255,0.22)'; ctx.lineWidth=2; roundRect(-bw/2,-bh/2,bw,bh,16); ctx.stroke();
+    ctx.globalAlpha = alpha; ctx.fillStyle='#eaf2ff'; ctx.shadowColor='rgba(255,40,80,0.55)'; ctx.shadowBlur=18; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(winBanner.text, 0, 0);
+    ctx.restore(); ctx.globalAlpha = 1;
+  }
+
+  function resetAll(){
+    won = false; bullets = []; orbs = []; openFlow = []; winBanner.active = false; winBanner.text = ""; overlay.style.display = "none";
+    ammo = 0; ammoColorIdx = 0;
+    player.x = 34; player.y = LUMEN_TOP - 160; player.vx = player.vy = 0; player.face = 1; player.shootCD = player.coyote = player.jumpBuf = 0;
+    resetGrid(); initPreFlow(); updateAmmoUI();
+    statusEl.textContent = "目標：同色≥3相連消除，打通左至右的血流";
+    scheduleNextDrop(nowMs()); startMs = endMs = nowMs(); timeTextEl.textContent = "0.0";
+    if(winTimeoutId) { clearTimeout(winTimeoutId); winTimeoutId = null; }
+    renderRanks(loadRanks());
+  }
+
   function logicStep(){
     const now = nowMs();
     if(keys.has('r')) { resetAll(); return; }
-    if(!won) timeTextEl.textContent = fmt1(elapsedSec());
-    
+    timeTextEl.textContent = fmt1(elapsedSec());
     updatePreFlow();
 
     if(!won && now >= nextDropMs){ spawnFallingOrb(now); scheduleNextDrop(now); }
@@ -487,8 +582,9 @@
     if(player.y < -300){ player.y = -300; player.vy = 0; }
 
     resolvePlayerVsPlatforms(); resolvePlayerVsClots();
+
     if(player.jumpBuf > 0 && player.coyote > 0){ player.vy = JUMP_V; player.onGround = false; player.coyote=player.jumpBuf=0; }
-    if(player.y > H + 120){ const top=platforms.reduce((t,p)=>(p.h<40 && p.y<t.y)?p:t, platforms[platforms.length-1]); player.x=top.x+top.w/2-player.w/2; player.y=top.y-player.h-1; player.vx=player.vy=0; player.coyote=COYOTE_FRAMES; player.onGround=false; }
+    if(player.y > H + 120){ player.x= platforms[0].x+platforms[0].w/2-player.w/2; player.y = platforms[0].y-player.h-1; player.vx=player.vy=0; }
 
     orbs = orbs.filter(o => {
       if(o.taken || now >= o.despawnMs) return false;
@@ -502,67 +598,62 @@
     bullets = bullets.filter(b => {
       if(!b.alive) return false;
       b.px=b.x; b.py=b.y; b.x+=b.vx; b.y+=b.vy;
-      if(b.x < -50 || b.x > W+50 || b.y < -50 || b.y > H+50) return false;
+      if(b.x<-50 || b.x>W+50 || b.y<-50 || b.y>H+50) return false;
       if(b.x>clotArea.x && b.x<clotArea.x+clotArea.w && b.y>0 && b.y<H){
         const g = worldToGrid(b.x, b.y);
         if((inGrid(g.gx,g.gy) && gridColor[g.gy][g.gx]!==-1) || b.x>=clotArea.x+clotArea.w-2){ placeBulletAttached(b); return false; }
-      }
-      return true;
+      } return true;
     });
 
     if(!won && hasPath()) startWin();
-    if(won){ updateOpenFlow(); }
+    if(won){ updateOpenFlow(); if(winBanner.active && winBanner.t<6) winBanner.t += 1/60; }
   }
 
   function draw(){
-    if(won && winTimeoutId) return; // 勝利特效停格
-
     ctx.clearRect(0,0,W,H);
-    ctx.globalAlpha = 0.16; for(let i=0;i<90;i++){ ctx.fillStyle='#fff'; ctx.fillRect((i*139)%W,(i*71)%H,2,2); } ctx.globalAlpha = 1;
+    ctx.globalAlpha=0.16; for(let i=0;i<90;i++){ ctx.fillStyle='#fff'; ctx.fillRect((i*139)%W,(i*71)%H,2,2); } ctx.globalAlpha=1;
 
     ctx.save(); ctx.beginPath(); ctx.rect(0, LUMEN_TOP, W, LUMEN_H); ctx.clip();
-    const grad = ctx.createLinearGradient(0,0,clotArea.x,0); grad.addColorStop(0,'rgba(120,20,30,0.20)'); grad.addColorStop(0.7,'rgba(120,20,30,0.12)'); grad.addColorStop(1,'rgba(120,20,30,0.00)');
-    ctx.fillStyle = grad; ctx.fillRect(0, LUMEN_TOP, clotArea.x, LUMEN_H);
-    ctx.fillStyle = 'rgba(255,40,80,0.12)'; ctx.fillRect(0, LUMEN_TOP, 18, LUMEN_H);
-
-    preFlow.forEach(p=>{ ctx.globalAlpha=p.a; ctx.fillStyle='rgba(255,40,80,1)'; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill(); }); ctx.globalAlpha = 1;
+    const grad = ctx.createLinearGradient(0,0,clotArea.x,0); grad.addColorStop(0,'rgba(120,20,30,0.2)'); grad.addColorStop(0.7,'rgba(120,20,30,0.12)'); grad.addColorStop(1,'rgba(120,20,30,0)');
+    ctx.fillStyle=grad; ctx.fillRect(0,LUMEN_TOP,clotArea.x,LUMEN_H);
+    ctx.fillStyle='rgba(255,40,80,0.12)'; ctx.fillRect(0,LUMEN_TOP,18,LUMEN_H);
+    preFlow.forEach(p=>{ ctx.globalAlpha=p.a; ctx.fillStyle='rgba(255,40,80,1)'; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill(); });
+    ctx.globalAlpha=1;
 
     if(!won){
-      const ig = ctx.createLinearGradient(clotArea.x+CELL*2, 0, clotArea.x+clotArea.w, 0); ig.addColorStop(0,'rgba(0,160,255,0)'); ig.addColorStop(0.35,'rgba(0,160,255,0.06)'); ig.addColorStop(1,'rgba(0,160,255,0.12)');
-      ctx.fillStyle = ig; ctx.fillRect(clotArea.x+CELL*2, LUMEN_TOP, clotArea.x+clotArea.w-(clotArea.x+CELL*2), LUMEN_H);
+      const g = ctx.createLinearGradient(clotArea.x+CELL*2,0,clotArea.x+clotArea.w,0);
+      g.addColorStop(0,'rgba(0,160,255,0)'); g.addColorStop(0.35,'rgba(0,160,255,0.06)'); g.addColorStop(1,'rgba(0,160,255,0.12)');
+      ctx.fillStyle=g; ctx.fillRect(clotArea.x+CELL*2,LUMEN_TOP,clotArea.w-CELL*2,LUMEN_H);
     }
-
     platforms.forEach(p=>{ ctx.fillStyle='rgba(0,255,255,.09)'; ctx.fillRect(p.x,p.y,p.w,p.h); ctx.strokeStyle='rgba(0,255,255,.18)'; ctx.strokeRect(p.x,p.y,p.w,p.h); });
-    ctx.fillStyle = 'rgba(80,0,12,.55)'; ctx.fillRect(clotArea.x, LUMEN_TOP, clotArea.w, LUMEN_H);
 
+    ctx.fillStyle='rgba(80,0,12,.55)'; ctx.fillRect(clotArea.x,LUMEN_TOP,clotArea.w,LUMEN_H);
     for(let r=0;r<rows;r++){
       if(r*CELL+CELL<LUMEN_TOP || r*CELL>LUMEN_BOT) continue;
       for(let c=0;c<cols;c++){
-        const cc = gridColor[r][c], x = clotArea.x+c*CELL, y = r*CELL;
-        if(cc !== -1){
+        const x=clotArea.x+c*CELL, y=r*CELL, cc=gridColor[r][c];
+        if(cc!==-1){
           ctx.fillStyle='rgba(255,70,90,.14)'; ctx.fillRect(x+1,y+1,CELL-2,CELL-2);
-          ctx.fillStyle=COLORS[cc].hex; ctx.beginPath(); ctx.arc(x+CELL/2, y+CELL/2, 10.5, 0, Math.PI*2); ctx.fill();
-          ctx.fillStyle='#fff'; ctx.globalAlpha=0.18; ctx.beginPath(); ctx.arc(x+CELL/2-4, y+CELL/2-4, 5.5, 0, Math.PI*2); ctx.fill(); ctx.globalAlpha=1;
+          ctx.fillStyle=COLORS[cc].hex; ctx.beginPath(); ctx.arc(x+CELL/2,y+CELL/2,10.5,0,Math.PI*2); ctx.fill();
+          ctx.fillStyle='#fff'; ctx.globalAlpha=0.18; ctx.beginPath(); ctx.arc(x+CELL/2-4,y+CELL/2-4,5.5,0,Math.PI*2); ctx.fill(); ctx.globalAlpha=1;
         }else{ ctx.fillStyle='rgba(0,0,0,.18)'; ctx.fillRect(x+1,y+1,CELL-2,CELL-2); }
       }
     }
-
     if(won && openFlow.length){
-      ctx.globalAlpha=0.10; ctx.fillStyle='rgba(255,40,80,1)'; ctx.fillRect(0,LUMEN_TOP,W,LUMEN_H);
+      ctx.globalAlpha=0.1; ctx.fillStyle='rgba(255,40,80,1)'; ctx.fillRect(0,LUMEN_TOP,W,LUMEN_H);
       openFlow.forEach(p=>{ ctx.globalAlpha=p.a; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill(); }); ctx.globalAlpha=1;
     }
     ctx.restore();
 
-    ctx.save();
     ctx.fillStyle='rgba(210,245,255,.92)'; ctx.fillRect(player.x,player.y,player.w,player.h);
     ctx.fillStyle='rgba(0,255,255,.35)'; ctx.fillRect(player.x+4,player.y+8,player.w-8,10);
-    ctx.strokeStyle='#00ffff'; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(player.x+player.w/2, player.y+player.h*0.45); ctx.lineTo(player.x+player.w/2+player.face*22, player.y+player.h*0.45); ctx.stroke();
-    ctx.fillStyle='#00ffff'; ctx.globalAlpha=0.55; ctx.beginPath(); ctx.arc(player.x+player.w/2+player.face*30, player.y+player.h*0.45, 2.2, 0, Math.PI*2); ctx.fill(); ctx.restore();
+    ctx.strokeStyle='#00ffff'; ctx.lineWidth=4; ctx.beginPath(); const px=player.x+player.w/2, py=player.y+player.h*0.45; ctx.moveTo(px,py); ctx.lineTo(px+player.face*22,py); ctx.stroke();
+    ctx.globalAlpha=0.55; ctx.fillStyle='#00ffff'; ctx.beginPath(); ctx.arc(px+player.face*30,py,2.2,0,Math.PI*2); ctx.fill(); ctx.globalAlpha=1;
 
     const now = nowMs();
     orbs.forEach(o=>{
       ctx.fillStyle=COLORS[o.c].hex; ctx.beginPath(); ctx.arc(o.x,o.y,o.r,0,Math.PI*2); ctx.fill();
-      ctx.strokeStyle=COLORS[o.c].hex; ctx.globalAlpha=0.35; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(o.x,o.y,o.r+6,-Math.PI/2,-Math.PI/2+(1-(o.despawnMs-now)/ORB_LIFETIME_MS)*Math.PI*2); ctx.stroke(); ctx.globalAlpha=1;
+      ctx.globalAlpha=0.35; ctx.strokeStyle=COLORS[o.c].hex; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(o.x,o.y,o.r+6,-Math.PI/2,-Math.PI/2+clamp((o.despawnMs-now)/ORB_LIFETIME_MS,0,1)*Math.PI*2); ctx.stroke(); ctx.globalAlpha=1;
     });
     bullets.forEach(b=>{ ctx.fillStyle=COLORS[b.c].hex; ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fill(); });
 
@@ -570,7 +661,7 @@
     ctx.fillStyle='rgba(255,160,170,0.35)'; ctx.globalAlpha=0.38; ctx.fillRect(0,WALL_THICK-4,W,4); ctx.fillRect(0,H-WALL_THICK,W,4);
     ctx.fillStyle='rgba(80,0,10,0.45)'; ctx.globalAlpha=0.25; ctx.fillRect(0,0,W,6); ctx.fillRect(0,H-6,W,6); ctx.globalAlpha=1;
 
-    requestAnimationFrame(draw);
+    drawCenterWinBanner(); requestAnimationFrame(draw);
   }
 
   resetAll(); setInterval(logicStep, 1000/60); draw();
