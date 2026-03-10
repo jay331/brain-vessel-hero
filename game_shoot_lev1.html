@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
-<title>腦脈先鋒｜血塊消消樂（通關3秒→前十名｜再玩一次修正）</title>
+<title>腦脈先鋒｜血塊消消樂（通關3秒→前十名｜手機版支援）</title>
 <style>
   :root{
     --bg:#060912;
@@ -11,7 +11,14 @@
     --line:rgba(0,255,255,.18);
     --text:#eaf2ff;
   }
-  html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:"PingFang TC","Noto Sans TC",sans-serif;}
+  html,body{
+    margin:0;height:100%;
+    background:var(--bg);color:var(--text);
+    font-family:"PingFang TC","Noto Sans TC",sans-serif;
+    /* ✅ 新增：防止手機瀏覽器預設的下拉刷新與滑動縮放 */
+    touch-action: none;
+    overflow: hidden; 
+  }
   .wrap{display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px;}
   h1{margin:6px 0 0;font-size:18px;font-weight:700;letter-spacing:.4px}
 
@@ -66,6 +73,7 @@
     align-items:center; justify-content:center;
     background:rgba(3,6,16,.78);
     backdrop-filter: blur(6px);
+    z-index: 20;
   }
   .board{
     width:min(720px, 92%);
@@ -129,11 +137,78 @@
   button:hover{ background:rgba(0,255,255,.14); }
   button:active{ transform:translateY(1px); }
 
-/*CASEMODE_HIDE_LEADERBOARD*/
-body.caseMode .leaderboard, body.caseMode #leaderboard{display:none !important;}
+  /*CASEMODE_HIDE_LEADERBOARD*/
+  body.caseMode .leaderboard, body.caseMode #leaderboard{display:none !important;}
+
+  /* ✅ 新增：橫向模式提示 */
+  #rotatePrompt {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #060912;
+    z-index: 9999;
+    color: white;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1.5;
+  }
+  @media screen and (max-width: 800px) and (orientation: portrait) {
+    #rotatePrompt { display: flex; }
+    .wrap { display: none; }
+  }
+
+  /* ✅ 新增：手機虛擬按鍵樣式 */
+  #mobileControls {
+    display: none;
+    position: absolute;
+    bottom: 15px;
+    left: 0;
+    width: 100%;
+    padding: 0 20px;
+    box-sizing: border-box;
+    justify-content: space-between;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .dpad, .action-pad { display: flex; gap: 12px; pointer-events: none; }
+  .ctrl-btn {
+    pointer-events: auto;
+    background: rgba(14, 18, 35, 0.7);
+    border: 2px solid rgba(0, 255, 255, 0.5);
+    color: #eaf2ff;
+    font-size: 14px;
+    font-weight: 800;
+    border-radius: 50%;
+    width: 55px;
+    height: 55px;
+    backdrop-filter: blur(4px);
+    user-select: none;
+    -webkit-user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(0,255,255,0.2);
+  }
+  .ctrl-btn:active { background: rgba(0, 255, 255, 0.4); transform: scale(0.95); }
+
+  /* 當螢幕較小時，顯示虛擬按鍵並微調排版 */
+  @media (max-width: 800px) {
+    #mobileControls { display: flex; }
+    #hud { font-size: 11px; gap: 6px; justify-content: center; }
+    .box { padding: 6px 8px; flex: 1 1 100%; } /* 讓狀態列在手機上盡量維持在一兩行 */
+    .timerBox { flex: 1 1 100%; min-width: auto; }
+    #timeText { font-size: 28px; }
+    h1 { font-size: 16px; margin: 4px 0 0; }
+  }
 </style>
 </head>
 <body>
+<div id="rotatePrompt">📱 畫面空間不足<br>請將手機轉為橫向以進行遊戲</div>
+
 <div class="wrap">
   <h1>🧠 腦脈先鋒｜血塊消消樂（通關3秒→前十名排行榜）</h1>
 
@@ -159,6 +234,17 @@ body.caseMode .leaderboard, body.caseMode #leaderboard{display:none !important;}
 
   <div id="game">
     <canvas id="c" width="980" height="560"></canvas>
+
+    <div id="mobileControls">
+      <div class="dpad">
+        <div id="btnLeft" class="ctrl-btn">◀</div>
+        <div id="btnRight" class="ctrl-btn">▶</div>
+      </div>
+      <div class="action-pad">
+        <div id="btnShoot" class="ctrl-btn">射(J)</div>
+        <div id="btnJump" class="ctrl-btn">跳(W)</div>
+      </div>
+    </div>
 
     <div id="overlay">
       <div class="board">
@@ -226,6 +312,35 @@ if(isCaseMode) document.body.classList.add('caseMode');
     if(['a','d','w',' ','j','r'].includes(k) || e.code === 'Space') e.preventDefault();
   }, {passive:false});
   window.addEventListener('keyup', (e)=> keys.delete(e.key.toLowerCase()));
+
+  // ✅ 新增：MOBILE TOUCH INPUT (將虛擬按鈕映射到 keys Set)
+  const touchBtnMap = {
+    'btnLeft': 'a',
+    'btnRight': 'd',
+    'btnJump': 'w',
+    'btnShoot': 'j'
+  };
+  Object.keys(touchBtnMap).forEach(id => {
+    const btn = document.getElementById(id);
+    if(!btn) return;
+    const keyChar = touchBtnMap[id];
+    
+    const pressFn = (e) => {
+      e.preventDefault(); 
+      keys.add(keyChar);
+    };
+    const releaseFn = (e) => {
+      e.preventDefault();
+      keys.delete(keyChar);
+    };
+
+    btn.addEventListener('touchstart', pressFn, {passive: false});
+    btn.addEventListener('touchend', releaseFn, {passive: false});
+    // 讓電腦滑鼠也能點擊測試
+    btn.addEventListener('mousedown', pressFn);
+    btn.addEventListener('mouseup', releaseFn);
+    btn.addEventListener('mouseleave', releaseFn);
+  });
 
   // ===== PHYS =====
   const GRAV = 0.85;
