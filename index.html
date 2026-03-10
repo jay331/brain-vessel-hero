@@ -10,8 +10,8 @@
 
 <style>
 :root{
-  --bg:#060912; --panel:rgba(10,14,28,.86); --line:rgba(255,255,255,.12);
-  --text:#eaf2ff; --muted:rgba(234,242,255,.72);
+  --bg:#060912; --panel:rgba(10,14,28,.92); --line:rgba(255,255,255,.12);
+  --text:#ffffff; --muted:rgba(234,242,255,.9); /* 提高文字亮度 */
   --accent:#00ffe5; --good:#3dff8e; --warn:#ffd166; --bad:#ff4d6d;
 }
 
@@ -36,193 +36,92 @@ header{
   flex-shrink: 0;
 }
 .brand{min-width:0}
-.brand .t{font-weight:1000; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-.brand .s{font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.brand .t{font-weight:1000; font-size:15px; white-space:nowrap;}
+.brand .s{font-size:12px; color:var(--muted); white-space:nowrap;}
 
-.hud{display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end}
+.hud{display:flex; align-items:center; gap:8px;}
 .chip{
   padding:7px 12px; border-radius:999px; background:rgba(255,255,255,.05);
   border:1px solid rgba(255,255,255,.10); color:var(--muted); font-size:12px
 }
-.chip strong{color:var(--text)}
+.chip strong{color:var(--accent)}
 
 .btn{
   appearance:none; border:0; cursor:pointer; padding:12px 14px; border-radius:14px;
   font-weight:1000; background:rgba(255,255,255,.05); color:var(--text);
   border:1px solid rgba(255,255,255,.15); font-size:14px;
-  transition: transform 0.1s, filter 0.1s;
+  transition: transform 0.1s;
 }
 .btn:active{ transform: scale(0.96); }
+
+/* 加強版開始執行按鈕 */
 .btn.primary{
-  background:linear-gradient(180deg, rgba(0,255,229,.18), rgba(0,255,229,.06));
-  border:1px solid rgba(0,255,229,.35);
-  box-shadow:0 10px 24px rgba(0,255,229,.08)
+  background: var(--accent);
+  color: #000;
+  border: none;
+  box-shadow: 0 0 20px rgba(0,255,229,.4);
+  font-size: 16px;
+  letter-spacing: 1px;
 }
 .btn.secondary{background:rgba(255,255,255,.06)}
 
-.wrap{
-  flex:1; min-height:0; display:flex; align-items:center; justify-content:center;
-  padding: 0; 
-}
+.wrap{ flex:1; min-height:0; display:flex; align-items:center; justify-content:center; }
 
 .stage{
   position:relative; width: 100%; height: 100%;
   overflow:hidden;
   background:
-    url('assets/bg_base.png') center/cover no-repeat,
     radial-gradient(circle at 40% 12%, rgba(255,209,102,.10), rgba(0,0,0,0) 55%),
     radial-gradient(circle at 70% 35%, rgba(0,255,229,.10), rgba(0,0,0,0) 60%),
     linear-gradient(180deg, #0a1021, #070a12);
-  display: flex;
-  flex-direction: column;
+  display: flex; flex-direction: column;
 }
 .stage.is-home { background: url('assets/bg_home_mockup.png') center/cover no-repeat; }
-.stage.is-home .vignette { display: none; }
 
 @media (min-width: 481px) {
   .wrap { padding: 24px; }
-  .stage { max-width: 440px; max-height: 850px; border-radius: 28px; border: 1px solid rgba(255,255,255,.15); box-shadow: 0 26px 80px rgba(0,0,0,.65); }
+  .stage { max-width: 440px; max-height: 850px; border-radius: 28px; border: 1px solid rgba(255,255,255,.15); }
 }
-
-.vignette{position:absolute; inset:0; background:radial-gradient(circle at 50% 35%, rgba(0,0,0,0), rgba(0,0,0,.55) 78%); pointer-events:none;}
 
 .content{ position:absolute; inset:0; display:flex; flex-direction:column; padding:16px; z-index: 10; overflow-y: auto; }
 .screen { flex: 0 0 auto; display: none; flex-direction: column; height: 100%; gap: 16px; }
 .screen.show{ display:flex; }
 
 /* 頂部對話框 */
-.topTalk{ display:flex; gap:12px; align-items:flex-start; padding:14px; border-radius:18px; background:var(--panel); border:1px solid rgba(255,255,255,.12); flex-shrink: 0; }
-.avatar{ width:64px; height:64px; border-radius:16px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.10); overflow:hidden; flex:0 0 auto; }
+.topTalk{ display:flex; gap:12px; align-items:flex-start; padding:14px; border-radius:18px; background:var(--panel); border:1px solid rgba(255,255,255,.15); }
+.avatar{ width:64px; height:64px; border-radius:16px; background:#000; border:1px solid var(--accent); overflow:hidden; flex:0 0 auto; }
 .avatar img{width:100%; height:100%; object-fit:cover;}
-.talk{min-width:0; padding-top: 2px;}
-.talk .who{font-weight:1000; font-size:15px; letter-spacing: 0.5px;}
-.talk .say{margin-top:6px; color:var(--muted); font-size:13.5px; line-height:1.65;}
+.talk .who{font-weight:1000; font-size:16px; color: var(--accent);}
+.talk .say{margin-top:6px; color:var(--text); font-size:15px; line-height:1.6; font-weight: 500;}
 
-/* 中間容器 */
-.midPanel{ padding:14px; border-radius:18px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); }
-.midPanel h2{margin:0 0 10px; font-size:16px; color:var(--accent);}
-.bullet{margin:0; padding-left:18px; color:var(--muted); font-size:13.5px; line-height:1.65;}
-.bullet li{margin:8px 0;}
+/* 中間容器與文字優化 */
+.midPanel{ padding:16px; border-radius:18px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); }
+.midPanel h2{margin:0 0 12px; font-size:18px; color:var(--accent); text-align: center;}
+.bullet{margin:0; padding-left:20px; color:var(--text); font-size:15px; line-height:1.8; font-weight: 600;}
+.bullet li{margin:10px 0;}
 
 /* 底部功能列 */
-.bottomBar{ display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; padding:14px; border-radius:18px; background:rgba(10,14,28,.95); border:1px solid rgba(255,255,255,.15); flex-shrink: 0; margin-top: auto; }
-.actions{display:flex; gap:10px; flex-wrap:wrap; justify-content:space-between; width: 100%;}
+.bottomBar{ margin-top: auto; padding: 10px 0; }
+.actions{display:flex; gap:12px; width: 100%;}
 .actions .btn { flex: 1; text-align: center; } 
 
-.toast{ position:absolute; left:50%; bottom:20px; transform:translateX(-50%); padding:12px 16px; border-radius:14px; background:rgba(10,14,28,.95); border:1px solid rgba(255,255,255,.15); box-shadow:0 18px 45px rgba(0,0,0,.65); font-size:14px; display:none; z-index:50; max-width:min(92vw,400px); text-align:center; font-weight:bold; color:var(--warn); }
-.toast.show{display:block; animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);}
-@keyframes popUp { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+/* 任務列表按鈕 */
+#subTaskContainer { display: flex; flex-direction: column; gap: 10px; margin-top: 10px;}
+.subTaskBtn { width: 100%; text-align: left; padding: 18px; font-size: 15px; font-weight: 800; border-radius: 14px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); color: var(--text); display: flex; justify-content: space-between; align-items: center; }
+.subTaskBtn.completed { border-color: var(--good); background: rgba(61, 255, 142, 0.1); color: var(--good); }
+
+/* ===== CHALLENGE LIST ===== */
+#challengeListContainer { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
+.challengeBtn{ width: 100%; padding: 16px; border-radius: 14px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.15); color: var(--text); display: flex; justify-content: space-between; align-items: center; }
 
 /* ===== GAME OVERLAY ===== */
 .gameOverlay{ position:fixed; inset:0; display:none; background:#000; z-index:2000; flex-direction:column; }
-.gameTop{ padding:8px 12px; display:flex; align-items:center; justify-content:space-between; gap:8px; background:linear-gradient(180deg, rgba(10,14,28,.95), rgba(10,14,28,.75)); border-bottom:1px solid rgba(255,255,255,.12); z-index:20; }
-#gameFrame{ flex:1; border:0; width:100%; height:100%; background:#000; }
-.gameTop .meta{ min-width:0; flex:1; }
-.gameTop .meta .h{ font-weight:900; font-size:14px; color:#fff;}
-.gameTopRight{ display:flex; align-items:center; gap:8px; flex-shrink:0; }
-.miniChip{ padding:6px 10px; border-radius:999px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15); color:var(--muted); font-size:12px; }
-.miniChip strong{ color:var(--text); }
-.miniBtn{ appearance:none; border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.1); color:var(--text); border-radius:999px; padding:7px 12px; font-size:12px; font-weight:900; cursor:pointer; }
+#gameFrame{ flex:1; border:0; width:100%; height:100%; }
 
-/* ===== HOME ===== */
-#scrHome{ position:relative; background: url('assets/bg_home_mockup.png') center/cover no-repeat; margin: -16px; height: calc(100% + 32px); flex-direction: column; justify-content: flex-end; padding-bottom: max(8vh, 50px); }
-#scrHome .homeBtns{ display:flex; gap:18px; justify-content:center; padding:0 8%; z-index:9999; }
-#scrHome .homeBtns button{ flex:1; height:min(14vh, 120px); border-radius:18px; background: rgba(255,255,255,0.01); border: 0; cursor:pointer; -webkit-tap-highlight-color: transparent; }
+#scrHome{ position:relative; margin: -16px; height: calc(100% + 32px); justify-content: flex-end; padding-bottom: 60px; }
+#scrHome .homeBtns{ display:flex; gap:18px; padding:0 8%; }
+#scrHome .homeBtns button{ flex:1; height:100px; border-radius:18px; background: transparent; border: 0; }
 
-/* ===== CASE MODE (個案模式) ===== */
-#scrCase .iconTile{ flex: 1; aspect-ratio: 1/1; max-height: 100px; border-radius:18px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.12); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; cursor:pointer; position:relative; transition: all 0.2s; }
-#scrCase .iconTile img{ width:50%; height:50%; object-fit: contain; }
-#scrCase .iconTile.locked{ opacity:.3; filter: grayscale(1); pointer-events:none; }
-#scrCase .iconTile.active{ outline:2px solid rgba(0,255,229,.6); background:rgba(0,255,229,.1); transform: scale(1.05); }
-#scrCase .iconTile .badge{ position:absolute; right:6px; top:6px; padding:3px 6px; border-radius:999px; background:var(--accent); color:#000; font-size:10px; font-weight:900; display:none; }
-#scrCase .iconTile.ready .badge{ display:block; }
-#scrCase .iconTile .lbl{ font-size: 13px; font-weight: 800; }
-
-#scrCase .caseTitleCard{ width:100%; border: 1px solid rgba(0,255,229,.25); border-radius: 18px; padding: 12px 16px; display:flex; align-items:center; justify-content: space-between; background: linear-gradient(180deg, rgba(0,255,229,.25), rgba(10,14,28,.86)); }
-#scrCase #caseHintTitle{ font-size: 15px; font-weight: 900; line-height: 1.4; color: #fff;}
-
-#subTaskContainer { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto; padding-right: 4px; }
-.subTaskBtn { width: 100%; text-align: left; padding: 16px; font-size: 14px; font-weight: 800; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: var(--text); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.1s; }
-.subTaskBtn:active { background: rgba(255,255,255,0.1); transform: scale(0.98); }
-.subTaskBtn.locked { opacity: 0.5; pointer-events: none; }
-.subTaskBtn.completed { border-color: var(--good); background: rgba(61, 255, 142, 0.1); }
-
-/* ===== CHALLENGE LIST MODE (清單模式) ===== */
-#challengeListContainer { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; padding-bottom: 20px; padding-top: 4px; }
-.module-group { display: flex; flex-direction: column; gap: 8px; }
-.module-header { display: flex; align-items: center; gap: 14px; margin-bottom: 4px; }
-.mod-avatar { width: 48px; height: 48px; border-radius: 12px; object-fit: cover; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-shrink: 0; }
-.mod-title { font-size: 16px; font-weight: 900; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-.challengeBtn{
-  width: 100%;
-  text-align: left;
-  padding: 16px;
-  font-size: 14px;
-  font-weight: 800;
-  border-radius: 14px;
-  background: linear-gradient(180deg, rgba(30,40,65,.8), rgba(15,20,35,.9));
-  border: 1px solid rgba(255,255,255,.15);
-  box-shadow: 0 8px 16px rgba(0,0,0,.4);
-  color: var(--text);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  transition: transform 0.1s;
-}
-
-.challengeBtn:active{
-  transform: scale(0.97);
-  background: linear-gradient(180deg, rgba(40,50,75,.8), rgba(25,30,45,.9));
-}
-
-.challengeMain{
-  flex: 1;
-  min-width: 0;
-}
-
-.challengeName{
-  font-size: 14px;
-  font-weight: 900;
-  color: var(--text);
-  line-height: 1.4;
-}
-
-.challengeRank{
-  flex-shrink: 0;
-  font-size: 12px;
-  font-weight: 900;
-  color: var(--accent);
-  white-space: nowrap;
-  background: rgba(0,255,229,.08);
-  border: 1px solid rgba(0,255,229,.25);
-  padding: 7px 10px;
-  border-radius: 999px;
-}
-
-/* ===== BRIEF & OTHERS ===== */
-#scrBrief #briefTitle{ margin: 0 0 12px 0; padding: 12px; font-size: 16px; font-weight: 900; text-align: center; background: linear-gradient(180deg, rgba(0,255,229,.25), rgba(10,14,28,.9)); border: 1px solid rgba(0,255,229,.35); border-radius: 16px; }
-.full-width-btn { width: 100%; text-align: center; font-size: 15px; padding: 14px;}
-
-@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px);} to { opacity: 1; transform: translateY(0);} }
-#scrBrief #briefDetail { display:none; } #scrBrief .bottomBar { display:none; }
-#scrBrief #briefDetail.open { display:block; animation: fadeIn 0.25s ease; }
-#scrBrief #briefDetail.open ~ .bottomBar { display:flex; animation: fadeIn 0.25s ease; }
-#scrCase .caseTaskWrap { display:none; flex-direction: column; gap: 16px; }
-#scrCase .bottomBar { display:none; }
-#scrCase.taskOpen .caseTaskWrap { display:flex; animation: fadeIn 0.25s ease; }
-#scrCase.taskOpen .bottomBar { display:flex; animation: fadeIn 0.25s ease; }
-
-.rankTable{width:100%; border-collapse:collapse; margin-top:8px;}
-.rankTable th, .rankTable td{ border-bottom:1px solid rgba(255,255,255,.08); padding:10px 6px; font-size:13px; color:var(--muted); text-align:left;}
-.rankTable th{color:rgba(234,242,255,.85); font-weight:1000;}
-
-@supports(padding:max(0px)){
-  header{padding-top:max(10px, env(safe-area-inset-top));}
-  .content{padding-bottom:max(16px, env(safe-area-inset-bottom));}
-  .toast{bottom:calc(20px + env(safe-area-inset-bottom));}
-}
 </style>
 </head>
 
@@ -231,12 +130,11 @@ header{
 <header>
   <div class="brand">
     <div class="t" id="titleLine">腦脈先鋒</div>
-    <div class="s" id="subLine" style="display:none"></div>
+    <div class="s" id="subLine">首頁</div>
   </div>
   <div class="hud">
     <div class="chip">總積分：<strong id="caseScore">0</strong></div>
     <button class="btn secondary" style="padding: 8px 12px; font-size: 12px;" id="btnHome">首頁</button>
-    <button class="btn danger" style="padding: 8px 12px; font-size: 12px;" id="btnReset">重置</button>
   </div>
 </header>
 
@@ -245,68 +143,50 @@ header{
     <div class="content">
 
       <section class="screen show" id="scrHome">
-        <div class="homeBtns" aria-label="首頁模式選擇">
-          <button type="button" id="btnMissionMode" aria-label="任務模式"></button>
-          <button type="button" id="btnListMode" aria-label="挑戰模式"></button>
+        <div class="homeBtns">
+          <button type="button" id="btnMissionMode"></button>
+          <button type="button" id="btnListMode"></button>
         </div>
       </section>
 
       <section class="screen" id="scrList">
-        <div id="challengeListContainer">
-            </div>
-        <div class="bottomBar" style="margin-top: auto;">
-          <div class="actions"><button class="btn secondary full-width-btn" onclick="goHome()">返回首頁</button></div>
+        <div id="challengeListContainer"></div>
+        <div class="bottomBar">
+          <button class="btn secondary" style="width:100%" onclick="goHome()">返回首頁</button>
         </div>
       </section>
 
       <section class="screen" id="scrCase">
         <div class="topTalk">
-          <div class="avatar" style="width: 80px; height: 80px;"><img id="doctorAvatar" src="assets/doctor_card.png" alt=""></div>
+          <div class="avatar"><img src="assets/doctor_card.png"></div>
           <div class="talk">
-            <div class="who" id="caseTitleLine">醫師｜病情說明</div>
+            <div class="who">醫師｜病情說明</div>
             <div class="say" id="doctorLine">（載入中…）</div>
           </div>
         </div>
 
-        <button id="btnToggleCaseTask" class="btn secondary full-width-btn" type="button" aria-expanded="false">
-          查看當前任務目標 ▾
-        </button>
-
-        <div class="caseTaskWrap">
-          <div class="midPanel" style="padding:0; background:transparent; border:none;">
-            <div id="caseTitleCard" class="caseTitleCard">
-              <span id="caseHintTitle">任務</span>
-            </div>
-            
-            <div id="subTaskContainer" style="margin-top: 16px; display: none;">
-                <button class="subTaskBtn" id="subBtn1">1. 新手教學 (單純陸運) <span>▶</span></button>
-                <button class="subTaskBtn locked" id="subBtn2">2. 認路考驗 (字牌+變天) <span>🔒</span></button>
-                <button class="subTaskBtn locked" id="subBtn3">3. 全地形救援 (變形+變天) <span>🔒</span></button>
-            </div>
+        <div class="midPanel">
+          <h2 id="caseHintTitle">任務進度</h2>
+          <div id="subTaskContainer">
+              <button class="subTaskBtn" id="subBtn1">1. 新手教學 (單純陸運) <span>▶</span></button>
+              <button class="subTaskBtn" id="subBtn2">2. 認路考驗 (字牌+變天) <span>🔒</span></button>
+              <button class="subTaskBtn" id="subBtn3">3. 全地形救援 (變形+變天) <span>🔒</span></button>
           </div>
         </div>
 
         <div class="bottomBar">
-          <div class="icons" id="roleIcons" style="width: 100%; justify-content: space-between;">
-            <div class="iconTile" id="tileEMT"><span class="badge">GO</span><img src="assets/emt_card.png" alt=""><div class="lbl">駕駛任務</div></div>
-            <div class="iconTile locked" id="tileTEAM"><span class="badge">GO</span><img src="assets/team_card.png" alt=""><div class="lbl">取栓</div></div>
-            <div class="iconTile locked" id="tileNURSE"><span class="badge">GO</span><img src="assets/nurse_card.png" alt=""><div class="lbl">護理</div></div>
-          </div>
+           <button class="btn secondary" style="width:100%" onclick="goHome()">返回首頁</button>
         </div>
       </section>
 
       <section class="screen" id="scrBrief">
         <div class="topTalk">
-          <div class="avatar" style="width: 80px; height: 80px;"><img id="briefAvatar" src="" alt=""></div>
+          <div class="avatar"><img id="briefAvatar" src=""></div>
           <div class="talk">
             <div class="who" id="briefWho">—</div>
             <div class="say" id="briefLine">—</div>
           </div>
         </div>
-
-        <button id="btnToggleBrief" class="btn secondary full-width-btn" aria-expanded="false" type="button">
-          展開詳細指引 ▾
-        </button>
 
         <div class="midPanel" id="briefDetail">
           <h2 id="briefTitle">任務目標</h2>
@@ -315,344 +195,128 @@ header{
 
         <div class="bottomBar">
           <div class="actions">
-            <button class="btn secondary" id="btnBriefBack" type="button">返回選單</button>
-            <button class="btn primary" id="btnStartTask" type="button">開始執行</button>
+            <button class="btn secondary" id="btnBriefBack">返回</button>
+            <button class="btn primary" id="btnStartTask">開始執行</button>
           </div>
         </div>
       </section>
 
       <section class="screen" id="scrRoleComplete">
-        <div class="topTalk" style="align-items: center;">
-          <div class="avatar" style="width: 70px; height: 70px;"><img id="rcAvatar" src="" alt=""></div>
+        <div class="topTalk">
+          <div class="avatar"><img id="rcAvatar" src=""></div>
           <div class="talk">
-            <div class="who" id="rcWho">✅ 任務完成</div>
-            <div class="say" id="rcLine">—</div>
+            <div class="who">✅ 任務完成</div>
+            <div class="say">表現優異！醫療團隊已成功接手。</div>
           </div>
         </div>
-
         <div class="midPanel">
-          <h2 style="color:var(--accent); font-size: 16px;">本段結算</h2>
-          <ul class="bullet" id="rcBullets" style="font-size: 14px;"></ul>
+          <ul class="bullet" id="rcBullets"></ul>
         </div>
-
         <div class="bottomBar">
           <div class="actions">
-            <button class="btn secondary" id="btnRetryRole" type="button">刷分重來</button>
-            <button class="btn primary" id="btnFinishRole" type="button">繼續推進</button>
+            <button class="btn secondary" id="btnRetryRole">再試一次</button>
+            <button class="btn primary" id="btnFinishRole">繼續前進</button>
           </div>
         </div>
       </section>
 
-      <div class="toast" id="toast">—</div>
-      <div class="vignette"></div>
     </div>
   </div>
 </div>
 
 <div class="gameOverlay" id="gameOverlay">
-  <div class="gameTop">
-    <div class="meta">
-      <div class="h" id="gameTitle">執行任務</div>
-    </div>
-    <div class="gameTopRight">
-      <button class="miniBtn" id="btnExitGame" type="button">退出</button>
-    </div>
+  <div class="gameTop" style="padding:10px; background:#111; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #333;">
+    <div id="gameTitle" style="font-weight:bold; color:var(--accent)">執行中</div>
+    <button class="btn" id="btnExitGame" style="padding:5px 15px; font-size:12px;">退出</button>
   </div>
-  <iframe id="gameFrame" title="遊戲" allowfullscreen></iframe>
+  <iframe id="gameFrame" src=""></iframe>
 </div>
 
 <script>
-// ==========================================
-// ⚙️ 關卡檔案配置中心
-// ==========================================
 const GAME_FILES = {
-  // 任務一：駕駛任務（race）
-  'EMT_1': 'game_race_lev1.html',
-  'EMT_2': 'game_race_lev2.html',
-  'EMT_3': 'game_race_lev3.html',
-
-  // 任務二：護理任務（match）
-  'NURSE_1': 'game_match_lev1.html',
-  'NURSE_2': 'game_match_lev2.html',
-  'NURSE_3': 'game_match_lev3.html',
-
-  // 任務三：取栓任務（shoot）
-  'TEAM_1': 'game_shoot_lev1.html',
-  'TEAM_2': 'game_shoot_lev2.html',
-  'TEAM_3': 'game_shoot_lev3.html'
+  'EMT_1': 'game_race_lev1.html', 'EMT_2': 'game_race_lev2.html', 'EMT_3': 'game_race_lev3.html',
+  'NURSE_1': 'game_match_lev1.html', 'NURSE_2': 'game_match_lev2.html', 'NURSE_3': 'game_match_lev3.html',
+  'TEAM_1': 'game_shoot_lev1.html', 'TEAM_2': 'game_shoot_lev2.html', 'TEAM_3': 'game_shoot_lev3.html'
 };
 
-const CHALLENGE_DATA = [
-  {
-    title: '任務一：駕駛與極限救援',
-    avatar: 'assets/emt_card.png',
-    levels: [
-      { id: 'EMT_1', name: '1. 新手教學' },
-      { id: 'EMT_2', name: '2. 認路考驗' },
-      { id: 'EMT_3', name: '3. 全地形救援' }
-    ]
-  },
+const caseState = { subStage: 1, activeRole: null, isListMode: false };
 
-  {
-    title: '任務二：取栓團隊作戰',
-    avatar: 'assets/team_card.png',
-    levels: [
-      { id: 'TEAM_1', name: '1. 血管再通治療' },
-      { id: 'TEAM_2', name: '2. 深入血栓核心' },
-      { id: 'TEAM_3', name: '3. 極限取栓任務' }
-    ]
-  },
-
-  {
-    title: '任務三：護理衛教任務',
-    avatar: 'assets/nurse_card.png',
-    levels: [
-      { id: 'NURSE_1', name: '1. 基礎衛教配對' },
-      { id: 'NURSE_2', name: '2. 進階衛教挑戰' },
-      { id: 'NURSE_3', name: '3. 高壓照護任務' }
-    ]
-  }
-];
-
-const caseState = {
-  caseScore: 0,
-  currentRole: 'EMT', subStage: 1, 
-  activeRole: null, activeSubStage: null, 
-  isListMode: false
-};
-
-  const PERSONAL_RANKING = {
-  'EMT_1': { best: 1280, rank: 12 },
-  'EMT_2': { best: 2150, rank: 8 },
-  'EMT_3': { best: 3010, rank: 5 },
-
-  'NURSE_1': { best: 980, rank: 20 },
-  'NURSE_2': { best: 1560, rank: 11 },
-  'NURSE_3': { best: 2240, rank: 7 },
-
-  'TEAM_1': { best: 1320, rank: 18 },
-  'TEAM_2': { best: 2460, rank: 9 },
-  'TEAM_3': { best: 3520, rank: 4 }
-};
-
-function id(elementId) { return document.getElementById(elementId); }
+function id(e) { return document.getElementById(e); }
 
 window.onload = () => {
-    document.addEventListener('pointerdown', requestFullscreenSafe, { once:true });
-    id('btnMissionMode').onclick = startMission;
-    id('btnListMode').onclick = startChallengeList; 
+    id('btnMissionMode').onclick = () => { caseState.isListMode = false; id('doctorLine').textContent='有一名疑似中風病患，請立刻執行駕駛任務送醫。'; show('case'); };
+    id('btnListMode').onclick = startChallengeList;
     id('btnHome').onclick = goHome;
-    id('btnReset').onclick = resetAll;
-    id('tileEMT').onclick = ()=>openRole('EMT');
-    id('subBtn1').onclick = ()=>openSubTask(1);
-    id('subBtn2').onclick = ()=>openSubTask(2);
+    id('subBtn1').onclick = () => { caseState.activeRole = 'EMT_1'; showBrief('EMT_1'); };
+    id('subBtn2').onclick = () => { if(caseState.subStage >= 2){ caseState.activeRole = 'EMT_2'; showBrief('EMT_2'); } };
     id('btnBriefBack').onclick = () => show(caseState.isListMode ? 'list' : 'case');
     id('btnStartTask').onclick = startRoleGame;
-    id('btnRetryRole').onclick = () => showBrief(caseState.activeRole);
-    id('btnFinishRole').onclick = finishRole;
-    id('btnExitGame').onclick = () => { 
-  id('gameOverlay').style.display = 'none';
-  id('gameFrame').src = '';
-  show(caseState.isListMode ? 'list' : 'case');
-};
-    id('btnToggleBrief').onclick = function(){ id('briefDetail').classList.toggle('open'); };
-    id('btnToggleCaseTask').onclick = function(){ id('scrCase').classList.toggle('taskOpen'); };
+    id('btnFinishRole').onclick = () => { if(caseState.activeRole==='EMT_1') caseState.subStage=2; show('case'); updateTaskUI(); };
+    id('btnExitGame').onclick = () => { id('gameOverlay').style.display = 'none'; id('gameFrame').src = ''; };
     goHome();
 };
 
-function requestFullscreenSafe(){
-  const el = document.documentElement;
-  try{ if(el.requestFullscreen){ el.requestFullscreen(); } }catch(e){}
+function updateTaskUI(){
+    id('subBtn1').className = `subTaskBtn ${caseState.subStage > 1 ? 'completed' : ''}`;
+    id('subBtn2').className = `subTaskBtn ${caseState.subStage >= 2 ? '' : 'locked'}`;
+    id('subBtn2').innerHTML = `2. 認路考驗 (字牌+變天) <span>${caseState.subStage >= 2 ? '▶' : '🔒'}</span>`;
 }
 
-function resetAll(){ location.reload(); }
+function show(name){
+  ['scrHome','scrList','scrCase','scrBrief','scrRoleComplete'].forEach(s => id(s).classList.remove('show'));
+  const target = {home:'scrHome', list:'scrList', case:'scrCase', brief:'scrBrief', roleComplete:'scrRoleComplete'}[name];
+  id(target).classList.add('show');
+  name === 'home' ? id('mainStage').classList.add('is-home') : id('mainStage').classList.remove('is-home');
+}
+
 function goHome(){ id('subLine').textContent='首頁'; show('home'); }
 
-function show(which){
-  ['scrHome','scrList','scrCase','scrBrief','scrRoleComplete'].forEach(x=>{
-      const el = id(x); if(el) el.classList.remove('show');
-  });
-  const targetMap = {home:'scrHome', list:'scrList', case:'scrCase', brief:'scrBrief', roleComplete:'scrRoleComplete'};
-  const target = id(targetMap[which]);
-  if(target) target.classList.add('show');
-  which === 'home' ? id('mainStage').classList.add('is-home') : id('mainStage').classList.remove('is-home');
-}
-
-function getRankInfo(levelId){
-  return PERSONAL_RANKING[levelId] || { best: 0, rank: '-' };
-}
-
-function formatRankInfo(levelId){
-  const info = getRankInfo(levelId);
-  return `#${info.rank}｜${info.best}分`;
-}
-
-  
-function startChallengeList(){
-  caseState.isListMode = true;
-  const container = id('challengeListContainer');
-  container.innerHTML = '';
-
-  CHALLENGE_DATA.forEach(group => {
-    const wrap = document.createElement('div');
-    wrap.className = 'module-group';
-
-    const header = document.createElement('div');
-    header.className = 'module-header';
-    header.innerHTML = `<img src="${group.avatar}" class="mod-avatar"><div class="mod-title">${group.title}</div>`;
-    wrap.appendChild(header);
-
-    group.levels.forEach(level => {
-      const btn = document.createElement('button');
-      btn.className = 'challengeBtn';
-
-      btn.innerHTML = `
-        <div class="challengeMain">
-          <div class="challengeName">${level.name}</div>
-        </div>
-        <div class="challengeRank">${formatRankInfo(level.id)}</div>
-      `;
-
-      btn.onclick = () => {
-        caseState.activeRole = level.id;
-        startRoleGame();
-      };
-
-      wrap.appendChild(btn);
-    });
-
-    container.appendChild(wrap);
-  });
-
-  show('list');
-}
-
-function startMission(){
-  caseState.isListMode = false;
-  renderCaseDoctor(); show('case');
-}
-
-function renderCaseDoctor(){
-  id('subTaskContainer').style.display = 'block';
-  id('doctorLine').textContent='有病患在家中發生急性腦中風，請向EMT人員報到，接取任務。';
-  id('subBtn1').className = `subTaskBtn ${caseState.subStage > 1 ? 'completed' : ''}`;
-  id('subBtn2').className = `subTaskBtn ${caseState.subStage >= 2 ? '' : 'locked'}`;
-}
-
-function openRole(role){ if(role === 'EMT') id('scrCase').classList.add('taskOpen'); }
-function openSubTask(sub) { caseState.activeRole = `EMT_${sub}`; showBrief(`EMT_${sub}`); }
-
-function showBrief(roleKey){
-  const cfg = roleCfg(roleKey);
-  id('briefAvatar').src = cfg.avatar; id('briefWho').textContent = cfg.who; 
-  id('briefLine').textContent = cfg.line; id('briefTitle').textContent = cfg.title;
+function showBrief(key){
+  const cfg = roleCfg(key);
+  id('briefAvatar').src = cfg.avatar;
+  id('briefWho').textContent = cfg.who;
+  id('briefLine').textContent = cfg.line;
+  id('briefTitle').textContent = cfg.title;
   id('briefBullets').innerHTML = cfg.bullets.map(b=>`<li>${b}</li>`).join('');
   show('brief');
 }
 
 function startRoleGame(){
-  const cfg = roleCfg(caseState.activeRole);
-  id('gameTitle').textContent = cfg.who;
-
-  const targetFile = GAME_FILES[caseState.activeRole];
-  if(targetFile){
-    id('gameFrame').src = targetFile;
-    id('gameOverlay').style.display = 'flex';
-  } else {
-    alert("此關卡尚未開放！");
-  }
+  const file = GAME_FILES[caseState.activeRole];
+  if(file){ id('gameFrame').src = file; id('gameOverlay').style.display = 'flex'; }
 }
 
-function finishRole(){
-  if(caseState.activeRole === 'EMT_1') caseState.subStage = 2;
-  renderCaseDoctor(); show('case');
+function startChallengeList(){
+  caseState.isListMode = true;
+  const container = id('challengeListContainer');
+  container.innerHTML = '<h2 style="color:var(--accent)">挑戰模式</h2>';
+  ['EMT_1','TEAM_1','NURSE_1'].forEach(k => {
+    const btn = document.createElement('button');
+    btn.className = 'challengeBtn';
+    btn.innerHTML = `<div>${roleCfg(k).who}</div><span>▶</span>`;
+    btn.onclick = () => { caseState.activeRole = k; showBrief(k); };
+    container.appendChild(btn);
+  });
+  show('list');
 }
 
-function roleCfg(roleKey){
-  const base = {
-    // ===== EMT / race =====
-    'EMT_1': {
-      avatar:'assets/emt_card.png',
-      who:'任務一－關卡 1：新手教學',
-      line:'學習基本駕駛與送醫流程。',
-      title:'目標：平安抵達醫院',
-      bullets:['左右滑動換道','避開障礙物','熟悉基本操作']
-    },
-    'EMT_2': {
-      avatar:'assets/emt_card.png',
-      who:'任務一－關卡 2：認路考驗',
-      line:'加入路線判讀與臨場應變。',
-      title:'目標：正確辨識路線並完成送醫',
-      bullets:['辨識路牌資訊','持續閃避障礙','提升反應速度']
-    },
-    'EMT_3': {
-      avatar:'assets/emt_card.png',
-      who:'任務一－關卡 3：全地形救援',
-      line:'在複雜環境中完成極限運送。',
-      title:'目標：突破惡劣條件完成任務',
-      bullets:['應對高難度地形','快速反應危機','成功將患者送達']
-    },
-
-    // ===== NURSE / match =====
-    'NURSE_1': {
-      avatar:'assets/nurse_card.png',
-      who:'任務二－關卡 1：基礎衛教配對',
-      line:'完成基本中風衛教配對任務。',
-      title:'目標：完成基礎照護學習',
-      bullets:['辨識正確衛教內容','完成配對任務','建立照護觀念']
-    },
-    'NURSE_2': {
-      avatar:'assets/nurse_card.png',
-      who:'任務二－關卡 2：進階衛教挑戰',
-      line:'面對更多資訊干擾，完成正確配對。',
-      title:'目標：提升衛教判斷能力',
-      bullets:['在時限內完成','排除錯誤資訊','維持高準確率']
-    },
-    'NURSE_3': {
-      avatar:'assets/nurse_card.png',
-      who:'任務二－關卡 3：高壓照護任務',
-      line:'在高壓情境下完成照護衛教。',
-      title:'目標：完成最終護理挑戰',
-      bullets:['快速判斷關鍵資訊','完成高難度配對','守住病人安全']
-    },
-
-    // ===== TEAM / shoot =====
-    'TEAM_1': {
-      avatar:'assets/team_card.png',
-      who:'任務三－關卡 1：血管再通治療',
-      line:'瞄準並清除阻塞，恢復血流。',
-      title:'目標：完成第一次取栓任務',
-      bullets:['瞄準血栓位置','正確發動治療','恢復腦血流']
-    },
-    'TEAM_2': {
-      avatar:'assets/team_card.png',
-      who:'任務三－關卡 2：深入血栓核心',
-      line:'面對更複雜阻塞情境，提升操作精準度。',
-      title:'目標：高效率清除血栓',
-      bullets:['快速判斷阻塞點','提升命中效率','減少失誤']
-    },
-    'TEAM_3': {
-      avatar:'assets/team_card.png',
-      who:'任務三－關卡 3：極限取栓任務',
-      line:'在終極難度下完成再通挑戰。',
-      title:'目標：完成最終血管救援',
-      bullets:['連續精準操作','應對高強度節奏','成功完成再通']
-    }
+function roleCfg(key){
+  const data = {
+    'EMT_1': { avatar:'assets/emt_card.png', who:'駕駛任務：新手教學', line:'救護車緊急出動！', title:'操作說明', bullets:['使用左右滑動控制方向','避開路面障礙物與車輛','在限定時間內抵達急診室'] },
+    'EMT_2': { avatar:'assets/emt_card.png', who:'駕駛任務：認路考驗', line:'路況變得更複雜了。', title:'進階目標', bullets:['注意路牌標示方向','天候變化會影響視線','保持高速且穩定的駕駛'] },
+    'TEAM_1': { avatar:'assets/team_card.png', who:'取栓任務：血管再通', line:'進入微創手術室。', title:'治療目標', bullets:['精準定位血栓位置','操作取栓支架清除阻塞','恢復大腦正常灌流'] },
+    'NURSE_1': { avatar:'assets/nurse_card.png', who:'護理任務：衛教配對', line:'協助病患家屬了解中風。', title:'學習重點', bullets:['配對正確的中風徵兆','選擇合適的急救流程','完成出院衛教指引'] }
   };
-  return base[roleKey] || base['EMT_1'];
+  return data[key] || data['EMT_1'];
 }
 
 window.addEventListener('message', (e) => {
   if(e.data.type === 'GAME_CLEAR') {
     id('gameOverlay').style.display = 'none';
-    id('gameFrame').src = '';
-    id('rcLine').textContent = `成功！`;
-    id('rcBullets').innerHTML = `<li>花費時間: ${e.data.time || 0}s</li>`;
+    id('rcBullets').innerHTML = `<li>完成時間：${e.data.time || '--'} 秒</li><li>任務評級：S 級</li>`;
     show('roleComplete');
   }
 });
-
-function toast(msg){ id('toast').textContent = msg; id('toast').classList.add('show'); setTimeout(()=>id('toast').classList.remove('show'), 2000); }
 </script>
 </body>
 </html>
