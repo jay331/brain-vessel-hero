@@ -321,28 +321,50 @@ header{
 // ⚙️ 關卡檔案配置中心
 // ==========================================
 const GAME_FILES = {
-  'EMT_1': 'game_race_lev1.html', 
+  // 任務一：駕駛任務（race）
+  'EMT_1': 'game_race_lev1.html',
   'EMT_2': 'game_race_lev2.html',
-  // 'EMT_3': 'game_race_lev3.html', // 預留位置
+  'EMT_3': 'game_race_lev3.html',
+
+  // 任務二：護理任務（match）
+  'NURSE_1': 'game_match_lev1.html',
+  'NURSE_2': 'game_match_lev2.html',
+  'NURSE_3': 'game_match_lev3.html',
+
+  // 任務三：取栓任務（shoot）
   'TEAM_1': 'game_shoot_lev1.html',
-  'NURSE_1': 'game_match_lev1.html'
+  'TEAM_2': 'game_shoot_lev2.html',
+  'TEAM_3': 'game_shoot_lev3.html'
 };
 
 const CHALLENGE_DATA = [
-    {
-        title: '任務一：駕駛與極限救援',
-        avatar: 'assets/emt_card.png',
-        levels: [
-            { id: 'EMT_1', name: '1. 新手教學 (單純陸運)', icon: '▶' },
-            { id: 'EMT_2', name: '2. 認路考驗 (字牌+變天)', icon: '▶' },
-            { id: 'EMT_3', name: '3. 全地形救援 (暫不開放)', icon: '🔒' }
-        ]
-    },
-    {
-        title: '任務二：取栓團隊',
-        avatar: 'assets/team_card.png',
-        levels: [ { id: 'TEAM_1', name: '血管再通治療 (消消樂)', icon: '💉' } ]
-    }
+  {
+    title: '任務一：駕駛與極限救援',
+    avatar: 'assets/emt_card.png',
+    levels: [
+      { id: 'EMT_1', name: '1. 新手教學', icon: '▶' },
+      { id: 'EMT_2', name: '2. 認路考驗', icon: '▶' },
+      { id: 'EMT_3', name: '3. 全地形救援', icon: '▶' }
+    ]
+  },
+  {
+    title: '任務二：護理衛教任務',
+    avatar: 'assets/nurse_card.png',
+    levels: [
+      { id: 'NURSE_1', name: '1. 基礎衛教配對', icon: '▶' },
+      { id: 'NURSE_2', name: '2. 進階衛教挑戰', icon: '▶' },
+      { id: 'NURSE_3', name: '3. 高壓照護任務', icon: '▶' }
+    ]
+  },
+  {
+    title: '任務三：取栓團隊作戰',
+    avatar: 'assets/team_card.png',
+    levels: [
+      { id: 'TEAM_1', name: '1. 血管再通治療', icon: '▶' },
+      { id: 'TEAM_2', name: '2. 深入血栓核心', icon: '▶' },
+      { id: 'TEAM_3', name: '3. 極限取栓任務', icon: '▶' }
+    ]
+  }
 ];
 
 const caseState = {
@@ -449,11 +471,74 @@ function finishRole(){
 
 function roleCfg(roleKey){
   const base = {
-    'EMT_1': { avatar:'assets/emt_card.png', who:'關卡 1：新手教學', line:'學習基本操作', title:'目標: 抵達醫院', bullets:['左右滑動換道','鳴笛炸路障'] },
-    'EMT_2': { avatar:'assets/emt_card.png', who:'關卡 2：認路考驗', line:'加入字牌考驗', title:'目標: 收集字牌', bullets:['收集字牌門','注意天氣變化'] },
-    'EMT_3': { avatar:'assets/emt_card.png', who:'關卡 3：全地形', line:'未開放', title:'-', bullets:['-'] },
-    'TEAM_1': { avatar:'assets/team_card.png', who:'取栓模式', line:'消除血栓', title:'目標: 再通', bullets:['點擊消除'] },
-    'NURSE_1': { avatar:'assets/nurse_card.png', who:'護理模式', line:'預防衛教', title:'目標: 完成', bullets:['完成消消樂'] }
+    // ===== EMT / race =====
+    'EMT_1': {
+      avatar:'assets/emt_card.png',
+      who:'任務一－關卡 1：新手教學',
+      line:'學習基本駕駛與送醫流程。',
+      title:'目標：平安抵達醫院',
+      bullets:['左右滑動換道','避開障礙物','熟悉基本操作']
+    },
+    'EMT_2': {
+      avatar:'assets/emt_card.png',
+      who:'任務一－關卡 2：認路考驗',
+      line:'加入路線判讀與臨場應變。',
+      title:'目標：正確辨識路線並完成送醫',
+      bullets:['辨識路牌資訊','持續閃避障礙','提升反應速度']
+    },
+    'EMT_3': {
+      avatar:'assets/emt_card.png',
+      who:'任務一－關卡 3：全地形救援',
+      line:'在複雜環境中完成極限運送。',
+      title:'目標：突破惡劣條件完成任務',
+      bullets:['應對高難度地形','快速反應危機','成功將患者送達']
+    },
+
+    // ===== NURSE / match =====
+    'NURSE_1': {
+      avatar:'assets/nurse_card.png',
+      who:'任務二－關卡 1：基礎衛教配對',
+      line:'完成基本中風衛教配對任務。',
+      title:'目標：完成基礎照護學習',
+      bullets:['辨識正確衛教內容','完成配對任務','建立照護觀念']
+    },
+    'NURSE_2': {
+      avatar:'assets/nurse_card.png',
+      who:'任務二－關卡 2：進階衛教挑戰',
+      line:'面對更多資訊干擾，完成正確配對。',
+      title:'目標：提升衛教判斷能力',
+      bullets:['在時限內完成','排除錯誤資訊','維持高準確率']
+    },
+    'NURSE_3': {
+      avatar:'assets/nurse_card.png',
+      who:'任務二－關卡 3：高壓照護任務',
+      line:'在高壓情境下完成照護衛教。',
+      title:'目標：完成最終護理挑戰',
+      bullets:['快速判斷關鍵資訊','完成高難度配對','守住病人安全']
+    },
+
+    // ===== TEAM / shoot =====
+    'TEAM_1': {
+      avatar:'assets/team_card.png',
+      who:'任務三－關卡 1：血管再通治療',
+      line:'瞄準並清除阻塞，恢復血流。',
+      title:'目標：完成第一次取栓任務',
+      bullets:['瞄準血栓位置','正確發動治療','恢復腦血流']
+    },
+    'TEAM_2': {
+      avatar:'assets/team_card.png',
+      who:'任務三－關卡 2：深入血栓核心',
+      line:'面對更複雜阻塞情境，提升操作精準度。',
+      title:'目標：高效率清除血栓',
+      bullets:['快速判斷阻塞點','提升命中效率','減少失誤']
+    },
+    'TEAM_3': {
+      avatar:'assets/team_card.png',
+      who:'任務三－關卡 3：極限取栓任務',
+      line:'在終極難度下完成再通挑戰。',
+      title:'目標：完成最終血管救援',
+      bullets:['連續精準操作','應對高強度節奏','成功完成再通']
+    }
   };
   return base[roleKey] || base['EMT_1'];
 }
