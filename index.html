@@ -153,8 +153,53 @@ header{
 .module-header { display: flex; align-items: center; gap: 14px; margin-bottom: 4px; }
 .mod-avatar { width: 48px; height: 48px; border-radius: 12px; object-fit: cover; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-shrink: 0; }
 .mod-title { font-size: 16px; font-weight: 900; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-.challengeBtn { width: 100%; text-align: left; padding: 16px; font-size: 14px; font-weight: 800; border-radius: 14px; background: linear-gradient(180deg, rgba(30,40,65,.8), rgba(15,20,35,.9)); border: 1px solid rgba(255,255,255,.15); box-shadow: 0 8px 16px rgba(0,0,0,.4); color: var(--text); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: transform 0.1s; }
-.challengeBtn:active { transform: scale(0.97); background: linear-gradient(180deg, rgba(40,50,75,.8), rgba(25,30,45,.9)); }
+.challengeBtn{
+  width: 100%;
+  text-align: left;
+  padding: 16px;
+  font-size: 14px;
+  font-weight: 800;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(30,40,65,.8), rgba(15,20,35,.9));
+  border: 1px solid rgba(255,255,255,.15);
+  box-shadow: 0 8px 16px rgba(0,0,0,.4);
+  color: var(--text);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.challengeBtn:active{
+  transform: scale(0.97);
+  background: linear-gradient(180deg, rgba(40,50,75,.8), rgba(25,30,45,.9));
+}
+
+.challengeMain{
+  flex: 1;
+  min-width: 0;
+}
+
+.challengeName{
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.challengeRank{
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--accent);
+  white-space: nowrap;
+  background: rgba(0,255,229,.08);
+  border: 1px solid rgba(0,255,229,.25);
+  padding: 7px 10px;
+  border-radius: 999px;
+}
 
 /* ===== BRIEF & OTHERS ===== */
 #scrBrief #briefTitle{ margin: 0 0 12px 0; padding: 12px; font-size: 16px; font-weight: 900; text-align: center; background: linear-gradient(180deg, rgba(0,255,229,.25), rgba(10,14,28,.9)); border: 1px solid rgba(0,255,229,.35); border-radius: 16px; }
@@ -342,27 +387,27 @@ const CHALLENGE_DATA = [
     title: '任務一：駕駛與極限救援',
     avatar: 'assets/emt_card.png',
     levels: [
-      { id: 'EMT_1', name: '1. 新手教學', icon: '▶' },
-      { id: 'EMT_2', name: '2. 認路考驗', icon: '▶' },
-      { id: 'EMT_3', name: '3. 全地形救援', icon: '▶' }
+      { id: 'EMT_1', name: '1. 新手教學' },
+      { id: 'EMT_2', name: '2. 認路考驗' },
+      { id: 'EMT_3', name: '3. 全地形救援' }
     ]
   },
   {
     title: '任務二：護理衛教任務',
     avatar: 'assets/nurse_card.png',
     levels: [
-      { id: 'NURSE_1', name: '1. 基礎衛教配對', icon: '▶' },
-      { id: 'NURSE_2', name: '2. 進階衛教挑戰', icon: '▶' },
-      { id: 'NURSE_3', name: '3. 高壓照護任務', icon: '▶' }
+      { id: 'NURSE_1', name: '1. 基礎衛教配對' },
+      { id: 'NURSE_2', name: '2. 進階衛教挑戰' },
+      { id: 'NURSE_3', name: '3. 高壓照護任務' }
     ]
   },
   {
     title: '任務三：取栓團隊作戰',
     avatar: 'assets/team_card.png',
     levels: [
-      { id: 'TEAM_1', name: '1. 血管再通治療', icon: '▶' },
-      { id: 'TEAM_2', name: '2. 深入血栓核心', icon: '▶' },
-      { id: 'TEAM_3', name: '3. 極限取栓任務', icon: '▶' }
+      { id: 'TEAM_1', name: '1. 血管再通治療' },
+      { id: 'TEAM_2', name: '2. 深入血栓核心' },
+      { id: 'TEAM_3', name: '3. 極限取栓任務' }
     ]
   }
 ];
@@ -372,6 +417,20 @@ const caseState = {
   currentRole: 'EMT', subStage: 1, 
   activeRole: null, activeSubStage: null, 
   isListMode: false
+};
+
+  const PERSONAL_RANKING = {
+  'EMT_1': { best: 1280, rank: 12 },
+  'EMT_2': { best: 2150, rank: 8 },
+  'EMT_3': { best: 3010, rank: 5 },
+
+  'NURSE_1': { best: 980, rank: 20 },
+  'NURSE_2': { best: 1560, rank: 11 },
+  'NURSE_3': { best: 2240, rank: 7 },
+
+  'TEAM_1': { best: 1320, rank: 18 },
+  'TEAM_2': { best: 2460, rank: 9 },
+  'TEAM_3': { best: 3520, rank: 4 }
 };
 
 function id(elementId) { return document.getElementById(elementId); }
@@ -389,7 +448,11 @@ window.onload = () => {
     id('btnStartTask').onclick = startRoleGame;
     id('btnRetryRole').onclick = () => showBrief(caseState.activeRole);
     id('btnFinishRole').onclick = finishRole;
-    id('btnExitGame').onclick = () => { id('gameOverlay').style.display='none'; id('gameFrame').src=''; show('case'); };
+    id('btnExitGame').onclick = () => { 
+  id('gameOverlay').style.display = 'none';
+  id('gameFrame').src = '';
+  show(caseState.isListMode ? 'list' : 'case');
+};
     id('btnToggleBrief').onclick = function(){ id('briefDetail').classList.toggle('open'); };
     id('btnToggleCaseTask').onclick = function(){ id('scrCase').classList.toggle('taskOpen'); };
     goHome();
@@ -413,22 +476,53 @@ function show(which){
   which === 'home' ? id('mainStage').classList.add('is-home') : id('mainStage').classList.remove('is-home');
 }
 
+function getRankInfo(levelId){
+  return PERSONAL_RANKING[levelId] || { best: 0, rank: '-' };
+}
+
+function formatRankInfo(levelId){
+  const info = getRankInfo(levelId);
+  return `#${info.rank}｜${info.best}分`;
+}
+
+  
 function startChallengeList(){
-    caseState.isListMode=true;
-    const container = id('challengeListContainer'); container.innerHTML = '';
-    CHALLENGE_DATA.forEach(group => {
-        const wrap = document.createElement('div'); wrap.className = 'module-group';
-        const header = document.createElement('div'); header.className = 'module-header';
-        header.innerHTML = `<img src="${group.avatar}" class="mod-avatar"><div class="mod-title">${group.title}</div>`;
-        wrap.appendChild(header);
-        group.levels.forEach(level => {
-            const btn = document.createElement('button'); btn.className = 'challengeBtn';
-            btn.innerHTML = `${level.name} <span>${level.icon}</span>`;
-            btn.onclick = () => showBrief(level.id); wrap.appendChild(btn);
-        });
-        container.appendChild(wrap);
+  caseState.isListMode = true;
+  const container = id('challengeListContainer');
+  container.innerHTML = '';
+
+  CHALLENGE_DATA.forEach(group => {
+    const wrap = document.createElement('div');
+    wrap.className = 'module-group';
+
+    const header = document.createElement('div');
+    header.className = 'module-header';
+    header.innerHTML = `<img src="${group.avatar}" class="mod-avatar"><div class="mod-title">${group.title}</div>`;
+    wrap.appendChild(header);
+
+    group.levels.forEach(level => {
+      const btn = document.createElement('button');
+      btn.className = 'challengeBtn';
+
+      btn.innerHTML = `
+        <div class="challengeMain">
+          <div class="challengeName">${level.name}</div>
+        </div>
+        <div class="challengeRank">${formatRankInfo(level.id)}</div>
+      `;
+
+      btn.onclick = () => {
+        caseState.activeRole = level.id;
+        startRoleGame();
+      };
+
+      wrap.appendChild(btn);
     });
-    show('list');
+
+    container.appendChild(wrap);
+  });
+
+  show('list');
 }
 
 function startMission(){
@@ -457,11 +551,14 @@ function showBrief(roleKey){
 function startRoleGame(){
   const cfg = roleCfg(caseState.activeRole);
   id('gameTitle').textContent = cfg.who;
+
   const targetFile = GAME_FILES[caseState.activeRole];
-  if(targetFile) {
-      id('gameFrame').src = targetFile;
-      id('gameOverlay').style.display='flex';
-  } else { alert("此關卡尚未開放！"); }
+  if(targetFile){
+    id('gameFrame').src = targetFile;
+    id('gameOverlay').style.display = 'flex';
+  } else {
+    alert("此關卡尚未開放！");
+  }
 }
 
 function finishRole(){
@@ -543,11 +640,13 @@ function roleCfg(roleKey){
   return base[roleKey] || base['EMT_1'];
 }
 
-window.addEventListener('message',(e)=>{
-  if(e.data.type==='GAME_CLEAR') {
-      id('gameOverlay').style.display='none';
-      id('rcLine').textContent = `成功！`; id('rcBullets').innerHTML = `<li>花費時間: ${e.data.time}s</li>`;
-      show('roleComplete');
+window.addEventListener('message', (e) => {
+  if(e.data.type === 'GAME_CLEAR') {
+    id('gameOverlay').style.display = 'none';
+    id('gameFrame').src = '';
+    id('rcLine').textContent = `成功！`;
+    id('rcBullets').innerHTML = `<li>花費時間: ${e.data.time || 0}s</li>`;
+    show('roleComplete');
   }
 });
 
