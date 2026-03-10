@@ -218,7 +218,7 @@ header{
         <div class="topTalk">
           <div class="avatar" style="width: 80px; height: 80px;"><img id="doctorAvatar" src="assets/doctor_card.png" alt=""></div>
           <div class="talk">
-            <div class="who" id="caseTitleLine">醫師｜派遣說明</div>
+            <div class="who" id="caseTitleLine">醫師｜病情說明</div>
             <div class="say" id="doctorLine">（載入中…）</div>
           </div>
         </div>
@@ -416,7 +416,7 @@ function startMission(){
 
 function renderCaseDoctor(){
   id('subTaskContainer').style.display = 'block';
-  id('doctorLine').textContent='請依照指示完成教學特訓。';
+  id('doctorLine').textContent='有病患在家中發生急性腦中風，請向EMT人員報到，接取任務。';
   id('subBtn1').className = `subTaskBtn ${caseState.subStage > 1 ? 'completed' : ''}`;
   id('subBtn2').className = `subTaskBtn ${caseState.subStage >= 2 ? '' : 'locked'}`;
 }
