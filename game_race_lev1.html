@@ -594,13 +594,14 @@ const BASE_FORWARD_SPEED = 1.0;
 const SPEED_RAMP_PER_SEC = 0.018;
 const BOOST_PER_STACK = 0.12;
 
-const BOOST_FALL = 190;
-const AMMO_FALL = 190;
+const isMobile = window.innerWidth <= 768; // 判斷是否為手機螢幕
+const BOOST_FALL = isMobile ? 150 : 190;
+const AMMO_FALL = isMobile ? 150 : 190;
 const CAR_LONG_PRESS_MS = 300;
-const NPC_FALL_BASE = 235;
+const NPC_FALL_BASE = isMobile ? 180 : 235; // 降低手機版 NPC 車輛迎面而來的速度
 const NPC_FALL_MIN_MULT = 0.90;
 const NPC_FALL_MAX_MULT = 1.40;
-const OB_FALL = 205;
+const OB_FALL = isMobile ? 160 : 205;       // 降低手機版路障的逼近速度
 
 const WAVE_MIN_MS = 800;
 const WAVE_MAX_MS = 1500;
