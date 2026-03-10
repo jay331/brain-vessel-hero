@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -488,6 +489,12 @@
     #missionDesc{ font-size:15px; }
     #startMissionBtn{ font-size:15px; padding:10px 20px; }
   }
+#timeHud small{
+  font-size:11px;
+  opacity:.85;
+  font-weight:700;
+  margin-left:4px;
+}
 </style>
 </head>
 
@@ -523,7 +530,7 @@
 
     <div id="topHud" aria-live="polite">
       距離 <span class="num" id="distLeft">70000</span>
-      <span id="timeHud">時間 <b id="timeNow">0</b>s</span>
+<span id="timeHud">時間 <b id="timeNow">0</b>s <small id="realTimeNow">(實際 0分00秒)</small></span>
     </div>
 
     <div id="finish">
@@ -646,6 +653,7 @@ const distLeftEl = document.getElementById("distLeft");
 const ammoFloatEl = document.getElementById("ammoFloat");
 const speedHud = document.getElementById("speedHud");
 const timeNowEl = document.getElementById("timeNow");
+const realTimeNowEl = document.getElementById("realTimeNow");
 const rankListEl = document.getElementById("rankList");
 const leftBtn = document.getElementById("leftBtn");
 const rightBtn = document.getElementById("rightBtn");
@@ -677,6 +685,12 @@ let runStartAt = 0;
 let elapsedMs = 0;
 let speedRamp = 0;
 let firstPhaseWeatherDone = false;
+
+let maxSpeedKmh = 0;
+let penaltyCount = 0;
+let totalPenaltyMs = 0;
+let onsetToDoorTargetMin = 30;   // 任務要求幾分鐘內到院
+let realTransportMs = 0;         // 換算後真實送醫時間
 
 let nextWaveAt = 0;
 let nextBoostAt = 0;
@@ -721,7 +735,7 @@ const HTML_NPC_CAR = `<div class="body"></div><div class="glass"></div><div clas
 function generateMission(){
   const age = Math.floor(Math.random() * 60) + 18;
   const gender = ["男性", "女性"][Math.floor(Math.random() * 2)];
-  const info = `${age}歲${gender}`;
+  const info = `${age}歲 ${gender}`;
 
 const hours24 = Math.floor(Math.random() * 24);
 const mins = ["00", "15", "30", "45"][Math.floor(Math.random() * 4)];
@@ -745,6 +759,7 @@ const time = `${period}${displayHour}:${mins}`;
     info,
     time,
     symptom,
+    targetMin: onsetToDoorTargetMin,
     wrongInfos: [`${age+12}歲${gender === "男性" ? "女性" : "男性"}`, `${Math.max(18, age-10)}歲${gender}`],
 wrongTimes: [
   `${["凌晨","早上","上午","下午","晚上"][Math.floor(Math.random()*5)]}${displayHour}:${mins}`,
@@ -753,11 +768,11 @@ wrongTimes: [
     wrongSymptoms: ["胸悶胸痛", "腹痛腹瀉", "呼吸困難", "關節酸痛"].sort(()=>Math.random()-0.5).slice(0,2)
   };
 
-  document.getElementById("missionDesc").innerHTML =
-    `${info}<br>` +
-    `今天 ${time}<br>` +
-    `突然 ${symptom}<br>` +
-    `請儘快運送到亞東醫院！`;
+document.getElementById("missionDesc").innerHTML =
+  `${info}` +
+  ` 今天${time}<br>` +
+  `突然 ${symptom}<br>` +
+  `請 ${onsetToDoorTargetMin} 分鐘內送達亞東醫院<br>`;
 }
 
 document.getElementById("startMissionBtn").addEventListener("click", () => {
@@ -978,14 +993,8 @@ function spawnNpcWaveSmart(){
   const wantTwo = Math.random() < WAVE_TWO_CAR_PROB;
   const count = wantTwo ? 2 : 1;
 
-  const reachable = [lane, lane - 1, lane + 1].filter(x => NPC_LANES.includes(x));
-  const preferred = safeLanesNow.filter(ln => reachable.includes(ln));
-  const keepLanePool = preferred.length ? preferred : safeLanesNow;
-  const keepLane = keepLanePool[Math.floor(Math.random() * keepLanePool.length)];
-
-  let candidates = NPC_LANES.filter(
-    ln => ln !== keepLane &&
-    (nearestTopInLane(ln, "npc") === Infinity || nearestTopInLane(ln, "npc") > SAME_LANE_MIN_GAP)
+  let candidates = safeLanesNow.filter(
+    ln => nearestTopInLane(ln, "npc") === Infinity || nearestTopInLane(ln, "npc") > SAME_LANE_MIN_GAP
   );
 
   if(candidates.length === 0) return false;
@@ -1217,7 +1226,7 @@ function startTransition(targetPhase, text){
 function applyBoost(){
   boostStack += 1;
   player.classList.add("flash-green");
-  setTimeout(() => player.classList.remove("flash-green"), 500);
+  setTimeout(() => player.classList.remove("flash-green"), 220);
 }
 
 function applyPenalty(now, duration = PENALTY_CRASH_MS, msg = "延誤"){
@@ -1225,10 +1234,20 @@ function applyPenalty(now, duration = PENALTY_CRASH_MS, msg = "延誤"){
   pauseUntil = Math.max(pauseUntil, now + duration);
   boostStack = 0;
   player.classList.remove("flash-green");
+
+  penaltyCount += 1;
+  totalPenaltyMs += duration;
+
   penaltyBox.style.display = "block";
   penaltyBox.innerHTML = `⛔ ${msg} <strong>${Math.ceil((pauseUntil - now) / 1000)}</strong> 秒<span class="sub">（原地暫停，距離倒數不動）</span>`;
+
   game.animate(
-    [{ transform:"translateX(0)" }, { transform:"translateX(-6px)" }, { transform:"translateX(6px)" }, { transform:"translateX(0)" }],
+    [
+      { transform:"translateX(0)" },
+      { transform:"translateX(-6px)" },
+      { transform:"translateX(6px)" },
+      { transform:"translateX(0)" }
+    ],
     { duration:220, iterations:1 }
   );
 }
@@ -1275,6 +1294,14 @@ function tryShock(now){
   updateAmmoUI();
   lastFireAt = now;
   sfxShoot();
+player.animate(
+  [
+    { filter:"drop-shadow(0 0 0px rgba(255,215,0,0))" },
+    { filter:"drop-shadow(0 0 18px rgba(255,215,0,1)) brightness(1.15)" },
+    { filter:"drop-shadow(0 0 0px rgba(255,215,0,0))" }
+  ],
+  { duration:220, iterations:1 }
+);
   const s = makeShock(now);
   game.appendChild(s.el);
   entities.push(s);
@@ -1393,6 +1420,11 @@ firstPhaseWeatherDone = false;
   carLongPressTriggered = false;
   elapsedMs = 0;
   timeNowEl.textContent = "0";
+maxSpeedKmh = 0;
+penaltyCount = 0;
+totalPenaltyMs = 0;
+realTransportMs = 0;
+if(speedHud) speedHud.textContent = "0 km/h";
   penaltyBox.style.display = "none";
   player.classList.remove("boosting", "flash-green", "armed", "finishing", "jumping");
   topHud.classList.remove("boosting");
@@ -1444,20 +1476,43 @@ firstPhaseWeatherDone = false;
   generateMission();
   missionBanner.style.display = "block";
 }
+function formatMinSecFromMs(ms){
+  const totalSec = Math.round(ms / 1000);
+  const mm = Math.floor(totalSec / 60);
+  const ss = totalSec % 60;
+  return `${mm}分${String(ss).padStart(2, "0")}秒`;
+}
 
 function gameEnd(){
   if(over) return;
   over = true;
   overlay.style.display = "flex";
   sfxGoal();
+
   document.getElementById("rankBox").style.display = "block";
   document.getElementById("instructionText").style.display = "none";
+
   lastRunTimeMs = elapsedMs;
-  resultTitle.textContent = "✅ 成功抵達醫院！";
-  resultText.textContent = `到院時間：${fmtSec(elapsedMs)} 秒（越快越好）`;
+  realTransportMs = elapsedMs * 10; // 1秒遊戲 = 10秒真實時間
+
+  const targetMs = onsetToDoorTargetMin * 60 * 1000;
+  const inTime = realTransportMs <= targetMs;
+
+  resultTitle.textContent = inTime ? "✅ 及時到院！" : "⚠️ 未及時到院";
+  resultText.innerHTML =
+    `遊戲到院時間：${fmtSec(elapsedMs)} 秒<br>` +
+    `真實換算時間：${formatMinSecFromMs(realTransportMs)}<br>` +
+    `任務目標：${onsetToDoorTargetMin} 分鐘內到院<br>` +
+    `最快時速：${maxSpeedKmh} km/h<br>` +
+    `拖延次數：${penaltyCount} 次<br>` +
+    `累積拖延：${formatMinSecFromMs(totalPenaltyMs)}`;
+
   const top10 = addRank(elapsedMs);
   renderRanks(top10);
-  try{ parent.postMessage({ type:'GAME_CLEAR', game:'race', time:Math.floor(elapsedMs / 1000) }, '*'); }catch{}
+
+  try{
+    parent.postMessage({ type:'GAME_CLEAR', game:'race', time:Math.floor(elapsedMs / 1000) }, '*');
+  }catch{}
 }
 
 function gameFail(){
@@ -1477,7 +1532,12 @@ function tick(now){
   const dt = Math.max(0, Math.min(0.03, (now - lastFrame) / 1000));
   lastFrame = now;
   elapsedMs = now - runStartAt;
-  timeNowEl.textContent = String(Math.floor(elapsedMs / 1000));
+timeNowEl.textContent = String(Math.floor(elapsedMs / 1000));
+
+const realNowMs = elapsedMs * 10; // 1秒遊戲 = 10秒真實時間
+if(realTimeNowEl){
+  realTimeNowEl.textContent = `(實際 ${formatMinSecFromMs(realNowMs)})`;
+}
   jumpLift = computeJumpLift(now);
   player.style.transform = `translateY(${-jumpLift}px)`;
 
@@ -1508,7 +1568,11 @@ function tick(now){
   const rampedSpeed = BASE_FORWARD_SPEED * (1 + speedRamp);
   const forwardMult = 1 + boostStack * BOOST_PER_STACK;
 const currentSpeed = rampedSpeed * forwardMult;
-const kmh = Math.round(currentSpeed * 60);
+
+/* 遊戲速度換成較合理的顯示時速 */
+const kmh = Math.round(currentSpeed * 22 + boostStack * 6);
+
+if(kmh > maxSpeedKmh) maxSpeedKmh = kmh;
 if(speedHud) speedHud.textContent = kmh + " km/h";
 
   distance += (rampedSpeed * forwardMult) * DIST_UNIT * dt;
