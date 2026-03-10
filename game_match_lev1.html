@@ -74,15 +74,20 @@
             align-items: center;
         }
 
+        .compact-grid-3 {
+            grid-template-columns: 1fr 1.15fr 1fr;
+            gap: 6px;
+        }
+
         .compact-item {
             text-align: center;
             min-width: 0;
         }
 
         .compact-label {
-            font-size: 0.54rem;
+            font-size: 0.5rem;
             color: #9a9a9a;
-            line-height: 1.05;
+            line-height: 1;
             margin-bottom: 1px;
         }
 
@@ -95,18 +100,22 @@
         #blockage { color: var(--danger); }
         #score { color: var(--safe); }
 
-        #alert-signal {
-            margin-top: 4px;
+        .compact-pill {
             width: 100%;
             text-align: center;
-            font-size: 0.5rem;
+            font-size: 0.48rem;
             line-height: 1;
-            padding: 3px 6px;
+            padding: 4px 6px;
             border-radius: 999px;
             font-weight: 800;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            margin: 0;
+        }
+
+        #alert-signal {
+            margin-top: 0;
         }
 
         .status-normal {
@@ -137,18 +146,26 @@
             width: 100%;
             min-height: 0;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
         }
 
+        #vessel-title {
+            font-size: 0.48rem;
+            color: rgba(255,255,255,0.7);
+            letter-spacing: 0.3px;
+            line-height: 1;
+            margin-bottom: 2px;
+            text-align: center;
+        }
+
         #vessel-container {
             position: relative;
-            width: min(80vw, calc((100dvh - 120px) * 280 / 525), 350px);
+            width: min(80vw, calc((100dvh - 112px) * 280 / 525), 350px);
             aspect-ratio: 280 / 525;
             background: var(--blood-bg);
             border: 2px solid #333;
-            border-top: 18px solid var(--vessel-wall);
-            border-bottom: 16px solid var(--vessel-wall);
             box-shadow: 0 0 32px rgba(255, 0, 0, 0.22);
             overflow: hidden;
             user-select: none;
@@ -157,18 +174,27 @@
             flex-shrink: 0;
         }
 
-        #vessel-container::after {
-            content: "亞東中風中心 FEMH STROKE CENTER";
+        #vessel-container::before {
+            content: "";
             position: absolute;
-            top: -16px;
             left: 0;
+            top: 0;
             width: 100%;
-            text-align: center;
-            color: rgba(255,255,255,0.7);
-            font-size: 0.48rem;
-            font-weight: bold;
-            letter-spacing: 0.3px;
-            z-index: 10;
+            height: 18px;
+            background: var(--vessel-wall);
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        #vessel-container::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 16px;
+            background: var(--vessel-wall);
+            z-index: 3;
             pointer-events: none;
         }
 
@@ -291,14 +317,13 @@
                 font-size: 0.82rem;
             }
 
-            #alert-signal {
+            .compact-pill {
                 font-size: 0.44rem;
-                margin-top: 3px;
                 padding: 2px 5px;
             }
 
             #vessel-container {
-                width: min(75vw, calc((100dvh - 102px) * 280 / 525), 310px);
+                width: min(75vw, calc((100dvh - 94px) * 280 / 525), 310px);
             }
 
             #log-box {
@@ -325,7 +350,7 @@
                 font-size: 0.86rem;
             }
 
-            #alert-signal {
+            .compact-pill {
                 font-size: 0.46rem;
             }
         }
@@ -336,21 +361,25 @@
 <div id="app">
     <div id="top-hud">
         <div class="compact-card">
-            <div class="compact-grid">
+            <div class="compact-grid compact-grid-3">
                 <div class="compact-item">
                     <div class="compact-label">血管狹窄度</div>
                     <div id="blockage" class="compact-value">--%</div>
+                </div>
+                <div class="compact-item">
+                    <div class="compact-label">狀態</div>
+                    <div id="alert-signal" class="compact-pill status-normal">臨床掃描啟動</div>
                 </div>
                 <div class="compact-item">
                     <div class="compact-label">健康積分</div>
                     <div id="score" class="compact-value">0</div>
                 </div>
             </div>
-            <div id="alert-signal" class="status-normal">臨床掃描啟動</div>
         </div>
     </div>
 
     <div id="game-wrap">
+        <div id="vessel-title">亞東中風中心 FEMH STROKE CENTER</div>
         <div id="vessel-container">
             <canvas id="tetris" width="280" height="525"></canvas>
         </div>
@@ -668,21 +697,21 @@ function checkVesselStatus(fullness) {
 
     if (fullness >= 70) {
         alertEl.innerText = "🚨 嚴重狹窄";
-        alertEl.className = "status-danger";
+        alertEl.className = "compact-pill status-danger";
         if (now - lastSoundTime > 600) {
             AudioEngine.playDanger();
             lastSoundTime = now;
         }
     } else if (fullness >= 50) {
         alertEl.innerText = "⚠️ 預警";
-        alertEl.className = "status-warning";
+        alertEl.className = "compact-pill status-warning";
         if (now - lastSoundTime > 1500) {
             AudioEngine.playWarning();
             lastSoundTime = now;
         }
     } else {
         alertEl.innerText = "管腔通暢";
-        alertEl.className = "status-normal";
+        alertEl.className = "compact-pill status-normal";
     }
 }
 
