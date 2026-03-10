@@ -1728,7 +1728,7 @@ else if(distance >= 76000 && wordCount === 3){
     else if(e.type === "ob") speed = OB_FALL * enemySpeedMult;
     else if(e.type === "boost") speed = BOOST_FALL * itemSpeedMult;
     else if(e.type === "ammo") speed = AMMO_FALL * itemSpeedMult;
-    else if(e.type.includes("_gate")) speed = OB_FALL * 1.3;
+    else if(e.type.includes("_gate")) speed = OB_FALL * 1.0;
 
     if(e.type !== "shock"){
       e.el.style.top = (e.el.offsetTop + speed * dt) + "px";
