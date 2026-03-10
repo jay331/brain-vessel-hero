@@ -311,17 +311,39 @@ window.onload = () => {
     id('btnMissionMode').onclick = () => { caseState.isListMode = false; id('doctorLine').textContent='有一名疑似中風病患，請立刻執行駕駛任務送醫。'; show('case'); };
     id('btnListMode').onclick = startChallengeList;
     id('btnHome').onclick = goHome;
+    
+    // 個案模式任務按鈕
     id('subBtn1').onclick = () => { caseState.activeRole = 'EMT_1'; showBrief('EMT_1'); };
     id('subBtn2').onclick = () => { if(caseState.subStage >= 2){ caseState.activeRole = 'EMT_2'; showBrief('EMT_2'); } };
     id('subBtn3').onclick = () => { if(caseState.subStage >= 3){ caseState.activeRole = 'EMT_3'; showBrief('EMT_3'); } };
+    
+    // 返回與開始按鈕
     id('btnBriefBack').onclick = () => show(caseState.isListMode ? 'list' : 'case');
     id('btnStartTask').onclick = startRoleGame;
+    
+    // 結算畫面按鈕
+    id('btnRetryRole').onclick = () => showBrief(caseState.activeRole); // 再試一次
     id('btnFinishRole').onclick = () => { 
-        if(caseState.activeRole==='EMT_1') caseState.subStage=2; 
-        if(caseState.activeRole==='EMT_2') caseState.subStage=3; 
-        show('case'); updateTaskUI(); 
+        if (caseState.isListMode) {
+            // 如果是清單模式，結算完直接回到清單
+            show('list');
+        } else {
+            // 如果是個案模式，結算完推進進度並回到個案頁面
+            if(caseState.activeRole==='EMT_1') caseState.subStage=2; 
+            if(caseState.activeRole==='EMT_2') caseState.subStage=3; 
+            updateTaskUI(); 
+            show('case'); 
+        }
     };
-    id('btnExitGame').onclick = () => { id('gameOverlay').style.display = 'none'; id('gameFrame').src = ''; };
+    
+    // 遊戲中途退出按鈕
+    id('btnExitGame').onclick = () => { 
+        id('gameOverlay').style.display = 'none'; 
+        id('gameFrame').src = ''; 
+        // 依照進入的模式決定退出後回到哪裡
+        show(caseState.isListMode ? 'list' : 'case');
+    };
+    
     goHome();
 };
 
@@ -420,5 +442,3 @@ window.addEventListener('message', (e) => {
   }
 });
 </script>
-</body>
-</html>
