@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -707,12 +706,6 @@ let transitionUntil = 0;
 let nextPhaseTarget = 1;
 let skinSwapped = false;
 
-let touchStartX = 0;
-let touchStartY = 0;
-let touchStartOnPlayer = false;
-const SWIPE_THRESHOLD = 30;
-const SWIPE_VERTICAL_TOLERANCE = 24;
-  
 let isSpawningGates = false;
 let infoGateCount = 0;
 let transportGateCount = 0;
@@ -733,15 +726,15 @@ const MYSTERY_EVENTS = [
   { id:'rain', name:'🌧️ 暴雨襲來！', duration:15000 }
 ];
 
-const HTML_CAR = `<div class="body"></div><div class="glass"></div><div class="wheels"></div><div class="sirens"></div><div class="lights"><span></span><span></span></div>`;
-const HTML_HELI = `<div class="tail"></div><div class="body"></div><div class="cabin"></div><div class="rotor"></div><div class="cross">✚</div>`;
-const HTML_BOAT = `<div class="wake"></div><div class="hull"></div><div class="cabin"></div><div class="cross">✚</div>`;
-const HTML_NPC_CAR = `<div class="body"></div><div class="glass"></div><div class="rear-glass"></div><div class="wheels"></div><div class="lights"><span></span><span></span></div><div class="taillights"><span></span><span></span></div>`;
+const HTML_CAR = <div class="body"></div><div class="glass"></div><div class="wheels"></div><div class="sirens"></div><div class="lights"><span></span><span></span></div>;
+const HTML_HELI = <div class="tail"></div><div class="body"></div><div class="cabin"></div><div class="rotor"></div><div class="cross">✚</div>;
+const HTML_BOAT = <div class="wake"></div><div class="hull"></div><div class="cabin"></div><div class="cross">✚</div>;
+const HTML_NPC_CAR = <div class="body"></div><div class="glass"></div><div class="rear-glass"></div><div class="wheels"></div><div class="lights"><span></span><span></span></div><div class="taillights"><span></span><span></span></div>;
 
 function generateMission(){
   const age = Math.floor(Math.random() * 60) + 18;
   const gender = ["男性", "女性"][Math.floor(Math.random() * 2)];
-  const info = `${age}歲 ${gender}`;
+  const info = ${age}歲 ${gender};
 
 const hours24 = Math.floor(Math.random() * 24);
 const mins = ["00", "15", "30", "45"][Math.floor(Math.random() * 4)];
@@ -756,7 +749,7 @@ else period = "晚上";
 let displayHour = hours24 % 12;
 if(displayHour === 0) displayHour = 12;
 
-const time = `${period}${displayHour}:${mins}`;
+const time = ${period}${displayHour}:${mins};
 
   const strokes = ["右側肢體無力", "左側肢體無力", "臉部歪斜", "說話不清", "視力模糊"];
   const symptom = strokes[Math.floor(Math.random() * strokes.length)];
@@ -766,19 +759,19 @@ const time = `${period}${displayHour}:${mins}`;
     time,
     symptom,
     targetMin: onsetToDoorTargetMin,
-    wrongInfos: [`${age+12}歲${gender === "男性" ? "女性" : "男性"}`, `${Math.max(18, age-10)}歲${gender}`],
+    wrongInfos: [${age+12}歲${gender === "男性" ? "女性" : "男性"}, ${Math.max(18, age-10)}歲${gender}],
 wrongTimes: [
-  `${["凌晨","早上","上午","下午","晚上"][Math.floor(Math.random()*5)]}${displayHour}:${mins}`,
-  `${period}${displayHour === 12 ? 1 : displayHour+1}:00`
+  ${["凌晨","早上","上午","下午","晚上"][Math.floor(Math.random()*5)]}${displayHour}:${mins},
+  ${period}${displayHour === 12 ? 1 : displayHour+1}:00
 ],
     wrongSymptoms: ["胸悶胸痛", "腹痛腹瀉", "呼吸困難", "關節酸痛"].sort(()=>Math.random()-0.5).slice(0,2)
   };
 
 document.getElementById("missionDesc").innerHTML =
-  `${info}` +
-  ` 今天${time}<br>` +
-  `突然 ${symptom}<br>` +
-  `請 ${onsetToDoorTargetMin} 分鐘內送達亞東醫院<br>`;
+  ${info} +
+   今天${time}<br> +
+  突然 ${symptom}<br> +
+  請 ${onsetToDoorTargetMin} 分鐘內送達亞東醫院<br>;
 }
 
 document.getElementById("startMissionBtn").addEventListener("click", () => {
@@ -842,7 +835,7 @@ function fmtSec(ms){ return (ms / 1000).toFixed(1); }
 
 function hasAllHospitalWords(){
   return WORD_TARGETS.every((_, i) => {
-    const slot = document.getElementById(`slot-${i}`);
+    const slot = document.getElementById(slot-${i});
     return slot && slot.textContent === WORD_TARGETS[i] && slot.classList.contains("active");
   });
 }
@@ -926,11 +919,11 @@ function makeNpcCar(laneIndex){
     el.innerHTML = HTML_NPC_CAR;
   }else if(currentPhase === 2){
     el.className = "npcBird";
-    el.innerHTML = `<div class="body"></div><div class="wing left"></div><div class="wing right"></div>`;
+    el.innerHTML = <div class="body"></div><div class="wing left"></div><div class="wing right"></div>;
     vMult *= 1.2;
   }else if(currentPhase === 3){
     el.className = "npcDolphin";
-    el.innerHTML = `<div class="tail"></div><div class="fin left"></div><div class="fin right"></div><div class="body"></div>`;
+    el.innerHTML = <div class="tail"></div><div class="fin left"></div><div class="fin right"></div><div class="body"></div>;
     vMult *= 1.1;
   }
 
@@ -1077,7 +1070,7 @@ function spawnInfoGates(index){
   options.forEach((opt, laneIdx) => {
     const el = document.createElement("div");
     el.className = "gate info-gate";
-    el.innerHTML = `<span>${opt.text}</span>`;
+    el.innerHTML = <span>${opt.text}</span>;
     const centers = laneCenters();
     const size = window.innerWidth <= 768 ? 70 : 80;
     el.style.left = (centers[laneIdx] - size / 2) + "px";
@@ -1100,7 +1093,7 @@ function spawnWordGates(index){
   options.forEach((opt, laneIdx) => {
     const el = document.createElement("div");
     el.className = "gate word";
-    el.innerHTML = `<span class="icon">${opt.char}</span>`;
+    el.innerHTML = <span class="icon">${opt.char}</span>;
     const centers = laneCenters();
     const size = window.innerWidth <= 768 ? 70 : 80;
     el.style.left = (centers[laneIdx] - size / 2) + "px";
@@ -1115,7 +1108,7 @@ function spawnMysteryGates(){
   [0, 1, 2].forEach(ln => {
     const el = document.createElement("div");
     el.className = "gate mystery";
-    el.innerHTML = `<span>變天</span><span class="icon">❓</span>`;
+    el.innerHTML = <span>變天</span><span class="icon">❓</span>;
     const centers = laneCenters();
     const size = window.innerWidth <= 768 ? 70 : 80;
     el.style.left = (centers[ln] - size / 2) + "px";
@@ -1152,7 +1145,7 @@ function spawnTransportGates(isLast){
   options.forEach((opt, idx) => {
     const el = document.createElement("div");
     el.className = "gate " + opt.cls;
-    el.innerHTML = `<span>${opt.txt}</span><span class="icon">${opt.icon}</span>`;
+    el.innerHTML = <span>${opt.txt}</span><span class="icon">${opt.icon}</span>;
     const centers = laneCenters();
     const size = window.innerWidth <= 768 ? 70 : 80;
     el.style.left = (centers[idx] - size / 2) + "px";
@@ -1245,7 +1238,7 @@ function applyPenalty(now, duration = PENALTY_CRASH_MS, msg = "延誤"){
   totalPenaltyMs += duration;
 
   penaltyBox.style.display = "block";
-  penaltyBox.innerHTML = `⛔ ${msg} <strong>${Math.ceil((pauseUntil - now) / 1000)}</strong> 秒<span class="sub">（原地暫停，距離倒數不動）</span>`;
+  penaltyBox.innerHTML = ⛔ ${msg} <strong>${Math.ceil((pauseUntil - now) / 1000)}</strong> 秒<span class="sub">（原地暫停，距離倒數不動）</span>;
 
   game.animate(
     [
@@ -1269,7 +1262,7 @@ function hitWrongGate(type, now){
     applyPenalty(now, PENALTY_WRONG_MS, "選擇錯誤");
     triggerEventText("❌ 路線錯誤");
     wordCount--;
-    const slot = document.getElementById(`slot-${currentWordIndex}`);
+    const slot = document.getElementById(slot-${currentWordIndex});
     if(slot){
       slot.classList.remove("active");
       slot.textContent = "";
@@ -1284,9 +1277,9 @@ function hitWrongGate(type, now){
 }
 
 function updateAmmoUI(){
-  shootBtn.textContent = ammo > 0 ? `📣 鳴笛 (${ammo})` : "📣 鳴笛";
+  shootBtn.textContent = ammo > 0 ? 📣 鳴笛 (${ammo}) : "📣 鳴笛";
   if(ammoFloatEl){
-    ammoFloatEl.textContent = `📣${ammo}`;
+    ammoFloatEl.textContent = 📣${ammo};
     ammoFloatEl.classList.toggle("empty", ammo <= 0);
   }
   if(ammo > 0) player.classList.add("armed");
@@ -1312,7 +1305,7 @@ player.animate(
   game.appendChild(s.el);
   entities.push(s);
   player.animate(
-    [{ transform:`translateY(${-jumpLift}px) scale(1)` }, { transform:`translateY(${-jumpLift}px) scale(1.02)` }, { transform:`translateY(${-jumpLift}px) scale(1)` }],
+    [{ transform:translateY(${-jumpLift}px) scale(1) }, { transform:translateY(${-jumpLift}px) scale(1.02) }, { transform:translateY(${-jumpLift}px) scale(1) }],
     { duration:150, iterations:1 }
   );
 }
@@ -1324,7 +1317,7 @@ function tryJump(now){
   jumpUntil = now + JUMP_DURATION_MS;
   player.classList.add("jumping");
   player.animate(
-    [{ transform:`translateY(0px) scale(1)` }, { transform:`translateY(${-JUMP_HEIGHT_PX}px) scale(1.04)` }, { transform:`translateY(0px) scale(1)` }],
+    [{ transform:translateY(0px) scale(1) }, { transform:translateY(${-JUMP_HEIGHT_PX}px) scale(1.04) }, { transform:translateY(0px) scale(1) }],
     { duration:JUMP_DURATION_MS, easing:"cubic-bezier(.2,.8,.2,1)", iterations:1 }
   );
 }
@@ -1359,13 +1352,13 @@ function addRank(timeMs){
 function renderRanks(arr){
   rankListEl.innerHTML = "";
   if(!arr.length){
-    rankListEl.innerHTML = `<li><span>—</span><span>尚無紀錄</span></li>`;
+    rankListEl.innerHTML = <li><span>—</span><span>尚無紀錄</span></li>;
     return;
   }
   arr.forEach((r, idx) => {
     const li = document.createElement("li");
     if(lastRunTimeMs !== null && Math.abs(r.t - lastRunTimeMs) < 1) li.classList.add("rankMe");
-    li.innerHTML = `<span>#${idx+1}</span><span>${fmtSec(r.t)} s</span>`;
+    li.innerHTML = <span>#${idx+1}</span><span>${fmtSec(r.t)} s</span>;
     rankListEl.appendChild(li);
   });
 }
@@ -1464,7 +1457,7 @@ if(speedHud) speedHud.textContent = "0 km/h";
   playerSkin.classList.remove("transforming");
 
   for(let i = 0; i < 4; i++){
-    const slot = document.getElementById(`slot-${i}`);
+    const slot = document.getElementById(slot-${i});
     if(slot){
       slot.className = "word-slot";
       slot.textContent = "";
@@ -1486,7 +1479,7 @@ function formatMinSecFromMs(ms){
   const totalSec = Math.round(ms / 1000);
   const mm = Math.floor(totalSec / 60);
   const ss = totalSec % 60;
-  return `${mm}分${String(ss).padStart(2, "0")}秒`;
+  return ${mm}分${String(ss).padStart(2, "0")}秒;
 }
 
 function gameEnd(){
@@ -1506,12 +1499,12 @@ function gameEnd(){
 
   resultTitle.textContent = inTime ? "✅ 及時到院！" : "⚠️ 未及時到院";
   resultText.innerHTML =
-    `遊戲到院時間：${fmtSec(elapsedMs)} 秒<br>` +
-    `真實換算時間：${formatMinSecFromMs(realTransportMs)}<br>` +
-    `任務目標：${onsetToDoorTargetMin} 分鐘內到院<br>` +
-    `最快時速：${maxSpeedKmh} km/h<br>` +
-    `拖延次數：${penaltyCount} 次<br>` +
-    `累積拖延：${formatMinSecFromMs(totalPenaltyMs)}`;
+    遊戲到院時間：${fmtSec(elapsedMs)} 秒<br> +
+    真實換算時間：${formatMinSecFromMs(realTransportMs)}<br> +
+    任務目標：${onsetToDoorTargetMin} 分鐘內到院<br> +
+    最快時速：${maxSpeedKmh} km/h<br> +
+    拖延次數：${penaltyCount} 次<br> +
+    累積拖延：${formatMinSecFromMs(totalPenaltyMs)};
 
   const top10 = addRank(elapsedMs);
   renderRanks(top10);
@@ -1529,7 +1522,7 @@ function gameFail(){
   document.getElementById("rankBox").style.display = "none";
   document.getElementById("instructionText").style.display = "none";
   resultTitle.textContent = "❌ 發生交通事故！";
-  resultText.textContent = `不慎發生碰撞，運送失敗，請重新嘗試。`;
+  resultText.textContent = 不慎發生碰撞，運送失敗，請重新嘗試。;
 }
 
 function tick(now){
@@ -1542,10 +1535,10 @@ timeNowEl.textContent = String(Math.floor(elapsedMs / 1000));
 
 const realNowMs = elapsedMs * 10; // 1秒遊戲 = 10秒真實時間
 if(realTimeNowEl){
-  realTimeNowEl.textContent = `(實際 ${formatMinSecFromMs(realNowMs)})`;
+  realTimeNowEl.textContent = (實際 ${formatMinSecFromMs(realNowMs)});
 }
   jumpLift = computeJumpLift(now);
-  player.style.transform = `translateY(${-jumpLift}px)`;
+  player.style.transform = translateY(${-jumpLift}px);
 
   if(now >= jumpUntil) player.classList.remove("jumping");
 
@@ -1817,7 +1810,7 @@ else if(e.type === "info_gate"){
       else if(e.type === "word_gate"){
         if(e.isCorrect){
           sfxPickup();
-          const slot = document.getElementById(`slot-${currentWordIndex}`);
+          const slot = document.getElementById(slot-${currentWordIndex});
           if(slot){
             slot.textContent = WORD_TARGETS[currentWordIndex];
             slot.classList.add("active");
@@ -1931,78 +1924,77 @@ leftBtn.addEventListener("click", () => { ensureAudio(); moveLeft(); });
 rightBtn.addEventListener("click", () => { ensureAudio(); moveRight(); });
 shootBtn.addEventListener("click", () => { ensureAudio(); tryShock(performance.now()); });
 
+let touchStartX = 0;
+let touchStartY = 0;
+let isCarTouch = false;
+const SWIPE_THRESHOLD = 30; // 判斷為滑動的最小距離（像素），數字越小越靈敏
+
 game.addEventListener("touchstart", (e) => {
   ensureAudio();
   if(!gameRunning || over || finishing || performance.now() < pauseUntil || isTransitioning) return;
-
   const t = e.touches[0];
   if(!t) return;
 
+  // 記錄初始觸控位置
   touchStartX = t.clientX;
   touchStartY = t.clientY;
-  touchStartOnPlayer = isTapOnPlayer(t.clientX, t.clientY);
 
-  if(touchStartOnPlayer){
+  // 判斷是否點擊到玩家車子
+  if(isTapOnPlayer(t.clientX, t.clientY)){
     e.preventDefault();
+    isCarTouch = true;
     carLongPressTriggered = false;
     clearTimeout(carLongPressTimer);
     carLongPressTimer = setTimeout(() => {
       carLongPressTriggered = true;
       tryJump(performance.now());
     }, CAR_LONG_PRESS_MS);
+    return;
   }
+
+  isCarTouch = false;
+  e.preventDefault(); // 防止螢幕跟著滾動
 }, { passive:false });
 
 game.addEventListener("touchend", (e) => {
   clearTimeout(carLongPressTimer);
-
   const t = e.changedTouches[0];
-  if(!t){
-    carLongPressTriggered = false;
-    touchStartOnPlayer = false;
-    return;
-  }
+  if(!t){ carLongPressTriggered = false; isCarTouch = false; return; }
 
-  const dx = t.clientX - touchStartX;
-  const dy = t.clientY - touchStartY;
-  const absDx = Math.abs(dx);
-  const absDy = Math.abs(dy);
+  // 計算 X 軸滑動距離
+  const deltaX = t.clientX - touchStartX;
 
-  // 1. 起點在車子上：保留原本短按/長按邏輯
-  if(touchStartOnPlayer){
+  // 1. 處理點擊/長按車子的情況
+  if(isCarTouch){
     e.preventDefault();
-    if(!carLongPressTriggered){
-      // 若有明顯滑動，可選擇忽略，不視為鳴笛
-      if(absDx < SWIPE_THRESHOLD && absDy < SWIPE_VERTICAL_TOLERANCE){
-        tryShock(performance.now());
-      }
+    // 如果沒有觸發長按，且滑動距離沒有超過閾值，就當作一般點擊發射
+    if(!carLongPressTriggered && Math.abs(deltaX) < SWIPE_THRESHOLD){
+      tryShock(performance.now());
     }
     carLongPressTriggered = false;
-    touchStartOnPlayer = false;
+    isCarTouch = false;
     return;
-  }
-
-  // 2. 非車子區：先判斷 swipe
-  if(absDx >= SWIPE_THRESHOLD && absDx > absDy){
-    e.preventDefault();
-    if(dx < 0) moveLeft();
-    else moveRight();
-  }else{
-    // 3. 不是 swipe，才用原本點左右半邊
-    const rect = game.getBoundingClientRect();
-    e.preventDefault();
-    if(t.clientX - rect.left < rect.width / 2) moveLeft();
-    else moveRight();
   }
 
   carLongPressTriggered = false;
-  touchStartOnPlayer = false;
+
+  // 2. 判斷是「左右滑動」還是「普通點擊」
+  if(Math.abs(deltaX) > SWIPE_THRESHOLD){
+     // 距離大於判定值，視為滑動
+     if(deltaX > 0) moveRight();
+     else moveLeft();
+  } else {
+     // 距離小於判定值，視為原本的點擊左右半邊
+     const rect = game.getBoundingClientRect();
+     if(t.clientX - rect.left < rect.width / 2) moveLeft();
+     else moveRight();
+  }
 }, { passive:false });
 
 game.addEventListener("touchcancel", () => {
   clearTimeout(carLongPressTimer);
   carLongPressTriggered = false;
-  touchStartOnPlayer = false;
+  isCarTouch = false;
 });
 
 document.addEventListener("pointerdown", ensureAudio, { once:true });
