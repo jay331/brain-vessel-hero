@@ -1931,12 +1931,6 @@ leftBtn.addEventListener("click", () => { ensureAudio(); moveLeft(); });
 rightBtn.addEventListener("click", () => { ensureAudio(); moveRight(); });
 shootBtn.addEventListener("click", () => { ensureAudio(); tryShock(performance.now()); });
 
-let touchStartX = 0;
-let touchStartY = 0;
-let touchStartOnPlayer = false;
-const SWIPE_THRESHOLD = 30;
-const SWIPE_VERTICAL_TOLERANCE = 24;
-
 game.addEventListener("touchstart", (e) => {
   ensureAudio();
   if(!gameRunning || over || finishing || performance.now() < pauseUntil || isTransitioning) return;
@@ -2008,6 +2002,7 @@ game.addEventListener("touchend", (e) => {
 game.addEventListener("touchcancel", () => {
   clearTimeout(carLongPressTimer);
   carLongPressTriggered = false;
+  touchStartOnPlayer = false;
 });
 
 document.addEventListener("pointerdown", ensureAudio, { once:true });
