@@ -584,8 +584,12 @@ if(isCaseMode) document.body.classList.add('caseMode');
     resolvePlayerVsPlatforms(); resolvePlayerVsClots();
 
     if(player.jumpBuf > 0 && player.coyote > 0){ player.vy = JUMP_V; player.onGround = false; player.coyote=player.jumpBuf=0; }
-    if(player.y > H + 120){ player.x= platforms[0].x+platforms[0].w/2-player.w/2; player.y = platforms[0].y-player.h-1; player.vx=player.vy=0; }
-
+if(player.y > H + 120){ 
+  const topPlatform = platforms[platforms.length - 1]; // 取得陣列中最後一個（也是位置最高的）平台
+  player.x = topPlatform.x + topPlatform.w - player.w - 5; // 定位在該平台的右側邊緣（保留 5px 緩衝避免滑落）
+  player.y = topPlatform.y - player.h - 1; 
+  player.vx = player.vy = 0; 
+}
     orbs = orbs.filter(o => {
       if(o.taken || now >= o.despawnMs) return false;
       o.vy += 0.55; o.x += o.vx; o.y += o.vy;
