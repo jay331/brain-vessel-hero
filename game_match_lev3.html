@@ -1,77 +1,210 @@
-
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
     <title>腦脈先鋒：亞東中風中心</title>
     <style>
-        :root { --vessel-wall: #8b0000; --blood-bg: #050101; --danger: #ff4d4d; --safe: #00ffcc; --hospital: #00a0e9; }
-        body { background: #000; color: #fff; font-family: 'PingFang TC', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
-        #game-layout { display: flex; align-items: flex-start; gap: 20px; }
-        
-        #vessel-container {
-            position: relative; width: 280px; height: 525px; background: var(--blood-bg);
-            border: 2px solid #333; border-top: 25px solid var(--vessel-wall); border-bottom: 22px solid var(--vessel-wall);
-            box-shadow: 0 0 50px rgba(255, 0, 0, 0.4); overflow: hidden;
-        }
-        
-        #vessel-container::after {
-            content: "亞東中風中心 FEMH STROKE CENTER";
-            position: absolute; top: -22px; left: 0; width: 100%;
-            text-align: center; color: rgba(255,255,255,0.7); font-size: 0.65rem; font-weight: bold; letter-spacing: 1px; z-index: 10;
+        :root {
+            --vessel-wall: #8b0000;
+            --blood-bg: #050101;
+            --danger: #ff4d4d;
+            --safe: #00ffcc;
+            --panel: #151515;
+            --border: #333;
         }
 
-        canvas { display: block; background: transparent; position: relative; z-index: 1; }
-        .sidebar { width: 170px; display: flex; flex-direction: column; gap: 15px; }
-        .stat-box { background: #1a1a1a; padding: 12px; border: 1px solid #444; text-align: center; border-radius: 4px; }
-        .stat-val { font-size: 1.8rem; font-weight: bold; color: var(--danger); }
-        #alert-signal { font-weight: bold; font-size: 0.85rem; margin-top: 5px; padding: 6px; border-radius: 3px; min-height: 1.2em; }
-        .status-normal { color: #00ffcc; border: 1px solid #00ffcc22; }
-        .status-warning { color: #ffcc00; background: rgba(255, 204, 0, 0.2); border: 1px solid #ffcc00; }
-        .status-danger { color: #ff4d4d; background: rgba(255, 77, 77, 0.2); border: 1px solid #ff4d4d; animation: blink 1s infinite; }
+        * { box-sizing: border-box; }
+
+        html, body {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background: #000; color: #fff;
+            font-family: "PingFang TC", "Noto Sans TC", sans-serif;
+            overflow: hidden; touch-action: none;
+        }
+
+        body {
+            min-height: 100dvh; display: flex; justify-content: center; align-items: flex-start; padding: 3px;
+        }
+
+        #app {
+            width: 100%; max-width: 500px; height: 100dvh;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            gap: 3px; align-items: start; justify-items: center;
+            padding: max(2px, env(safe-area-inset-top)) 0 max(2px, env(safe-area-inset-bottom)) 0;
+        }
+
+        /* ===== 頂部資訊卡 ===== */
+        #top-hud { width: 100%; flex-shrink: 0; position: relative; }
+
+        .compact-card {
+            width: 100%; background: rgba(20,20,20,0.96);
+            border: 1px solid var(--border); border-radius: 8px;
+            padding: 5px 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.28);
+        }
+
+        .compact-grid-3 {
+            display: grid; grid-template-columns: 1fr 1.15fr 1fr; gap: 6px; align-items: center;
+        }
+
+        .compact-item { text-align: center; min-width: 0; }
+        .compact-label { font-size: 0.5rem; color: #9a9a9a; line-height: 1; margin-bottom: 1px; }
+        .compact-value { font-size: 0.92rem; font-weight: 900; line-height: 1; transition: all 0.3s; }
         
+        #blockage { color: var(--danger); }
+        #score { color: var(--safe); }
+
+        .compact-pill {
+            width: 100%; text-align: center; font-size: 0.48rem; line-height: 1;
+            padding: 4px 6px; border-radius: 999px; font-weight: 800;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0;
+        }
+
+        #alert-signal { margin-top: 0; }
+        .status-normal { color: #00ffcc; border: 1px solid rgba(0,255,204,0.18); background: rgba(0,255,204,0.04); }
+        .status-warning { color: #ffcc00; background: rgba(255, 204, 0, 0.12); border: 1px solid rgba(255, 204, 0, 0.45); }
+        .status-danger { color: #ff4d4d; background: rgba(255, 77, 77, 0.14); border: 1px solid rgba(255, 77, 77, 0.55); animation: blink 1s infinite; }
+
         @keyframes blink { 50% { opacity: 0.6; } }
-        #log-box { font-size: 0.8rem; color: #ffcc00; height: 180px; border-top: 1px solid #333; padding-top: 10px; overflow: hidden; }
+
+        /* ===== 里程碑與 Toast 特效 ===== */
+        @keyframes milestoneFlashLong {
+            0%   { transform: scale(1);    filter:brightness(1);    color:var(--safe); text-shadow:none; }
+            12%  { transform: scale(1.30); filter:brightness(1.7);  color:#ffd54a;     text-shadow:0 0 24px rgba(255,213,74,.7); }
+            35%  { transform: scale(1.15); filter:brightness(1.55); color:#ffe27a;     text-shadow:0 0 30px rgba(255,213,74,.8); }
+            70%  { transform: scale(1.05); filter:brightness(1.35); color:#ffeaa7;     text-shadow:0 0 18px rgba(255,213,74,.55); }
+            100% { transform: scale(1);    filter:brightness(1);    color:var(--safe); text-shadow:none; }
+        }
+        .milestone-flash { animation: milestoneFlashLong 1.25s ease-out; }
+
+        #intervention-toast {
+            position: absolute; top: 110%; left: 50%;
+            background: rgba(255, 213, 74, 0.2); border: 1px solid rgba(255, 213, 74, 0.6);
+            color: #ffe27a; padding: 6px 12px; border-radius: 8px; font-weight: 900; font-size: 0.75rem;
+            backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+            opacity: 0; pointer-events: none; white-space: nowrap; transform: translateX(-50%) translateY(6px) scale(.98);
+            z-index: 100;
+        }
+        @keyframes toastPopInline {
+            0%   { opacity:0; transform:translateX(-50%) translateY(10px) scale(.98); }
+            18%  { opacity:1; transform:translateX(-50%) translateY(0px)  scale(1.02); }
+            70%  { opacity:1; transform:translateX(-50%) translateY(-1px) scale(1.00); }
+            100% { opacity:0; transform:translateX(-50%) translateY(10px) scale(.98); }
+        }
+        #intervention-toast.show { animation: toastPopInline 1s ease-out; }
+
+        /* ===== 主遊戲區 ===== */
+        #game-wrap { width: 100%; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
+        #vessel-title { font-size: 0.48rem; color: rgba(255,255,255,0.7); letter-spacing: 0.3px; line-height: 1; margin-bottom: 2px; text-align: center; flex-shrink: 0; }
+        #vessel-shell {
+            width: min(80vw, calc((100dvh - 170px) * 280 / 525), 350px); /* 預留更多空間給下方介入按鈕 */
+            display: flex; flex-direction: column; align-items: stretch; flex-shrink: 0; box-shadow: 0 0 32px rgba(255, 0, 0, 0.22);
+        }
+        .vessel-wall { width: 100%; background: var(--vessel-wall); flex-shrink: 0; border-left: 2px solid #333; border-right: 2px solid #333; }
+        .vessel-wall.top { height: 18px; border-top: 2px solid #333; }
+        .vessel-wall.bottom { height: 16px; border-bottom: 2px solid #333; }
+
+        #vessel-container {
+            position: relative; width: 100%; aspect-ratio: 280 / 525; background: var(--blood-bg);
+            border-left: 2px solid #333; border-right: 2px solid #333;
+            overflow: hidden; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; flex-shrink: 0;
+        }
+        canvas { display: block; width: 100%; height: 100%; background: transparent; position: relative; z-index: 1; }
+
+        /* ===== 下方資訊與介入區 ===== */
+        #bottom-info { width: 100%; flex-shrink: 0; display: flex; flex-direction: column; gap: 4px; }
         
-        #game-over { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); flex-direction:column; align-items:center; justify-content:center; z-index:1000; }
-        .over-card { background: #1a0000; padding: 30px; border: 2px solid #f00; border-radius: 8px; text-align: center; max-width: 320px; width: 90%; }
-        #leaderboard { margin: 20px 0; text-align: left; font-size: 0.9rem; border-top: 1px solid #444; padding-top: 10px; }
+        #log-box {
+            width: 100%; font-size: 0.58rem; color: #ffcc00; background: #111;
+            border: 1px solid #2b2b2b; border-radius: 8px; padding: 4px 7px;
+            min-height: 28px; max-height: 40px; overflow: hidden; line-height: 1.2;
+        }
+        #log-title { color: #ddd; font-weight: 800; margin-bottom: 2px; font-size: 0.58rem; }
+
+        #intervention-zone {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
+            min-height: 48px; /* 預留高度避免畫面跳動 */
+        }
+        
+        /* 介入按鈕樣式 */
+        .int-btn {
+            background: linear-gradient(180deg, rgba(0,255,204,.15), rgba(17,24,39,.95));
+            border: 1px solid rgba(0,255,204,.55); color: #eafff8;
+            border-radius: 6px; padding: 6px 4px; cursor: pointer;
+            font-size: 0.65rem; line-height: 1.2; text-align: center; font-weight: 900;
+            box-shadow: 0 0 10px rgba(0,255,204,.15);
+            position: relative; overflow: hidden;
+            user-select: none; -webkit-user-select: none; touch-action: none;
+        }
+        .int-btn::after {
+            content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: var(--hold-pct, 0%);
+            background: rgba(0,255,204,.3); transition: width .08s linear; pointer-events: none;
+        }
+        .int-btn.holding::after { width: var(--hold-pct, 0%); }
+        .int-btn .hold-tip { display: block; margin-top: 3px; font-size: 0.5rem; color: #cbd5e1; font-weight: normal; }
+        .int-btn[disabled] {
+            opacity: 0.4; cursor: not-allowed; border-color: rgba(255,255,255,.15);
+            background: #111; color: #999; box-shadow: none; filter: grayscale(1);
+        }
+
+        /* ===== Game Over ===== */
+        #game-over {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+            flex-direction: column; align-items: center; justify-content: center; z-index: 1000; padding: 16px;
+        }
+        .over-card { background: #1a0000; padding: 24px 20px; border: 2px solid #f00; border-radius: 10px; text-align: center; max-width: 360px; width: 100%; }
+        #leaderboard { margin: 18px 0; text-align: left; font-size: 0.88rem; border-top: 1px solid #444; padding-top: 10px; }
         .score-row { display: flex; justify-content: space-between; padding: 3px 0; color: #aaa; }
         .score-row.highlight { color: #00ffcc; font-weight: bold; }
-        button { background: #f00; color: #fff; border: none; padding: 12px 30px; cursor: pointer; border-radius: 4px; font-weight: bold; width: 100%; font-size: 1rem; }
-        #start-hint { position: fixed; bottom: 20px; color: #666; font-size: 0.8rem; }
-    
-/*CASEMODE_HIDE_LEADERBOARD*/
-body.caseMode .leaderboard, body.caseMode #leaderboard{display:none !important;}
-</style>
+        button.restart-btn { background: #f00; color: #fff; border: none; padding: 12px 20px; cursor: pointer; border-radius: 6px; font-weight: bold; width: 100%; font-size: 0.98rem; }
+
+        @media (min-width: 700px) {
+            #app { max-width: 420px; }
+            #vessel-shell { width: min(330px, calc((100dvh - 180px) * 280 / 525)); }
+        }
+    </style>
 </head>
 <body>
 
-<div id="game-layout">
-    <div class="sidebar">
-        <div class="stat-box">
-            <div style="font-size:0.8rem;color:#aaa">血管狹窄度</div>
-            <div id="blockage" class="stat-val">--%</div>
-            <div id="alert-signal" class="status-normal">臨床掃描啟動</div>
+<div id="app">
+    <div id="top-hud">
+        <div class="compact-card">
+            <div class="compact-grid-3">
+                <div class="compact-item">
+                    <div class="compact-label">血管狹窄度</div>
+                    <div id="blockage" class="compact-value">--%</div>
+                </div>
+                <div class="compact-item">
+                    <div class="compact-label">狀態</div>
+                    <div id="alert-signal" class="compact-pill status-normal">臨床掃描啟動</div>
+                </div>
+                <div class="compact-item">
+                    <div class="compact-label">健康積分</div>
+                    <div id="score" class="compact-value">0</div>
+                </div>
+            </div>
         </div>
-        <div class="stat-box">
-            <div style="font-size:0.8rem;color:#aaa">健康積分</div>
-            <div id="score" class="stat-val" style="color:var(--safe)">0</div>
-        </div>
-    </div>
-    
-    <div id="vessel-container">
-        <canvas id="tetris" width="280" height="525"></canvas>
+        <div id="intervention-toast">🎉 新增介入選項！</div>
     </div>
 
-    <div class="sidebar">
-        <div id="log-box"><strong>🩺 臨床影像診斷</strong><br><div id="log-list" style="margin-top:5px;"></div></div>
-        <div style="font-size:0.7rem; color:#bbb; background: #220505; padding: 8px; border: 1px solid #400; line-height: 1.4;">
-            <b>技術支援：</b><br>
-            • 單位：亞東中風中心<br>
-            • 判定：超過頂端或狹窄100%才失敗<br>
-            • 排行榜：自動記錄前10名
+    <div id="game-wrap">
+        <div id="vessel-title">亞東中風中心 FEMH STROKE CENTER</div>
+        <div id="vessel-shell">
+            <div class="vessel-wall top"></div>
+            <div id="vessel-container">
+                <canvas id="tetris" width="280" height="525"></canvas>
+            </div>
+            <div class="vessel-wall bottom"></div>
         </div>
+    </div>
+
+    <div id="bottom-info">
+        <div id="log-box">
+            <div id="log-title">🩺 臨床影像診斷</div>
+            <div id="log-list"></div>
+        </div>
+        <div id="intervention-zone"></div>
     </div>
 </div>
 
@@ -83,28 +216,24 @@ body.caseMode .leaderboard, body.caseMode #leaderboard{display:none !important;}
             <strong style="color: #ffcc00;">🏆 血管康復排行榜 (Top 10)</strong>
             <div id="leaderboard-list"></div>
         </div>
-        <button onclick="location.reload()">重新啟動監測</button>
+        <button class="restart-btn" onclick="location.reload()">重新啟動監測</button>
     </div>
 </div>
-<div id="start-hint">按任意鍵或點擊以啟動儀器</div>
 
 <script>
-const isCaseMode =
-  new URLSearchParams(location.search).get('mode') === 'case';
-
-if (isCaseMode) {
-  document.body.classList.add('caseMode');
-}
 const AudioEngine = {
     ctx: null,
-    init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
+    init() {
+        if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+    },
     beep(freq, duration, vol, type = 'sine', slide = 0) {
         this.init();
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         osc.type = type;
         osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-        if (slide !== 0) osc.frequency.exponentialRampToValueAtTime(freq + slide, this.ctx.currentTime + duration);
+        if (slide !== 0) osc.frequency.exponentialRampToValueAtTime(Math.max(1, freq + slide), this.ctx.currentTime + duration);
         gain.gain.setValueAtTime(vol, this.ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
         osc.connect(gain); gain.connect(this.ctx.destination);
@@ -113,7 +242,7 @@ const AudioEngine = {
     playMove() { this.beep(200, 0.05, 0.05, 'triangle'); },
     playRotate() { this.beep(300, 0.1, 0.05, 'sine', 200); },
     playHit() { this.beep(100, 0.15, 0.1, 'triangle'); },
-    playClear() { 
+    playClear() {
         this.beep(523.25, 0.1, 0.1);
         setTimeout(() => this.beep(659.25, 0.15, 0.1), 50);
     },
@@ -129,6 +258,11 @@ const AudioEngine = {
         gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 2.1);
         osc.connect(gain); gain.connect(this.ctx.destination);
         osc.start(); osc.stop(this.ctx.currentTime + 2.1);
+    },
+    playMilestone() {
+        this.beep(784, 0.09, 0.12, 'sine');
+        setTimeout(()=>this.beep(988, 0.10, 0.12, 'sine'), 90);
+        setTimeout(()=>this.beep(1175, 0.12, 0.12, 'triangle'), 180);
     }
 };
 
@@ -142,18 +276,22 @@ const dangerTerms = ["高血壓", "高血糖", "高血脂", "吸菸", "亂吃藥
 const colors = [null, '#FF0D72', '#0DC2FF', '#0DFF72', '#F538FF', '#FF8E0D', '#FFE138', '#3877FF', '#555'];
 
 let cells = [];
-for(let i=0; i<85; i++) cells.push({ x: Math.random()*8, y: Math.random()*15, s: 0.15 + Math.random()*0.15 });
+for (let i = 0; i < 85; i++) {
+    cells.push({ x: Math.random() * 8, y: Math.random() * 15, s: 0.15 + Math.random() * 0.15 });
+}
 
 function drawMatrix(matrix, offset, isArena = false) {
     if (isArena) {
         cells.forEach(c => {
-            c.x += c.s; if (c.x > 8) c.x = 0;
+            c.x += c.s;
+            if (c.x > 8) c.x = 0;
             if (!arena[Math.floor(c.y)][Math.floor(c.x)]) {
                 context.fillStyle = 'rgba(255, 40, 40, 0.6)';
-                context.beginPath(); context.arc(c.x, c.y, 0.1, 0, Math.PI*2); context.fill();
+                context.beginPath(); context.arc(c.x, c.y, 0.1, 0, Math.PI * 2); context.fill();
             }
         });
     }
+
     matrix.forEach((row, y) => {
         row.forEach((value, x) => {
             if (value !== 0) {
@@ -163,9 +301,12 @@ function drawMatrix(matrix, offset, isArena = false) {
                 context.strokeStyle = value === 8 ? '#f44' : 'rgba(0,0,0,0.5)';
                 context.lineWidth = 0.02;
                 context.strokeRect(wx, wy, 1, 1);
+
                 if (isArena && value === 8 && textGrid[y][x]) {
-                    context.fillStyle = '#fff'; context.font = "bold 0.55px sans-serif"; 
-                    context.textAlign = "center"; context.fillText(textGrid[y][x], wx + 0.5, wy + 0.72);
+                    context.fillStyle = '#fff';
+                    context.font = "bold 0.55px sans-serif";
+                    context.textAlign = "center";
+                    context.fillText(textGrid[y][x], wx + 0.5, wy + 0.72);
                 }
             }
         });
@@ -176,28 +317,34 @@ function spawnDanger(isInitial = false) {
     const term = dangerTerms[Math.floor(Math.random() * dangerTerms.length)];
     const startX = Math.floor(Math.random() * (8 - term.length + 1));
     let targetY = -1;
+
     for (let y = 14; y >= 0; y--) {
         let isClear = true;
-        for (let i = 0; i < term.length; i++) { if (arena[y][startX + i] !== 0) { isClear = false; break; } }
+        for (let i = 0; i < term.length; i++) {
+            if (arena[y][startX + i] !== 0) { isClear = false; break; }
+        }
         if (isClear) { targetY = y; break; }
     }
+
     if (targetY !== -1) {
-        for(let i=0; i<term.length; i++) {
+        for (let i = 0; i < term.length; i++) {
             arena[targetY][startX + i] = 8;
             textGrid[targetY][startX + i] = term[i];
         }
-        if(!isInitial) updateLog(`斑塊沉積: ${term}`);
+        if (!isInitial) updateLog(`斑塊沉積: ${term}`);
     }
 }
 
 function updateLog(msg) {
     const list = document.getElementById('log-list');
     const entry = document.createElement('div');
-    entry.innerText = `> ${msg}`; list.prepend(entry);
-    if (list.children.length > 5) list.lastElementChild.remove();
+    entry.innerText = `> ${msg}`;
+    list.prepend(entry);
+    if (list.children.length > 3) list.lastElementChild.remove();
 }
 
-const player = { pos: {x: 0, y: 0}, matrix: null };
+const player = { pos: { x: 0, y: 0 }, matrix: null };
+
 function createPiece(t) {
     if (t === 'I') return [[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]];
     if (t === 'L') return [[0,2,0],[0,2,0],[0,2,2]];
@@ -206,17 +353,13 @@ function createPiece(t) {
     return [[5,5,0],[0,5,5],[0,0,0]];
 }
 
-// 修正：忽略 y < 0 的碰撞檢查，讓方塊能順利從最上方進入
 function collide(a, p) {
     const [m, o] = [p.matrix, p.pos];
     for (let y = 0; y < m.length; ++y) {
         for (let x = 0; x < m[y].length; ++x) {
             if (m[y][x] !== 0) {
                 let ay = y + o.y, ax = x + o.x;
-                if (ay < 0) {
-                    if (ax < 0 || ax >= 8) return true; // 僅檢查左右邊界
-                    continue; 
-                }
+                if (ay < 0) { if (ax < 0 || ax >= 8) return true; continue; }
                 if (!a[ay] || a[ay][ax] !== 0) return true;
             }
         }
@@ -224,32 +367,68 @@ function collide(a, p) {
     return false;
 }
 
-// 修正：判定邏輯 (固定後 y < 0 或 狹窄度 100)
+function movePlayer(dir) {
+    if (gameOver) return;
+    player.pos.x += dir;
+    if (collide(arena, player)) { player.pos.x -= dir; } 
+    else { AudioEngine.playMove(); initGame(); }
+}
+
+function rotateMatrix(matrix, dir = 1) {
+    for (let y = 0; y < matrix.length; ++y) {
+        for (let x = 0; x < y; ++x) [matrix[x][y], matrix[y][x]] = [matrix[y][x], matrix[x][y]];
+    }
+    if (dir > 0) matrix.forEach(row => row.reverse()); else matrix.reverse();
+}
+
+function playerRotate() {
+    if (gameOver) return;
+    initGame();
+    const oldX = player.pos.x;
+    let offset = 1;
+    rotateMatrix(player.matrix, 1);
+
+    while (collide(arena, player)) {
+        player.pos.x += offset;
+        offset = -(offset + (offset > 0 ? 1 : -1));
+        if (Math.abs(offset) > player.matrix[0].length) {
+            rotateMatrix(player.matrix, -1);
+            player.pos.x = oldX;
+            return;
+        }
+    }
+    AudioEngine.playRotate();
+}
+
 function playerDrop() {
+    if (gameOver) return;
     player.pos.y++;
+
     if (collide(arena, player)) {
-        player.pos.y--; 
+        player.pos.y--;
         let overflow = false;
-        player.matrix.forEach((row, y) => { 
-            row.forEach((v, x) => { 
-                if(v !== 0) {
+
+        player.matrix.forEach((row, y) => {
+            row.forEach((v, x) => {
+                if (v !== 0) {
                     let finalY = y + player.pos.y;
                     if (finalY < 0) overflow = true;
                     else arena[finalY][x + player.pos.x] = v;
                 }
-            }); 
+            });
         });
-        
+
         AudioEngine.playHit();
         arenaSweep();
-        
+
         let highestPoint = 15;
-        for (let y = 0; y < 15; y++) { if (arena[y].some(v => v !== 0)) { highestPoint = y; break; } }
+        for (let y = 0; y < 15; y++) {
+            if (arena[y].some(v => v !== 0)) { highestPoint = y; break; }
+        }
         let fullness = Math.floor(((15 - highestPoint) / 15) * 100);
 
-        if (overflow || fullness >= 100) {
-            endGame();
-        } else {
+        if (overflow || fullness >= 100) { endGame(); } 
+        else {
             if (Math.random() < 0.35) spawnDanger();
             playerReset();
         }
@@ -257,22 +436,267 @@ function playerDrop() {
     dropCounter = 0;
 }
 
+function hardDrop() {
+    if (gameOver) return;
+    initGame();
+    while (!collide(arena, player)) player.pos.y++;
+    player.pos.y--;
+    playerDrop();
+}
+
 function playerReset() {
     const pieces = 'ILOTZ';
     player.matrix = createPiece(pieces[pieces.length * Math.random() | 0]);
-    player.pos.y = 0; player.pos.x = 3;
-    // 移除 Reset 時的即死檢查，統一交給 playerDrop 處理
+    player.pos.y = 0;
+    player.pos.x = Math.floor((8 - player.matrix[0].length) / 2);
 }
+
+/* =========================
+   積分與特定介入系統
+   ========================= */
+let score = 0;
+let gameOver = false;
+
+// 介入清單定義
+const interventions = [
+    { term:"高血壓", action:"降壓藥物" },
+    { term:"高血糖", action:"控糖計畫" },
+    { term:"高血脂", action:"他汀治療" },
+    { term:"吸菸",   action:"戒菸門診" },
+    { term:"心房顫動",action:"抗凝血藥" },
+    { term:"肥胖",   action:"減重運動" },
+    { term:"壓力",   action:"壓力管理" },
+    { term:"熬夜",   action:"作息重建" },
+    { term:"亂吃藥", action:"藥物整合" }
+];
+
+let interventionQueue = [];
+const COOLDOWN_MS = 1800;
+let lastInterventionAt = -999999;
+let toastTimer = null;
+
+function showInterventionToast(text="🎉 新增介入選項！"){
+    const el = document.getElementById('intervention-toast');
+    if (!el) return;
+    el.textContent = text;
+    el.classList.remove('show');
+    void el.offsetWidth;
+    el.classList.add('show');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=> el.classList.remove('show'), 1000);
+}
+
+function flashScoreMilestone300(){
+    const el = document.getElementById('score');
+    el.classList.remove('milestone-flash');
+    void el.offsetWidth;
+    el.classList.add('milestone-flash');
+    setTimeout(()=>el.classList.remove('milestone-flash'), 1400);
+}
+
+function handleScoreMilestones(prevScore, newScore){
+    const prevM = Math.floor(prevScore / 300);
+    const nowM  = Math.floor(newScore / 300);
+    if (nowM <= prevM) return;
+
+    for (let m = prevM + 1; m <= nowM; m++){
+        flashScoreMilestone300();
+        AudioEngine.playMilestone();
+        enqueueInterventionByRule();
+    }
+}
+
+function addScore(delta){
+    if (delta <= 0) return;
+    const prev = score;
+    score += delta;
+    handleScoreMilestones(prev, score);
+}
+
+function countTermOnBoard(term){
+    let cnt = 0;
+    for (let y=0; y<15; y++){
+        for (let x=0; x<8; x++){
+            if (arena[y][x] === 8 && textGrid[y][x] === term[0]){
+                let ok = true;
+                for (let i=0; i<term.length; i++){
+                    if (x+i >= 8) { ok=false; break; }
+                    if (arena[y][x+i] !== 8 || textGrid[y][x+i] !== term[i]) { ok=false; break; }
+                }
+                if (ok) cnt++;
+            }
+        }
+    }
+    return cnt;
+}
+
+function clearTermOnBoard(term){
+    let clearedGroups = 0;
+    for (let y=0; y<15; y++){
+        for (let x=0; x<=8-term.length; x++){
+            if (arena[y][x] === 8 && textGrid[y][x] === term[0]){
+                let ok = true;
+                for (let i=0; i<term.length; i++){
+                    if (arena[y][x+i] !== 8 || textGrid[y][x+i] !== term[i]) { ok=false; break; }
+                }
+                if (ok){
+                    for (let i=0; i<term.length; i++){ arena[y][x+i] = 0; textGrid[y][x+i] = ""; }
+                    clearedGroups++;
+                }
+            }
+        }
+    }
+    return clearedGroups;
+}
+
+function pickInterventionByRule(){
+    const availableOnBoard = interventions.filter(it => countTermOnBoard(it.term) > 0);
+    if (availableOnBoard.length > 0) return availableOnBoard[Math.floor(Math.random() * availableOnBoard.length)];
+    return interventions[Math.floor(Math.random() * interventions.length)];
+}
+
+function enqueueInterventionByRule(){
+    const it = pickInterventionByRule();
+    if (!it) return;
+    interventionQueue.push(it);
+    if (interventionQueue.length > 3) interventionQueue.shift(); // 最多存 3 個
+    updateLog(`取得特定介入（${it.term}）`);
+    renderInterventions();
+    showInterventionToast(`解鎖：${it.term}介入`);
+}
+
+/* 長按控制 */
+const HOLD_MS = 2000; // 手機版考慮耐性，縮短為 2 秒
+let holdTimer = null;
+let holdStartAt = 0;
+let holdingBtn = null;
+let holdingIt = null;
+
+function clearHoldUI(){
+    if (holdingBtn){
+        holdingBtn.classList.remove('holding');
+        holdingBtn.style.setProperty('--hold-pct', '0%');
+        const tip = holdingBtn.querySelector('.hold-tip');
+        if (tip) tip.textContent = `長按消除`;
+    }
+    holdingBtn = null; holdingIt = null; holdStartAt = 0;
+    if (holdTimer){ clearInterval(holdTimer); holdTimer = null; }
+}
+function cancelHold(){ clearHoldUI(); }
+
+function startHold(btn, it, e){
+    if(e) e.stopPropagation(); // 防止觸發背景 swipe
+    initGame();
+    if (gameOver || btn.disabled) return;
+
+    holdingBtn = btn; holdingIt = it; holdStartAt = Date.now();
+    btn.classList.add('holding'); btn.style.setProperty('--hold-pct', '0%');
+
+    const tip = btn.querySelector('.hold-tip');
+    if (tip) tip.textContent = `按住...`;
+
+    holdTimer = setInterval(()=>{
+        if (!holdingBtn) return;
+        const elapsed = Date.now() - holdStartAt;
+        const pct = Math.min(100, Math.floor((elapsed / HOLD_MS) * 100));
+        holdingBtn.style.setProperty('--hold-pct', pct + '%');
+
+        if (elapsed >= HOLD_MS){
+            clearInterval(holdTimer); holdTimer = null;
+            executeIntervention(holdingIt);
+            clearHoldUI();
+        }
+    }, 50);
+}
+
+function renderInterventions(){
+    const grid = document.getElementById('intervention-zone');
+    grid.innerHTML = '';
+
+    if (interventionQueue.length === 0) {
+        grid.innerHTML = '<div style="grid-column: 1 / -1; text-align:center; font-size: 0.55rem; color:#555; padding-top: 10px;">滿300分可獲得特定介入</div>';
+        return;
+    }
+
+    interventionQueue.forEach((it)=>{
+        const btn = document.createElement('div');
+        btn.className = 'int-btn';
+        btn.innerHTML = `【${it.term}】<br>${it.action}<span class="hold-tip">長按消除</span>`;
+
+        // 電腦滑鼠
+        btn.addEventListener('mousedown', (e)=>startHold(btn, it, e));
+        btn.addEventListener('mouseup', cancelHold);
+        btn.addEventListener('mouseleave', cancelHold);
+        // 手機觸控
+        btn.addEventListener('touchstart', (e)=>{ e.preventDefault(); startHold(btn, it, e); }, {passive:false});
+        btn.addEventListener('touchend', cancelHold);
+        btn.addEventListener('touchcancel', cancelHold);
+
+        grid.appendChild(btn);
+    });
+    updateInterventionButtonState();
+}
+
+function updateInterventionButtonState(){
+    const btns = document.querySelectorAll('#intervention-zone .int-btn');
+    if (!btns.length) return;
+    const now = Date.now();
+    const remain = Math.max(0, COOLDOWN_MS - (now - lastInterventionAt));
+    const disabled = gameOver || (remain > 0);
+
+    btns.forEach(btn=>{
+        btn.disabled = disabled;
+        if (btn.disabled && holdingBtn === btn) cancelHold();
+    });
+}
+
+function removeOneFromQueue(it){
+    const idx = interventionQueue.findIndex(x => x.term === it.term && x.action === it.action);
+    if (idx >= 0) interventionQueue.splice(idx, 1);
+}
+
+function executeIntervention(it){
+    initGame();
+    if (gameOver || !it) return;
+    const now = Date.now();
+    if (COOLDOWN_MS > 0 && (now - lastInterventionAt < COOLDOWN_MS)) return;
+
+    const before = countTermOnBoard(it.term);
+    if (before === 0){
+        updateLog(`⚠️ 介入無效：無 [${it.term}]`);
+        AudioEngine.playWarning();
+    } else {
+        const clearedGroups = clearTermOnBoard(it.term);
+        if (clearedGroups > 0){
+            addScore(clearedGroups * 120);
+            AudioEngine.playClear();
+            updateLog(`✅ 成功清除 [${it.term}]`);
+        }
+    }
+    lastInterventionAt = now;
+    removeOneFromQueue(it);
+    renderInterventions();
+}
+
+/* ========================= */
 
 function arenaSweep() {
     let count = 0;
     outer: for (let y = 14; y >= 0; --y) {
-        for (let x = 0; x < 8; ++x) if (arena[y][x] === 0) continue outer;
-        arena.splice(y, 1); arena.unshift(new Array(8).fill(0));
-        textGrid.splice(y, 1); textGrid.unshift(new Array(8).fill(""));
-        count++; y++; 
+        for (let x = 0; x < 8; ++x) {
+            if (arena[y][x] === 0) continue outer;
+        }
+        arena.splice(y, 1);
+        arena.unshift(new Array(8).fill(0));
+        textGrid.splice(y, 1);
+        textGrid.unshift(new Array(8).fill(""));
+        count++;
+        y++;
     }
-    if (count > 0) { score += count * 100; AudioEngine.playClear(); }
+    if (count > 0) {
+        addScore(count * 100);
+        AudioEngine.playClear();
+    }
     return count;
 }
 
@@ -280,20 +704,25 @@ let lastSoundTime = 0;
 function checkVesselStatus(fullness) {
     const alertEl = document.getElementById('alert-signal');
     const now = Date.now();
+
     if (fullness >= 70) {
-        alertEl.innerText = "🚨 嚴重狹窄 (70%↑)"; alertEl.className = "status-danger";
+        alertEl.innerText = "🚨 嚴重狹窄";
+        alertEl.className = "compact-pill status-danger";
         if (now - lastSoundTime > 600) { AudioEngine.playDanger(); lastSoundTime = now; }
     } else if (fullness >= 50) {
-        alertEl.innerText = "⚠️ 預警訊號 (50%↑)"; alertEl.className = "status-warning";
+        alertEl.innerText = "⚠️ 預警";
+        alertEl.className = "compact-pill status-warning";
         if (now - lastSoundTime > 1500) { AudioEngine.playWarning(); lastSoundTime = now; }
     } else {
-        alertEl.innerText = "管腔通暢"; alertEl.className = "status-normal";
+        alertEl.innerText = "管腔通暢";
+        alertEl.className = "compact-pill status-normal";
     }
 }
 
 function updateLeaderboard(finalScore) {
     let scores = JSON.parse(localStorage.getItem('vessel_scores_named')) || [];
     const isTopScore = scores.length < 10 || finalScore > (scores[scores.length - 1]?.score || 0);
+
     if (isTopScore && finalScore > 0) {
         setTimeout(() => {
             const userName = prompt("恭喜進入前十名！請輸入您的名字：", "匿名醫護");
@@ -324,64 +753,107 @@ function renderLeaderboard(scores, currentScore) {
     });
 }
 
-function endGame() { 
-    gameOver = true; 
-    AudioEngine.playDeath(); 
-    document.getElementById('game-over').style.display = 'flex'; 
-    
-    if(!isCaseMode) {
-        updateLeaderboard(score);
-    }
-
-    // 通知父頁
-    try{
-        parent.postMessage(
-            {type:'GAME_RESULT', game:'match-l1', score: score},
-            '*'
-        );
-    }catch(e){}
+function endGame() {
+    gameOver = true;
+    cancelHold();
+    AudioEngine.playDeath();
+    document.getElementById('game-over').style.display = 'flex';
+    updateLeaderboard(score);
 }
 
+let dropCounter = 0;
+let lastTime = 0;
+let started = false;
 
-let gameOver = false, score = 0, dropCounter = 0, lastTime = 0;
 function update(time = 0) {
-    if(gameOver) return;
-    const dt = time - lastTime; lastTime = time;
+    if (gameOver) return;
+
+    const dt = time - lastTime;
+    lastTime = time;
     dropCounter += dt;
+
     if (dropCounter > 800) playerDrop();
+
     context.clearRect(0, 0, canvas.width, canvas.height);
-    drawMatrix(arena, {x: 0, y: 0}, true);
+    drawMatrix(arena, { x: 0, y: 0 }, true);
     drawMatrix(player.matrix, player.pos);
+
     let highestPoint = 15;
-    for (let y = 0; y < 15; y++) { if (arena[y].some(v => v !== 0)) { highestPoint = y; break; } }
+    for (let y = 0; y < 15; y++) {
+        if (arena[y].some(v => v !== 0)) { highestPoint = y; break; }
+    }
+
     let fullness = Math.floor(((15 - highestPoint) / 15) * 100);
+
     document.getElementById('blockage').innerText = (gameOver ? "100" : Math.min(99, fullness)) + "%";
     document.getElementById('score').innerText = score;
     checkVesselStatus(fullness);
+    updateInterventionButtonState();
+
     requestAnimationFrame(update);
 }
 
-const initGame = () => { AudioEngine.init(); document.getElementById('start-hint').style.display='none'; };
+function initGame() {
+    AudioEngine.init();
+    if (!started) started = true;
+}
+
 document.addEventListener('keydown', e => {
     initGame();
     if (gameOver) return;
-    if (e.keyCode === 37) { player.pos.x--; if(collide(arena, player)) player.pos.x++; else AudioEngine.playMove(); }
-    if (e.keyCode === 39) { player.pos.x++; if(collide(arena, player)) player.pos.x--; else AudioEngine.playMove(); }
-    if (e.keyCode === 40) playerDrop();
-    if (e.keyCode === 38) {
-        const m = player.matrix;
-        for (let y = 0; y < m.length; ++y) { for (let x = 0; x < y; ++x) [m[x][y], m[y][x]] = [m[y][x], m[x][y]]; }
-        m.forEach(r => r.reverse());
-        if (collide(arena, player)) { m.forEach(r => r.reverse()); for (let y = 0; y < m.length; ++y) { for (let x = 0; x < y; ++x) [m[x][y], m[y][x]] = [m[y][x], m[x][y]]; } }
-        else AudioEngine.playRotate();
-    }
+
+    if (e.key === 'ArrowLeft') movePlayer(-1);
+    if (e.key === 'ArrowRight') movePlayer(1);
+    if (e.key === 'ArrowDown') playerDrop();
+    if (e.key === 'ArrowUp') playerRotate();
+    if (e.key === ' ' || e.code === 'Space') { e.preventDefault(); hardDrop(); }
 });
+
 document.addEventListener('mousedown', initGame);
+document.addEventListener('touchstart', initGame, { passive: true });
+
+let touchStartX = 0;
+let touchStartY = 0;
+let touchStartTime = 0;
+
+document.addEventListener('touchstart', (e) => {
+    if (!e.changedTouches || !e.changedTouches.length) return;
+    initGame();
+    const t = e.changedTouches[0];
+    touchStartX = t.clientX;
+    touchStartY = t.clientY;
+    touchStartTime = Date.now();
+}, { passive: true });
+
+document.addEventListener('touchend', (e) => {
+    if (!e.changedTouches || !e.changedTouches.length || gameOver) return;
+
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchStartX;
+    const dy = t.clientY - touchStartY;
+    const adx = Math.abs(dx);
+    const ady = Math.abs(dy);
+    const duration = Date.now() - touchStartTime;
+
+    const TAP_MAX_MOVE = 12;
+    const SWIPE_THRESHOLD = 24;
+
+    if (adx < TAP_MAX_MOVE && ady < TAP_MAX_MOVE && duration < 260) {
+        // 如果點擊的是按鈕範圍，交由按鈕事件處理，不執行旋轉
+        if(e.target.closest('.int-btn')) return;
+        playerRotate();
+        return;
+    }
+
+    if (ady > SWIPE_THRESHOLD && ady > adx) { if (dy > 0) hardDrop(); return; }
+    if (adx > SWIPE_THRESHOLD && adx > ady) { if (dx < 0) movePlayer(-1); else movePlayer(1); }
+}, { passive: true });
 
 document.addEventListener('DOMContentLoaded', () => {
-    for(let i=0; i<3; i++) spawnDanger(true); 
+    for (let i = 0; i < 3; i++) spawnDanger(true);
     updateLog("亞東中風中心：斑塊掃描完成");
     playerReset();
+    renderInterventions();
     update();
 });
 </script>
