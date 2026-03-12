@@ -345,7 +345,7 @@ let playerState = {
   bossUnlocked: false,
   completedCases: new Map(), 
   currentBossCaseStr: "",
-  taskScores: new Map() // ['role_emt_0' => 1500] 記錄單任務最高分
+  taskScores: new Map() // ['role_emt_0' => 1500]
 };
 
 const GAME_FILES = {
@@ -396,9 +396,74 @@ let activeRoleId = null;
 function id(elId) { return document.getElementById(elId); }
 
 // ==========================================
+// 💡 新增：自動存檔與讀檔系統 (LocalStorage)
+// ==========================================
+const SAVE_KEY = 'BrainPioneer_SaveData_v1';
+
+function saveGameData() {
+  const dataToSave = {
+    hasSetup: playerState.hasSetup,
+    name: playerState.name,
+    avatar: playerState.avatar,
+    coins: playerState.coins,
+    bossUnlocked: playerState.bossUnlocked,
+    // Map 物件無法直接轉字串，需轉成陣列
+    completedCases: Array.from(playerState.completedCases.entries()),
+    taskScores: Array.from(playerState.taskScores.entries()),
+    
+    // 儲存任務進度
+    roleProgress: ROLES_DATA.map(r => ({ id: r.id, currentTask: r.currentTask, dailyAttempts: r.dailyAttempts })),
+    // 儲存卡片解鎖狀態
+    cardProgress: CARDS_DB.map(c => ({ id: c.id, isUnlocked: c.isUnlocked }))
+  };
+  localStorage.setItem(SAVE_KEY, JSON.stringify(dataToSave));
+}
+
+function loadGameData() {
+  const savedJSON = localStorage.getItem(SAVE_KEY);
+  if (savedJSON) {
+    try {
+      const parsed = JSON.parse(savedJSON);
+      playerState.hasSetup = parsed.hasSetup || false;
+      if(parsed.name) playerState.name = parsed.name;
+      if(parsed.avatar) playerState.avatar = parsed.avatar;
+      playerState.coins = parsed.coins !== undefined ? parsed.coins : 38219;
+      playerState.bossUnlocked = parsed.bossUnlocked || false;
+      
+      if(parsed.completedCases) playerState.completedCases = new Map(parsed.completedCases);
+      if(parsed.taskScores) playerState.taskScores = new Map(parsed.taskScores);
+
+      // 還原任務進度
+      if (parsed.roleProgress) {
+        parsed.roleProgress.forEach(rp => {
+          const role = ROLES_DATA.find(r => r.id === rp.id);
+          if(role) { role.currentTask = rp.currentTask; role.dailyAttempts = rp.dailyAttempts; }
+        });
+      }
+      
+      // 還原卡片進度
+      if (parsed.cardProgress) {
+        parsed.cardProgress.forEach(cp => {
+          const card = CARDS_DB.find(c => c.id === cp.id);
+          if(card) { card.isUnlocked = cp.isUnlocked; }
+        });
+      }
+      return true; // 讀檔成功
+    } catch(e) {
+      console.error('存檔讀取失敗', e);
+      return false;
+    }
+  }
+  return false; // 沒有存檔
+}
+
+// ==========================================
 // 2. 初始化與強制登入
 // ==========================================
 window.onload = () => { 
+  // 網頁載入時先嘗試讀檔
+  loadGameData();
+
   if (!playerState.hasSetup) {
     id('profileCloseBtn').style.display = 'none'; 
     id('profileHint').style.display = 'block';
@@ -419,7 +484,9 @@ function openProfileModal() {
   id('profileHint').style.display = 'none';
   id('profileModal').style.display = 'flex';
 }
+
 function closeProfileModal() { if(playerState.hasSetup) id('profileModal').style.display = 'none'; }
+
 function handleAvatarUpload(event) {
   const file = event.target.files[0];
   if (file) {
@@ -438,10 +505,12 @@ function saveProfile() {
   
   if (!playerState.hasSetup) {
     playerState.hasSetup = true;
+    saveGameData(); // 儲存初次設定
     initGameUI();
   } else {
     updateHUD();
     updateLbMyScore();
+    saveGameData(); // 儲存設定變更
   }
   id('profileModal').style.display = 'none';
 }
@@ -564,6 +633,7 @@ function playTask() {
       handleTaskSuccess(Math.floor(800 + Math.random()*200)); 
     } else {
       alert(`❌ 挑戰失敗。失去 1 次機會。`);
+      saveGameData(); // 存檔 (扣次數)
       openRoleDetail(activeRoleId); 
     }
   }
@@ -573,13 +643,13 @@ window.addEventListener('message', (e) => {
   if (e.data.type === 'GAME_CLEAR') {
     id('gameOverlay').style.display = 'none'; id('gameFrame').src = ''; handleTaskSuccess(e.data.score);
   } else if (e.data.type === 'GAME_OVER') {
-    id('gameOverlay').style.display = 'none'; id('gameFrame').src = ''; alert('❌ 挑戰失敗。失去 1 次機會。'); openRoleDetail(activeRoleId); 
+    id('gameOverlay').style.display = 'none'; id('gameFrame').src = ''; alert('❌ 挑戰失敗。失去 1 次機會。'); saveGameData(); openRoleDetail(activeRoleId); 
   }
 });
 
 function forceQuitGame() {
   if(confirm('確定要放棄目前任務嗎？(已扣除的次數將不會歸還)')) {
-    id('gameOverlay').style.display = 'none'; id('gameFrame').src = ''; openRoleDetail(activeRoleId);
+    id('gameOverlay').style.display = 'none'; id('gameFrame').src = ''; saveGameData(); openRoleDetail(activeRoleId);
   }
 }
 
@@ -588,7 +658,6 @@ function handleTaskSuccess(score) {
   const taskIndex = role.currentTask <= role.totalTasks ? role.currentTask - 1 : 4;
   const cardIdToUnlock = `${role.id}_${taskIndex}`;
   
-  // 記錄單任務最高分
   const currentBest = playerState.taskScores.get(cardIdToUnlock) || 0;
   const validScore = score || 1000;
   if (validScore > currentBest) {
@@ -605,11 +674,15 @@ function handleTaskSuccess(score) {
   playerState.coins += 50;
   
   if (role.currentTask <= role.totalTasks) role.currentTask++;
-  updateHUD(); checkBossUnlock(); openRoleDetail(activeRoleId); 
+  
+  updateHUD(); 
+  checkBossUnlock(); 
+  saveGameData(); // ★ 重點：任務過關後立刻存檔
+  openRoleDetail(activeRoleId); 
 }
 
-function readEduCard() { alert('📖 閱讀衛教...\n「已完整閱讀，獲得 3 次挑戰機會。」'); ROLES_DATA.find(r => r.id === activeRoleId).dailyAttempts += 3; openRoleDetail(activeRoleId); }
-function buyAttempt() { if (playerState.coins >= 100) { if (confirm('確定消耗 100 健康幣購買 3 次機會？')) { playerState.coins -= 100; updateHUD(); ROLES_DATA.find(r => r.id === activeRoleId).dailyAttempts += 3; openRoleDetail(activeRoleId); } } else { alert('健康幣不足！'); } }
+function readEduCard() { alert('📖 閱讀衛教...\n「已完整閱讀，獲得 3 次挑戰機會。」'); ROLES_DATA.find(r => r.id === activeRoleId).dailyAttempts += 3; saveGameData(); openRoleDetail(activeRoleId); }
+function buyAttempt() { if (playerState.coins >= 100) { if (confirm('確定消耗 100 健康幣購買 3 次機會？')) { playerState.coins -= 100; updateHUD(); ROLES_DATA.find(r => r.id === activeRoleId).dailyAttempts += 3; saveGameData(); openRoleDetail(activeRoleId); } } else { alert('健康幣不足！'); } }
 
 // ==========================================
 // 5. Boss 關卡邏輯
@@ -669,7 +742,10 @@ function playBossTask() {
     const existingScore = playerState.completedCases.get(playerState.currentBossCaseStr) || 0;
     if (mockScore > existingScore) { playerState.completedCases.set(playerState.currentBossCaseStr, mockScore); }
     alert(`🏆 完美救援！個案 ${playerState.currentBossCaseStr} 搶救成功！\n本次得分：${mockScore} 分\n獲得 500 健康幣！`);
-    playerState.coins += 500; updateHUD(); showScreen('scrHome');
+    playerState.coins += 500; 
+    
+    saveGameData(); // ★ 重點：Boss 通關後自動存檔
+    updateHUD(); showScreen('scrHome');
   } else { alert(`🚨 失誤過多，個案挑戰失敗。`); showScreen('scrHome'); }
 }
 
@@ -759,12 +835,10 @@ function updateLbMyScore() {
   id('lbCaseMyName').innerHTML = `${playerState.name} <div class="sub">您 (本人)</div>`;
   id('lbCaseMyAvatar').src = playerState.avatar;
   const myCaseEl = document.querySelector('#lbListCase .is-me');
-  myCaseEl.style.opacity = '0.5'; setTimeout(() => { myCaseEl.style.opacity = '1'; }, 200);
-  
+  if(myCaseEl) { myCaseEl.style.opacity = '0.5'; setTimeout(() => { myCaseEl.style.opacity = '1'; }, 200); }
   if(id('btnLbTotal').classList.contains('active')) renderTotalScoreLeaderboard();
 }
 
-// 渲染任務總分排行榜 (雙層排序)
 function renderTotalScoreLeaderboard() {
   let myTotalTasks = playerState.taskScores.size;
   let myTotalScore = 0;
@@ -778,7 +852,6 @@ function renderTotalScoreLeaderboard() {
     { name: playerState.name, avatar: playerState.avatar, tasks: myTotalTasks, score: myTotalScore, isMe: true }
   ];
 
-  // 排序演算法：任務數 > 總分
   lbData.sort((a, b) => {
     if (b.tasks !== a.tasks) return b.tasks - a.tasks;
     return b.score - a.score;
