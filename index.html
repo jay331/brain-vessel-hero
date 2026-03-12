@@ -9,7 +9,7 @@
 <style>
 :root {
   --bg-dark: #14110f; --gold-primary: #d4af37; --gold-dim: #8b7322;
-  --panel-bg: rgba(26, 22, 18, 0.85); /* 稍微調降透明度，讓背景透出來 */
+  --panel-bg: rgba(26, 22, 18, 0.85); 
   --text-main: #f4ecd8; --text-muted: #a99d82;
   --accent-red: #d32f2f; --accent-blue: #29b6f6; --good: #3dff8e;
 }
@@ -21,24 +21,23 @@ input { font-family: inherit; }
 
 .app { height: 100%; display: flex; flex-direction: column; }
 
-/* ===== 升級版 HUD ===== */
+/* ===== 升級版 HUD (修正單列顯示) ===== */
 header { padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(180deg, rgba(20,15,10,0.9), rgba(0,0,0,0.5)); border-bottom: 1px solid var(--gold-dim); z-index: 100; flex-shrink: 0; backdrop-filter: blur(4px); }
-.player-info { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 4px 8px 4px 4px; border-radius: 8px; transition: background 0.2s; background: rgba(0,0,0,0.4); border: 1px solid rgba(212,175,55,0.3); }
+.player-info { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 4px; border-radius: 8px; transition: background 0.2s; background: rgba(0,0,0,0.4); border: 1px solid rgba(212,175,55,0.3); min-width: 0; flex-shrink: 1; }
 .player-info:active { background: rgba(255,255,255,0.1); }
-.avatar-wrap { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--gold-primary); background: #000; overflow: hidden; position: relative; }
+.avatar-wrap { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--gold-primary); background: #000; overflow: hidden; position: relative; flex-shrink: 0; }
 .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
 .avatar-wrap::after { content: '⚙️'; position: absolute; bottom: -2px; right: -2px; font-size: 10px; background: rgba(0,0,0,0.7); border-radius: 50%; padding: 2px; }
-.player-text-wrap { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 2px; }
-.player-name { font-size: 14px; font-weight: 900; color: var(--gold-primary); text-shadow: 1px 1px 2px #000; }
-.level-badge { background: var(--accent-blue); color: #000; font-size: 11px; font-weight: 900; padding: 1px 6px; border-radius: 4px; border: 1px solid #fff; transition: transform 0.3s; }
+.player-text-wrap { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 2px; overflow: hidden; }
+.player-name { font-size: 13px; font-weight: 900; color: var(--gold-primary); text-shadow: 1px 1px 2px #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80px; }
+.level-badge { background: var(--accent-blue); color: #000; font-size: 11px; font-weight: 900; padding: 1px 6px; border-radius: 4px; border: 1px solid #fff; transition: transform 0.3s; white-space: nowrap; }
 
-.resources { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-.res-item { display: flex; align-items: center; gap: 6px; font-weight: 900; font-size: 13px; color: var(--text-main); background: rgba(0,0,0,0.6); padding: 4px 10px; border-radius: 99px; border: 1px solid var(--gold-dim); box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+.resources { display: flex; flex-direction: row; align-items: center; gap: 6px; flex-shrink: 0; }
+.res-item { display: flex; align-items: center; gap: 4px; font-weight: 900; font-size: 13px; color: var(--text-main); background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 99px; border: 1px solid var(--gold-dim); box-shadow: 0 2px 5px rgba(0,0,0,0.5); white-space: nowrap; }
 .green-coin { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; background: linear-gradient(180deg, #3dff8e, #0eb855); border-radius: 50%; color: #000; font-size: 11px; font-weight: 900; border: 1px solid #fff; }
 
 /* ===== 佈局與背景 ===== */
 .wrap { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0; }
-/* 這裡可以替換成您上傳的那張指揮中心圖片背景！ */
 .stage { position: relative; width: 100%; height: 100%; overflow: hidden; display: flex; flex-direction: column; background: radial-gradient(circle at 50% 30%, rgba(212, 175, 55, 0.2), rgba(0,0,0,0.9)), url('image_c36c48.jpg') center/cover no-repeat; }
 @media (min-width: 481px) { .wrap { padding: 20px; background: #111; } .stage { max-width: 414px; max-height: 896px; border-radius: 16px; border: 2px solid var(--gold-dim); box-shadow: 0 0 30px rgba(212,175,55,0.2); } }
 
@@ -346,8 +345,7 @@ let playerState = {
   bossUnlocked: false,
   completedCases: new Map(), 
   currentBossCaseStr: "",
-  // 新增：紀錄玩家在每個單項任務拿到的最高分
-  taskScores: new Map() // ['role_emt_0' => 1500, 'role_dr_1' => 1200 ...]
+  taskScores: new Map() // ['role_emt_0' => 1500] 記錄單任務最高分
 };
 
 const GAME_FILES = {
@@ -469,12 +467,11 @@ function updateHUD() {
   id('uiCoins').textContent = playerState.coins.toLocaleString(); 
   id('uiCases').textContent = `${playerState.completedCases.size} / 3125`; 
   id('hudAvatar').src = playerState.avatar;
-  id('uiPlayerName').textContent = playerState.name; // 更新左上角名字
+  id('uiPlayerName').textContent = playerState.name;
 
   let completedTasks = 0;
   ROLES_DATA.forEach(r => { completedTasks += (r.currentTask > r.totalTasks ? r.totalTasks : r.currentTask - 1); });
   
-  // 修改點：最高100級算法
   let rawLevel = 1 + completedTasks + Math.floor(Math.sqrt(playerState.completedCases.size) * 3);
   let finalLevel = Math.min(100, rawLevel); 
   
@@ -574,14 +571,9 @@ function playTask() {
 
 window.addEventListener('message', (e) => {
   if (e.data.type === 'GAME_CLEAR') {
-    id('gameOverlay').style.display = 'none';
-    id('gameFrame').src = ''; 
-    handleTaskSuccess(e.data.score);
+    id('gameOverlay').style.display = 'none'; id('gameFrame').src = ''; handleTaskSuccess(e.data.score);
   } else if (e.data.type === 'GAME_OVER') {
-    id('gameOverlay').style.display = 'none';
-    id('gameFrame').src = '';
-    alert('❌ 挑戰失敗。失去 1 次機會。');
-    openRoleDetail(activeRoleId); 
+    id('gameOverlay').style.display = 'none'; id('gameFrame').src = ''; alert('❌ 挑戰失敗。失去 1 次機會。'); openRoleDetail(activeRoleId); 
   }
 });
 
@@ -596,10 +588,11 @@ function handleTaskSuccess(score) {
   const taskIndex = role.currentTask <= role.totalTasks ? role.currentTask - 1 : 4;
   const cardIdToUnlock = `${role.id}_${taskIndex}`;
   
-  // 記錄該任務最高分 (供總分榜使用)
+  // 記錄單任務最高分
   const currentBest = playerState.taskScores.get(cardIdToUnlock) || 0;
-  if (score > currentBest) {
-    playerState.taskScores.set(cardIdToUnlock, score);
+  const validScore = score || 1000;
+  if (validScore > currentBest) {
+    playerState.taskScores.set(cardIdToUnlock, validScore);
   }
 
   const card = CARDS_DB.find(c => c.id === cardIdToUnlock);
@@ -608,7 +601,7 @@ function handleTaskSuccess(score) {
     card.isUnlocked = true;
     cardMsg = `\n🔖 並解鎖了健康卡：【${card.title}】！`;
   }
-  alert(`🎉 恭喜通關！獲得 50 健康幣${cardMsg}\n本次得分：${score || 1000}`);
+  alert(`🎉 恭喜通關！獲得 50 健康幣${cardMsg}\n本次得分：${validScore}`);
   playerState.coins += 50;
   
   if (role.currentTask <= role.totalTasks) role.currentTask++;
@@ -681,11 +674,61 @@ function playBossTask() {
 }
 
 // ==========================================
-// 排行榜更新邏輯 (含任務總分榜排序)
+// 6. 圖鑑與排行榜
 // ==========================================
+function updatePokedexProgress() {
+  const unlockedCount = CARDS_DB.filter(c => c.isUnlocked).length;
+  id('pokedexProgress').textContent = `${unlockedCount} / 25`;
+}
+function filterCards(roleIdFilter) {
+  updatePokedexProgress();
+  const tabs = id('pokedexTabs').children;
+  for(let tab of tabs) {
+    tab.classList.remove('active');
+    if(tab.getAttribute('onclick').includes(roleIdFilter)) tab.classList.add('active');
+  }
+  const filteredCards = roleIdFilter === 'ALL' ? CARDS_DB : CARDS_DB.filter(c => c.roleId === roleIdFilter);
+  const grid = id('cardGrid');
+  grid.innerHTML = '';
+  filteredCards.forEach(card => {
+    const cardEl = document.createElement('div');
+    cardEl.className = `card-item ${card.isUnlocked ? '' : 'locked'}`;
+    cardEl.innerHTML = `<div class="card-icon">${card.icon}</div><div class="card-title">${card.title}</div>`;
+    if (card.isUnlocked) { cardEl.onclick = () => openCardModal(card); } 
+    else { cardEl.onclick = () => alert('🔒 此健康卡尚未解鎖。'); }
+    grid.appendChild(cardEl);
+  });
+}
+function openCardModal(card) {
+  id('modalIcon').textContent = card.icon; id('modalTitle').textContent = card.title;
+  const role = ROLES_DATA.find(r => r.id === card.roleId);
+  id('modalCategory').textContent = `${role.icon} ${role.name} ${role.subtitle}`;
+  id('modalDesc').textContent = card.desc; id('cardModal').style.display = 'flex';
+}
+function closeCardModal() { id('cardModal').style.display = 'none'; }
+id('cardModal').addEventListener('click', function(e) { if(e.target === this) closeCardModal(); });
+
+function renderCaseDex() {
+  const container = id('caseDexList'); container.innerHTML = '';
+  const cases = Array.from(playerState.completedCases.entries()).sort((a,b)=>a[0].localeCompare(b[0]));
+  id('caseDexProgress').textContent = `${cases.length} / 3125`;
+  if(cases.length === 0) { container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:30px;">尚無解鎖的綜合個案。</p>'; return; }
+  cases.forEach(([caseStr, score]) => {
+    let detailsHTML = '';
+    for(let i=0; i<5; i++) { detailsHTML += `<span class="case-dex-role">${ROLES_DATA[i].icon} ${caseStr[i]}</span>`; }
+    container.innerHTML += `
+      <div class="case-dex-item">
+        <div class="case-dex-id"><span>#C-${caseStr}</span><span class="case-score-badge">最高分: ${score}</span></div>
+        <div class="case-dex-details">${detailsHTML}</div>
+      </div>
+    `;
+  });
+}
+
 function switchLb(type) {
   id('btnLbCase').classList.remove('active'); id('btnLbTotal').classList.remove('active'); id('btnLbTasks').classList.remove('active');
   id('lbListCase').style.display = 'none'; id('lbListTotal').style.display = 'none'; id('lbListTasks').style.display = 'none';
+  
   if (type === 'case') { id('btnLbCase').classList.add('active'); id('lbListCase').style.display = 'flex'; } 
   else if (type === 'total') { id('btnLbTotal').classList.add('active'); id('lbListTotal').style.display = 'flex'; renderTotalScoreLeaderboard(); }
   else { id('btnLbTasks').classList.add('active'); id('lbListTasks').style.display = 'flex'; refreshTaskLbContent(); }
@@ -702,10 +745,11 @@ function refreshTaskLbContent() {
   const content = id('taskLbContent'); content.style.opacity = '0';
   setTimeout(() => { 
     content.style.opacity = '1'; 
-    const mockRank1 = 10000 + Math.floor(Math.random()*3000);
+    const mockRank1 = 1000 + Math.floor(Math.random()*500);
     content.innerHTML = `
       <div class="lb-item"><span class="lb-rank">🥇</span><img src="https://i.pravatar.cc/150?img=68" class="lb-avatar"><div class="lb-name">張救護員</div><div class="lb-score">${mockRank1} 分</div></div>
-      <div class="lb-item is-me"><span class="lb-rank">🥈</span><img src="${playerState.avatar}" class="lb-avatar"><div class="lb-name">${playerState.name} <div class="sub">您 (本人)</div></div><div class="lb-score">10,850 分</div></div>
+      <div class="lb-item"><span class="lb-rank">🥈</span><img src="https://i.pravatar.cc/150?img=33" class="lb-avatar"><div class="lb-name">陳醫師 (內科)</div><div class="lb-score">${mockRank1 - 50} 分</div></div>
+      <div class="lb-item is-me"><span class="lb-rank">🥉</span><img src="${playerState.avatar}" class="lb-avatar"><div class="lb-name">${playerState.name} <div class="sub">您 (本人)</div></div><div class="lb-score">待刷新</div></div>
     `;
   }, 200);
 }
@@ -717,33 +761,29 @@ function updateLbMyScore() {
   const myCaseEl = document.querySelector('#lbListCase .is-me');
   myCaseEl.style.opacity = '0.5'; setTimeout(() => { myCaseEl.style.opacity = '1'; }, 200);
   
-  // 若當前在任務總分榜，順便重繪
   if(id('btnLbTotal').classList.contains('active')) renderTotalScoreLeaderboard();
 }
 
-// 渲染任務總分排行榜 (先比任務數，再比總分)
+// 渲染任務總分排行榜 (雙層排序)
 function renderTotalScoreLeaderboard() {
-  // 1. 計算本人總分與任務數
   let myTotalTasks = playerState.taskScores.size;
   let myTotalScore = 0;
   for (let score of playerState.taskScores.values()) { myTotalScore += score; }
 
-  // 2. 建立假資料陣列並推入本人資料
   let lbData = [
-    { name: '陳醫師 (內科)', avatar: 'https://i.pravatar.cc/150?img=33', tasks: 25, score: 35400, isMe: false },
-    { name: '王護理長', avatar: 'https://i.pravatar.cc/150?img=47', tasks: 22, score: 28900, isMe: false },
-    { name: '吳住院醫師', avatar: 'https://i.pravatar.cc/150?img=60', tasks: 20, score: 27500, isMe: false },
-    { name: '林治療師', avatar: 'https://i.pravatar.cc/150?img=12', tasks: 15, score: 18200, isMe: false },
+    { name: '陳醫師 (內科)', avatar: 'https://i.pravatar.cc/150?img=33', tasks: 25, score: 28400, isMe: false },
+    { name: '王護理長', avatar: 'https://i.pravatar.cc/150?img=47', tasks: 22, score: 23900, isMe: false },
+    { name: '吳住院醫師', avatar: 'https://i.pravatar.cc/150?img=60', tasks: 22, score: 22500, isMe: false },
+    { name: '林治療師', avatar: 'https://i.pravatar.cc/150?img=12', tasks: 15, score: 14200, isMe: false },
     { name: playerState.name, avatar: playerState.avatar, tasks: myTotalTasks, score: myTotalScore, isMe: true }
   ];
 
-  // 3. 排序：任務數多的優先；若任務數相同，總分高的優先
+  // 排序演算法：任務數 > 總分
   lbData.sort((a, b) => {
     if (b.tasks !== a.tasks) return b.tasks - a.tasks;
     return b.score - a.score;
   });
 
-  // 4. 渲染到畫面上
   const container = id('lbListTotal');
   container.innerHTML = '';
   
