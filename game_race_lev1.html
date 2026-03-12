@@ -529,7 +529,7 @@
 
     <div id="topHud" aria-live="polite">
       距離 <span class="num" id="distLeft">70000</span>
-<span id="timeHud">時間 <b id="timeNow">0</b>s <small id="realTimeNow">(實際 0分00秒)</small></span>
+      <span id="timeHud">時間 <b id="timeNow">0</b>s <small id="realTimeNow">(實際 0分00秒)</small></span>
     </div>
 
     <div id="finish">
@@ -550,8 +550,8 @@
 
     <div id="penalty">⛔ 延誤 <strong>1</strong> 秒<span class="sub">（重新確認路線）</span></div>
 
-<div id="player">
-  <div id="speedHud">0 km/h</div>
+    <div id="player">
+      <div id="speedHud">0 km/h</div>
       <div id="ammoFloat" class="empty">📣0</div>
       <div id="playerSkin" class="carTop">
         <div class="body"></div><div class="glass"></div><div class="wheels"></div><div class="sirens"></div><div class="lights"><span></span><span></span></div>
@@ -588,20 +588,23 @@
 const isCaseMode = new URLSearchParams(location.search).get('mode') === 'case';
 if (isCaseMode) document.body.classList.add('caseMode');
 
+// 判斷是否為 iframe 內嵌 (與主畫面指揮中心連動)
+const isEmbedded = window !== window.parent;
+
 const GOAL_DISTANCE = 78000;
 const DIST_UNIT = 200;
 const BASE_FORWARD_SPEED = 1.0;
 const SPEED_RAMP_PER_SEC = 0.018;
 const BOOST_PER_STACK = 0.12;
 
-const isMobile = window.innerWidth <= 768; // 判斷是否為手機螢幕
+const isMobile = window.innerWidth <= 768;
 const BOOST_FALL = isMobile ? 150 : 190;
 const AMMO_FALL = isMobile ? 150 : 190;
 const CAR_LONG_PRESS_MS = 300;
-const NPC_FALL_BASE = isMobile ? 180 : 235; // 降低手機版 NPC 車輛迎面而來的速度
+const NPC_FALL_BASE = isMobile ? 180 : 235;
 const NPC_FALL_MIN_MULT = 0.90;
 const NPC_FALL_MAX_MULT = 1.40;
-const OB_FALL = isMobile ? 160 : 205;       // 降低手機版路障的逼近速度
+const OB_FALL = isMobile ? 160 : 205;
 
 const WAVE_MIN_MS = 800;
 const WAVE_MAX_MS = 1500;
@@ -689,8 +692,8 @@ let firstPhaseWeatherDone = false;
 let maxSpeedKmh = 0;
 let penaltyCount = 0;
 let totalPenaltyMs = 0;
-let onsetToDoorTargetMin = 30;   // 任務要求幾分鐘內到院
-let realTransportMs = 0;         // 換算後真實送醫時間
+let onsetToDoorTargetMin = 30;
+let realTransportMs = 0;
 
 let nextWaveAt = 0;
 let nextBoostAt = 0;
@@ -889,7 +892,7 @@ function hit(a, b){
 
 function isTapOnPlayer(clientX, clientY){
   const r = player.getBoundingClientRect();
-  const padding = 30; // 隱形觸控範圍向外擴張 30 像素 (數值可自行微調)
+  const padding = 30;
   
   return clientX >= (r.left - padding) && 
          clientX <= (r.right + padding) && 
@@ -1356,6 +1359,9 @@ function addRank(timeMs){
   return top10;
 }
 function renderRanks(arr){
+  // 如果是內嵌模式，為了讓玩家專注在本次得分，我們不顯示這款遊戲內建的排行榜
+  if (isEmbedded) return; 
+
   rankListEl.innerHTML = "";
   if(!arr.length){
     rankListEl.innerHTML = `<li><span>—</span><span>尚無紀錄</span></li>`;
@@ -1481,6 +1487,7 @@ if(speedHud) speedHud.textContent = "0 km/h";
   generateMission();
   missionBanner.style.display = "block";
 }
+
 function formatMinSecFromMs(ms){
   const totalSec = Math.round(ms / 1000);
   const mm = Math.floor(totalSec / 60);
@@ -1488,38 +1495,54 @@ function formatMinSecFromMs(ms){
   return `${mm}分${String(ss).padStart(2, "0")}秒`;
 }
 
+// ★★★ 遊戲結束(過關)結算與連動機制 ★★★
 function gameEnd(){
   if(over) return;
   over = true;
   overlay.style.display = "flex";
   sfxGoal();
 
-  document.getElementById("rankBox").style.display = "block";
-  document.getElementById("instructionText").style.display = "none";
-
   lastRunTimeMs = elapsedMs;
-  realTransportMs = elapsedMs * 10; // 1秒遊戲 = 10秒真實時間
-
+  realTransportMs = elapsedMs * 10; 
   const targetMs = onsetToDoorTargetMin * 60 * 1000;
   const inTime = realTransportMs <= targetMs;
+
+  // 1. 動態計算分數
+  let baseScore = inTime ? 1000 : 500;
+  let finalScore = Math.floor(baseScore + (maxSpeedKmh * 5) - (penaltyCount * 50));
+  if (finalScore < 100) finalScore = 100; // 最低給 100 分
 
   resultTitle.textContent = inTime ? "✅ 及時到院！" : "⚠️ 未及時到院";
   resultText.innerHTML =
     `遊戲到院時間：${fmtSec(elapsedMs)} 秒<br>` +
     `真實換算時間：${formatMinSecFromMs(realTransportMs)}<br>` +
-    `任務目標：${onsetToDoorTargetMin} 分鐘內到院<br>` +
     `最快時速：${maxSpeedKmh} km/h<br>` +
     `拖延次數：${penaltyCount} 次<br>` +
-    `累積拖延：${formatMinSecFromMs(totalPenaltyMs)}`;
+    `<br><strong style="color:var(--accent); font-size:20px;">🎖️ 本次任務得分：${finalScore}</strong>`;
 
-  const top10 = addRank(elapsedMs);
-  renderRanks(top10);
-
-  try{
-    parent.postMessage({ type:'GAME_CLEAR', game:'race', time:Math.floor(elapsedMs / 1000) }, '*');
-  }catch{}
+  // 隱藏單機版教學與排行榜，以防畫面太長
+  if (isEmbedded) {
+    document.getElementById("rankBox").style.display = "none";
+    document.getElementById("instructionText").style.display = "none";
+    
+    // 將按鈕改為回傳分數給指揮中心
+    restartBtn.textContent = "確認成績並返回";
+    restartBtn.onclick = () => {
+      window.parent.postMessage({ type: 'GAME_CLEAR', score: finalScore }, '*');
+    };
+  } else {
+    document.getElementById("rankBox").style.display = "block";
+    document.getElementById("instructionText").style.display = "none";
+    
+    const top10 = addRank(elapsedMs);
+    renderRanks(top10);
+    
+    restartBtn.textContent = "再跑一次";
+    restartBtn.onclick = reset;
+  }
 }
 
+// ★★★ 遊戲失敗連動機制 ★★★
 function gameFail(){
   if(over) return;
   over = true;
@@ -1528,8 +1551,30 @@ function gameFail(){
   document.getElementById("rankBox").style.display = "none";
   document.getElementById("instructionText").style.display = "none";
   resultTitle.textContent = "❌ 發生交通事故！";
-  resultText.textContent = "不慎發生碰撞，運送失敗，請重新嘗試。";
+  resultText.textContent = "不慎發生嚴重碰撞，運送失敗，請重新嘗試。";
+
+  if (isEmbedded) {
+    restartBtn.textContent = "任務失敗並返回";
+    restartBtn.onclick = () => {
+      window.parent.postMessage({ type: 'GAME_OVER' }, '*');
+    };
+  } else {
+    restartBtn.textContent = "再試一次";
+    restartBtn.onclick = reset;
+  }
 }
+
+// 處理左下角強制重來按鈕 (中途放棄)
+restartSmallBtn.onclick = () => {
+  ensureAudio();
+  if (isEmbedded) {
+    if(confirm("確定要放棄當前任務嗎？(已扣除的機會將不會歸還)")) {
+      window.parent.postMessage({ type: 'GAME_OVER' }, '*');
+    }
+  } else {
+    reset();
+  }
+};
 
 function tick(now){
   if(!gameRunning || over) return;
@@ -1539,7 +1584,7 @@ function tick(now){
   elapsedMs = now - runStartAt;
 timeNowEl.textContent = String(Math.floor(elapsedMs / 1000));
 
-const realNowMs = elapsedMs * 10; // 1秒遊戲 = 10秒真實時間
+const realNowMs = elapsedMs * 10;
 if(realTimeNowEl){
   realTimeNowEl.textContent = `(實際 ${formatMinSecFromMs(realNowMs)})`;
 }
@@ -1574,7 +1619,6 @@ if(realTimeNowEl){
   const forwardMult = 1 + boostStack * BOOST_PER_STACK;
 const currentSpeed = rampedSpeed * forwardMult;
 
-/* 遊戲速度換成較合理的顯示時速 */
 const kmh = Math.round(currentSpeed * 22 + boostStack * 6);
 
 if(kmh > maxSpeedKmh) maxSpeedKmh = kmh;
@@ -1933,7 +1977,7 @@ shootBtn.addEventListener("click", () => { ensureAudio(); tryShock(performance.n
 let touchStartX = 0;
 let touchStartY = 0;
 let isCarTouch = false;
-const SWIPE_THRESHOLD = 30; // 判斷為滑動的最小距離（像素），數字越小越靈敏
+const SWIPE_THRESHOLD = 30;
 
 game.addEventListener("touchstart", (e) => {
   ensureAudio();
@@ -1941,11 +1985,9 @@ game.addEventListener("touchstart", (e) => {
   const t = e.touches[0];
   if(!t) return;
 
-  // 記錄初始觸控位置
   touchStartX = t.clientX;
   touchStartY = t.clientY;
 
-  // 判斷是否點擊到玩家車子
   if(isTapOnPlayer(t.clientX, t.clientY)){
     e.preventDefault();
     isCarTouch = true;
@@ -1959,7 +2001,7 @@ game.addEventListener("touchstart", (e) => {
   }
 
   isCarTouch = false;
-  e.preventDefault(); // 防止螢幕跟著滾動
+  e.preventDefault(); 
 }, { passive:false });
 
 game.addEventListener("touchend", (e) => {
@@ -1967,13 +2009,10 @@ game.addEventListener("touchend", (e) => {
   const t = e.changedTouches[0];
   if(!t){ carLongPressTriggered = false; isCarTouch = false; return; }
 
-  // 計算 X 軸滑動距離
   const deltaX = t.clientX - touchStartX;
 
-  // 1. 處理點擊/長按車子的情況
   if(isCarTouch){
     e.preventDefault();
-    // 如果沒有觸發長按，且滑動距離沒有超過閾值，就當作一般點擊發射
     if(!carLongPressTriggered && Math.abs(deltaX) < SWIPE_THRESHOLD){
       tryShock(performance.now());
     }
@@ -1984,13 +2023,10 @@ game.addEventListener("touchend", (e) => {
 
   carLongPressTriggered = false;
 
-  // 2. 判斷是「左右滑動」還是「普通點擊」
   if(Math.abs(deltaX) > SWIPE_THRESHOLD){
-     // 距離大於判定值，視為滑動
      if(deltaX > 0) moveRight();
      else moveLeft();
   } else {
-     // 距離小於判定值，視為原本的點擊左右半邊
      const rect = game.getBoundingClientRect();
      if(t.clientX - rect.left < rect.width / 2) moveLeft();
      else moveRight();
@@ -2007,9 +2043,8 @@ document.addEventListener("pointerdown", ensureAudio, { once:true });
 document.addEventListener("touchstart", ensureAudio, { once:true, passive:true });
 document.addEventListener("keydown", ensureAudio, { once:true });
 
-function restart(){ reset(); }
-restartBtn.addEventListener("click", restart);
-restartSmallBtn.addEventListener("click", restart);
+// 移除舊的 restartBtn 監聽器，因為我們在 gameEnd() 裡會動態綁定事件
+// restartBtn.addEventListener("click", restart);
 
 if(document.readyState === "loading"){
   document.addEventListener("DOMContentLoaded", () => setTimeout(reset, 50));
