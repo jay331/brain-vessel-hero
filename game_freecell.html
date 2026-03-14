@@ -11,13 +11,13 @@
   .btn-success { background: #059669; border-color: #10b981; }
   .btn:active { transform: scale(0.95); }
   
-  #fcGame { display: flex; flex-direction: column; flex: 1; padding: 6px; height: calc(100vh - 50px); box-sizing: border-box;}
+  #fcGame { display: flex; flex-direction: column; flex: 1; padding: 6px; height: calc(100vh - 40px); box-sizing: border-box;}
   #fcTop { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 10px; height: 18%; min-height:80px; flex-shrink: 0; }
   .fc-box-group { display: flex; gap: 4px; flex: 1; justify-content: space-around; }
   .fc-cell { flex: 1; aspect-ratio: 5/7; border: 2px dashed #475569; border-radius: 6px; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; position: relative;}
   .fc-foundation { font-size: 24px; color: #334155; }
   
-  /* 允許牌列區域上下滾動 */
+  /* 允許牌列區域上下滾動，解決牌太多被卡掉的問題 */
   #fcTableaus { display: flex; flex: 1; justify-content: space-between; gap: 2px; position: relative; overflow-y: auto; padding-bottom: 20px; align-items: flex-start; }
   .fc-col { flex: 1; position: relative; border-top: 2px solid rgba(255,255,255,0.05); }
   
@@ -26,7 +26,7 @@
   .fc-card.black { color: #0f172a; }
   .fc-card.selected { border: 2px solid #3b82f6; box-shadow: 0 0 15px #3b82f6; transform: translateY(-8px); z-index: 100 !important; }
   
-  /* 確保花色與數字清晰可見 */
+  /* 放大花色與數字，確保辨識度 */
   .fc-card-tl { position: absolute; top: 2px; left: 2px; font-size: 14px; font-weight: 900; line-height: 1.1; text-align: center; }
   .fc-card-center { margin: auto; font-size: 24px; margin-top: 20px;}
   .fc-card-bottom { position: absolute; bottom: 4px; left: 0; width: 100%; font-size: 9px; text-align: center; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 2px; }
@@ -138,7 +138,7 @@ function isSeq(arr) {
 
 function clk(loc, idxStr, cIdx) {
   let tapId = `${loc}_${idxStr}_${cIdx}`; let now = Date.now();
-  if (now - lastTap < 500 && lastTapId === tapId && cIdx !== -1) {
+  if (now - lastTap < 400 && lastTapId === tapId && cIdx !== -1) {
     let c = loc==='fc' ? state.fc[idxStr] : state.tab[idxStr][cIdx];
     document.getElementById('mIcon').textContent = c.icon; document.getElementById('mTitle').textContent = c.title;
     document.getElementById('mDesc').textContent = "此處可以綁定完整的醫療知識解說。";
@@ -162,7 +162,7 @@ function clk(loc, idxStr, cIdx) {
     else if(loc==='fd' && mc.length===1) { if(tc.s===idx && tc.r===state.fd[idx]+1) { state.fd[idx]++; moved = true; } }
     else if(loc==='tab') {
       let col = state.tab[idx];
-      // 休閒模式：只要順序對就推！
+      // 無視限制，只要順序對就推！
       if(col.length===0) { col.push(...mc); moved = true; }
       else { let dc = col[col.length-1]; if(dc.c!==tc.c && dc.r===tc.r+1) { col.push(...mc); moved = true; } }
     }
@@ -191,7 +191,7 @@ function checkWin() {
   if(state.fd['♠']===13 && state.fd['♥']===13 && state.fd['♣']===13 && state.fd['♦']===13) {
     setTimeout(() => { 
       alert("🎉 恭喜破關！\n即將發送 10,000 健康幣至您的指揮中心！"); 
-      window.parent.postMessage({ type: 'GAME_CLEAR', coins: 10000 }, '*'); 
+      window.parent.postMessage({ type: 'GAME_CLEAR', coins: 10000 }, '*'); // 傳送勝利訊息給主頁面
     }, 500);
   }
 }
