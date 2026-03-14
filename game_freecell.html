@@ -12,24 +12,26 @@
   .btn:active { transform: scale(0.95); }
   
   #fcGame { display: flex; flex-direction: column; flex: 1; padding: 6px; height: calc(100vh - 50px); box-sizing: border-box;}
-  #fcTop { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 10px; height: 18%; min-height:80px; }
+  #fcTop { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 10px; height: 18%; min-height:80px; flex-shrink: 0; }
   .fc-box-group { display: flex; gap: 4px; flex: 1; justify-content: space-around; }
   .fc-cell { flex: 1; aspect-ratio: 5/7; border: 2px dashed #475569; border-radius: 6px; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; position: relative;}
   .fc-foundation { font-size: 24px; color: #334155; }
   
-  #fcTableaus { display: flex; flex: 1; justify-content: space-between; gap: 3px; position: relative; }
-  .fc-col { flex: 1; position: relative; height: 100%; border-top: 2px solid rgba(255,255,255,0.05); }
+  /* 允許牌列區域上下滾動 */
+  #fcTableaus { display: flex; flex: 1; justify-content: space-between; gap: 2px; position: relative; overflow-y: auto; padding-bottom: 20px; align-items: flex-start; }
+  .fc-col { flex: 1; position: relative; border-top: 2px solid rgba(255,255,255,0.05); }
   
   .fc-card { position: absolute; width: 100%; aspect-ratio: 5/7; background: linear-gradient(135deg, #f8fafc, #cbd5e1); border-radius: 6px; border: 1px solid #64748b; box-shadow: 0 4px 6px rgba(0,0,0,0.5); display: flex; flex-direction: column; cursor: pointer; transition: transform 0.1s; overflow: hidden; }
   .fc-card.red { color: #dc2626; }
   .fc-card.black { color: #0f172a; }
   .fc-card.selected { border: 2px solid #3b82f6; box-shadow: 0 0 15px #3b82f6; transform: translateY(-8px); z-index: 100 !important; }
   
-  .fc-card-tl { position: absolute; top: 4px; left: 4px; font-size: 14px; font-weight: 900; line-height: 1; text-align: center; }
-  .fc-card-center { margin: auto; font-size: 24px; margin-top: 15px;}
+  /* 確保花色與數字清晰可見 */
+  .fc-card-tl { position: absolute; top: 2px; left: 2px; font-size: 14px; font-weight: 900; line-height: 1.1; text-align: center; }
+  .fc-card-center { margin: auto; font-size: 24px; margin-top: 20px;}
   .fc-card-bottom { position: absolute; bottom: 4px; left: 0; width: 100%; font-size: 9px; text-align: center; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 2px; }
 
-  /* 卡片說明視窗 */
+  /* 知識說明視窗 */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px;}
   .modal-content { background: #1e293b; border: 2px solid #3b82f6; border-radius: 12px; width: 100%; max-width: 320px; padding: 20px; text-align: center; position: relative;}
 </style>
@@ -110,10 +112,14 @@ function render() {
 
   let tabHTML = '';
   for(let i=0; i<8; i++) {
-    let col = `<div class="fc-col" onclick="clk('tab',${i},-1)">`;
+    let numCards = state.tab[i].length;
+    // 動態計算列高，讓 overflow-y 能正常觸發捲動
+    let colHeight = numCards > 0 ? (numCards - 1) * 35 + 100 : 100;
+    
+    let col = `<div class="fc-col" style="min-height:${colHeight}px;" onclick="clk('tab',${i},-1)">`;
     state.tab[i].forEach((c, ci) => {
       let isSel = (state.sel && state.sel.loc==='tab' && state.sel.i===i && ci>=state.sel.ci);
-      col += buildCard(c, isSel, ci*24, 'tab', i, ci); // 24px 間距適合手機
+      col += buildCard(c, isSel, ci*35, 'tab', i, ci); // 35px 保證花色與數字可見
     });
     tabHTML += col + `</div>`;
   }
@@ -132,7 +138,7 @@ function isSeq(arr) {
 
 function clk(loc, idxStr, cIdx) {
   let tapId = `${loc}_${idxStr}_${cIdx}`; let now = Date.now();
-  if (now - lastTap < 400 && lastTapId === tapId && cIdx !== -1) {
+  if (now - lastTap < 500 && lastTapId === tapId && cIdx !== -1) {
     let c = loc==='fc' ? state.fc[idxStr] : state.tab[idxStr][cIdx];
     document.getElementById('mIcon').textContent = c.icon; document.getElementById('mTitle').textContent = c.title;
     document.getElementById('mDesc').textContent = "此處可以綁定完整的醫療知識解說。";
@@ -156,7 +162,7 @@ function clk(loc, idxStr, cIdx) {
     else if(loc==='fd' && mc.length===1) { if(tc.s===idx && tc.r===state.fd[idx]+1) { state.fd[idx]++; moved = true; } }
     else if(loc==='tab') {
       let col = state.tab[idx];
-      // 無視限制，只要順序對就推！
+      // 休閒模式：只要順序對就推！
       if(col.length===0) { col.push(...mc); moved = true; }
       else { let dc = col[col.length-1]; if(dc.c!==tc.c && dc.r===tc.r+1) { col.push(...mc); moved = true; } }
     }
@@ -185,7 +191,7 @@ function checkWin() {
   if(state.fd['♠']===13 && state.fd['♥']===13 && state.fd['♣']===13 && state.fd['♦']===13) {
     setTimeout(() => { 
       alert("🎉 恭喜破關！\n即將發送 10,000 健康幣至您的指揮中心！"); 
-      window.parent.postMessage({ type: 'GAME_CLEAR', coins: 10000 }, '*'); // 傳送勝利訊息給主頁面
+      window.parent.postMessage({ type: 'GAME_CLEAR', coins: 10000 }, '*'); 
     }, 500);
   }
 }
