@@ -18,8 +18,10 @@ input[type="checkbox"] { width: auto; }
 /* ===== HUD & 共用佈局 ===== */
 header { padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(180deg, rgba(20,15,10,0.9), rgba(0,0,0,0.5)); border-bottom: 1px solid var(--gold-dim); z-index: 100; flex-shrink: 0; backdrop-filter: blur(4px); }
 .player-info { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 4px; border-radius: 8px; transition: background 0.2s; background: rgba(0,0,0,0.4); border: 1px solid rgba(212,175,55,0.3); min-width: 0; flex-shrink: 1; }
+.player-info:active { background: rgba(255,255,255,0.1); }
 .avatar-wrap { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--gold-primary); background: #000; overflow: hidden; position: relative; flex-shrink: 0; }
 .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-wrap::after { content: '⚙️'; position: absolute; bottom: -2px; right: -2px; font-size: 10px; background: rgba(0,0,0,0.7); border-radius: 50%; padding: 2px; }
 .player-text-wrap { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 2px; overflow: hidden; }
 .player-name { font-size: 13px; font-weight: 900; color: var(--gold-primary); text-shadow: 1px 1px 2px #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80px; }
 .level-badge { background: var(--accent-blue); color: #000; font-size: 11px; font-weight: 900; padding: 1px 6px; border-radius: 4px; border: 1px solid #fff; white-space: nowrap; }
@@ -100,7 +102,7 @@ header { padding: 8px 12px; display: flex; justify-content: space-between; align
           <span id="mainTitleText">醫療指揮中心</span>
           <span style="font-size:14px; color:#ccc;">🔄 切換</span>
         </div>
-        <div class="boss-banner locked" id="bossBanner" onclick="openBossPrep()">
+        <div class="boss-banner locked" id="bossBanner" onclick="alert('綜合驗收模擬！')">
           <h3 id="bossTitleText">🚨 神內醫師 - 個案綜合驗收</h3>
           <p id="bossStatusText">需五位角色皆通關一項任務以解鎖</p>
         </div>
@@ -130,7 +132,7 @@ header { padding: 8px 12px; display: flex; justify-content: space-between; align
       
       <section class="screen" id="scrCaseDex" style="background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);">
         <div class="panel" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; border-color: var(--gold-primary);">
-          <h2 id="caseDexTitle" style="color: var(--gold-primary); margin-top:0;">圖鑑紀錄</h2>
+          <h2 id="caseDexTitle" style="color: var(--gold-primary); margin-top:0; border-bottom: none;">圖鑑紀錄</h2>
           <div id="caseDexList" style="flex: 1; overflow-y: auto; padding-right: 4px; color:#fff;">(資料庫連線中...)</div>
         </div>
       </section>
@@ -185,18 +187,25 @@ header { padding: 8px 12px; display: flex; justify-content: space-between; align
 
 <script>
 // ==========================================
-// 全域與資料區
+// 全域與資料區 (完整還原無刪減)
 // ==========================================
 let playerState = { mode: "beginner", coins: 0, name: "測試員", taskScoresBeg: new Map(), taskScoresAdv: new Map(), completedCasesAdv: new Map() };
 const SAVE_KEY = 'BrainPioneer_SaveData_v16';
 
 const ROLES_DATA_BEG = [
-  { id: 'beg_id', name: '中風辨識', icon: '🧠', totalTasks: 5, currentTask: 1, subTasks: ['1. 辨識臉部 (F)', '2. 手臂無力 (A)', '3. 說話清晰度 (S)', '4. 發作時間 (T)', '5. 撥打119'] },
-  // ... 為節省空間簡化展示 ...
+  { id: 'beg_id', name: '中風辨識', subtitle: '及早發現', icon: '🧠', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 辨識臉部不對稱 (F)', '2. 測試手臂無力 (A)', '3. 聆聽說話清晰度 (S)', '4. 記下發作時間 (T)', '5. 撥打119與就醫準備'] },
+  { id: 'beg_hosp', name: '住院須知', subtitle: '急性期', icon: '🏥', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 認識腦部影像檢查', '2. 抽血與點滴的目的', '3. 防跌倒與床欄安全', '4. 吞嚥測試與安全飲食', '5. 認識您的醫療團隊'] },
+  { id: 'beg_care', name: '基礎照護', subtitle: '病房起居', icon: '🤲', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 協助翻身與拍背', '2. 管路(鼻胃管/尿管)注意', '3. 協助安全上下床技巧', '4. 患側先穿/健側先脫', '5. 輪椅與助行器認識'] },
+  { id: 'beg_rehab', name: '復健入門', subtitle: '早期活動', icon: '💪', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 床上被動關節活動', '2. 良姿位擺位原則', '3. 床邊坐站平衡練習', '4. 預防關節攣縮變形', '5. 鼓勵日常使用患側'] },
+  { id: 'beg_home', name: '返家準備', subtitle: '長期抗戰', icon: '🏡', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 認識中風危險因子', '2. 規律服藥不擅自停藥', '3. 居家環境安全防跌', '4. 血壓與血糖居家量測', '5. 申請長照2.0資源'] }
 ];
+
 const ROLES_DATA_ADV = [
-  { id: 'role_emt', name: 'EMT', icon: '🚑', totalTasks: 5, currentTask: 1, subTasks: ['1. 基礎駕駛', '2. 閃避車流', '3. 惡劣天候', '4. 複雜路口', '5. 極限護送'] },
-  // ... 
+  { id: 'role_emt', name: 'EMT', subtitle: '院前識別', icon: '🚑', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 基礎駕駛與鳴笛', '2. 閃避車流考驗', '3. 惡劣天候救援', '4. 複雜路口判斷', '5. 極限護送抵達'] },
+  { id: 'role_dr', name: '取栓專家', subtitle: '血管再通', icon: '🩺', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 導管基礎操作', '2. 尋找阻塞點', '3. 突破血栓阻礙', '4. 支架釋放技巧', '5. 完美血流再通'] },
+  { id: 'role_nurse', name: '護理師', subtitle: '急診護理', icon: '💉', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 生命徵象監測', '2. FAST指標辨識', '3. 抽血與給藥準備', '4. 突發狀況排除', '5. 高壓急診調度'] },
+  { id: 'role_pt', name: '復健師', subtitle: '復健訓練', icon: '🦾', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 關節活動度評估', '2. 翻身與坐起訓練', '3. 站立平衡考驗', '4. 步態矯正與行走', '5. 日常生活功能重建'] },
+  { id: 'role_diet', name: '營養師', subtitle: '健康飲食', icon: '🥗', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 認識地中海飲食', '2. 挑選優質蛋白質', '3. 避開高鈉陷阱', '4. 吞嚥困難餐食', '5. 個人化菜單設計'] }
 ];
 
 function getActiveRoles() { return playerState.mode === 'beginner' ? ROLES_DATA_BEG : ROLES_DATA_ADV; }
@@ -205,6 +214,7 @@ function id(elId) { return document.getElementById(elId); }
 
 function saveProfile(mode) {
   const name = id('inputNickname').value;
+  if (!name) { alert("請輸入暱稱"); return; }
   playerState.name = name; playerState.mode = mode;
   if(name === 'ILoveFemh') {
     playerState.coins = 99999;
@@ -240,7 +250,7 @@ function showScreen(screenId) {
 function renderHomeRoles() {
   const container = id('roleListContainer'); container.innerHTML = '';
   getActiveRoles().forEach(role => {
-    container.innerHTML += `<div class="role-card" onclick="openRoleDetail('${role.id}')"><div class="role-avatar">${role.icon}</div><div class="role-info"><h3 class="role-name">${role.name}</h3><p class="role-task">進入訓練</p></div><div class="role-status">▶</div></div>`;
+    container.innerHTML += `<div class="role-card" onclick="openRoleDetail('${role.id}')"><div class="role-avatar">${role.icon}</div><div class="role-info"><h3 class="role-name">${role.name}</h3><p class="role-task">${role.subtitle}</p></div><div class="role-status">▶</div></div>`;
   });
 }
 
@@ -256,7 +266,6 @@ function openRoleDetail(roleId) {
 // ==========================================
 function playTask(roleId, taskIndex) {
   const role = getActiveRoles().find(r => r.id === roleId);
-  // 假裝載入對應遊戲
   id('gameTitle').textContent = `${role.name} - 任務 ${taskIndex+1}`;
   id('gameFrame').src = `about:blank`; // 您可以替換為真實的 game_race.html 等
   id('gameOverlay').style.display = 'flex';
@@ -294,9 +303,12 @@ function renderDexCards(tab, btnEl) {
   if (tab === 'hidden') {
     grid.innerHTML += `<div class="card-item hidden-card" onclick="alert('亞東中風中心')"><div class="card-icon">🏥</div><div class="card-title" style="color:#4fc3f7">亞東中風中心</div></div>`;
   } else {
-    for(let i=1; i<=25; i++) {
-      grid.innerHTML += `<div class="card-item"><div class="card-icon">📄</div><div class="card-title">知識卡 ${i}</div></div>`;
-    }
+    let sourceData = tab === 'beg' ? ROLES_DATA_BEG : ROLES_DATA_ADV;
+    sourceData.forEach(role => {
+      role.subTasks.forEach((st, idx) => {
+        grid.innerHTML += `<div class="card-item"><div class="card-icon">${role.icon}</div><div class="card-title">${st.substring(3)}</div></div>`;
+      });
+    });
   }
 }
 
