@@ -6,38 +6,40 @@
 <title>腦脈新接龍</title>
 <style>
   body, html { margin: 0; padding: 0; height: 100%; background: #0f172a; color: #fff; font-family: sans-serif; overflow: hidden; user-select: none; }
-  .btn { background: #334155; border: 1px solid #475569; color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; flex: 1; text-align: center; }
+  
+  /* 按鈕滿版等寬排列 */
+  .btn { background: #334155; border: 1px solid #475569; color: #fff; padding: 10px; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; flex: 1; text-align: center; }
   .btn-success { background: #059669; border-color: #10b981; }
   .btn:active { transform: scale(0.95); }
   
   #fcGame { display: flex; flex-direction: column; flex: 1; padding: 8px; height: 100vh; box-sizing: border-box;}
   
-  /* 頂部控制列 */
+  /* 頂部按鈕區 */
   .control-bar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; flex-shrink: 0; width: 100%; }
 
   /* 暫存區與完成區 */
-  #fcTop { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 12px; flex-shrink: 0; align-items: flex-start; }
-  .fc-box-group { display: flex; gap: 4px; flex: 1; justify-content: space-around; }
+  #fcTop { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 10px; flex-shrink: 0; align-items: flex-start; }
+  .fc-box-group { display: flex; gap: 4px; flex: 1; justify-content: space-around; align-items: flex-start; }
   
-  /* ★ 回復標準 5/7 比例，確保虛線區與卡片 100% 同尺寸 */
-  .fc-cell { flex: 1; aspect-ratio: 5/7; border: 2px dashed #475569; border-radius: 6px; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; position: relative; box-sizing: border-box;}
+  /* 虛線框設定 */
+  .fc-cell { flex: 1; aspect-ratio: 2/3; border: 2px dashed #475569; border-radius: 6px; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; position: relative; box-sizing: border-box;}
   .fc-foundation { font-size: 24px; color: #334155; }
   
-  #fcTableaus { display: flex; flex: 1; justify-content: space-between; gap: 2px; position: relative; overflow-y: auto; padding-bottom: 40px; align-items: flex-start; }
+  #fcTableaus { display: flex; flex: 1; justify-content: space-between; gap: 2px; position: relative; overflow-y: auto; padding-bottom: 30px; align-items: flex-start; }
   .fc-col { flex: 1; position: relative; border-top: 2px solid rgba(255,255,255,0.05); }
   
-  /* ★ 卡片 5/7 比例 */
-  .fc-card { position: absolute; width: 100%; aspect-ratio: 5/7; background: linear-gradient(135deg, #f8fafc, #cbd5e1); border-radius: 6px; border: 1px solid #64748b; box-shadow: 0 3px 5px rgba(0,0,0,0.5); display: flex; flex-direction: column; cursor: pointer; transition: transform 0.1s; overflow: hidden; box-sizing: border-box;}
+  /* 卡片主體設定 */
+  .fc-card { position: absolute; width: 100%; aspect-ratio: 2/3; background: linear-gradient(135deg, #f8fafc, #cbd5e1); border-radius: 6px; border: 1px solid #64748b; box-shadow: 0 4px 6px rgba(0,0,0,0.5); display: flex; flex-direction: column; cursor: pointer; transition: transform 0.1s; overflow: hidden; box-sizing: border-box;}
   .fc-card.red { color: #dc2626; }
   .fc-card.black { color: #0f172a; }
-  .fc-card.selected { border: 2px solid #3b82f6; box-shadow: 0 0 15px #3b82f6; transform: translateY(-6px); z-index: 100 !important; }
+  .fc-card.selected { border: 2px solid #3b82f6; box-shadow: 0 0 15px #3b82f6; transform: translateY(-8px); z-index: 100 !important; }
   
-  /* ★ 修正花色與數字：數字在上、花色在下縮小，絕不重疊 */
-  .fc-card-tl { position: absolute; top: 3px; left: 3px; font-size: 15px; font-weight: 900; line-height: 1; text-align: center; }
-  .fc-card-tl .suit { display: block; font-size: 11px; margin-top: 1px; }
+  /* 放大花色與數字 */
+  .fc-card-tl { position: absolute; top: 4px; left: 4px; font-size: 16px; font-weight: 900; line-height: 1; text-align: center; }
+  .fc-card-tl .suit { display: block; font-size: 12px; margin-top: 2px; }
 
-  .fc-card-center { margin: auto; font-size: 20px; margin-top: 16px;}
-  .fc-card-bottom { position: absolute; bottom: 2px; left: 0; width: 100%; font-size: 8px; text-align: center; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 2px; color: #333;}
+  .fc-card-center { margin: auto; font-size: 26px; margin-top: 25px;}
+  .fc-card-bottom { position: absolute; bottom: 4px; left: 0; width: 100%; font-size: 9px; text-align: center; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 2px; color: #333;}
 
   /* 知識說明視窗 */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px;}
@@ -141,13 +143,12 @@ function render() {
   let tabHTML = '';
   for(let i=0; i<8; i++) {
     let numCards = state.tab[i].length;
-    // 動態計算列高，讓 overflow-y 能正常觸發捲動
-    let colHeight = numCards > 0 ? (numCards - 1) * 28 + 120 : 100;
+    let colHeight = numCards > 0 ? (numCards - 1) * 35 + 100 : 100;
     
     let col = `<div class="fc-col" style="min-height:${colHeight}px;" onclick="clk('tab',${i},-1)">`;
     state.tab[i].forEach((c, ci) => {
       let isSel = (state.sel && state.sel.loc==='tab' && state.sel.i===i && ci>=state.sel.ci);
-      col += buildCard(c, isSel, ci*28, 'tab', i, ci); // 28px 確保覆蓋比例正確
+      col += buildCard(c, isSel, ci*35, 'tab', i, ci); 
     });
     tabHTML += col + `</div>`;
   }
@@ -155,10 +156,12 @@ function render() {
 }
 
 function buildCard(c, isSel, top, loc, i, ci) {
-  // ★ 使用 <span class="suit"> 將花色放到數字下方
   let cardInner = `<div class="fc-card-tl">${c.rStr}<span class="suit">${c.s}</span></div><div class="fc-card-center">${c.icon}</div><div class="fc-card-bottom">${c.title}</div>`;
   
-  if (loc === 'fd') return `<div class="fc-card ${c.c}" style="top:0; height:100%;">${cardInner}</div>`;
+  // 💡 核心修復：強制左右兩區的牌大小完全一致（擴大 4px 來覆蓋 2px 的 dashed border）
+  if (loc === 'fd') return `<div class="fc-card ${c.c}" style="top:-2px; left:-2px; width:calc(100% + 4px); pointer-events:none;">${cardInner}</div>`;
+  if (loc === 'fc') return `<div class="fc-card ${c.c} ${isSel?'selected':''}" style="top:-2px; left:-2px; width:calc(100% + 4px); z-index:${ci};" onclick="event.stopPropagation(); clk('${loc}','${i}',${ci})">${cardInner}</div>`;
+  
   return `<div class="fc-card ${c.c} ${isSel?'selected':''}" style="top:${top}px; z-index:${ci};" onclick="event.stopPropagation(); clk('${loc}','${i}',${ci})">${cardInner}</div>`;
 }
 
@@ -178,7 +181,7 @@ function clk(loc, idxStr, cIdx) {
     } else if (c.rawObj === 'h_adv') {
       document.getElementById('mDesc').textContent = '【亞東紀念醫院】\n秉持持續提升醫療品質，善盡社會醫療責任之宗旨！';
     } else {
-      document.getElementById('mDesc').textContent = `這裡是關於「${c.title}」的詳細重點整理。透過這張卡片，您可以隨時複習關鍵的醫療處置與照護知識！`;
+      document.getElementById('mDesc').textContent = `這裡是關於「${c.title}」的詳細重點整理。透過這張卡片，您可以隨時複習關鍵的醫療知識！`;
     }
     
     document.getElementById('cardModal').style.display = 'flex';
