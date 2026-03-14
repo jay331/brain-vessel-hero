@@ -11,15 +11,17 @@
 html, body { margin: 0; height: 100dvh; background: #000; color: var(--text-main); font-family: "PingFang TC", sans-serif; overflow: hidden; }
 * { box-sizing: border-box; }
 button { font-family: inherit; cursor: pointer; user-select: none; }
-input, select { font-family: inherit; background: rgba(0,0,0,0.6); border: 1px solid var(--gold-dim); color: #fff; padding: 8px; border-radius: 6px; font-size: 14px; width: 100%; outline:none;}
+input, select { font-family: inherit; background: rgba(0,0,0,0.6); border: 1px solid var(--gold-dim); color: #fff; padding: 10px; border-radius: 6px; font-size: 14px; width: 100%; outline:none;}
 input[type="checkbox"] { width: auto; }
 .app { height: 100%; display: flex; flex-direction: column; }
 
 /* ===== HUD ===== */
 header { padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(180deg, rgba(20,15,10,0.9), rgba(0,0,0,0.5)); border-bottom: 1px solid var(--gold-dim); z-index: 100; flex-shrink: 0; backdrop-filter: blur(4px); }
 .player-info { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 4px; border-radius: 8px; transition: background 0.2s; background: rgba(0,0,0,0.4); border: 1px solid rgba(212,175,55,0.3); min-width: 0; flex-shrink: 1; }
+.player-info:active { background: rgba(255,255,255,0.1); }
 .avatar-wrap { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--gold-primary); background: #000; overflow: hidden; position: relative; flex-shrink: 0; }
 .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-wrap::after { content: '⚙️'; position: absolute; bottom: -2px; right: -2px; font-size: 10px; background: rgba(0,0,0,0.7); border-radius: 50%; padding: 2px; }
 .player-text-wrap { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 2px; overflow: hidden; }
 .player-name { font-size: 13px; font-weight: 900; color: var(--gold-primary); text-shadow: 1px 1px 2px #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80px; }
 .level-badge { background: var(--accent-blue); color: #000; font-size: 10px; font-weight: 900; padding: 1px 4px; border-radius: 4px; border: 1px solid #fff; transition: transform 0.3s; white-space: nowrap; }
@@ -37,7 +39,6 @@ header { padding: 6px 10px; display: flex; justify-content: space-between; align
     url('https://images.unsplash.com/photo-1551076805-e1869033e561?q=80&w=800&auto=format&fit=crop') center/cover no-repeat; 
 }
 @media (min-width: 481px) { .wrap { padding: 20px; background: #111; } .stage { max-width: 414px; max-height: 896px; border-radius: 16px; border: 2px solid var(--gold-dim); box-shadow: 0 0 30px rgba(212,175,55,0.2); } }
-/* ★ 壓縮整體邊距與底部導覽列保留空間 */
 .screen { position: absolute; inset: 0; display: none; flex-direction: column; z-index: 10; padding: 10px; overflow-y: auto; padding-bottom: 85px; }
 .screen.show { display: flex; }
 #scrHome { padding-top: 15px; }
@@ -45,8 +46,8 @@ header { padding: 6px 10px; display: flex; justify-content: space-between; align
 /* ===== 元件 ===== */
 .center-title { text-align: center; font-size: 18px; font-weight: 900; color: var(--gold-primary); text-shadow: 0 0 10px rgba(212, 175, 55, 0.5), 2px 2px 4px #000; margin-bottom: 10px; letter-spacing: 1px; border-bottom: 1px solid var(--gold-dim); padding-bottom: 8px; background: rgba(0,0,0,0.5); border-radius: 8px; cursor: pointer; display:flex; align-items:center; justify-content:center; gap:8px; }
 .center-title:active { background: rgba(255,255,255,0.1); }
-.panel { background: var(--panel-bg); border: 2px solid var(--gold-dim); border-radius: 12px; padding: 12px; margin-bottom: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
-.panel h2 { color: var(--gold-primary); font-size:16px; margin: 0 0 10px 0; text-align: center; border-bottom: 1px dashed var(--gold-dim); padding-bottom: 8px; }
+.panel { background: var(--panel-bg); border: 2px solid var(--gold-dim); border-radius: 12px; padding: 12px; margin-bottom: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.8); backdrop-filter: blur(5px); transition: padding 0.3s; }
+.panel h2 { color: var(--gold-primary); margin: 0 0 10px 0; text-align: center; border-bottom: 1px dashed var(--gold-dim); padding-bottom: 8px; font-size:16px; transition: display 0.3s;}
 .btn-group { display: flex; gap: 8px; flex-direction: column; }
 .btn { padding: 12px; border-radius: 6px; font-weight: 900; font-size: 15px; text-align: center; background: linear-gradient(180deg, #4a4030, #2a2218); color: var(--text-main); border: 1px solid var(--gold-dim); width: 100%; box-shadow: 0 4px 6px rgba(0,0,0,0.4); transition: transform 0.1s;}
 .btn:active { transform: scale(0.98); }
@@ -92,7 +93,14 @@ header { padding: 6px 10px; display: flex; justify-content: space-between; align
 .case-dex-role { display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.5); padding: 2px 4px; border-radius: 4px; font-size: 10px;}
 .lb-item { display: flex; align-items: center; justify-content: space-between; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid var(--gold-dim); border-radius: 8px; margin-bottom:8px;}
 
-/* 中風名片樣式 (壓縮) */
+/* 底部導覽列 */
+.bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 75px; background: linear-gradient(180deg, rgba(42,34,24,0.95), rgba(17,14,12,0.95)); border-top: 2px solid var(--gold-dim); display: flex; justify-content: space-around; align-items: center; z-index: 100; box-shadow: 0 -4px 15px rgba(0,0,0,0.8); backdrop-filter: blur(5px); padding: 0 5px; }
+.nav-item { color: var(--text-muted); font-weight: bold; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; transition: color 0.2s; width: 55px; text-align: center; }
+.nav-item.active { color: var(--gold-primary); }
+.nav-main { width: 60px; height: 60px; background: radial-gradient(circle, #f9d976, #b8860b); border-radius: 50%; border: 4px solid #1a1612; transform: translateY(-15px); display: flex; align-items: center; justify-content: center; color: #000; font-size: 14px; box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); transition: background 0.3s;}
+.nav-main.beginner { background: radial-gradient(circle, #81d4fa, #0277bd); box-shadow: 0 0 15px rgba(41, 182, 246, 0.4); }
+
+/* 中風名片樣式 */
 .business-card { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); border-radius: 12px; padding: 15px; color: #fff; box-shadow: 0 10px 20px rgba(0,0,0,0.5); border: 1px solid #4fc3f7; position: relative; overflow: hidden; margin-top: 5px;}
 .business-card::after { content: '🏥'; position: absolute; right: -10px; bottom: -20px; font-size: 80px; opacity: 0.1; }
 .bc-title { font-size: 16px; font-weight: bold; border-bottom: 2px solid rgba(255,255,255,0.3); padding-bottom: 6px; margin-bottom: 10px; display:flex; justify-content:space-between;}
@@ -104,7 +112,7 @@ header { padding: 6px 10px; display: flex; justify-content: space-between; align
 .profile-input-group { display: flex; flex-direction: column; gap: 4px; text-align: left; margin-bottom: 10px; }
 .profile-input-group label { color: var(--gold-primary); font-size: 12px; font-weight: bold; }
 
-/* 中風量表精靈與趨勢 UI (壓縮) */
+/* 中風量表精靈與趨勢 UI */
 .wizard-container { display: flex; flex-direction: column; height: 100%; animation: fadeIn 0.3s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .wizard-header { font-size: 16px; color: var(--accent-blue); font-weight: bold; margin-bottom: 12px; text-align: center; line-height: 1.3; }
@@ -120,26 +128,19 @@ header { padding: 6px 10px; display: flex; justify-content: space-between; align
 .health-dist-bar-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
 
 /* ===== 新接龍 (FreeCell) UI ===== */
-#fcGame { display: flex; flex-direction: column; flex: 1; user-select: none; }
+#fcGame { display: flex; flex-direction: column; flex: 1; user-select: none; position:relative;}
 #fcTop { display: flex; justify-content: space-between; padding: 2px; gap: 6px; margin-bottom: 4px; }
 .fc-box-group { display: flex; gap: 2px; flex: 1; justify-content: space-around; }
 .fc-cell { flex: 1; aspect-ratio: 5/7; border: 1px dashed #555; border-radius: 4px; background: rgba(0,0,0,0.5); position: relative; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 5px rgba(0,0,0,0.8); }
 .fc-foundation { font-size: 20px; color: #444; }
-#fcTableaus { display: flex; flex: 1; justify-content: space-between; gap: 2px; padding: 0 2px; overflow-y: auto; }
-.fc-col { flex: 1; position: relative; min-height: 100%; border-top: 1px dashed rgba(255,255,255,0.1); border-radius: 4px 4px 0 0; }
+#fcTableaus { display: flex; flex: 1; justify-content: space-between; gap: 2px; padding: 0 2px; overflow: visible; /* 讓長牌疊可以超出 */ }
+.fc-col { flex: 1; position: relative; min-height: 100px; border-top: 1px dashed rgba(255,255,255,0.1); border-radius: 4px 4px 0 0; }
 .fc-card { position: absolute; width: 100%; aspect-ratio: 5/7; background: linear-gradient(135deg, #e0e0e0, #fff); border-radius: 4px; border: 1px solid #999; box-shadow: 0 2px 4px rgba(0,0,0,0.8); display: flex; flex-direction: column; color: #000; cursor: pointer; transition: transform 0.1s, border 0.1s, box-shadow 0.1s; overflow: hidden; }
 .fc-card:active { filter: brightness(0.9); }
 .fc-card.selected { border: 2px solid var(--good); box-shadow: 0 0 10px var(--good); transform: translateY(-5px); }
-.fc-card-tl { position: absolute; top: 2px; left: 2px; font-size: 10px; font-weight: 900; line-height: 1; text-align: center; }
-.fc-card-center { margin: auto; font-size: 18px; }
+.fc-card-tl { position: absolute; top: 2px; left: 2px; font-size: 11px; font-weight: 900; line-height: 1; text-align: center; }
+.fc-card-center { margin: auto; font-size: 16px; margin-top:12px; }
 .fc-card-bottom { position: absolute; bottom: 2px; left: 0; width: 100%; font-size: 7px; text-align: center; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 1px; }
-
-/* 底部導覽列 */
-.bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 75px; background: linear-gradient(180deg, rgba(42,34,24,0.95), rgba(17,14,12,0.95)); border-top: 2px solid var(--gold-dim); display: flex; justify-content: space-around; align-items: center; z-index: 100; box-shadow: 0 -4px 15px rgba(0,0,0,0.8); backdrop-filter: blur(5px); padding: 0 5px; }
-.nav-item { color: var(--text-muted); font-weight: bold; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; transition: color 0.2s; width: 55px; text-align: center; }
-.nav-item.active { color: var(--gold-primary); }
-.nav-main { width: 60px; height: 60px; background: radial-gradient(circle, #f9d976, #b8860b); border-radius: 50%; border: 4px solid #1a1612; transform: translateY(-15px); display: flex; align-items: center; justify-content: center; color: #000; font-size: 14px; box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); transition: background 0.3s;}
-.nav-main.beginner { background: radial-gradient(circle, #81d4fa, #0277bd); box-shadow: 0 0 15px rgba(41, 182, 246, 0.4); }
 
 /* Modal 彈出視窗 */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; padding: 15px; }
@@ -198,8 +199,8 @@ header { padding: 6px 10px; display: flex; justify-content: space-between; align
       </section>
 
       <section class="screen" id="scrPokedex" style="background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);">
-        <div class="panel" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; border-color: var(--gold-primary); margin-bottom: 0;">
-          <h2 style="color: var(--gold-primary); margin:0 0 8px 0; border-bottom: none;">健康卡匣庫</h2>
+        <div class="panel" id="pokedexPanel" style="flex: 1; display: flex; flex-direction: column; border-color: var(--gold-primary); margin-bottom: 0;">
+          <h2 id="pokedexHeader" style="color: var(--gold-primary); margin:0 0 8px 0; border-bottom: none;">健康卡匣庫</h2>
           <div class="pokedex-tabs" id="pokedexTabs">
             <button class="tab-btn active" onclick="renderDexCards('beg', this)">初階卡</button>
             <button class="tab-btn" onclick="renderDexCards('adv', this)">進階卡</button>
@@ -384,7 +385,7 @@ const ROLES_DATA_ADV = [
 ];
 
 // ==========================================
-// 💡 量表題庫資料 (修復補回！)
+// 💡 量表題庫資料 (已完全修復！)
 // ==========================================
 const scaleQuestions = [
   { id: 'mrs', title: 'mRS 失能評估<br><span style="font-size:11px;color:#aaa;">請選擇最符合您目前的狀態</span>', type: 'choice', options: [
@@ -423,7 +424,7 @@ function getActiveCompletedCases() { return playerState.mode === 'beginner' ? pl
 function getActiveTaskScores() { return playerState.mode === 'beginner' ? playerState.taskScoresBeg : playerState.taskScoresAdv; }
 function id(elId) { return document.getElementById(elId); }
 
-const SAVE_KEY = 'BrainPioneer_SaveData_v14';
+const SAVE_KEY = 'BrainPioneer_SaveData_v15';
 
 function saveGameData() {
   const dataToSave = {
@@ -484,7 +485,6 @@ function handleAvatarUpload(event) {
   }
 }
 
-// 🔰 全通關密技與登入
 function saveProfile(selectedMode) {
   const nameInput = id('inputNickname').value.trim();
   if (!nameInput) { alert("請務必輸入暱稱喔！"); return; }
@@ -531,7 +531,6 @@ function navBtn4Action() {
   else { showScreen('scrLeaderboard'); renderTotalScoreLeaderboard(); }
 }
 
-// 智慧跳轉自評量表
 function navScaleAction() {
   showScreen('scrStrokeScale');
   if (playerState.scaleRecords.length === 0) { switchScaleTab('form'); } 
@@ -578,8 +577,8 @@ function openRoleDetail(roleId) {
   for(let i=0; i<role.totalTasks; i++) {
     let statusClass = 'locked', icon = '🔒', action = '';
     if (i+1 < role.currentTask) { statusClass = 'completed'; icon = '✅'; action = `onclick="playTask(${i})"`; }
-    else if (i+1 === role.currentTask) { statusClass = 'active'; icon = '▶ 挑戰'; action = `onclick="playTask(${i})"`; }
-    if (role.currentTask > role.totalTasks) { statusClass = 'active'; icon = '▶ 複習'; action = `onclick="playTask(${i})"`;}
+    else if (i+1 === role.currentTask) { statusClass = 'active'; icon = '▶ 點擊挑戰'; action = `onclick="playTask(${i})"`; }
+    if (role.currentTask > role.totalTasks) { statusClass = 'active'; icon = '▶ 再次複習'; action = `onclick="playTask(${i})"`;}
     container.innerHTML += `<div class="subtask-item ${statusClass}" ${action}><span>${role.subTasks[i]}</span><span>${icon}</span></div>`;
   }
   let attemptStr = ''; for(let i=0; i<role.dailyAttempts; i++) attemptStr += '🟢';
@@ -677,17 +676,23 @@ function renderDexCards(tab, btnEl) {
   for(let t of tabs) t.classList.remove('active');
   btnEl.classList.add('active');
   
-  const grid = id('cardGrid'); const fcView = id('fcGameContainer');
+  const panel = id('pokedexPanel');
+  const grid = id('cardGrid'); 
+  const fcView = id('fcGameContainer');
+  
   const isBegMaster = playerState.taskScoresBeg.size >= 25;
   const isAdvMaster = playerState.taskScoresAdv.size >= 25;
   id('tabCardGameBtn').style.display = (isBegMaster && isAdvMaster) ? 'inline-block' : 'none';
 
   if (tab === 'game') {
     grid.style.display = 'none'; fcView.style.display = 'flex';
+    // 壓縮空間
+    panel.style.padding = '4px'; id('pokedexHeader').style.display = 'none';
     initFreeCell();
     return;
   } else {
     grid.style.display = 'grid'; fcView.style.display = 'none';
+    panel.style.padding = '12px'; id('pokedexHeader').style.display = 'block';
     grid.innerHTML = '';
   }
 
@@ -724,7 +729,7 @@ function openCardModal(tab, roleId, taskIdx) {
 }
 
 // ==========================================
-// 🃏 腦脈新接龍 (FreeCell) - 拔除空間限制休閒版 + 雙擊看牌
+// 🃏 腦脈新接龍 (FreeCell) - 緊湊排版 + 無限移牌
 // ==========================================
 let fcState = { tableaus: [], freecells: [null, null, null, null], foundations: { '♠':0, '♥':0, '♣':0, '♦':0 }, selected: null };
 let fcHistory = [];
@@ -794,7 +799,8 @@ function renderFreeCell() {
     let colHTML = `<div class="fc-col" onclick="fcClick('tab', '${i}', -1)">`;
     fcState.tableaus[i].forEach((card, cIdx) => {
       const isSel = (sel && sel.loc === 'tab' && sel.idx == i && cIdx >= sel.cIdx);
-      colHTML += buildCardHTML(card, isSel, cIdx * 20, 'tab', i, cIdx); // 20px offset for compactness
+      // 縮小牌距為 20px
+      colHTML += buildCardHTML(card, isSel, cIdx * 20, 'tab', i, cIdx); 
     });
     colHTML += `</div>`; tabHTML += colHTML;
   }
@@ -842,7 +848,7 @@ function fcClick(loc, idxStr, cIdx) {
     } else if (loc === 'tab') {
       let col = fcState.tableaus[idx];
       
-      // 💥 休閒模式：完全拔除空格限制，只要順序對，管他幾張直接推過去！
+      // 無視空格數量，只要規則對就能搬！
       if (col.length === 0) {
         col.push(...movingCards); moved = true;
       } else {
