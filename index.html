@@ -36,25 +36,25 @@ input[type="checkbox"] { width: auto; }
 .app { height: 100%; display: flex; flex-direction: column; }
 
 /* ===== HUD 標題列 ===== */
-header { padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(180deg, rgba(0,0,0,0.9), rgba(0,0,0,0.5)); border-bottom: 1px solid var(--theme-dim); z-index: 100; flex-shrink: 0; backdrop-filter: blur(4px); }
+header { padding: 4px 8px; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(180deg, rgba(0,0,0,0.9), rgba(0,0,0,0.5)); border-bottom: 1px solid var(--theme-dim); z-index: 100; flex-shrink: 0; backdrop-filter: blur(4px); }
 .player-info { display: flex; align-items: center; gap: 8px; }
-.avatar-wrap { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--theme-primary); background: #000; overflow: hidden; position: relative; cursor: pointer;}
+.avatar-wrap { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--theme-primary); background: #000; overflow: hidden; position: relative; cursor: pointer;}
 .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
 .player-text-wrap { display: flex; flex-direction: column; justify-content: center; gap: 2px; }
-.player-name { font-size: 12px; font-weight: bold; color: #fff; }
-.level-badge { background: var(--theme-primary); color: var(--btn-text); font-size: 12px; font-weight: 900; padding: 2px 8px; border-radius: 4px; cursor: pointer; box-shadow: 0 0 8px var(--theme-bg); display:inline-flex; align-items:center; gap:4px; text-shadow: var(--btn-shadow);}
+.player-name { font-size: 11px; font-weight: bold; color: #fff; }
+.level-badge { background: var(--theme-primary); color: var(--btn-text); font-size: 11px; font-weight: 900; padding: 2px 6px; border-radius: 4px; cursor: pointer; box-shadow: 0 0 8px var(--theme-bg); display:inline-flex; align-items:center; gap:4px; text-shadow: var(--btn-shadow);}
 .level-badge:active { transform: scale(0.95); }
 .resources { display: flex; flex-direction: row; align-items: center; gap: 4px; flex-shrink: 0; }
-.res-item { display: flex; align-items: center; gap: 4px; font-weight: 900; font-size: 12px; background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 99px; border: 1px solid var(--theme-dim); }
-.green-coin { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; background: linear-gradient(180deg, #3dff8e, #0eb855); border-radius: 50%; color: #000; font-size: 10px; }
+.res-item { display: flex; align-items: center; gap: 4px; font-weight: 900; font-size: 11px; background: rgba(0,0,0,0.6); padding: 4px 6px; border-radius: 99px; border: 1px solid var(--theme-dim); }
+.green-coin { display: inline-flex; align-items: center; justify-content: center; width: 12px; height: 12px; background: linear-gradient(180deg, #3dff8e, #0eb855); border-radius: 50%; color: #000; font-size: 9px; }
 
 /* ===== 佈局與背景 ===== */
 .wrap { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0; }
 .stage { position: relative; width: 100%; height: 100%; overflow: hidden; display: flex; flex-direction: column; background: radial-gradient(circle at 50% 30%, var(--theme-bg), rgba(0,0,0,0.95)), linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.98)), url('https://images.unsplash.com/photo-1551076805-e1869033e561?q=80&w=800&auto=format&fit=crop') center/cover no-repeat; }
 @media (min-width: 481px) { .wrap { padding: 20px; background: #111; } .stage { max-width: 414px; max-height: 896px; border-radius: 16px; border: 2px solid var(--theme-dim); box-shadow: 0 0 30px var(--theme-bg); } }
 
-/* 畫面切換控制：加大 padding-bottom 防導覽列遮擋 */
-.screen { position: absolute; inset: 0; display: none; flex-direction: column; z-index: 10; padding: 10px; overflow-y: auto; padding-bottom: 90px; }
+/* 畫面切換控制 */
+.screen { position: absolute; inset: 0; display: none; flex-direction: column; z-index: 10; padding: 10px; overflow-y: auto; padding-bottom: 80px; }
 .screen.show { display: flex; }
 .screen.full-view { padding-top: 10px; padding-bottom: 10px; z-index: 200; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); }
 
@@ -64,21 +64,21 @@ header { padding: 6px 10px; display: flex; justify-content: space-between; align
 .btn { padding: 12px; border-radius: 6px; font-weight: 900; font-size: 15px; text-align: center; background: linear-gradient(180deg, #444, #222); color: #fff; border: 1px solid #666; width: 100%; cursor:pointer; flex-shrink: 0;}
 .btn:active { transform: scale(0.95); }
 
-/* ===== 任務列表與 Boss ===== */
-#scrHome { padding: 10px; padding-bottom: 90px; justify-content: flex-start; }
-.boss-banner { background: var(--theme-panel); border: 2px solid var(--theme-primary); border-radius: 8px; padding: 10px; text-align: center; margin-top: 10px; cursor: pointer; box-shadow: 0 0 10px var(--theme-bg); flex-shrink: 0;}
-.boss-banner h3 { margin: 0; color: var(--theme-primary); font-size: 15px; }
-.boss-banner p { margin: 2px 0 0; font-size: 11px; color: #ccc; }
+/* ===== 主畫面 (極致壓縮版，消滅捲軸) ===== */
+#scrHome { padding: 4px 8px 75px 8px; justify-content: center; gap: 4px; overflow: hidden; } /* 取消 overflow-y: auto，強迫不捲動 */
+.boss-banner { background: var(--theme-panel); border: 2px solid var(--theme-primary); border-radius: 8px; padding: 8px; text-align: center; margin: 0; cursor: pointer; box-shadow: 0 0 10px var(--theme-bg); flex-shrink: 0;}
+.boss-banner h3 { margin: 0; color: var(--theme-primary); font-size: 14px; }
+.boss-banner p { margin: 2px 0 0; font-size: 10px; color: #ccc; }
 .boss-banner.locked { filter: grayscale(100%); opacity: 0.6; border-color: #555; box-shadow: none; pointer-events: none;}
 
-.role-list { display: flex; flex-direction: column; gap: 6px; margin: 0;}
-.role-card { display: flex; align-items: center; gap: 10px; padding: 6px 12px; background: var(--theme-grad); border: 1px solid var(--theme-dim); border-radius: 8px; position: relative; cursor: pointer;}
+.role-list { display: flex; flex-direction: column; gap: 4px; margin: 0; flex-shrink: 1;}
+.role-card { display: flex; align-items: center; gap: 8px; padding: 4px 10px; background: var(--theme-grad); border: 1px solid var(--theme-dim); border-radius: 8px; position: relative; cursor: pointer;}
 .role-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--theme-primary); border-radius: 8px 0 0 8px; }
-.role-avatar { width: 38px; height: 38px; border-radius: 6px; border: 1px solid var(--theme-dim); background: #000; display:flex; align-items:center; justify-content:center; font-size:20px; }
-.role-info { flex: 1; }
-.role-name { font-size: 15px; font-weight: 900; color: var(--theme-primary); margin: 0 0 2px 0; text-shadow: 1px 1px 2px #000; }
-.role-task { font-size: 12px; color: #fff; font-weight: bold; margin: 0; opacity: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);}
-.role-status { font-size: 16px; color: var(--theme-primary);}
+.role-avatar { width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--theme-dim); background: #000; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink: 0;}
+.role-info { flex: 1; display: flex; flex-direction: column; justify-content: center;}
+.role-name { font-size: 14px; font-weight: 900; color: var(--theme-primary); margin: 0; text-shadow: 1px 1px 2px #000; line-height: 1.2;}
+.role-task { font-size: 10px; color: #fff; font-weight: bold; margin: 0; opacity: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); line-height: 1.2;}
+.role-status { font-size: 14px; color: var(--theme-primary); flex-shrink: 0;}
 
 /* 任務詳情內頁 */
 .subtask-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; overflow-y:auto; flex:1;}
@@ -127,7 +127,7 @@ header { padding: 6px 10px; display: flex; justify-content: space-between; align
 .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 65px; background: rgba(10,10,10,0.95); border-top: 1px solid #333; display: flex; justify-content: space-around; align-items: center; z-index: 100; backdrop-filter: blur(5px); }
 .nav-item { color: #888; font-weight: bold; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; width: 50px; }
 .nav-item.active { color: var(--theme-primary); }
-.nav-main { width: 55px; height: 55px; background: var(--theme-dim); border-radius: 50%; border: 3px solid #000; transform: translateY(-10px); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; }
+.nav-main { width: 55px; height: 55px; background: var(--theme-dim); border-radius: 50%; border: 3px solid #000; transform: translateY(-10px); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; box-shadow: 0 0 15px rgba(0,0,0,0.5);}
 
 /* 彈出視窗 */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 5000; padding: 15px;}
@@ -295,8 +295,8 @@ header { padding: 6px 10px; display: flex; justify-content: space-between; align
     <input type="text" id="inputNickname" value="" placeholder="輸入玩家暱稱..." maxlength="15" style="margin-bottom:16px; text-align:center;">
     
     <div style="display:flex; flex-direction:column; gap:10px;">
-      <button class="btn" style="background: #0288d1; color:#fff; border:none;" onclick="saveProfile('beginner')">初階版 (病患/家屬)</button>
-      <button class="btn" style="background: #8b7322; color:#fff; border:none;" onclick="saveProfile('advanced')">進階版 (專業人員/初階完成者)</button>
+      <button class="btn" style="background: linear-gradient(180deg, #4fc3f7, #0288d1); color:#fff; border:none;" onclick="saveProfile('beginner')">初階版 (病患/家屬)</button>
+      <button class="btn" style="background: linear-gradient(180deg, #d4af37, #8b7322); color:#fff; border:none;" onclick="saveProfile('advanced')">進階版 (專業人員/初階完成者)</button>
     </div>
   </div>
 </div>
@@ -364,7 +364,7 @@ function getActiveCompletedCases() { return playerState.mode === 'beginner' ? pl
 function getActiveTaskScores() { return playerState.mode === 'beginner' ? playerState.taskScoresBeg : playerState.taskScoresAdv; }
 function id(elId) { return document.getElementById(elId); }
 
-const SAVE_KEY = 'BrainPioneer_SaveData_v28';
+const SAVE_KEY = 'BrainPioneer_SaveData_v29';
 
 function saveGameData() {
   const dataToSave = {
