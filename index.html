@@ -297,8 +297,8 @@ header { padding: 6px 10px; display: flex; justify-content: space-between; align
     <input type="text" id="inputNickname" value="" placeholder="輸入玩家暱稱..." maxlength="15" style="margin-bottom:16px; text-align:center;">
     
     <div style="display:flex; flex-direction:column; gap:10px;">
-      <button class="btn" style="background: linear-gradient(180deg, #4fc3f7, #0288d1); color:#fff; border:none;" onclick="saveProfile('beginner')">🔰 進入新手訓練 (家屬/病患)</button>
-      <button class="btn" style="background: linear-gradient(180deg, #d4af37, #8b7322); color:#fff; border:none;" onclick="saveProfile('advanced')">⚕️ 進入指揮中心 (醫療人員)</button>
+      <button class="btn" style="background: linear-gradient(180deg, #4fc3f7, #0288d1); color:#fff; border:none;" onclick="saveProfile('beginner')">🔰 初階版 (家屬/病患)</button>
+      <button class="btn" style="background: linear-gradient(180deg, #d4af37, #8b7322); color:#fff; border:none;" onclick="saveProfile('advanced')">⚕️ 進階版 (醫療人員/初階完成)</button>
     </div>
   </div>
 </div>
@@ -439,7 +439,7 @@ function updateModeUI() {
   document.body.className = `mode-${playerState.mode}`;
   const isBeg = playerState.mode === 'beginner';
   
-  if(id('uiLevel')) id('uiLevel').innerHTML = isBeg ? '新手訓練中心 🔄' : '醫療指揮中心 🔄';
+  if(id('uiLevel')) id('uiLevel').innerHTML = isBeg ? '初階版 🔄' : '進階版 🔄';
   if(id('hudCasesWrap')) id('hudCasesWrap').style.display = isBeg ? 'none' : 'flex';
   if(id('navCaseText')) id('navCaseText').textContent = isBeg ? '演練圖鑑' : '個案圖鑑';
   if(id('navLbText')) id('navLbText').textContent = isBeg ? '中風名片' : '排行榜';
