@@ -5,68 +5,68 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>腦脈新接龍</title>
 <style>
-  body, html { margin: 0; padding: 0; height: 100%; background: #0f172a; color: #fff; font-family: sans-serif; overflow: hidden; user-select: none; }
-  .btn { background: #334155; border: 1px solid #475569; color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; flex: 1; text-align: center; }
-  .btn-success { background: #059669; border-color: #10b981; }
-  .btn:active { transform: scale(0.95); }
-  
-  #fcGame { display: flex; flex-direction: column; flex: 1; padding: 8px; height: 100vh; box-sizing: border-box;}
-  
-  /* 頂部控制列 */
-  .control-bar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; flex-shrink: 0; width: 100%; }
+  body, html { margin: 0; padding: 0; height: 100%; background: #0f172a; color: #fff; font-family: sans-serif; overflow: hidden; user-select: none; }
+  .btn { background: #334155; border: 1px solid #475569; color: #fff; padding: 10px; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; flex: 1; text-align: center; }
+  .btn-success { background: #059669; border-color: #10b981; }
+  .btn:active { transform: scale(0.95); }
+  
+  #fcGame { display: flex; flex-direction: column; flex: 1; padding: 8px; height: 100vh; box-sizing: border-box;}
+  
+  /* 頂部按鈕區 */
+  .control-bar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; flex-shrink: 0; width: 100%; }
 
-  /* 暫存區與完成區 */
-  #fcTop { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 12px; flex-shrink: 0; align-items: flex-start; }
-  .fc-box-group { display: flex; gap: 4px; flex: 1; justify-content: space-around; }
-  
-  /* ★ 回復標準 5/7 比例，確保虛線區與卡片 100% 同尺寸 */
-  .fc-cell { flex: 1; aspect-ratio: 5/7; border: 2px dashed #475569; border-radius: 6px; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; position: relative; box-sizing: border-box;}
-  .fc-foundation { font-size: 24px; color: #334155; }
-  
-  #fcTableaus { display: flex; flex: 1; justify-content: space-between; gap: 2px; position: relative; overflow-y: auto; padding-bottom: 40px; align-items: flex-start; }
-  .fc-col { flex: 1; position: relative; border-top: 2px solid rgba(255,255,255,0.05); }
-  
-  /* ★ 卡片 5/7 比例 */
-  .fc-card { position: absolute; width: 100%; aspect-ratio: 5/7; background: linear-gradient(135deg, #f8fafc, #cbd5e1); border-radius: 6px; border: 1px solid #64748b; box-shadow: 0 3px 5px rgba(0,0,0,0.5); display: flex; flex-direction: column; cursor: pointer; transition: transform 0.1s; overflow: hidden; box-sizing: border-box;}
-  .fc-card.red { color: #dc2626; }
-  .fc-card.black { color: #0f172a; }
-  .fc-card.selected { border: 2px solid #3b82f6; box-shadow: 0 0 15px #3b82f6; transform: translateY(-6px); z-index: 100 !important; }
-  
-  /* ★ 修正花色與數字：數字在上、花色在下縮小，絕不重疊 */
-  .fc-card-tl { position: absolute; top: 3px; left: 3px; font-size: 15px; font-weight: 900; line-height: 1; text-align: center; }
-  .fc-card-tl .suit { display: block; font-size: 11px; margin-top: 1px; }
+  /* 暫存區與完成區 */
+  #fcTop { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 10px; flex-shrink: 0; align-items: flex-start; }
+  .fc-box-group { display: flex; gap: 4px; flex: 1; justify-content: space-around; align-items: flex-start; }
+  
+  /* 虛線框設定 */
+  .fc-cell { flex: 1; aspect-ratio: 5/7; border: 2px dashed #475569; border-radius: 6px; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; position: relative; box-sizing: border-box;}
+  .fc-foundation { font-size: 24px; color: #334155; }
+  
+  #fcTableaus { display: flex; flex: 1; justify-content: space-between; gap: 2px; position: relative; overflow-y: auto; padding-bottom: 30px; align-items: flex-start; }
+  .fc-col { flex: 1; position: relative; border-top: 2px solid rgba(255,255,255,0.05); }
+  
+  /* 卡片設定 */
+  .fc-card { position: absolute; width: 100%; aspect-ratio: 5/7; background: linear-gradient(135deg, #f8fafc, #cbd5e1); border-radius: 6px; border: 1px solid #64748b; box-shadow: 0 4px 6px rgba(0,0,0,0.5); display: flex; flex-direction: column; cursor: pointer; transition: transform 0.1s; overflow: hidden; box-sizing: border-box;}
+  .fc-card.red { color: #dc2626; }
+  .fc-card.black { color: #0f172a; }
+  .fc-card.selected { border: 2px solid #3b82f6; box-shadow: 0 0 15px #3b82f6; transform: translateY(-8px); z-index: 100 !important; }
+  
+  /* 修正花色與數字：數字在上、花色在下縮小，絕不重疊 */
+  .fc-card-tl { position: absolute; top: 4px; left: 4px; font-size: 16px; font-weight: 900; line-height: 1; text-align: center; }
+  .fc-card-tl .suit { display: block; font-size: 12px; margin-top: 2px; }
 
-  .fc-card-center { margin: auto; font-size: 20px; margin-top: 16px;}
-  .fc-card-bottom { position: absolute; bottom: 2px; left: 0; width: 100%; font-size: 8px; text-align: center; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 2px; color: #333;}
+  .fc-card-center { margin: auto; font-size: 26px; } /* 💡 修正我上個版本的問題 */
+  .fc-card-bottom { position: absolute; bottom: 4px; left: 0; width: 100%; font-size: 9px; text-align: center; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 2px; color: #333;}
 
-  /* 知識說明視窗 */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px;}
-  .modal-content { background: #1e293b; border: 2px solid #3b82f6; border-radius: 12px; width: 100%; max-width: 320px; padding: 20px; text-align: center; position: relative;}
+  /* 知識說明視窗 */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px;}
+  .modal-content { background: #1e293b; border: 2px solid #3b82f6; border-radius: 12px; width: 100%; max-width: 320px; padding: 20px; text-align: center; position: relative;}
 </style>
 </head>
 <body>
 
 <div id="fcGame">
-  <div class="control-bar">
-    <button class="btn" onclick="undoMove()">🔙 復原</button>
-    <button class="btn btn-success" onclick="autoMove()">⚡ 收牌</button>
-    <button class="btn" onclick="initGame()">🔄 重發</button>
-  </div>
+  <div class="control-bar">
+    <button class="btn" onclick="undoMove()">🔙 復原</button>
+    <button class="btn btn-success" onclick="autoMove()">⚡ 收牌</button>
+    <button class="btn" onclick="initGame()">🔄 重發</button>
+  </div>
 
-  <div id="fcTop">
-    <div class="fc-box-group" id="freecells"></div>
-    <div class="fc-box-group" id="foundations"></div>
-  </div>
-  <div id="fcTableaus"></div>
+  <div id="fcTop">
+    <div class="fc-box-group" id="freecells"></div>
+    <div class="fc-box-group" id="foundations"></div>
+  </div>
+  <div id="fcTableaus"></div>
 </div>
 
 <div class="modal-overlay" id="cardModal">
-  <div class="modal-content">
-    <button class="btn" style="position:absolute; top:10px; right:10px; flex:none; width:auto; background:transparent; border:none; font-size:18px;" onclick="document.getElementById('cardModal').style.display='none'">✖</button>
-    <div id="mIcon" style="font-size:50px; margin-bottom:10px;"></div>
-    <h3 id="mTitle" style="color:#38bdf8; margin:0 0 10px 0;"></h3>
-    <p id="mDesc" style="font-size:14px; line-height:1.5; text-align:left; background:rgba(0,0,0,0.3); padding:12px; border-radius:8px;"></p>
-  </div>
+  <div class="modal-content">
+    <button class="btn" style="position:absolute; top:10px; right:10px; flex:none; width:auto; background:transparent; border:none; font-size:18px;" onclick="document.getElementById('cardModal').style.display='none'">✖</button>
+    <div id="mIcon" style="font-size:50px; margin-bottom:10px;"></div>
+    <h3 id="mTitle" style="color:#38bdf8; margin:0 0 10px 0;"></h3>
+    <p id="mDesc" style="font-size:14px; line-height:1.5; text-align:left; background:rgba(0,0,0,0.3); padding:12px; border-radius:8px;"></p>
+  </div>
 </div>
 
 <script>
@@ -78,161 +78,163 @@ const RANKS = ["","A","2","3","4","5","6","7","8","9","10","J","Q","K"];
 let lastTap = 0, lastTapId = '';
 
 const ROLES_DATA_BEG = [
-  { id: 'beg_id', name: '中風辨識', icon: '🧠', subTasks: ['1. 辨識臉部不對稱', '2. 測試手臂無力', '3. 聆聽說話清晰度', '4. 記下發作時間', '5. 撥打119'] },
-  { id: 'beg_hosp', name: '住院須知', icon: '🏥', subTasks: ['1. 認識腦部影像', '2. 抽血與點滴', '3. 防跌倒與床欄', '4. 吞嚥與飲食', '5. 醫療團隊'] },
-  { id: 'beg_care', name: '基礎照護', icon: '🤲', subTasks: ['1. 翻身與拍背', '2. 管路日常注意', '3. 安全上下床', '4. 患側先穿健側脫', '5. 輪椅助行器'] },
-  { id: 'beg_rehab', name: '復健入門', icon: '💪', subTasks: ['1. 被動關節活動', '2. 良姿位擺位', '3. 床邊坐站平衡', '4. 預防關節攣縮', '5. 鼓勵使用患側'] },
-  { id: 'beg_home', name: '返家準備', icon: '🏡', subTasks: ['1. 認識危險因子', '2. 規律服藥', '3. 居家防跌', '4. 血壓與血糖', '5. 申請長照'] }
+  { id: 'beg_id', name: '中風辨識', icon: '🧠', subTasks: ['1. 辨識臉部不對稱', '2. 測試手臂無力', '3. 聆聽說話清晰度', '4. 記下發作時間', '5. 撥打119'] },
+  { id: 'beg_hosp', name: '住院須知', icon: '🏥', subTasks: ['1. 認識腦部影像', '2. 抽血與點滴', '3. 防跌倒與床欄', '4. 吞嚥與飲食', '5. 醫療團隊'] },
+  { id: 'beg_care', name: '基礎照護', icon: '🤲', subTasks: ['1. 翻身與拍背', '2. 管路日常注意', '3. 安全上下床', '4. 患側先穿健側脫', '5. 輪椅助行器'] },
+  { id: 'beg_rehab', name: '復健入門', icon: '💪', subTasks: ['1. 被動關節活動', '2. 良姿位擺位', '3. 床邊坐站平衡', '4. 預防關節攣縮', '5. 鼓勵使用患側'] },
+  { id: 'beg_home', name: '返家準備', subtitle: '長期抗戰', icon: '🏡', subTasks: ['1. 認識危險因子', '2. 規律服藥不擅停', '3. 居家環境防跌', '4. 血壓血糖量測', '5. 申請長照資源'] }
 ];
 
 const ROLES_DATA_ADV = [
-  { id: 'role_emt', name: 'EMT', icon: '🚑', subTasks: ['1. 基礎駕駛鳴笛', '2. 閃避車流', '3. 惡劣天候救援', '4. 複雜路口', '5. 極限護送'] },
-  { id: 'role_dr', name: '取栓專家', icon: '🩺', subTasks: ['1. 導管基礎操作', '2. 尋找阻塞點', '3. 突破血栓', '4. 支架釋放', '5. 完美再通'] },
-  { id: 'role_nurse', name: '護理師', icon: '💉', subTasks: ['1. 生命徵象監測', '2. FAST指標', '3. 抽血給藥', '4. 狀況排除', '5. 急診調度'] },
-  { id: 'role_pt', name: '復健師', icon: '🦾', subTasks: ['1. 關節活動度', '2. 翻身坐起', '3. 站立平衡', '4. 步態矯正', '5. 功能重建'] },
-  { id: 'role_diet', name: '營養師', icon: '🥗', subTasks: ['1. 地中海飲食', '2. 優質蛋白質', '3. 避開高鈉', '4. 吞嚥困難餐', '5. 菜單設計'] }
+  { id: 'role_emt', name: 'EMT', icon: '🚑', subTasks: ['1. 基礎駕駛鳴笛', '2. 閃避車流', '3. 惡劣天候救援', '4. 複雜路口判斷', '5. 極限護送抵達'] },
+  { id: 'role_dr', name: '取栓專家', icon: '🩺', subTasks: ['1. 導管基礎操作', '2. 尋找阻塞點', '3. 突破血栓阻礙', '4.支架釋放技巧', '5. 完美血流再通'] },
+  { id: 'role_nurse', name: '護理師', icon: '💉', subTasks: ['1. 生命徵象監測', '2. FAST指標辨識', '3. 抽血與給藥準備', '4. 突發狀況排除', '5. 高壓急診調度'] },
+  { id: 'role_pt', name: '復健師', icon: '🦾', subTasks: ['1. 關節活動度評估', '2. 翻身與坐起訓練', '3. 站立平衡考驗', '4. 步態矯正與行走', '5. 日常生活功能重建'] },
+  { id: 'role_diet', name: '營養師', icon: '🥗', subTasks: ['1. 認識地中海飲食', '2. 挑選優質蛋白質', '3. 避開高鈉陷阱', '4. 吞嚥困難餐食', '5. 個人化菜單設計'] }
 ];
 
 function generateDeck() {
-  let cards = [];
-  ROLES_DATA_BEG.forEach(r => r.subTasks.forEach(st => cards.push({ icon: r.icon, title: st.substring(3), rawObj: 'beg' })));
-  cards.push({ icon: '🏥', title: '亞東中風中心', rawObj: 'h_beg' });
-  ROLES_DATA_ADV.forEach(r => r.subTasks.forEach(st => cards.push({ icon: r.icon, title: st.substring(3), rawObj: 'adv' })));
-  cards.push({ icon: '🏛️', title: '亞東紀念醫院', rawObj: 'h_adv' }); 
-  
-  let deck = []; let idx = 0;
-  for(let suit of SUITS) {
-    for(let r=1; r<=13; r++) {
-      deck.push({ s: suit.s, c: suit.c, r: r, rStr: RANKS[r], icon: cards[idx].icon, title: cards[idx].title, rawObj: cards[idx].rawObj });
-      idx++;
-    }
-  }
-  for(let i=deck.length-1; i>0; i--) { const j=Math.floor(Math.random()*(i+1)); [deck[i],deck[j]]=[deck[j],deck[i]]; }
-  return deck;
+  let cards = [];
+  ROLES_DATA_BEG.forEach(r => r.subTasks.forEach(st => cards.push({ icon: r.icon, title: st.substring(3), rawObj: 'beg' })));
+  cards.push({ icon: '🏥', title: '亞東中風中心', rawObj: 'h_beg' });
+  ROLES_DATA_ADV.forEach(r => r.subTasks.forEach(st => cards.push({ icon: r.icon, title: st.substring(3), rawObj: 'adv' })));
+  cards.push({ icon: '🏛️', title: '亞東紀念醫院', rawObj: 'h_adv' }); 
+  
+  let deck = []; let idx = 0;
+  for(let suit of SUITS) {
+    for(let r=1; r<=13; r++) {
+      deck.push({ s: suit.s, c: suit.c, r: r, rStr: RANKS[r], icon: cards[idx].icon, title: cards[idx].title, rawObj: cards[idx].rawObj });
+      idx++;
+    }
+  }
+  for(let i=deck.length-1; i>0; i--) { const j=Math.floor(Math.random()*(i+1)); [deck[i],deck[j]]=[deck[j],deck[i]]; }
+  return deck;
 }
 
 function initGame() {
-  const deck = generateDeck();
-  state = { tab: [[],[],[],[],[],[],[],[]], fc: [null,null,null,null], fd: {'♠':0, '♥':0, '♣':0, '♦':0}, sel: null };
-  history = [];
-  deck.forEach((card, i) => state.tab[i % 8].push(card));
-  render();
+  const deck = generateDeck();
+  state = { tab: [[],[],[],[],[],[],[],[]], fc: [null,null,null,null], fd: {'♠':0, '♥':0, '♣':0, '♦':0}, sel: null };
+  history = [];
+$Message(data: deck);
+  deck.forEach((card, i) => state.tab[i % 8].push(card));
+  render();
 }
 
 function cloneState() { return { tab: state.tab.map(c=>[...c]), fc: [...state.fc], fd: {...state.fd} }; }
 function undoMove() { if(history.length > 0) { let p = history.pop(); state.tab = p.tab; state.fc = p.fc; state.fd = p.fd; state.sel = null; render(); } }
 
 function render() {
-  let fcHTML = '';
-  for(let i=0; i<4; i++) {
-    let c = state.fc[i]; let isSel = (state.sel && state.sel.loc==='fc' && state.sel.i===i);
-    fcHTML += `<div class="fc-cell" onclick="clk('fc',${i},-1)">${c ? buildCard(c, isSel, 0, 'fc', i, 0) : ''}</div>`;
-  }
-  document.getElementById('freecells').innerHTML = fcHTML;
+  let fcHTML = '';
+  for(let i=0; i<4; i++) {
+    let c = state.fc[i]; let isSel = (state.sel && state.sel.loc==='fc' && state.sel.i===i);
+    fcHTML += `<div class="fc-cell" onclick="clk('fc',${i},-1)">${c ? buildCard(c, isSel, 0, 'fc', i, 0) : ''}</div>`;
+  }
+  document.getElementById('freecells').innerHTML = fcHTML;
 
-  let fdHTML = '';
-  SUITS.forEach(s => {
-    let r = state.fd[s.s];
-    let c = r>0 ? {s:s.s, c:s.c, rStr:RANKS[r], icon:'🌟', title:'完成'} : null;
-    fdHTML += `<div class="fc-cell fc-foundation" style="color:${s.c};" onclick="clk('fd','${s.s}',-1)">${c ? buildCard(c, false, 0, 'fd', s.s, 0) : s.s}</div>`;
-  });
-  document.getElementById('foundations').innerHTML = fdHTML;
+  let fdHTML = '';
+  SUITS.forEach(s => {
+    let r = state.fd[s.s];
+    let c = r>0 ? {s:s.s, c:s.c, rStr:RANKS[r], icon:'🌟', title:'完成'} : null;
+    fdHTML += `<div class="fc-cell fc-foundation" style="color:${s.c};" onclick="clk('fd','${s.s}',-1)">${c ? buildCard(c, false, 0, 'fd', s.s, 0) : s.s}</div>`;
+  });
+  document.getElementById('foundations').innerHTML = fdHTML;
 
-  let tabHTML = '';
-  for(let i=0; i<8; i++) {
-    let numCards = state.tab[i].length;
-    // 動態計算列高，讓 overflow-y 能正常觸發捲動
-    let colHeight = numCards > 0 ? (numCards - 1) * 28 + 120 : 100;
-    
-    let col = `<div class="fc-col" style="min-height:${colHeight}px;" onclick="clk('tab',${i},-1)">`;
-    state.tab[i].forEach((c, ci) => {
-      let isSel = (state.sel && state.sel.loc==='tab' && state.sel.i===i && ci>=state.sel.ci);
-      col += buildCard(c, isSel, ci*28, 'tab', i, ci); // 28px 確保覆蓋比例正確
-    });
-    tabHTML += col + `</div>`;
-  }
-  document.getElementById('fcTableaus').innerHTML = tabHTML;
+  let tabHTML = '';
+  for(let i=0; i<8; i++) {
+    let numCards = state.tab[i].length;
+    // 動態計算列高
+    let colHeight = numCards > 0 ? (numCards - 1) * 35 + 100 : 100;
+    
+    let col = `<div class="fc-col" style="min-height:${colHeight}px;" onclick="clk('tab',${i},-1)">`;
+    state.tab[i].forEach((c, ci) => {
+      let isSel = (state.sel && state.sel.loc==='tab' && state.sel.i===i && ci>=state.sel.ci);
+      col += buildCard(c, isSel, ci*35, 'tab', i, ci); 
+    });
+    tabHTML += col + `</div>`;
+  }
+  document.getElementById('fcTableaus').innerHTML = tabHTML;
 }
 
 function buildCard(c, isSel, top, loc, i, ci) {
-  // ★ 使用 <span class="suit"> 將花色放到數字下方
-  let cardInner = `<div class="fc-card-tl">${c.rStr}<span class="suit">${c.s}</span></div><div class="fc-card-center">${c.icon}</div><div class="fc-card-bottom">${c.title}</div>`;
-  
-  if (loc === 'fd') return `<div class="fc-card ${c.c}" style="top:0; height:100%;">${cardInner}</div>`;
-  return `<div class="fc-card ${c.c} ${isSel?'selected':''}" style="top:${top}px; z-index:${ci};" onclick="event.stopPropagation(); clk('${loc}','${i}',${ci})">${cardInner}</div>`;
+  // ★ 使用 <span class="suit"> 將花色放到數字下方
+  let cardInner = `<div class="fc-card-tl">${c.rStr}<span class="suit">${c.s}</span></div><div class="fc-card-center">${c.icon}</div><div class="fc-card-bottom">${c.title}</div>`;
+  
+  // 💡 核心修補：整合後的方法，讓所有卡片使用通用 return，並針對 FD 卡片設置 correct top 並移除 onclick
+  const isFd = loc === 'fd';
+  return `<div class="fc-card ${c.c} ${isSel ? 'selected' : ''}" style="top:${top}px; z-index:${ci};" ${isFd ? '' : `onclick="event.stopPropagation(); clk('${loc}','${i}',${ci})"`}>${cardInner}</div>`;
 }
 
 function isSeq(arr) {
-  for(let i=0; i<arr.length-1; i++) if(arr[i].c===arr[i+1].c || arr[i].r!==arr[i+1].r+1) return false;
-  return true;
+  for(let i=0; i<arr.length-1; i++) if(arr[i].c===arr[i+1].c || arr[i].r!==arr[i+1].r+1) return false;
+  return true;
 }
 
 function clk(loc, idxStr, cIdx) {
-  let tapId = `${loc}_${idxStr}_${cIdx}`; let now = Date.now();
-  if (now - lastTap < 400 && lastTapId === tapId && cIdx !== -1) {
-    let c = loc==='fc' ? state.fc[idxStr] : state.tab[idxStr][cIdx];
-    document.getElementById('mIcon').textContent = c.icon; document.getElementById('mTitle').textContent = c.title;
-    
-    if (c.rawObj === 'h_beg') {
-      document.getElementById('mDesc').textContent = '【亞東中風中心】\n整合急診、神經內外科、復健科跨團隊，提供全方位黃金救援與術後照護體系！';
-    } else if (c.rawObj === 'h_adv') {
-      document.getElementById('mDesc').textContent = '【亞東紀念醫院】\n秉持持續提升醫療品質，善盡社會醫療責任之宗旨！';
-    } else {
-      document.getElementById('mDesc').textContent = `這裡是關於「${c.title}」的詳細重點整理。透過這張卡片，您可以隨時複習關鍵的醫療處置與照護知識！`;
-    }
-    
-    document.getElementById('cardModal').style.display = 'flex';
-    state.sel = null; render(); return;
-  }
-  lastTap = now; lastTapId = tapId;
+  let tapId = `${loc}_${idxStr}_${cIdx}`; let now = Date.now();
+  if (now - lastTap < 400 && lastTapId === tapId && cIdx !== -1) {
+    let c = loc==='fc' ? state.fc[idxStr] : state.tab[idxStr][cIdx];
+    document.getElementById('mIcon').textContent = c.icon; document.getElementById('mTitle').textContent = c.title;
+    
+    if (c.rawObj === 'h_beg') {
+      document.getElementById('mDesc').textContent = '【亞東中風中心】\n整合急診、神經內外科、復健科跨團隊，為病患提供全方位黃金救援與術後照護體系！';
+    } else if (c.rawObj === 'h_adv') {
+      document.getElementById('mDesc').textContent = '【亞東紀念醫院】\n秉持持續提升醫療品質，善盡社會醫療責任之宗旨，是您最堅強的醫療後盾！';
+    } else {
+      document.getElementById('mDesc').textContent = `這裡是關於「${c.title}」的詳細重點整理。透過這張卡片，您可以隨時複習關鍵的醫療處置與照護知識！`;
+    }
+    
+    document.getElementById('cardModal').style.display = 'flex';
+    state.sel = null; render(); return;
+  }
+  lastTap = now; lastTapId = tapId;
 
-  let idx = loc==='fd' ? idxStr : parseInt(idxStr);
+  let idx = loc==='fd' ? idxStr : parseInt(idxStr);
 
-  if(!state.sel) {
-    if(loc==='fc' && state.fc[idx]) state.sel = { loc, i:idx, cards:[state.fc[idx]] };
-    else if(loc==='tab' && cIdx!==-1) { let st = state.tab[idx].slice(cIdx); if(isSeq(st)) state.sel = { loc, i:idx, ci:cIdx, cards:st }; }
-  } else {
-    let sel = state.sel; let moved = false; let snap = cloneState();
-    if(sel.loc===loc && sel.i===idx && (sel.ci===undefined || sel.ci===cIdx)) { state.sel=null; render(); return; }
-    
-    let mc = sel.cards; let tc = mc[0];
-    
-    if(loc==='fc' && mc.length===1 && !state.fc[idx]) { state.fc[idx] = tc; moved = true; }
-    else if(loc==='fd' && mc.length===1) { if(tc.s===idx && tc.r===state.fd[idx]+1) { state.fd[idx]++; moved = true; } }
-    else if(loc==='tab') {
-      let col = state.tab[idx];
-      // 💥 休閒模式：只要順序對就推！
-      if(col.length===0) { col.push(...mc); moved = true; }
-      else { let dc = col[col.length-1]; if(dc.c!==tc.c && dc.r===tc.r+1) { col.push(...mc); moved = true; } }
-    }
-    
-    if(moved) {
-      history.push(snap);
-      if(sel.loc==='fc') state.fc[sel.i] = null;
-      if(sel.loc==='tab') state.tab[sel.i].splice(sel.ci);
-      state.sel = null; checkWin();
-    } else { state.sel = null; }
-  }
-  render();
+  if(!state.sel) {
+    if(loc==='fc' && state.fc[idx]) state.sel = { loc, i:idx, cards:[state.fc[idx]] };
+    else if(loc==='tab' && cIdx!==-1) { let st = state.tab[idx].slice(cIdx); if(isSeq(st)) state.sel = { loc, i:idx, ci:cIdx, cards:st }; }
+  } else {
+    let sel = state.sel; let moved = false; let snap = cloneState();
+    if(sel.loc===loc && sel.i===idx && (sel.ci===undefined || sel.ci===cIdx)) { state.sel=null; render(); return; }
+    
+    let mc = sel.cards; let tc = mc[0];
+    
+    if(loc==='fc' && mc.length===1 && !state.fc[idx]) { state.fc[idx] = tc; moved = true; }
+    else if(loc==='fd' && mc.length===1) { if(tc.s===idx && tc.r===state.fd[idx]+1) { state.fd[idx]++; moved = true; } }
+    else if(loc==='tab') {
+      let col = state.tab[idx];
+      // 💥 休閒模式：只要順序對就推！
+      if(col.length===0) { col.push(...mc); moved = true; }
+      else { let dc = col[col.length-1]; if(dc.c!==tc.c && dc.r===tc.r+1) { col.push(...mc); moved = true; } }
+    }
+    
+    if(moved) {
+      history.push(snap);
+      if(sel.loc==='fc') state.fc[sel.i] = null;
+      if(sel.loc==='tab') state.tab[sel.i].splice(sel.ci);
+      state.sel = null; checkWin();
+    } else { state.sel = null; }
+  }
+  render();
 }
 
 function autoMove() {
-  let snap = cloneState(); let movedTot = false, moved = false;
-  do {
-    moved = false;
-    for(let i=0; i<4; i++) if(state.fc[i]) { let c=state.fc[i]; if(c.r===state.fd[c.s]+1) { state.fd[c.s]++; state.fc[i]=null; moved=true; movedTot=true; } }
-    for(let i=0; i<8; i++) if(state.tab[i].length>0) { let c=state.tab[i][state.tab[i].length-1]; if(c.r===state.fd[c.s]+1) { state.fd[c.s]++; state.tab[i].pop(); moved=true; movedTot=true; } }
-  } while(moved);
-  if(movedTot) { history.push(snap); state.sel = null; render(); checkWin(); }
+  let snap = cloneState(); let movedTot = false, moved = false;
+  do {
+    moved = false;
+    for(let i=0; i<4; i++) if(state.fc[i]) { let c=state.fc[i]; if(c.r===state.fd[c.s]+1) { state.fd[c.s]++; state.fc[i]=null; moved=true; movedTot=true; } }
+    for(let i=0; i<8; i++) if(state.tab[i].length>0) { let c=state.tab[i][state.tab[i].length-1]; if(c.r===state.fd[c.s]+1) { state.fd[c.s]++; state.tab[i].pop(); moved=true; movedTot=true; } }
+  } while(moved);
+  if(movedTot) { history.push(snap); state.sel = null; render(); checkWin(); }
 }
 
 function checkWin() {
-  if(state.fd['♠']===13 && state.fd['♥']===13 && state.fd['♣']===13 && state.fd['♦']===13) {
-    setTimeout(() => { 
-      alert("🎉 恭喜破關！\n即將發送 10,000 健康幣至您的指揮中心！"); 
-      window.parent.postMessage({ type: 'GAME_CLEAR', coins: 10000 }, '*'); 
-    }, 500);
-  }
+  if(state.fd['♠']===13 && state.fd['♥']===13 && state.fd['♣']===13 && state.fd['♦']===13) {
+    setTimeout(() => { 
+      alert("🎉 恭喜破關！\n即將發送 10,000 健康幣至您的指揮中心！"); 
+      window.parent.postMessage({ type: 'GAME_CLEAR', coins: 10000 }, '*'); 
+    }, 500);
+  }
 }
 
 initGame();
