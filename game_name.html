@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+<title>中風照護團隊｜完整版</title>
+<style>
+  :root{
+    --bg1:#eef7ff;
+    --bg2:#dceeff;
+    --text:#17314f;
+    --muted:#6d829c;
+    --accent:#2f80ed;
+    --accent2:#73c7ff;
+    --ok:#139b6b;
+    --bad:#d95353;
+    --shadow:0 18px 42px rgba(34,82,135,.15);
+  }
+
+  *{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+  }
+
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(circle at 18% 8%, rgba(115,199,255,.35), transparent 24%),
+      radial-gradient(circle at 88% 0%, rgba(47,128,237,.16), transparent 28%),
+      linear-gradient(180deg,var(--bg1),var(--bg2));
+  }
+
+  body{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+  }
+
+  .app{
+    width:min(100vw, 480px);
+    height:100vh;
+    max-height:980px;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .top{
+    padding:16px 16px 8px;
+  }
+
+  .title{
+    font-size:25px;
+    font-weight:900;
+    letter-spacing:.2px;
+    color:#153050;
+  }
+
+  .main{
+    position:absolute;
+    inset:72px 0 0 0;
+    padding:0 12px 14px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+
+  .stage{
+    flex:1;
+    min-height:0;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .track{
+    height:100%;
+    display:flex;
+    touch-action:pan-y;
+    transition:transform .28s ease;
+  }
+
+  .slide{
+    flex:0 0 100%;
+    min-width:100%;
+    height:100%;
+    padding:2px;
+    display:flex;
+  }
+
+  .card{
+    width:100%;
+    height:100%;
+    background:linear-gradient(180deg,#ffffff,#f7fbff);
+    border-radius:30px;
+    box-shadow:var(--shadow);
+    padding:16px 14px 14px;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    position:relative;
+  }
+
+  .card-bg{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    overflow:hidden;
+    border-radius:30px;
+  }
+
+  .blob1,.blob2,.blob3{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(8px);
+    opacity:.8;
+  }
+
+  .blob1{ width:180px; height:180px; left:-30px; top:-24px; }
+  .blob2{ width:130px; height:130px; right:-15px; top:86px; }
+  .blob3{ width:150px; height:150px; right:16px; bottom:-44px; }
+
+  .illustration-zone{
+    flex:1;
+    min-height:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+  }
+
+  .art-frame{
+    width:min(80vw, 330px);
+    height:min(76vw, 315px);
+    max-width:330px;
+    max-height:315px;
+    min-width:228px;
+    min-height:220px;
+    border-radius:34px;
+    background:linear-gradient(180deg, rgba(255,255,255,.88), rgba(255,255,255,.58));
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,.9),
+      0 20px 36px rgba(34,82,135,.10);
+    backdrop-filter:blur(3px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .sparkle{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    opacity:.75;
+  }
+
+  .sparkle:before,
+  .sparkle:after{
+    content:"";
+    position:absolute;
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    background:rgba(255,255,255,.95);
+    filter:blur(1px);
+  }
+
+  .sparkle:before{ top:24px; left:28px; }
+  .sparkle:after{ right:28px; top:46px; }
+
+  svg.character{
+    width:96%;
+    height:96%;
+    overflow:visible;
+  }
+
+  .question-box{
+    background:rgba(255,255,255,.82);
+    border-radius:22px;
+    padding:12px 14px;
+    box-shadow:0 10px 24px rgba(39,90,150,.08);
+    min-height:92px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+  }
+
+  .question-label{
+    font-size:11px;
+    font-weight:900;
+    letter-spacing:1px;
+    color:#6b84a2;
+    margin-bottom:6px;
+  }
+
+  .question-text{
+    font-size:20px;
+    font-weight:900;
+    color:#163152;
+    line-height:1.35;
+  }
+
+  .question-hint{
+    margin-top:6px;
+    font-size:12px;
+    color:#7288a3;
+    line-height:1.45;
+    min-height:18px;
+  }
+
+  .role-panel{
+    position:relative;
+    z-index:2;
+    background:#fff;
+    border-radius:24px;
+    padding:14px 14px 12px;
+    box-shadow:0 10px 22px rgba(39,90,150,.08);
+    min-height:82px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+  }
+
+  .role-name{
+    font-size:24px;
+    font-weight:900;
+    color:#163152;
+    line-height:1.2;
+    margin-bottom:6px;
+  }
+
+  .role-desc{
+    color:#284564;
+    font-size:15px;
+    font-weight:800;
+    line-height:1.5;
+    width:100%;
+  }
+
+  .dots{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:7px;
+    padding:4px 0 0;
+  }
+
+  .dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:rgba(47,128,237,.22);
+    transition:.2s;
+  }
+
+  .dot.active{
+    width:24px;
+    border-radius:999px;
+    background:#2f80ed;
+  }
+
+  .feedback{
+    min-height:54px;
+    background:rgba(255,255,255,.82);
+    border-radius:20px;
+    padding:12px 14px;
+    box-shadow:0 10px 24px rgba(39,90,150,.08);
+    font-size:14px;
+    line-height:1.5;
+    color:#2b4767;
+  }
+
+  .feedback.ok{
+    background:rgba(19,155,107,.12);
+    color:#0f7a56;
+  }
+
+  .feedback.bad{
+    background:rgba(217,83,83,.12);
+    color:#b33939;
+  }
+
+  .feedback.win{
+    background:rgba(47,128,237,.14);
+    color:#1d58a3;
+  }
+
+  .bottom-meta{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+  }
+
+  .score-chip{
+    background:rgba(255,255,255,.84);
+    color:#355372;
+    border-radius:999px;
+    padding:8px 14px;
+    font-size:12px;
+    font-weight:800;
+    box-shadow:0 6px 16px rgba(39,90,150,.08);
+    white-space:nowrap;
+  }
+
+  .bottom{
+    display:flex;
+    gap:10px;
+  }
+
+  .btn{
+    border:none;
+    border-radius:20px;
+    padding:15px 16px;
+    font-size:17px;
+    font-weight:900;
+    cursor:pointer;
+    box-shadow:0 12px 26px rgba(39,90,150,.12);
+  }
+
+  .btn-main{
+    flex:1;
+    color:#fff;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+  }
+
+  .btn-soft{
+    width:88px;
+    color:#31506e;
+    background:rgba(255,255,255,.86);
+  }
+
+  .nav{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    width:42px;
+    height:42px;
+    border:none;
+    border-radius:50%;
+    background:rgba(255,255,255,.95);
+    color:#20466f;
+    font-size:24px;
+    font-weight:900;
+    box-shadow:0 10px 24px rgba(39,90,150,.12);
+    z-index:5;
+    cursor:pointer;
+  }
+
+  .nav.left{ left:6px; }
+  .nav.right{ right:6px; }
+
+  .overlay{
+    position:absolute;
+    inset:0;
+    background:rgba(11,28,51,.38);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    opacity:0;
+    pointer-events:none;
+    transition:.24s;
+    z-index:20;
+  }
+
+  .overlay.show{
+    opacity:1;
+    pointer-events:auto;
+  }
+
+  .modal{
+    width:100%;
+    max-width:360px;
+    background:linear-gradient(180deg,#ffffff,#f5fbff);
+    border-radius:28px;
+    padding:24px 20px 18px;
+    text-align:center;
+    box-shadow:0 26px 60px rgba(0,0,0,.22);
+  }
+
+  .modal-icon{
+    font-size:58px;
+    margin-bottom:8px;
+  }
+
+  .modal-title{
+    font-size:28px;
+    font-weight:900;
+    color:#163152;
+  }
+
+  .modal-text{
+    margin-top:8px;
+    color:#5d7898;
+    font-size:15px;
+    line-height:1.6;
+  }
+
+  .modal .btn{
+    width:100%;
+    margin-top:16px;
+  }
+
+  @media (max-height:760px){
+    .top{ padding:14px 14px 8px; }
+    .title{ font-size:23px; }
+    .main{ inset:68px 0 0 0; }
+    .question-text{ font-size:18px; }
+    .art-frame{
+      width:min(72vw, 285px);
+      height:min(68vw, 265px);
+      min-width:210px;
+      min-height:198px;
+    }
+    .role-name{ font-size:22px; }
+    .role-desc{ font-size:14px; }
+    .btn{ padding:13px 14px; font-size:15px; }
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <div class="top">
+      <div class="top-row">
+        <div class="title">中風照護團隊</div>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="stage">
+        <button class="nav left" id="prevBtn">‹</button>
+        <button class="nav right" id="nextBtn">›</button>
+        <div class="track" id="track"></div>
+      </div>
+
+      <div class="question-box">
+        <div class="question-label" id="questionLabel">人物展示</div>
+        <div class="question-text" id="questionText">滑動認識不同職類</div>
+        <div class="question-hint" id="questionHint">左右滑動查看不同角色。</div>
+      </div>
+
+      <div class="dots" id="dots"></div>
+
+      <div class="feedback" id="feedback">
+        目前是預習模式，可以左右滑動看看每個人的工作。
+      </div>
+
+      <div class="bottom-meta">
+        <div class="score-chip" id="scoreChip">連續答對 0 / 3</div>
+      </div>
+
+      <div class="bottom">
+        <button class="btn btn-soft" id="resetBtn">重來</button>
+        <button class="btn btn-main" id="mainBtn">開始測驗</button>
+      </div>
+    </div>
+
+    <div class="overlay" id="winOverlay">
+      <div class="modal">
+        <div class="modal-icon">🎉</div>
+        <div class="modal-title">過關成功</div>
+        <div class="modal-text">
+          你已經連續答對 3 題，認識中風照護團隊了。
+        </div>
+        <button class="btn btn-main" id="continueBtn">繼續挑戰</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const roles = [
+    {
+      id: "family",
+      name: "病人與家屬",
+      studyDesc: "病人和家人要一起了解病情、按時吃藥、回診和復健，這樣恢復才會更順利。",
+      palette: ["#fff6d9","#fffdf3","#ffd36e"],
+      hair: "#5a4a3a",
+      cloth: "#fffaf0",
+      accent: "#f0b84f",
+      accessory: "family"
+    },
+    {
+      id: "attending",
+      name: "主治醫師",
+      studyDesc: "負責判斷病人發生了什麼事，決定要用哪種治療方式幫助病人。",
+      palette: ["#d7ecff","#f2f9ff","#82b7ff"],
+      hair: "#2f3c53",
+      cloth: "#ffffff",
+      accent: "#5fa8ff",
+      accessory: "stethoscope"
+    },
+    {
+      id: "resident",
+      name: "住院醫師",
+      studyDesc: "會先看病人狀況、追蹤變化，並幫忙把治療一步一步做好。",
+      palette: ["#e7efff","#f9fbff","#9fbbff"],
+      hair: "#3d485d",
+      cloth: "#ffffff",
+      accent: "#7d95ff",
+      accessory: "clipboard"
+    },
+    {
+      id: "nurse",
+      name: "護理師",
+      studyDesc: "會照顧病人、量血壓、給藥，也會提醒家屬要注意哪些事情。",
+      palette: ["#e4fbff","#f7feff","#7ed9e6"],
+      hair: "#35445f",
+      cloth: "#f4fbff",
+      accent: "#59c8d6",
+      accessory: "cap"
+    },
+    {
+      id: "ot",
+      name: "職能治療師",
+      studyDesc: "會幫病人練習吃飯、穿衣、拿東西，讓生活更能自己完成。",
+      palette: ["#fff3df","#fffaf1","#ffca7a"],
+      hair: "#544538",
+      cloth: "#fff8ed",
+      accent: "#f0b257",
+      accessory: "hand"
+    },
+    {
+      id: "pt",
+      name: "物理治療師",
+      studyDesc: "會幫病人練習站起來、走路、平衡身體，讓身體更有力氣。",
+      palette: ["#eafbe9","#fbfffa","#8bd498"],
+      hair: "#40434f",
+      cloth: "#f7fff8",
+      accent: "#6abd7b",
+      accessory: "motion"
+    },
+    {
+      id: "st",
+      name: "語言治療師",
+      studyDesc: "會幫病人練習說話、表達，也會幫忙處理吞嚥困難的問題。",
+      palette: ["#ffeaf3","#fff8fb","#f79ec5"],
+      hair: "#513c52",
+      cloth: "#fff7fb",
+      accent: "#ef7eb1",
+      accessory: "speech"
+    },
+    {
+      id: "dietitian",
+      name: "營養師",
+      studyDesc: "會教病人怎麼吃得更健康，幫助控制三高，減少再次中風的機會。",
+      palette: ["#effce6","#fbfff8","#a7df70"],
+      hair: "#4c4838",
+      cloth: "#fbfff4",
+      accent: "#85c856",
+      accessory: "leaf"
+    },
+    {
+      id: "social",
+      name: "社工師",
+      studyDesc: "會幫家人找照顧資源、申請服務，讓回家後也有人可以幫忙。",
+      palette: ["#fff0ea","#fffaf7","#ffaf8a"],
+      hair: "#5a453e",
+      cloth: "#fff8f5",
+      accent: "#f2916b",
+      accessory: "heart"
+    },
+    {
+      id: "pharmacist",
+      name: "藥師",
+      studyDesc: "會告訴病人藥怎麼吃、什麼時候吃，還會提醒哪些藥不能亂一起吃。",
+      palette: ["#efe9ff","#fbf9ff","#b69af8"],
+      hair: "#423b5a",
+      cloth: "#faf8ff",
+      accent: "#9371f0",
+      accessory: "pill"
+    },
+    {
+      id: "radiographer",
+      name: "放射師",
+      studyDesc: "會幫忙做電腦斷層或 MRI，讓醫師更快看見腦部出了什麼問題。",
+      palette: ["#e9f5ff","#fbfdff","#8ebfe8"],
+      hair: "#425569",
+      cloth: "#f7fbff",
+      accent: "#6ba6dc",
+      accessory: "scan"
+    },
+    {
+      id: "ultrasound",
+      name: "超音波技術員",
+      studyDesc: "會幫忙做超音波檢查，看看血管和血流是不是正常。",
+      palette: ["#e7fbff","#fbffff","#84d7e7"],
+      hair: "#37495d",
+      cloth: "#f7ffff",
+      accent: "#60c1d1",
+      accessory: "probe"
+    },
+    {
+      id: "rtms",
+      name: "rTMS 治療師",
+      studyDesc: "會幫忙進行 rTMS 治療，並在治療過程中照看病人的狀況。",
+      palette: ["#f1eaff","#fcfaff","#b792ff"],
+      hair: "#46385e",
+      cloth: "#faf7ff",
+      accent: "#9b72f2",
+      accessory: "magnet"
+    }
+  ];
+
+  const questions = [
+    { text: "中風後要記得吃藥、回診和復健，最需要一起努力的是誰？", answer: "family", explain: "病人和家屬一起配合，對恢復很重要。" },
+    { text: "醫師說明完病情後，在家最需要一起記住注意事項的是誰？", answer: "family", explain: "很多照顧和提醒，都需要病人和家屬一起完成。" },
+    { text: "出院回家後，除了醫療人員，最重要的支持者是誰？", answer: "family", explain: "病人自己和家屬，是每天照顧和陪伴的重要角色。" },
+    { text: "要決定病人能不能做急性治療，主要要找誰？", answer: "attending", explain: "這通常要由主治醫師來判斷。" },
+    { text: "主治醫師決定方向後，第一線繼續看病人變化、幫忙處理事情的人，常是誰？", answer: "resident", explain: "住院醫師常會持續追蹤病人狀況。" },
+    { text: "病人在病房裡需要量血壓、給藥、日常照顧，主要要找誰？", answer: "nurse", explain: "這些工作最常由護理師來幫忙。" },
+    { text: "病人吃飯、穿衣、拿東西變困難，應該找誰幫忙練習？", answer: "ot", explain: "職能治療師會幫忙練習生活動作。" },
+    { text: "病人走路不穩、站不太住，應該找誰幫忙？", answer: "pt", explain: "物理治療師會幫忙練習走路和平衡。" },
+    { text: "病人講話不清楚，或吞東西容易嗆到，應該找誰？", answer: "st", explain: "語言治療師會幫忙說話和吞嚥訓練。" },
+    { text: "想知道中風後要怎麼吃比較健康，應該找誰？", answer: "dietitian", explain: "營養師會教怎麼吃得更健康。" },
+    { text: "家人想申請照顧資源、找人幫忙照顧，應該找誰？", answer: "social", explain: "社工師會協助找資源和安排。" },
+    { text: "想知道藥該怎麼吃、能不能和別的藥一起吃，應該找誰？", answer: "pharmacist", explain: "藥師最了解藥物的用法和注意事項。" },
+    { text: "要做電腦斷層或 MRI 檢查時，主要會由誰協助？", answer: "radiographer", explain: "放射師會協助做影像檢查。" },
+    { text: "要做血管或血流的超音波檢查時，主要會由誰協助？", answer: "ultrasound", explain: "超音波技術員會協助做這類檢查。" },
+    { text: "如果要做 rTMS 治療，現場主要會由誰協助？", answer: "rtms", explain: "rTMS 治療師會協助治療進行。" }
+  ];
+
+  let currentIndex = 0;
+  let mode = "study";
+  let streak = 0;
+  let currentQuestion = null;
+  let pool = [];
+
+  let startX = 0;
+  let moveX = 0;
+  let dragging = false;
+  let mouseDown = false;
+
+  const track = document.getElementById("track");
+  const dots = document.getElementById("dots");
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const mainBtn = document.getElementById("mainBtn");
+  const resetBtn = document.getElementById("resetBtn");
+  const scoreChip = document.getElementById("scoreChip");
+  const questionLabel = document.getElementById("questionLabel");
+  const questionText = document.getElementById("questionText");
+  const questionHint = document.getElementById("questionHint");
+  const feedback = document.getElementById("feedback");
+  const winOverlay = document.getElementById("winOverlay");
+  const continueBtn = document.getElementById("continueBtn");
+
+  function shuffle(arr){
+    const a = [...arr];
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  function shadeColor(color, percent) {
+    const f = color.replace('#','');
+    const num = parseInt(f,16);
+    let r = (num >> 16) + percent;
+    let g = ((num >> 8) & 0x00FF) + percent;
+    let b = (num & 0x0000FF) + percent;
+    r = Math.min(255, Math.max(0, r));
+    g = Math.min(255, Math.max(0, g));
+    b = Math.min(255, Math.max(0, b));
+    return "#" + (0x1000000 + (r << 16) + (g << 8) + b).toString(16).slice(1);
+  }
+
+  function accessorySVG(type, accent){
+    switch(type){
+      case "family":
+        return `
+          <path d="M83 192 q14-18 29-2" fill="none" stroke="${accent}" stroke-width="5" stroke-linecap="round"/>
+          <path d="M166 192 q14-18 29-2" fill="none" stroke="${accent}" stroke-width="5" stroke-linecap="round"/>
+          <path d="M121 205 q18-10 38 0" fill="none" stroke="${accent}" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="140" cy="215" r="10" fill="#fff" stroke="${accent}" stroke-width="4"/>
+        `;
+      case "stethoscope":
+        return `
+          <path d="M118 165 q-16 18 -8 34 q7 13 23 13 q14 0 22 -10 q8 -10 8 -23" fill="none" stroke="${accent}" stroke-width="6" stroke-linecap="round"/>
+          <circle cx="166" cy="180" r="8" fill="#fff" stroke="${accent}" stroke-width="5"/>
+          <path d="M101 132 v22 q0 18 18 18 q18 0 18-18 v-18" fill="none" stroke="${accent}" stroke-width="6" stroke-linecap="round"/>
+        `;
+      case "clipboard":
+        return `
+          <rect x="180" y="144" width="48" height="58" rx="8" fill="#fff" stroke="${accent}" stroke-width="4"/>
+          <rect x="194" y="136" width="20" height="10" rx="5" fill="${accent}"/>
+          <path d="M191 160 h26 M191 172 h26 M191 184 h20" stroke="${accent}" stroke-width="4" stroke-linecap="round"/>
+        `;
+      case "cap":
+        return `
+          <rect x="112" y="82" width="56" height="18" rx="9" fill="#fff"/>
+          <rect x="133" y="75" width="14" height="32" rx="4" fill="${accent}"/>
+          <rect x="124" y="84" width="32" height="14" rx="4" fill="${accent}"/>
+        `;
+      case "hand":
+        return `
+          <circle cx="210" cy="176" r="18" fill="#fff" stroke="${accent}" stroke-width="4"/>
+          <path d="M198 176 h24 M210 164 v24" stroke="${accent}" stroke-width="4" stroke-linecap="round"/>
+        `;
+      case "motion":
+        return `
+          <path d="M188 170 q14 -18 30 -2" fill="none" stroke="${accent}" stroke-width="6" stroke-linecap="round"/>
+          <path d="M196 190 q18 12 32 -4" fill="none" stroke="${accent}" stroke-width="6" stroke-linecap="round"/>
+        `;
+      case "speech":
+        return `
+          <path d="M182 152 h40 q10 0 10 10 v18 q0 10 -10 10 h-18 l-13 12 v-12 h-9 q-10 0 -10-10 v-18 q0-10 10-10z" fill="#fff" stroke="${accent}" stroke-width="4"/>
+          <circle cx="194" cy="171" r="3.5" fill="${accent}"/>
+          <circle cx="205" cy="171" r="3.5" fill="${accent}"/>
+          <circle cx="216" cy="171" r="3.5" fill="${accent}"/>
+        `;
+      case "leaf":
+        return `
+          <path d="M208 168 q18 -24 28 -8 q8 14 -10 28 q-20 16 -36 10 q2-18 18-30z" fill="#fff" stroke="${accent}" stroke-width="4"/>
+          <path d="M206 191 q8 -10 18 -18" fill="none" stroke="${accent}" stroke-width="3" stroke-linecap="round"/>
+        `;
+      case "heart":
+        return `
+          <path d="M210 194 C191 180,182 170,182 158 C182 147,190 140,199 140 C206 140,211 144,214 150 C217 144,222 140,229 140 C238 140,246 147,246 158 C246 170,237 180,218 194 Z" fill="#fff" stroke="${accent}" stroke-width="4"/>
+        `;
+      case "pill":
+        return `
+          <g transform="rotate(-18 214 174)">
+            <rect x="190" y="160" width="48" height="24" rx="12" fill="#fff" stroke="${accent}" stroke-width="4"/>
+            <path d="M214 160 v24" stroke="${accent}" stroke-width="4"/>
+          </g>
+        `;
+      case "scan":
+        return `
+          <rect x="184" y="150" width="56" height="42" rx="10" fill="#fff" stroke="${accent}" stroke-width="4"/>
+          <circle cx="212" cy="171" r="10" fill="none" stroke="${accent}" stroke-width="4"/>
+          <path d="M212 161 v20 M202 171 h20" stroke="${accent}" stroke-width="3" stroke-linecap="round"/>
+        `;
+      case "probe":
+        return `
+          <path d="M194 154 l24 -10 q10 -4 14 4 q4 8 -5 13 l-21 11 z" fill="#fff" stroke="${accent}" stroke-width="4"/>
+          <path d="M189 157 l14 29" stroke="${accent}" stroke-width="5" stroke-linecap="round"/>
+        `;
+      case "magnet":
+        return `
+          <path d="M191 191 v-22 a20 20 0 0 1 40 0 v22" fill="none" stroke="${accent}" stroke-width="10" stroke-linecap="round"/>
+          <rect x="187" y="186" width="12" height="16" rx="4" fill="#fff"/>
+          <rect x="231" y="186" width="12" height="16" rx="4" fill="#fff"/>
+        `;
+      default:
+        return "";
+    }
+  }
+
+  function drawSingle(role){
+    return `
+      <ellipse cx="140" cy="244" rx="70" ry="12" fill="rgba(44,69,100,.08)"/>
+      <circle cx="140" cy="86" r="42" fill="#ffd8bf"/>
+      <path d="M98 88 q2-48 42-48 q38 0 42 42 q-16-12-42-12 q-23 0-42 18z" fill="${role.hair}"/>
+      <path d="M104 104 q9 16 0 34" fill="none" stroke="${role.hair}" stroke-width="9" stroke-linecap="round"/>
+      <path d="M176 102 q7 14 0 31" fill="none" stroke="${role.hair}" stroke-width="9" stroke-linecap="round"/>
+      <ellipse cx="125" cy="92" rx="4" ry="5" fill="#38485c"/>
+      <ellipse cx="155" cy="92" rx="4" ry="5" fill="#38485c"/>
+      <path d="M132 110 q8 6 16 0" fill="none" stroke="#915f58" stroke-width="3.5" stroke-linecap="round"/>
+      <ellipse cx="114" cy="103" rx="8" ry="5" fill="rgba(255,170,170,.45)"/>
+      <ellipse cx="166" cy="103" rx="8" ry="5" fill="rgba(255,170,170,.45)"/>
+      <rect x="128" y="120" width="24" height="20" rx="10" fill="#ffd8bf"/>
+      <path d="M90 165 q10-30 50-30 q40 0 50 30 v55 h-100z" fill="url(#coat-${role.id})" stroke="rgba(44,69,100,.24)" stroke-width="1.5"/>
+      <path d="M120 137 q20 22 40 0 v83 h-40z" fill="url(#scrub-${role.id})" opacity=".95"/>
+      <path d="M90 165 l-18 56 q-3 10 7 13 q10 3 14-7 l16-40" fill="url(#coat-${role.id})"/>
+      <path d="M190 165 l18 56 q3 10 -7 13 q-10 3 -14-7 l-16-40" fill="url(#coat-${role.id})"/>
+      <circle cx="82" cy="230" r="11" fill="#ffd8bf"/>
+      <circle cx="198" cy="230" r="11" fill="#ffd8bf"/>
+      <path d="M118 220 v32 q0 10 10 10 h8 q10 0 10-10 v-32" fill="#344b67"/>
+      <path d="M146 220 v32 q0 10 10 10 h8 q10 0 10-10 v-32" fill="#344b67"/>
+      <rect x="116" y="258" width="24" height="8" rx="4" fill="#22364d"/>
+      <rect x="154" y="258" width="24" height="8" rx="4" fill="#22364d"/>
+      <rect x="168" y="166" width="18" height="28" rx="4" fill="#ffffff" stroke="rgba(44,69,100,.18)"/>
+      <rect x="171" y="172" width="12" height="3" rx="1.5" fill="${role.accent}"/>
+      <rect x="171" y="178" width="8" height="3" rx="1.5" fill="${role.accent}" opacity=".8"/>
+      ${accessorySVG(role.accessory, role.accent)}
+    `;
+  }
+
+  function drawFamily(role){
+    return `
+      <ellipse cx="140" cy="248" rx="86" ry="14" fill="rgba(44,69,100,.08)"/>
+
+      <circle cx="95" cy="102" r="33" fill="#ffd8bf"/>
+      <path d="M66 100 q4-36 33-36 q29 0 34 31 q-12-9-34-9 q-19 0-33 14z" fill="#6c5946"/>
+      <ellipse cx="84" cy="102" rx="3.5" ry="4.5" fill="#38485c"/>
+      <ellipse cx="106" cy="102" rx="3.5" ry="4.5" fill="#38485c"/>
+      <path d="M89 117 q6 5 12 0" fill="none" stroke="#915f58" stroke-width="3" stroke-linecap="round"/>
+
+      <circle cx="185" cy="102" r="33" fill="#ffd8bf"/>
+      <path d="M156 100 q4-36 33-36 q29 0 34 31 q-12-9-34-9 q-19 0-33 14z" fill="#5c4c43"/>
+      <ellipse cx="174" cy="102" rx="3.5" ry="4.5" fill="#38485c"/>
+      <ellipse cx="196" cy="102" rx="3.5" ry="4.5" fill="#38485c"/>
+      <path d="M179 117 q6 5 12 0" fill="none" stroke="#915f58" stroke-width="3" stroke-linecap="round"/>
+
+      <circle cx="140" cy="138" r="22" fill="#ffd8bf"/>
+      <path d="M122 136 q3-24 18-24 q16 0 18 20 q-6-5-18-5 q-9 0-18 9z" fill="#7a664a"/>
+      <ellipse cx="134" cy="139" rx="2.5" ry="3.5" fill="#38485c"/>
+      <ellipse cx="146" cy="139" rx="2.5" ry="3.5" fill="#38485c"/>
+      <path d="M136 148 q4 4 8 0" fill="none" stroke="#915f58" stroke-width="2.5" stroke-linecap="round"/>
+
+      <path d="M60 182 q10-34 35-34 q25 0 35 34 v34 h-70z" fill="#fff7e7"/>
+      <path d="M150 182 q10-34 35-34 q25 0 35 34 v34 h-70z" fill="#fff7e7"/>
+      <path d="M112 192 q8-26 28-26 q20 0 28 26 v24 h-56z" fill="url(#scrub-${role.id})"/>
+
+      <path d="M88 216 v26 q0 8 8 8 h8 q8 0 8-8 v-26" fill="#42546d"/>
+      <path d="M176 216 v26 q0 8 8 8 h8 q8 0 8-8 v-26" fill="#42546d"/>
+      <path d="M128 216 v24 q0 8 6 8 h6 q6 0 6-8 v-24" fill="#42546d"/>
+      <path d="M146 216 v24 q0 8 6 8 h6 q6 0 6-8 v-24" fill="#42546d"/>
+
+      <rect x="86" y="248" width="22" height="7" rx="3.5" fill="#22364d"/>
+      <rect x="182" y="248" width="22" height="7" rx="3.5" fill="#22364d"/>
+      <rect x="128" y="246" width="18" height="6" rx="3" fill="#22364d"/>
+      <rect x="150" y="246" width="18" height="6" rx="3" fill="#22364d"/>
+
+      ${accessorySVG(role.accessory, role.accent)}
+    `;
+  }
+
+  function characterSVG(role){
+    return `
+      <svg class="character" viewBox="0 0 280 280" aria-hidden="true">
+        <defs>
+          <linearGradient id="coat-${role.id}" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="${role.cloth}"/>
+            <stop offset="100%" stop-color="#eef7ff"/>
+          </linearGradient>
+          <linearGradient id="scrub-${role.id}" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="${role.accent}"/>
+            <stop offset="100%" stop-color="${shadeColor(role.accent, -10)}"/>
+          </linearGradient>
+        </defs>
+        ${role.id === "family" ? drawFamily(role) : drawSingle(role)}
+      </svg>
+    `;
+  }
+
+  function buildSlides(){
+    track.innerHTML = roles.map(role => `
+      <div class="slide">
+        <div class="card">
+          <div class="card-bg">
+            <div class="blob1" style="background:${role.palette[0]}"></div>
+            <div class="blob2" style="background:${role.palette[2]}33"></div>
+            <div class="blob3" style="background:${role.palette[2]}22"></div>
+          </div>
+
+          <div class="illustration-zone">
+            <div class="art-frame" style="background:linear-gradient(180deg, ${role.palette[1]}, #ffffff);">
+              <div class="sparkle"></div>
+              ${characterSVG(role)}
+            </div>
+          </div>
+
+          <div class="role-panel">
+            <div class="role-name">${role.name}</div>
+            <div class="role-desc">${role.studyDesc}</div>
+          </div>
+        </div>
+      </div>
+    `).join("");
+
+    dots.innerHTML = roles.map((_,i)=>`<div class="dot ${i===0?'active':''}"></div>`).join("");
+  }
+
+  function updateSlide(animated = true){
+    track.style.transition = animated ? "transform .28s ease" : "none";
+    track.style.transform = `translateX(-${currentIndex * 100}%)`;
+    [...dots.children].forEach((d,i)=>d.classList.toggle("active", i===currentIndex));
+    updateUI();
+  }
+
+  function updateUI(){
+    scoreChip.textContent = `連續答對 ${streak} / 3`;
+
+    const roleNameEls = track.querySelectorAll(".role-name");
+    const roleDescEls = track.querySelectorAll(".role-desc");
+
+    if(mode === "study"){
+      questionLabel.textContent = "人物展示";
+      questionText.textContent = "滑動認識不同職類";
+      questionHint.textContent = "左右滑動查看不同角色。";
+      mainBtn.textContent = "開始測驗";
+
+      roles.forEach((r, i) => {
+        roleNameEls[i].textContent = r.name;
+        roleNameEls[i].style.display = "";
+        roleDescEls[i].textContent = r.studyDesc;
+      });
+
+      if(!feedback.classList.contains("ok") && !feedback.classList.contains("bad") && !feedback.classList.contains("win")){
+        feedback.textContent = "目前是預習模式，可以左右滑動看看每個人的工作。";
+      }
+    } else {
+      questionLabel.textContent = "情境題";
+      questionText.textContent = currentQuestion ? currentQuestion.text : "準備開始測驗";
+      questionHint.textContent = "";
+      mainBtn.textContent = "確認答案";
+
+      roles.forEach((r, i) => {
+        roleNameEls[i].textContent = r.name;
+        roleNameEls[i].style.display = "";
+        roleDescEls[i].textContent = "";
+      });
+    }
+  }
+
+  function nextQuestion(){
+    if(pool.length === 0) pool = shuffle(questions);
+    currentQuestion = pool.pop();
+    feedback.className = "feedback";
+    feedback.textContent = "請滑到你認為正確的人，再按下確認答案。";
+    updateUI();
+  }
+
+  function setMode(nextMode){
+    mode = nextMode;
+    if(mode === "quiz" && !currentQuestion){
+      nextQuestion();
+    }else{
+      updateUI();
+    }
+  }
+
+  function answer(){
+    if(mode !== "quiz"){
+      setMode("quiz");
+      return;
+    }
+    if(!currentQuestion){
+      nextQuestion();
+      return;
+    }
+
+    const selected = roles[currentIndex];
+    if(selected.id === currentQuestion.answer){
+      streak++;
+      scoreChip.textContent = `連續答對 ${streak} / 3`;
+      feedback.className = "feedback ok";
+      feedback.innerHTML = `✅ <b>答對了</b><br>${currentQuestion.explain}`;
+
+      if(streak >= 3){
+        feedback.className = "feedback win";
+        feedback.innerHTML = `🎉 <b>已連續答對 3 題</b><br>你已經成功認識中風照護團隊。`;
+        setTimeout(() => {
+          winOverlay.classList.add("show");
+        }, 350);
+      }else{
+        setTimeout(() => {
+          nextQuestion();
+        }, 1050);
+      }
+    }else{
+      const ans = roles.find(r => r.id === currentQuestion.answer);
+      streak = 0;
+      scoreChip.textContent = `連續答對 ${streak} / 3`;
+      feedback.className = "feedback bad";
+      feedback.innerHTML = `❌ <b>答錯了</b><br>正確答案是：<b>${ans.name}</b>。${currentQuestion.explain}`;
+      setTimeout(() => {
+        nextQuestion();
+      }, 1450);
+    }
+  }
+
+  function resetGame(){
+    streak = 0;
+    currentQuestion = null;
+    pool = [];
+    feedback.className = "feedback";
+    feedback.textContent = "目前是預習模式，可以左右滑動看看每個人的工作。";
+    setMode("study");
+  }
+
+  function prev(){
+    currentIndex = (currentIndex - 1 + roles.length) % roles.length;
+    updateSlide();
+  }
+
+  function next(){
+    currentIndex = (currentIndex + 1) % roles.length;
+    updateSlide();
+  }
+
+  function handleStart(clientX){
+    startX = clientX;
+    moveX = clientX;
+    dragging = true;
+    track.style.transition = "none";
+  }
+
+  function handleMove(clientX){
+    if(!dragging) return;
+    moveX = clientX;
+    const dx = moveX - startX;
+    const percent = dx / track.clientWidth * 100;
+    track.style.transform = `translateX(calc(-${currentIndex * 100}% + ${percent}%))`;
+  }
+
+  function handleEnd(){
+    if(!dragging) return;
+    dragging = false;
+    const dx = moveX - startX;
+    if(dx > 50) prev();
+    else if(dx < -50) next();
+    else updateSlide();
+  }
+
+  prevBtn.addEventListener("click", prev);
+  nextBtn.addEventListener("click", next);
+  mainBtn.addEventListener("click", answer);
+  resetBtn.addEventListener("click", resetGame);
+
+  continueBtn.addEventListener("click", () => {
+    winOverlay.classList.remove("show");
+    streak = 0;
+    currentQuestion = null;
+    setMode("quiz");
+  });
+
+  track.addEventListener("touchstart", e => {
+    if(e.touches[0]) handleStart(e.touches[0].clientX);
+  }, {passive:true});
+
+  track.addEventListener("touchmove", e => {
+    if(e.touches[0]) handleMove(e.touches[0].clientX);
+  }, {passive:true});
+
+  track.addEventListener("touchend", handleEnd);
+  track.addEventListener("touchcancel", handleEnd);
+
+  track.addEventListener("mousedown", e => {
+    mouseDown = true;
+    handleStart(e.clientX);
+  });
+
+  window.addEventListener("mousemove", e => {
+    if(mouseDown) handleMove(e.clientX);
+  });
+
+  window.addEventListener("mouseup", () => {
+    if(mouseDown){
+      mouseDown = false;
+      handleEnd();
+    }
+  });
+
+  window.addEventListener("keydown", e => {
+    if(e.key === "ArrowLeft") prev();
+    if(e.key === "ArrowRight") next();
+    if(e.key === "Enter") answer();
+  });
+
+  buildSlides();
+  updateSlide(false);
+  resetGame();
+})();
+</script>
+</body>
+</html>
