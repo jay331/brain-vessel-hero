@@ -294,7 +294,7 @@ header { padding: 6px 10px; display: flex; justify-content: space-between; align
 
 <script>
 // ==========================================
-// 全域與資料設定 (100% 完整)
+// 全域與資料設定
 // ==========================================
 const GAME_URLS = { 'role_emt_0': 'game_race.html', 'role_dr_0': 'game_fishing.html', 'beg_id_0': 'game_fast.html' };
 let currentGameInfo = null;
@@ -351,7 +351,7 @@ function getActiveCompletedCases() { return playerState.mode === 'beginner' ? pl
 function getActiveTaskScores() { return playerState.mode === 'beginner' ? playerState.taskScoresBeg : playerState.taskScoresAdv; }
 function id(elId) { return document.getElementById(elId); }
 
-const SAVE_KEY = 'BrainPioneer_SaveData_v18';
+const SAVE_KEY = 'BrainPioneer_SaveData_v19';
 
 function saveGameData() {
   const dataToSave = {
@@ -448,7 +448,6 @@ function navScaleAction() {
   if (playerState.scaleRecords.length === 0) { switchScaleTab('form'); } else { switchScaleTab('list'); }
 }
 
-// ★ 全螢幕切換控制
 function showScreen(screenId) {
   document.querySelectorAll('.screen').forEach(s => { s.classList.remove('show'); s.classList.remove('full-view'); });
   const target = id(screenId); target.classList.add('show');
@@ -463,7 +462,6 @@ function showScreen(screenId) {
     id('navHome').classList.add('active');
     id('mainHeader').style.display = 'flex'; id('mainNav').style.display = 'flex';
   } else {
-    // 進入全螢幕模式
     id('mainHeader').style.display = 'none'; id('mainNav').style.display = 'none';
     target.classList.add('full-view');
   }
@@ -553,8 +551,10 @@ window.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'GAME_CLEAR') {
     closeGameIframe(); 
     if (!currentGameInfo && event.data.coins) {
-      playerState.coins += event.data.coins; updateHUD(); saveGameData();
-      alert(`🎉 恭喜破關腦脈新接龍！\n獲得 ${event.data.coins} 健康幣！`); return;
+      playerState.coins += event.data.coins;
+      updateHUD(); saveGameData();
+      alert(`🎉 恭喜破關腦脈新接龍！\n獲得 ${event.data.coins} 健康幣！`);
+      return;
     }
     handleGameClear(event.data.score || 1000); 
   } else if (event.data && event.data.type === 'GAME_OVER') {
@@ -614,7 +614,9 @@ function renderDexCards(tab, btnEl) {
 }
 
 function launchFreeCellGame() {
-  id('gameTitle').textContent = '🃏 腦脈新接龍'; id('gameFrame').src = 'game_freecell.html'; id('gameOverlay').style.display = 'flex';
+  id('gameTitle').textContent = '🃏 腦脈新接龍 (雙擊牌面看知識)';
+  id('gameFrame').src = 'game_freecell.html'; 
+  id('gameOverlay').style.display = 'flex';
 }
 
 function openCardModal(tab, roleId, taskIdx) {
@@ -623,7 +625,7 @@ function openCardModal(tab, roleId, taskIdx) {
   id('modalIcon').textContent = role.icon; id('modalTitle').textContent = role.subTasks[taskIdx].substring(3);
   id('modalCategory').textContent = `${role.name} - ${role.subtitle}`;
   id('modalDesc').textContent = `這裡是關於「${role.subTasks[taskIdx].substring(3)}」的詳細重點整理。透過這張卡片，您可以隨時複習關鍵的醫療處置與照護知識！`;
-  id('cardDetailModal').style.display = 'flex';
+  document.getElementById('cardDetailModal').style.display = 'flex';
 }
 
 function renderCaseDex() {
