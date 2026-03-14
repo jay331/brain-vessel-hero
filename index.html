@@ -14,13 +14,17 @@ body.mode-advanced {
   --theme-bg: rgba(212, 175, 55, 0.1);
   --theme-panel: rgba(26, 22, 18, 0.85);
   --theme-grad: linear-gradient(90deg, rgba(42,36,30,0.95), rgba(26,22,18,0.9));
+  --btn-text: #000;
+  --btn-shadow: none;
 }
 body.mode-beginner {
-  --theme-primary: #29b6f6;
-  --theme-dim: #0277bd;
-  --theme-bg: rgba(2, 119, 189, 0.15);
-  --theme-panel: rgba(10, 25, 47, 0.85);
-  --theme-grad: linear-gradient(90deg, rgba(2,119,189,0.85), rgba(10,25,47,0.95));
+  --theme-primary: #1e88e5; /* 加深的醫療藍 */
+  --theme-dim: #0d47a1;
+  --theme-bg: rgba(30, 136, 229, 0.15);
+  --theme-panel: rgba(10, 20, 35, 0.9);
+  --theme-grad: linear-gradient(90deg, rgba(13,71,161,0.8), rgba(10,20,35,0.95));
+  --btn-text: #fff;
+  --btn-shadow: 1px 1px 2px rgba(0,0,0,0.8);
 }
 
 :root { --good: #3dff8e; --text-main: #f4ecd8; --text-muted: #a99d82; --accent-red: #d32f2f; }
@@ -38,8 +42,9 @@ header { padding: 6px 10px; display: flex; justify-content: space-between; align
 .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
 .player-text-wrap { display: flex; flex-direction: column; justify-content: center; gap: 2px; }
 .player-name { font-size: 12px; font-weight: bold; color: #fff; }
-.level-badge { background: var(--theme-primary); color: #000; font-size: 12px; font-weight: 900; padding: 2px 8px; border-radius: 4px; cursor: pointer; box-shadow: 0 0 8px var(--theme-bg); display:inline-flex; align-items:center; gap:4px;}
+.level-badge { background: var(--theme-primary); color: var(--btn-text); font-size: 12px; font-weight: 900; padding: 2px 8px; border-radius: 4px; cursor: pointer; box-shadow: 0 0 8px var(--theme-bg); display:inline-flex; align-items:center; gap:4px; text-shadow: var(--btn-shadow);}
 .level-badge:active { transform: scale(0.95); }
+.resources { display: flex; flex-direction: row; align-items: center; gap: 4px; flex-shrink: 0; }
 .res-item { display: flex; align-items: center; gap: 4px; font-weight: 900; font-size: 12px; background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 99px; border: 1px solid var(--theme-dim); }
 .green-coin { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; background: linear-gradient(180deg, #3dff8e, #0eb855); border-radius: 50%; color: #000; font-size: 10px; }
 
@@ -74,30 +79,29 @@ header { padding: 6px 10px; display: flex; justify-content: space-between; align
 .role-task { font-size: 12px; color: #fff; font-weight: bold; margin: 0; opacity: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);}
 .role-status { font-size: 16px; color: var(--theme-primary);}
 
-/* 任務詳情內頁 */
-.subtask-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; overflow-y:auto; flex:1;}
-.subtask-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-radius: 8px; border: 1px solid var(--theme-dim); font-weight: bold; font-size: 14px; }
+/* 任務詳情內頁 (高對比按鈕) */
+.subtask-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; overflow-y:auto; flex:1;}
+.subtask-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-radius: 8px; border: 1px solid var(--theme-dim); font-weight: bold; font-size: 14px; transition: all 0.2s; }
 .subtask-item.completed { background: rgba(61, 255, 142, 0.1); border-color: var(--good); color: var(--good); }
-.subtask-item.active { background: var(--theme-bg); border-color: var(--theme-primary); color: #fff; cursor: pointer; }
-.subtask-item.locked { background: rgba(0, 0, 0, 0.6); border-color: #444; color: #666; pointer-events: none; }
+.subtask-item.active { background: linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); border: 2px solid #fff; color: var(--btn-text); text-shadow: var(--btn-shadow); cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5), 0 0 15px var(--theme-primary); transform: scale(1.02); z-index:2; }
+.subtask-item.locked { background: rgba(0, 0, 0, 0.6); border-color: #333; color: #666; pointer-events: none; }
 .task-stat { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(0,0,0,0.5); border-radius: 6px; margin-bottom: 10px; font-size:13px; border: 1px solid var(--theme-dim);}
 
 /* ===== 卡匣共用 ===== */
 .pokedex-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 6px; flex-wrap: nowrap; scrollbar-width: none; justify-content:center;}
 .pokedex-tabs::-webkit-scrollbar { display: none; }
 .tab-btn { flex-shrink: 0; padding: 6px 12px; border-radius: 20px; border: 1px solid var(--theme-dim); background: rgba(0,0,0,0.8); color: #ccc; font-weight: bold; font-size: 12px; cursor:pointer;}
-.tab-btn.active { background: var(--theme-primary); color: #000; border-color: #fff; }
-/* 改為 4 欄，降低高度 */
+.tab-btn.active { background: var(--theme-primary); color: var(--btn-text); border-color: #fff; text-shadow: var(--btn-shadow); box-shadow: 0 0 10px rgba(212,175,55,0.5); }
 .card-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; overflow-y: auto; padding: 2px; }
 .card-item { aspect-ratio: 3 / 4; border-radius: 6px; border: 1px solid var(--theme-dim); background: linear-gradient(180deg, #2a241e, #111); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; text-align: center; padding:4px;}
 .card-icon { font-size: 20px; margin-bottom: 2px; }
 .card-title { font-size: 9px; font-weight: bold; line-height: 1.2; padding:0 2px;}
 .card-item.locked { filter: grayscale(100%); opacity: 0.3; }
 
-/* ===== 圖鑑與排行榜 ===== */
-.case-dex-item { background: rgba(0,0,0,0.4); border: 1px solid var(--theme-dim); border-radius: 8px; padding: 8px; margin-bottom: 6px; display: flex; flex-direction: column; gap: 4px; }
-.case-dex-id { color: var(--theme-primary); font-weight: bold; font-size: 14px; border-bottom: 1px dashed var(--theme-dim); padding-bottom: 4px; display: flex; justify-content: space-between; }
-.case-dex-role { display: inline-flex; align-items: center; gap: 2px; background: rgba(0,0,0,0.6); padding: 2px 4px; border-radius: 4px; font-size: 10px; color:#fff;}
+/* ===== 極簡個案與排行榜 ===== */
+.case-dex-item { background: rgba(0,0,0,0.4); border: 1px solid var(--theme-dim); border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; display: flex; flex-direction: row; justify-content: space-between; align-items: center; cursor:pointer;}
+.case-dex-id { color: var(--theme-primary); font-weight: bold; font-size: 14px; }
+.case-score-badge { color: var(--good); font-size: 11px; font-weight: bold; background: transparent; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--good);}
 .lb-item { display: flex; align-items: center; justify-content: space-between; padding: 10px; background: rgba(0,0,0,0.4); border: 1px solid var(--theme-dim); border-radius: 8px; margin-bottom:6px;}
 
 /* ===== 中風名片 (美化版) ===== */
@@ -185,7 +189,7 @@ header { padding: 6px 10px; display: flex; justify-content: space-between; align
       
       <section class="screen" id="scrCaseDex">
         <div class="panel" style="flex: 1;">
-          <h2 id="caseDexTitle">圖鑑紀錄</h2>
+          <h2 id="caseDexTitle">個案圖鑑</h2>
           <div id="caseDexList" style="flex: 1; overflow-y: auto;"></div>
         </div>
         <button class="btn" style="flex-shrink:0;" onclick="showScreen('scrHome')">⬅ 返回首頁</button>
@@ -199,7 +203,7 @@ header { padding: 6px 10px; display: flex; justify-content: space-between; align
             <button class="tab-btn" onclick="renderTotalScoreLeaderboard('adv', this)">進階任務</button>
             <button class="tab-btn" onclick="renderTotalScoreLeaderboard('beg', this)">初階任務</button>
           </div>
-          <div id="lbListTotal" style="flex: 1; overflow-y: auto;"></div>
+          <div id="lbListTotal" style="flex: 1; overflow-y: auto; padding-right: 4px;"></div>
         </div>
         <button class="btn" style="flex-shrink:0;" onclick="showScreen('scrHome')">⬅ 返回首頁</button>
       </section>
@@ -220,7 +224,7 @@ header { padding: 6px 10px; display: flex; justify-content: space-between; align
               <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; font-size:12px; color:#fff; background:rgba(0,0,0,0.4); padding:10px; border-radius:6px; border:1px solid #444;">
                 <label><input type="checkbox" name="scRisk" value="高血壓"> 高血壓</label><label><input type="checkbox" name="scRisk" value="糖尿病"> 糖尿病</label><label><input type="checkbox" name="scRisk" value="高血脂"> 高血脂</label><label><input type="checkbox" name="scRisk" value="心房顫動"> 心房顫動</label><label><input type="checkbox" name="scRisk" value="抽菸"> 抽菸</label><label><input type="checkbox" name="scRisk" value="家族病史"> 家族病史</label>
               </div>
-              <button class="btn" style="background:var(--theme-primary); color:#000; border:none; margin-top:12px;" onclick="saveStrokeCard()">💾 儲存名片</button>
+              <button class="btn" style="background:var(--theme-primary); color:var(--btn-text); text-shadow:var(--btn-shadow); border:none; margin-top:12px;" onclick="saveStrokeCard()">💾 儲存名片</button>
             </div>
           </div>
         </div>
@@ -251,7 +255,7 @@ header { padding: 6px 10px; display: flex; justify-content: space-between; align
         </div>
         <div class="nav-item nav-main" id="navHome" onclick="showScreen('scrHome')">任務</div>
         <div class="nav-item" id="navLeaderboard" onclick="navBtn4Action()">
-          <div style="font-size:20px;" id="navLbIcon">📇</div><span style="font-size:10px;" id="navLbText">名片</span>
+          <div style="font-size:20px;">📇</div><span style="font-size:10px;">名片</span>
         </div>
         <div class="nav-item" id="navScale" onclick="navScaleAction()">
           <div style="font-size:20px;">📋</div><span style="font-size:10px;">自評量表</span>
@@ -271,18 +275,18 @@ header { padding: 6px 10px; display: flex; justify-content: space-between; align
 </div>
 
 <div class="modal-overlay" id="cardDetailModal">
-  <div class="modal-content">
+  <div class="modal-content" style="border-color: var(--theme-primary); padding:16px;">
     <button class="close-btn" onclick="document.getElementById('cardDetailModal').style.display='none'">✖</button>
     <div id="modalIcon" style="font-size:40px; margin-bottom:8px;"></div>
-    <h3 id="modalTitle" style="color:var(--theme-primary); margin:0 0 4px 0; font-size:16px;"></h3>
-    <div id="modalCategory" style="font-size:11px; color:#aaa; margin-bottom:12px;"></div>
+    <h3 id="modalTitle" style="color:var(--theme-primary); margin:0 0 8px 0; font-size:16px;"></h3>
+    <div id="modalCategory" style="font-size:11px; color:var(--text-muted); margin-bottom:12px;"></div>
     <p id="modalDesc" style="color:#fff; font-size:13px; line-height:1.5; text-align:left; background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; border:1px solid #444; margin:0;"></p>
   </div>
 </div>
 
 <div class="modal-overlay" id="profileModal" style="z-index:9999;">
-  <div class="modal-content" style="border-color:#4fc3f7;">
-    <h3 style="color:#fff; margin: 0 0 16px 0; font-size: 20px;">腦脈先鋒</h3>
+  <div class="modal-content" style="border-color:#4fc3f7; padding:20px;">
+    <h3 style="color:#fff; margin: 0 0 12px 0; font-size: 20px;">腦脈先鋒 登錄</h3>
     <div style="display:flex; align-items:center; gap: 10px; margin-bottom:12px; justify-content:center;">
       <img id="previewAvatar" src="https://i.pravatar.cc/150?img=11" style="width:50px; height:50px; border-radius:50%; border:2px solid #4fc3f7; object-fit:cover;">
       <input type="file" accept="image/*" onchange="handleAvatarUpload(event)" style="font-size:10px; width:150px; padding:4px;">
@@ -298,11 +302,18 @@ header { padding: 6px 10px; display: flex; justify-content: space-between; align
 
 <script>
 // ==========================================
-// 全域與資料設定 (100% 完整)
+// 💡 小遊戲檔案路徑對照表
 // ==========================================
-const GAME_URLS = { 'role_emt_0': 'game_race.html', 'role_dr_0': 'game_fishing.html', 'beg_id_0': 'game_fast.html' };
+const GAME_URLS = {
+  'role_emt_0': 'game_race.html',      
+  'role_dr_0': 'game_fishing.html',    
+  'beg_id_0': 'game_fast.html',        
+};
 let currentGameInfo = null;
 
+// ==========================================
+// 1. 全域狀態與資料設定
+// ==========================================
 let playerState = { 
   hasSetup: false, name: "", avatar: "https://i.pravatar.cc/150?img=11", mode: "beginner", coins: 38219, 
   completedCasesBeg: new Map(), completedCasesAdv: new Map(),
@@ -486,7 +497,18 @@ function renderHomeRoles() {
   getActiveRoles().forEach(role => {
     const isCompleted = role.currentTask > role.totalTasks;
     const progressText = isCompleted ? '✅ 全部通關' : `進度 ${role.currentTask - 1}/${role.totalTasks}`;
-    container.innerHTML += `<div class="role-card" onclick="openRoleDetail('${role.id}')"><div class="role-avatar">${role.icon}</div><div class="role-info"><div class="role-name">${role.name}</div><div class="role-task">${role.subtitle} | ${progressText}</div></div><div class="role-status">${isCompleted ? '🟢' : '▶'}</div></div>`;
+    
+    // 💡 修正原本巢狀 div 導致的點擊問題，直接在最外層容器加上 onclick
+    container.innerHTML += `
+      <div class="role-card" onclick="openRoleDetail('${role.id}')">
+        <div class="role-avatar">${role.icon}</div>
+        <div class="role-info">
+          <div class="role-name">${role.name}</div>
+          <div class="role-task">${role.subtitle} | ${progressText}</div>
+        </div>
+        <div class="role-status">${isCompleted ? '🟢' : '▶'}</div>
+      </div>
+    `;
   });
 }
 
@@ -590,7 +612,9 @@ function renderDexCards(tab, btnEl) {
   const grid = id('cardGrid'); 
   const isBegMaster = playerState.taskScoresBeg.size >= 25;
   const isAdvMaster = playerState.taskScoresAdv.size >= 25;
-  id('tabCardGameBtn').style.display = (isBegMaster && isAdvMaster) ? 'block' : 'none';
+  
+  // 讓卡牌挑戰按鈕直接獨立在第一列
+  id('cardGameWrap').style.display = (isBegMaster && isAdvMaster) ? 'flex' : 'none';
 
   grid.innerHTML = '';
   if (tab === 'beg') {
@@ -628,29 +652,52 @@ function openCardModal(tab, roleId, taskIdx) {
   document.getElementById('cardDetailModal').style.display = 'flex';
 }
 
+// ===== 極簡個案圖鑑 =====
 function renderCaseDex() {
   const isBeg = playerState.mode === 'beginner'; id('caseDexTitle').textContent = isBeg ? '模擬演練圖鑑' : '個案圖鑑';
   const cases = Array.from(getActiveCompletedCases().entries()).sort((a,b)=>a[0].localeCompare(b[0]));
   const container = id('caseDexList'); container.innerHTML = '';
   if(cases.length === 0) { container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:30px;">尚無紀錄。請先挑戰「綜合驗收」！</p>'; return; }
+  
   cases.forEach(([caseStr, score]) => {
-    let detailsHTML = ''; const roles = getActiveRoles();
-    for(let i=0; i<5; i++) { if(roles[i] && caseStr[i]) detailsHTML += `<span class="case-dex-role">${roles[i].icon} ${roles[i].subTasks[parseInt(caseStr[i])-1].substring(3)}</span>`; }
-    container.innerHTML += `<div class="case-dex-item" onclick="alert('編號：#C-${caseStr}\\n紀錄最高分：${score} 分\\n這是一個完美的跨團隊處置紀錄！')"><div class="case-dex-id"><span>#C-${caseStr}</span><span class="case-score-badge">最高分: ${score}</span></div><div class="case-dex-details">${detailsHTML}</div></div>`;
+    let iconsHTML = ''; const roles = getActiveRoles();
+    for(let i=0; i<5; i++) { if(roles[i] && caseStr[i]) iconsHTML += roles[i].icon; }
+    container.innerHTML += `
+      <div class="case-dex-item" onclick="alert('編號：#C-${caseStr}\\n紀錄最高分：${score} 分\\n這是一個完美的跨團隊處置紀錄！')">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span class="case-dex-id" style="border:none; padding:0;">#C-${caseStr}</span>
+          <span style="font-size:12px; letter-spacing:2px;">${iconsHTML}</span>
+        </div>
+        <span class="case-score-badge" style="background:transparent; border:1px solid var(--good);">${score} 分</span>
+      </div>`;
   });
 }
 
+// ===== 排行榜生成 (20名) =====
 function renderTotalScoreLeaderboard(tab, btnEl) {
   Array.from(id('lbTabs').children).forEach(t => t.classList.remove('active')); btnEl.classList.add('active');
   let html = '';
-  if (tab === 'cases') {
-    html = `<div class="lb-item"><span class="lb-rank">🥇</span><img src="https://i.pravatar.cc/150?img=33" class="lb-avatar"><div style="flex:1;"><div style="font-weight:bold; font-size:14px; color:#fff;">陳醫師 (內科)</div></div><div style="color:var(--theme-primary); font-weight:bold;">120 例</div></div><div class="lb-item"><span class="lb-rank">🥈</span><img src="https://i.pravatar.cc/150?img=47" class="lb-avatar"><div style="flex:1;"><div style="font-weight:bold; font-size:14px; color:#fff;">王護理長</div></div><div style="color:var(--theme-primary); font-weight:bold;">108 例</div></div>`; 
-  } else if (tab === 'adv') {
-    html = `<div class="lb-item"><span class="lb-rank">🥇</span><img src="https://i.pravatar.cc/150?img=12" class="lb-avatar"><div style="flex:1;"><div style="font-weight:bold; font-size:14px; color:#fff;">林復健師</div></div><div style="color:var(--theme-primary); font-weight:bold;">25/25 滿分</div></div>`; 
-  } else {
-    html = `<div class="lb-item"><span class="lb-rank">🥇</span><img src="https://i.pravatar.cc/150?img=15" class="lb-avatar"><div style="flex:1;"><div style="font-weight:bold; font-size:14px; color:#fff;">張志明 (家屬)</div></div><div style="color:var(--theme-primary); font-weight:bold;">25/25 滿分</div></div>`; 
+  let mockNames = ["陳醫師", "王護理長", "林復健師", "張志明", "李小華", "趙大寶", "孫阿姨", "周先生", "吳小姐", "鄭伯伯", "劉醫師", "蔡技術員", "楊先生", "許小姐", "黃志強", "曾美麗", "蕭醫師", "郭大俠", "羅護理師", "梁伯伯"];
+  
+  for(let i=0; i<20; i++) {
+     let rankIcon = (i===0)?'🥇':(i===1)?'🥈':(i===2)?'🥉':`${i+1}`;
+     let score = 0;
+     if(tab === 'cases') score = 120 - i*3 + " 例";
+     else if(tab === 'adv') score = (25000 - i*500) + " 分";
+     else score = (10000 - i*200) + " 分";
+     
+     let name = mockNames[i];
+     // 將玩家安插在第 7 名
+     if(i===6) { name = playerState.name + " (您)"; score = "持續努力中"; }
+     
+     let isMeClass = (i===6) ? 'border-color: var(--theme-primary); background: rgba(255,255,255,0.1);' : '';
+
+     html += `<div class="lb-item" style="${isMeClass}">
+       <span class="lb-rank" style="width:25px; text-align:center; font-weight:bold; color:#ccc;">${rankIcon}</span>
+       <div style="flex:1; padding-left:10px;"><div style="font-weight:bold; font-size:14px; color:${i===6?'var(--theme-primary)':'#fff'};">${name}</div></div>
+       <div style="color:var(--theme-primary); font-weight:bold; font-size:13px;">${score}</div>
+     </div>`;
   }
-  html += `<div class="lb-item"><span class="lb-rank">⭐</span><img src="${playerState.avatar}" class="lb-avatar"><div style="flex:1;"><div style="font-weight:bold; font-size:14px; color:var(--theme-primary);">${playerState.name} (您)</div></div><div style="color:var(--theme-primary); font-weight:bold;">持續努力中</div></div>`;
   id('lbListTotal').innerHTML = html;
 }
 
@@ -673,16 +720,16 @@ function saveStrokeCard() {
 function switchScaleTab(tabId) {
   ['btnScaleForm', 'btnScaleList', 'btnScaleTrend'].forEach(idName => { id(idName).classList.remove('active'); id(idName).style.background = 'rgba(0,0,0,0.8)'; id(idName).style.color = 'var(--text-muted)'; });
   id('scaleFormView').style.display = 'none'; id('scaleListView').style.display = 'none'; id('scaleTrendView').style.display = 'none';
-  if (tabId === 'form') { id('btnScaleForm').classList.add('active'); id('btnScaleForm').style.background = 'var(--theme-primary)'; id('btnScaleForm').style.color = '#000'; id('scaleFormView').style.display = 'block'; startScaleWizard(); } 
-  else if (tabId === 'list') { id('btnScaleList').classList.add('active'); id('btnScaleList').style.background = 'var(--theme-primary)'; id('btnScaleList').style.color = '#000'; id('scaleListView').style.display = 'block'; renderScaleList(); } 
-  else { id('btnScaleTrend').classList.add('active'); id('btnScaleTrend').style.background = 'var(--theme-primary)'; id('btnScaleTrend').style.color = '#000'; id('scaleTrendView').style.display = 'block'; renderScaleChart(); }
+  if (tabId === 'form') { id('btnScaleForm').classList.add('active'); id('btnScaleForm').style.background = 'var(--theme-primary)'; id('btnScaleForm').style.color = 'var(--btn-text)'; id('btnScaleForm').style.textShadow = 'var(--btn-shadow)'; id('scaleFormView').style.display = 'block'; startScaleWizard(); } 
+  else if (tabId === 'list') { id('btnScaleList').classList.add('active'); id('btnScaleList').style.background = 'var(--theme-primary)'; id('btnScaleList').style.color = 'var(--btn-text)'; id('btnScaleList').style.textShadow = 'var(--btn-shadow)'; id('scaleListView').style.display = 'block'; renderScaleList(); } 
+  else { id('btnScaleTrend').classList.add('active'); id('btnScaleTrend').style.background = 'var(--theme-primary)'; id('btnScaleTrend').style.color = 'var(--btn-text)'; id('btnScaleTrend').style.textShadow = 'var(--btn-shadow)'; id('scaleTrendView').style.display = 'block'; renderScaleChart(); }
 }
 
 function startScaleWizard() { currentQIndex = 0; currentAnswers = {}; renderWizardQuestion(); }
 function renderWizardQuestion() {
   const container = id('wizardContent'); const q = scaleQuestions[currentQIndex]; container.style.animation = 'none'; container.offsetHeight; container.style.animation = 'fadeIn 0.3s ease';
   let html = `<div class="wizard-header">${q.title}</div>`;
-  if (q.type === 'choice') { q.options.forEach(opt => { html += `<div class="wizard-option" onclick="handleOptionSelect('${q.id}', ${opt.val})"><div class="icon">${opt.icon}</div><div class="text">${opt.text}</div></div>`; }); } else if (q.type === 'slider') { html += `<div style="background:rgba(0,0,0,0.6); padding:15px; border-radius:8px; border:1px solid var(--theme-dim); text-align:center; margin-bottom: 15px;"><div style="font-size:28px; font-weight:bold; color:var(--good); margin-bottom:8px;" id="vasValDisplay">80</div><input type="range" id="vasSlider" min="0" max="100" value="80" style="width:100%; height:6px; border-radius:3px; appearance:none; background:#444; outline:none;" oninput="document.getElementById('vasValDisplay').innerText=this.value"><div style="display:flex; justify-content:space-between; color:var(--text-muted); font-size:11px; margin-top:8px;"><span>0 (最差)</span><span>100 (最健康)</span></div></div><button class="btn" style="background:var(--theme-primary); color:#000;" onclick="handleSliderSelect()">確認儲存</button>`; }
+  if (q.type === 'choice') { q.options.forEach(opt => { html += `<div class="wizard-option" onclick="handleOptionSelect('${q.id}', ${opt.val})"><div class="icon">${opt.icon}</div><div class="text">${opt.text}</div></div>`; }); } else if (q.type === 'slider') { html += `<div style="background:rgba(0,0,0,0.6); padding:15px; border-radius:8px; border:1px solid var(--theme-dim); text-align:center; margin-bottom: 15px;"><div style="font-size:28px; font-weight:bold; color:var(--good); margin-bottom:8px;" id="vasValDisplay">80</div><input type="range" id="vasSlider" min="0" max="100" value="80" style="width:100%; height:6px; border-radius:3px; appearance:none; background:#444; outline:none;" oninput="document.getElementById('vasValDisplay').innerText=this.value"><div style="display:flex; justify-content:space-between; color:var(--text-muted); font-size:11px; margin-top:8px;"><span>0 (最差)</span><span>100 (最健康)</span></div></div><button class="btn" style="background:var(--theme-primary); color:var(--btn-text); text-shadow:var(--btn-shadow);" onclick="handleSliderSelect()">確認儲存</button>`; }
   container.innerHTML = html;
 }
 function handleOptionSelect(qId, val) { currentAnswers[qId] = val; nextQuestion(); }
