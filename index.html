@@ -18,11 +18,12 @@ body.mode-advanced {
   --btn-shadow: none;
 }
 body.mode-beginner {
-  --theme-primary: #1e88e5; 
-  --theme-dim: #0d47a1;
-  --theme-bg: rgba(30, 136, 229, 0.15);
-  --theme-panel: rgba(10, 20, 35, 0.9);
-  --theme-grad: linear-gradient(90deg, rgba(13,71,161,0.8), rgba(10,20,35,0.95));
+  --theme-primary: #64b5f6; 
+  --theme-dim: #1976d2;
+  --theme-bg: rgba(25, 118, 210, 0.1);
+  --theme-panel: rgba(10, 15, 25, 0.9);
+  /* 💡 修正 3：將初階版的五大主題卡片底色調淺，呈現透亮冰藍色 */
+  --theme-grad: linear-gradient(90deg, rgba(33, 150, 243, 0.25), rgba(25, 118, 210, 0.35));
   --btn-text: #fff;
   --btn-shadow: 1px 1px 2px rgba(0,0,0,0.8);
 }
@@ -42,8 +43,7 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
 .player-text-wrap { display: flex; flex-direction: column; justify-content: center; gap: 2px; }
 .player-name { font-size: 11px; font-weight: bold; color: #fff; }
-.level-badge { background: var(--theme-primary); color: var(--btn-text); font-size: 11px; font-weight: 900; padding: 2px 6px; border-radius: 4px; cursor: pointer; box-shadow: 0 0 8px var(--theme-bg); display:inline-flex; align-items:center; gap:4px; text-shadow: var(--btn-shadow);}
-.level-badge:active { transform: scale(0.95); }
+.level-badge { background: var(--theme-primary); color: var(--btn-text); font-size: 11px; font-weight: 900; padding: 2px 6px; border-radius: 4px; cursor: pointer; box-shadow: 0 0 8px var(--theme-bg); display:inline-flex; align-items:center; gap:4px; text-shadow: var(--btn-shadow); display:none;} /* 隱藏原本的狀態列按鈕 */
 .resources { display: flex; flex-direction: row; align-items: center; gap: 4px; flex-shrink: 0; }
 .res-item { display: flex; align-items: center; gap: 4px; font-weight: 900; font-size: 11px; background: rgba(0,0,0,0.6); padding: 4px 6px; border-radius: 99px; border: 1px solid var(--theme-dim); box-shadow: 0 2px 5px rgba(0,0,0,0.5); white-space: nowrap; }
 .green-coin { display: inline-flex; align-items: center; justify-content: center; width: 12px; height: 12px; background: linear-gradient(180deg, #3dff8e, #0eb855); border-radius: 50%; color: #000; font-size: 9px; }
@@ -64,6 +64,11 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .btn { padding: 12px; border-radius: 6px; font-weight: 900; font-size: 15px; text-align: center; background: linear-gradient(180deg, #444, #222); color: #fff; border: 1px solid #666; width: 100%; cursor:pointer; flex-shrink: 0;}
 .btn:active { transform: scale(0.95); }
 
+/* 💡 修正 1：專屬的主畫面返回按鈕 */
+.btn-back { background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.6)); border: 1px solid var(--theme-dim); color: #fff; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 10px rgba(0,0,0,0.5); border-radius: 8px; transition: all 0.2s; }
+.btn-back:active { transform: scale(0.97); background: rgba(0,0,0,0.8); }
+.btn-back .back-icon { font-size: 20px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.8)); }
+
 /* ===== 主畫面 (動態高度等比例均分，絕對不捲動) ===== */
 #scrHome { padding: 6px 8px 75px 8px; justify-content: center; overflow: hidden; display: flex; flex-direction: column; gap: 6px; } 
 
@@ -77,7 +82,6 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .role-task { font-size: 11px; color: #fff; font-weight: bold; margin: 0; opacity: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); line-height: 1.2;}
 .role-status { font-size: 16px; color: var(--theme-primary); flex-shrink: 0;}
 
-/* 💡 修正 1: 綜合演練深色主題底色 */
 .boss-banner { background: linear-gradient(135deg, var(--theme-dim), #0a0a0a); border: 2px solid var(--theme-primary); border-radius: 8px; padding: 0; display:flex; flex-direction: column; justify-content: center; text-align: center; margin: 0; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.8); flex: 1;}
 .boss-banner h3 { margin: 0; color: #fff; font-size: 15px; text-shadow: 1px 1px 3px rgba(0,0,0,0.9); }
 .boss-banner p { margin: 2px 0 0; font-size: 11px; color: var(--text-main); text-shadow: 1px 1px 2px rgba(0,0,0,0.9); }
@@ -100,7 +104,7 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .card-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; overflow-y: auto; padding: 2px; align-content: flex-start;}
 .card-item { aspect-ratio: 3 / 4; border-radius: 6px; border: 1px solid var(--theme-dim); background: linear-gradient(180deg, #2a241e, #111); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; text-align: center; padding:4px;}
 .card-icon { font-size: 20px; margin-bottom: 2px; }
-.card-title { font-size: 9px; font-weight: bold; line-height: 1.2; padding:0 2px;}
+.card-title { font-size: 11px; font-weight: bold; line-height: 1.2; padding:0 2px; text-shadow: 1px 1px 2px #000;}
 .card-item.locked { filter: grayscale(100%); opacity: 0.3; }
 
 /* ===== 極簡個案與排行榜 ===== */
@@ -128,16 +132,16 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .trend-card { background: rgba(0,0,0,0.5); border: 1px solid var(--theme-dim); border-radius: 8px; padding: 10px; margin-bottom: 8px; flex-shrink: 0;}
 
 /* 底部導覽列 */
-.bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 65px; background: rgba(10,10,10,0.95); border-top: 1px solid #333; display: flex; justify-content: space-between; padding: 0 4px; align-items: center; z-index: 100; backdrop-filter: blur(5px); }
+.bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 65px; background: rgba(10,10,10,0.95); border-top: 1px solid #333; display: flex; justify-content: space-around; padding: 0 10px; align-items: center; z-index: 100; backdrop-filter: blur(5px); }
 .nav-item { color: #888; font-weight: bold; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; width: 55px; transition: color 0.2s;}
 .nav-item .icon { font-size: 20px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); transition: transform 0.2s; }
 .nav-item.active { color: var(--theme-primary); }
 .nav-item.active .icon { transform: translateY(-2px); }
 
-/* 模式切換方形按鈕 */
-.mode-toggle-sq { width: 55px; height: 48px; background: rgba(255,255,255,0.08); border: 1px solid var(--theme-dim); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--theme-primary); font-size: 10px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
-.mode-toggle-sq:active { background: var(--theme-bg); transform: scale(0.95); }
-.mode-toggle-sq .icon { font-size: 16px; margin-bottom: 2px; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.8));}
+/* 💡 修正 2：深色底的方形模式切換按鈕，不突出版面 */
+.mode-toggle-sq { width: 58px; height: 50px; background: linear-gradient(145deg, #1c1e26, #000000); border: 1px solid var(--theme-dim); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--theme-primary); font-size: 10px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.05); }
+.mode-toggle-sq:active { background: #000; transform: scale(0.95); }
+.mode-toggle-sq .icon { font-size: 18px; margin-bottom: 2px; text-shadow: 0 0 10px var(--theme-primary);}
 
 /* 彈出視窗 */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 5000; padding: 15px;}
@@ -152,7 +156,7 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
       <div class="avatar-wrap" onclick="document.getElementById('profileModal').style.display='flex'"><img id="hudAvatar" src="https://i.pravatar.cc/150?img=11"></div>
       <div class="player-text-wrap">
         <div class="player-name" id="uiPlayerName">急救新星</div>
-      </div>
+        </div>
     </div>
     <div class="resources">
       <div class="res-item" id="hudCasesWrap" style="display:none;"><span class="icon">👤</span> <span id="uiCases" style="color:#fff;">0</span></div>
@@ -179,12 +183,12 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
             <span>剩餘機會</span> <span id="detailAttempts" style="color:var(--good)">OOOOO</span>
           </div>
         </div>
-        <button class="btn" onclick="showScreen('scrHome')">⬅ 返回任務列表</button>
+        <button class="btn btn-back" onclick="showScreen('scrHome')"><span class="back-icon">🏠</span> 返回主畫面</button>
       </section>
 
       <section class="screen" id="scrPokedex">
         <div class="panel">
-          <div style="display:flex; justify-content:center; margin-bottom:8px; flex-shrink:0;" id="cardGameWrap">
+          <div style="display:none; justify-content:center; margin-bottom:8px; flex-shrink:0;" id="cardGameWrap">
             <button class="btn btn-success" id="tabCardGameBtn" style="padding:10px; font-size:14px; width:100%; border:none; box-shadow:0 0 10px rgba(61,255,142,0.4);" onclick="tryLaunchFreeCell()">🃏 挑戰腦脈新接龍</button>
           </div>
           <div class="pokedex-tabs" id="pokedexTabs">
@@ -194,7 +198,7 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
           </div>
           <div class="card-grid" id="cardGrid"></div>
         </div>
-        <button class="btn" onclick="showScreen('scrHome')">⬅ 返回任務</button>
+        <button class="btn btn-back" onclick="showScreen('scrHome')"><span class="back-icon">🏠</span> 返回主畫面</button>
       </section>
       
       <section class="screen" id="scrCaseDex">
@@ -202,7 +206,7 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
           <h2 id="caseDexTitle">個案圖鑑</h2>
           <div id="caseDexList" style="flex: 1; overflow-y: auto;"></div>
         </div>
-        <button class="btn" onclick="showScreen('scrHome')">⬅ 返回任務</button>
+        <button class="btn btn-back" onclick="showScreen('scrHome')"><span class="back-icon">🏠</span> 返回主畫面</button>
       </section>
 
       <section class="screen" id="scrLeaderboard">
@@ -215,7 +219,7 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
           </div>
           <div id="lbListTotal" style="flex: 1; overflow-y: auto; padding-right: 4px;"></div>
         </div>
-        <button class="btn" onclick="showScreen('scrHome')">⬅ 返回任務</button>
+        <button class="btn btn-back" onclick="showScreen('scrHome')"><span class="back-icon">🏠</span> 返回主畫面</button>
       </section>
 
       <section class="screen" id="scrStrokeCard">
@@ -238,7 +242,7 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
             </div>
           </div>
         </div>
-        <button class="btn" onclick="showScreen('scrHome')">⬅ 返回任務</button>
+        <button class="btn btn-back" onclick="showScreen('scrHome')"><span class="back-icon">🏠</span> 返回主畫面</button>
       </section>
 
       <section class="screen" id="scrStrokeScale">
@@ -253,13 +257,10 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
           <div id="scaleListView" style="display:none; overflow-y:auto; flex:1;"><div id="trendListContainer"></div></div>
           <div id="scaleTrendView" style="display:none; overflow-y:auto; flex:1;"><div id="chartContainer"></div></div>
         </div>
-        <button class="btn" onclick="showScreen('scrHome')">⬅ 返回任務</button>
+        <button class="btn btn-back" onclick="showScreen('scrHome')"><span class="back-icon">🏠</span> 返回主畫面</button>
       </section>
 
       <nav class="bottom-nav" id="mainNav">
-        <div class="nav-item active" id="navHome" onclick="showScreen('scrHome')">
-          <div class="icon">🏠</div><span style="font-size:10px;">任務</span>
-        </div>
         <div class="nav-item" id="navPokedex" onclick="showScreen('scrPokedex'); renderDexCards(playerState.mode === 'beginner' ? 'beg' : 'adv', document.getElementById('pokedexTabs').children[playerState.mode === 'beginner' ? 0 : 1]);">
           <div class="icon">🗂️</div><span style="font-size:10px;">健康卡匣</span>
         </div>
@@ -269,7 +270,7 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
         </div>
         
         <div class="mode-toggle-sq" onclick="toggleMode()">
-          <div class="icon">🔄</div><span id="navModeText" style="font-size:10px;">初階版</span>
+          <div class="icon">💠</div><span id="navModeText">初階版</span>
         </div>
 
         <div class="nav-item" id="navLeaderboard" onclick="navBtn4Action()">
@@ -322,28 +323,90 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 // ==========================================
 // 💡 小遊戲檔案路徑對照表 
 // ==========================================
+// ==========================================
+// 💡 小遊戲檔案路徑對照表 (全部 50 關架構已建立)
+// ==========================================
 const GAME_URLS = {
-  // 🔰 初階版 - 共 25 關
-  'beg_id_0': 'game_name.html', 'beg_id_1': 'game_hospital.html', 'beg_id_2': '', 'beg_id_3': '', 'beg_id_4': '',
-  'beg_hosp_0': '', 'beg_hosp_1': '', 'beg_hosp_2': '', 'beg_hosp_3': '', 'beg_hosp_4': '',
-  'beg_care_0': '', 'beg_care_1': '', 'beg_care_2': '', 'beg_care_3': '', 'beg_care_4': '',
-  'beg_rehab_0': '', 'beg_rehab_1': '', 'beg_rehab_2': '', 'beg_rehab_3': '', 'beg_rehab_4': '',
-  'beg_home_0': '', 'beg_home_1': '', 'beg_home_2': '', 'beg_home_3': '', 'beg_home_4': '',
 
-  // ⚕️ 進階版 - 共 25 關
-  'role_emt_0': 'game_race_lev1.html', 
-  'role_emt_1': 'game_race_lev1.html', 
-  'role_emt_2': 'game_race_lev1.html', 
-  'role_emt_3': 'game_race_lev1.html', 
-  'role_emt_4': 'game_race_lev1.html', 
-  'role_dr_0': 'game_shoot_lev1.html', 
-  'role_dr_1': '',
-  'role_dr_2': '', 
-  'role_dr_3': '', 
-  'role_dr_4': '',
-  'role_nurse_0': 'game_match_lev1.html', 'role_nurse_1': 'game_match_lev2.html', 'role_nurse_2': '', 'role_nurse_3': '', 'role_nurse_4': '',
-  'role_pt_0': '', 'role_pt_1': '', 'role_pt_2': '', 'role_pt_3': '', 'role_pt_4': '',
-  'role_diet_0': '', 'role_diet_1': '', 'role_diet_2': '', 'role_diet_3': '', 'role_diet_4': '',
+  // ==========================================
+  // 🔰 初階版 (病患/家屬) - 共 25 關
+  // ==========================================
+  
+  // 1. 中風辨識 (beg_id)
+  'beg_id_0': 'game_name.html', // 第 1 關：辨識臉部不對稱(F)
+  'beg_id_1': 'game_beg_id_1.html', // 第 2 關：測試手臂無力(A)
+  'beg_id_2': 'game_beg_id_2.html', // 第 3 關：聆聽說話清晰度(S)
+  'beg_id_3': 'game_beg_id_3.html', // 第 4 關：記下發作時間(T)
+  'beg_id_4': 'game_beg_id_4.html', // 第 5 關：撥打119與就醫
+
+  // 2. 住院須知 (beg_hosp)
+  'beg_hosp_0': 'game_hospital.html', // 第 1 關：認識影像檢查
+  'beg_hosp_1': 'game_beg_hosp_1.html', // 第 2 關：抽血與點滴目的
+  'beg_hosp_2': 'game_beg_hosp_2.html', // 第 3 關：防跌倒與床欄
+  'beg_hosp_3': 'game_beg_hosp_3.html', // 第 4 關：吞嚥與安全飲食
+  'beg_hosp_4': 'game_beg_hosp_4.html', // 第 5 關：認識醫療團隊
+
+  // 3. 基礎照護 (beg_care)
+  'beg_care_0': 'game_beg_care_0.html', // 第 1 關：協助翻身拍背
+  'beg_care_1': 'game_beg_care_1.html', // 第 2 關：管路日常注意
+  'beg_care_2': 'game_beg_care_2.html', // 第 3 關：安全上下床技巧
+  'beg_care_3': 'game_beg_care_3.html', // 第 4 關：患側先穿健側脫
+  'beg_care_4': 'game_beg_care_4.html', // 第 5 關：輪椅助行器認識
+
+  // 4. 復健入門 (beg_rehab)
+  'beg_rehab_0': 'game_beg_rehab_0.html', // 第 1 關：被動關節活動
+  'beg_rehab_1': 'game_beg_rehab_1.html', // 第 2 關：良姿位擺位原則
+  'beg_rehab_2': 'game_beg_rehab_2.html', // 第 3 關：床邊坐站平衡
+  'beg_rehab_3': 'game_beg_rehab_3.html', // 第 4 關：預防關節攣縮
+  'beg_rehab_4': 'game_beg_rehab_4.html', // 第 5 關：鼓勵使用患側
+
+  // 5. 返家準備 (beg_home)
+  'beg_home_0': 'game_beg_home_0.html', // 第 1 關：認識危險因子
+  'beg_home_1': 'game_beg_home_1.html', // 第 2 關：規律服藥不擅停
+  'beg_home_2': 'game_beg_home_2.html', // 第 3 關：居家環境防跌
+  'beg_home_3': 'game_beg_home_3.html', // 第 4 關：血壓血糖量測
+  'beg_home_4': 'game_beg_home_4.html', // 第 5 關：申請長照資源
+
+
+  // ==========================================
+  // ⚕️ 進階版 (專業人員) - 共 25 關
+  // ==========================================
+
+  // 1. EMT (role_emt)
+  'role_emt_0': 'game_race_lev1.html', // 第 1 關：基礎駕駛與鳴笛
+  'role_emt_1': 'game_race_lev1.html', // 第 2 關：閃避車流考驗
+  'role_emt_2': 'game_race_lev1.html', // 第 3 關：惡劣天候救援
+  'role_emt_3': 'game_race_lev1.html', // 第 4 關：複雜路口判斷
+  'role_emt_4': 'game_race_lev1.html', // 第 5 關：極限護送抵達
+
+  // 2. 取栓專家 (role_dr)
+  'role_dr_0': 'game_shoot_lev1.html', // 第 1 關：導管基礎操作
+  'role_dr_1': 'game_role_dr_1.html', // 第 2 關：尋找阻塞點
+  'role_dr_2': 'game_role_dr_2.html', // 第 3 關：突破血栓阻礙
+  'role_dr_3': 'game_role_dr_3.html', // 第 4 關：支架釋放技巧
+  'role_dr_4': 'game_role_dr_4.html', // 第 5 關：完美血流再通
+
+  // 3. 護理師 (role_nurse)
+  'role_nurse_0': 'game_match_lev1.html', // 第 1 關：生命徵象監測
+  'role_nurse_1': 'game_match_lev2.html', // 第 2 關：FAST指標辨識
+  'role_nurse_2': 'game_role_nurse_2.html', // 第 3 關：抽血與給藥準備
+  'role_nurse_3': 'game_role_nurse_3.html', // 第 4 關：突發狀況排除
+  'role_nurse_4': 'game_role_nurse_4.html', // 第 5 關：高壓急診調度
+
+  // 4. 復健師 (role_pt)
+  'role_pt_0': 'game_role_pt_0.html', // 第 1 關：關節活動度評估
+  'role_pt_1': 'game_role_pt_1.html', // 第 2 關：翻身與坐起訓練
+  'role_pt_2': 'game_role_pt_2.html', // 第 3 關：站立平衡考驗
+  'role_pt_3': 'game_role_pt_3.html', // 第 4 關：步態矯正與行走
+  'role_pt_4': 'game_role_pt_4.html', // 第 5 關：日常生活功能重建
+
+  // 5. 營養師 (role_diet)
+  'role_diet_0': 'game_role_diet_0.html', // 第 1 關：認識地中海飲食
+  'role_diet_1': 'game_role_diet_1.html', // 第 2 關：挑選優質蛋白質
+  'role_diet_2': 'game_role_diet_2.html', // 第 3 關：避開高鈉陷阱
+  'role_diet_3': 'game_role_diet_3.html', // 第 4 關：吞嚥困難餐食
+  'role_diet_4': 'game_role_diet_4.html', // 第 5 關：個人化菜單設計
+
 };
 
 let currentGameInfo = null;
@@ -382,7 +445,7 @@ const scaleQuestions = [
     { val: 1, icon: '👕', text: '沒有困難' }, { val: 2, icon: '🙂', text: '有一點困難' }, { val: 3, icon: '😐', text: '中度困難' }, { val: 4, icon: '😟', text: '嚴重困難' }, { val: 5, icon: '🆘', text: '無法自理' }
   ]},
   { id: 'eq3', title: '4/7 日常活動', type: 'choice', options: [
-    { val: 1, icon: '💼', text: '沒有困難' }, { val: 2, icon: '🙂', text: '有一點困難' }, { val: 3, icon: '😐', text: '中度困難' }, { val: 4, icon: '😟', text: '嚴重困難' }, { val: 5, icon: '🚫', text: '無法進行' }
+    { val: 1, icon: '💼', text: '沒有困難' }, { val: 2, icon: '🙂', text: '有一點困難' }, { val: 3, icon: '😐', text: '中度困難' }, { val: 4, icon: '😟', text: '严重困難' }, { val: 5, icon: '🚫', text: '無法進行' }
   ]},
   { id: 'eq4', title: '5/7 疼痛/不舒服', type: 'choice', options: [
     { val: 1, icon: '🟢', text: '沒有疼痛' }, { val: 2, icon: '🟡', text: '有一點' }, { val: 3, icon: '🟠', text: '中度' }, { val: 4, icon: '🔴', text: '嚴重' }, { val: 5, icon: '🔥', text: '極度疼痛' }
@@ -472,12 +535,11 @@ function saveProfile(selectedMode) {
   } catch(e) { alert("登入失敗，請重試"); }
 }
 
-// 💡 模式切換按鈕，並自動跳轉回首頁(任務列表)
 function toggleMode() { 
   playerState.mode = playerState.mode === 'beginner' ? 'advanced' : 'beginner'; 
   saveGameData(); 
   updateModeUI(); 
-  showScreen('scrHome');
+  showScreen('scrHome'); // 💡 切換後自動跳轉回首頁(任務列表)
 }
 
 function updateModeUI() {
@@ -513,7 +575,6 @@ function showScreen(screenId) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.querySelector('.mode-toggle-sq').style.opacity = '1';
   
-  if (screenId === 'scrHome') document.querySelectorAll('.nav-item')[0].classList.add('active'); 
   if (screenId === 'scrPokedex') id('navPokedex').classList.add('active');
   if (screenId === 'scrCaseDex') id('navCaseDex').classList.add('active');
   if (screenId === 'scrLeaderboard' || screenId === 'scrStrokeCard') id('navLeaderboard').classList.add('active');
@@ -633,7 +694,7 @@ window.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'GAME_CLEAR') {
     closeGameIframe(); 
     if (!currentGameInfo && event.data.coins) {
-      // 💡 移除新接龍過關的獎勵
+      // 💡 修正：娛樂模式純恭喜，不給予獎勵
       alert(`🎉 恭喜破關腦脈新接龍！\n（娛樂模式無健康幣獎勵，請多挑戰衛教任務喔！）`); return;
     }
     handleGameClear(event.data.score || 1000); 
@@ -667,17 +728,17 @@ function renderDexCards(tab, btnEl) {
   Array.from(id('pokedexTabs').children).forEach(t => t.classList.remove('active')); btnEl.classList.add('active');
   const grid = id('cardGrid'); 
   
-  // 💡 挑戰按鈕常駐顯示
   const isBegMaster = playerState.taskScoresBeg.size >= 25;
   const isAdvMaster = playerState.taskScoresAdv.size >= 25;
   const btn = id('tabCardGameBtn');
   
   id('cardGameWrap').style.display = 'flex';
   
+  // 💡 修正 3：未解鎖時顯示單次扣除費用 500 幣
   if (isBegMaster && isAdvMaster) {
     btn.innerHTML = "🃏 挑戰腦脈新接龍 (免費)";
   } else {
-    btn.innerHTML = "🃏 挑戰腦脈新接龍 (需 100 幣)";
+    btn.innerHTML = "🃏 挑戰腦脈新接龍 (需 500 幣)";
   }
 
   grid.innerHTML = '';
@@ -703,21 +764,19 @@ function renderDexCards(tab, btnEl) {
   }
 }
 
-// 💡 挑戰付費機制
+// 💡 修正 3：卡牌遊戲付費機制 (每次 500 幣)
 function tryLaunchFreeCell() {
   const isBegMaster = playerState.taskScoresBeg.size >= 25;
   const isAdvMaster = playerState.taskScoresAdv.size >= 25;
   
   if (isBegMaster && isAdvMaster) {
-    // 滿圖鑑，免費暢玩
     if(id('gameTitle')) id('gameTitle').textContent = '🃏 腦脈新接龍'; 
     if(id('gameFrame')) id('gameFrame').src = 'game_freecell.html'; 
     if(id('gameOverlay')) id('gameOverlay').style.display = 'flex';
   } else {
-    // 💡 修正 3：未滿圖鑑每次扣 100 幣
-    if (confirm("🔒 尚未集滿所有圖鑑！\n\n健康卡全解鎖前，每次遊玩需花費 100 健康幣，確定要挑戰嗎？")) {
-      if (playerState.coins >= 100) {
-        playerState.coins -= 100;
+    if (confirm("🔒 尚未集滿所有圖鑑！\n\n健康卡全解鎖前，每次遊玩需花費 500 健康幣，確定要挑戰嗎？")) {
+      if (playerState.coins >= 500) {
+        playerState.coins -= 500;
         saveGameData();
         updateHUD();
         if(id('gameTitle')) id('gameTitle').textContent = '🃏 腦脈新接龍'; 
