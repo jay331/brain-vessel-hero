@@ -163,19 +163,22 @@
   .sparkle:after{ right:28px; top:46px; }
 
   /* ===== 新增：圖片左上角的職稱標籤 ===== */
+/* ===== 修改：圖片正下方的職稱標籤 ===== */
   .role-img-title {
     position: absolute;
-    top: 16px;
-    left: 16px;
+    bottom: 16px;            /* 固定在底部 16px 處 */
+    left: 50%;               /* 移到中間 */
+    transform: translateX(-50%); /* 完美水平置中 */
     background: rgba(255, 255, 255, 0.85);
-    padding: 6px 14px;
-    border-radius: 12px;
+    padding: 6px 16px;       /* 左右稍微加寬一點點 */
+    border-radius: 999px;    /* 變成全圓角藥丸形狀，放下面比較好看 */
     font-size: 16px;
     font-weight: 900;
     color: #163152;
     box-shadow: 0 6px 16px rgba(39,90,150,0.12);
     z-index: 10;
     backdrop-filter: blur(4px);
+    white-space: nowrap;     /* 避免字太長斷行 */
   }
 
   svg.character{
