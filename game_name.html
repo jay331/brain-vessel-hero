@@ -162,26 +162,26 @@
   .sparkle:before{ top:24px; left:28px; }
   .sparkle:after{ right:28px; top:46px; }
 
-  /* ===== 新增：圖片左上角的職稱標籤 ===== */
-/* ===== 修改：圖片正下方的職稱標籤 ===== */
-/* ===== 修改：將職稱標籤移到最邊邊底部 ===== */
+
+/* ===== 修改：將職稱標籤移到「正下方」的最底邊 ===== */
   .role-img-title {
     position: absolute;
-    bottom: 0px;            /* 緊貼相框最底部邊緣 */
-    right: 0px;             /* 移到最右下角角落 */
-    background: rgba(255, 255, 255, 0.92); /* 提高不透明度，讓文字更清晰 */
-    padding: 6px 16px;       /* 增加一點寬度，看起來更大方 */
-    border-radius: 20px 0 0px 0; /* 只留左上圓角，貼齊右下邊緣 */
+    bottom: 0px;                 /* 緊貼相框最底部邊緣 */
+    left: 50%;                   /* 移到正中間 */
+    transform: translateX(-50%); /* 確保完美水平置中 */
+    background: rgba(255, 255, 255, 0.92);
+    padding: 6px 24px;           /* 左右稍微加寬，看起來更大氣 */
+    border-radius: 16px 16px 0 0; /* 造型改成：上方圓角、下方直角平貼邊緣 */
     font-size: 16px;
     font-weight: 900;
     color: #163152;
-    box-shadow: -4px -4px 12px rgba(39,90,150,0.1); /* 將陰影移到左上方 */
+    box-shadow: 0 -4px 12px rgba(39,90,150,0.08); /* 陰影稍微往上方打 */
     z-index: 10;
     backdrop-filter: blur(4px);
-    white-space: nowrap;     /* 避免字太長斷行 */
+    white-space: nowrap;
   }
 
-  /* 人物圖像維持大尺寸 (96%) */
+  /* 人物圖像維持原本的大尺寸，完全不縮小 */
   svg.character {
     width: 96%;
     height: 96%;
