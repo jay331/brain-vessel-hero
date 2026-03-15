@@ -166,7 +166,7 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
 <div class="resources">
       <div class="res-item" id="hudCasesWrap" style="display:none;">
         <span class="icon">👤</span> 
-        <span style="color:#aaa; font-weight:normal;">救人數</span>
+        <span style="color:#aaa; font-weight:normal;">救治數</span>
         <span id="uiCases" style="color:#fff;">0</span>
       </div>
       <div class="res-item">
@@ -549,7 +549,7 @@ function updateModeUI() {
   if(id('navCaseText')) id('navCaseText').textContent = isBeg ? '演練圖鑑' : '個案圖鑑';
   if(id('navLbText')) id('navLbText').textContent = isBeg ? '中風名片' : '排行榜';
   if(id('navLbIcon')) id('navLbIcon').textContent = isBeg ? '📇' : '🏆';
-  if(id('bossTitleText')) id('bossTitleText').textContent = isBeg ? '🛡️ 演練驗收' : '🚨 綜合驗收';
+  if(id('bossTitleText')) id('bossTitleText').textContent = isBeg ? '🛡️ 綜合演練' : '🚨 個案救治';
   
   if(id('hudAvatar')) id('hudAvatar').src = playerState.avatar;
   if(id('uiPlayerName')) id('uiPlayerName').textContent = playerState.name;
@@ -595,7 +595,7 @@ function updateHUD() {
   const isUnlocked = getActiveRoles().every(r => r.currentTask > 1);
   const banner = id('bossBanner');
   if(banner) {
-    if (isUnlocked) { banner.classList.remove('locked'); if(id('bossStatusText')) id('bossStatusText').textContent = '🟢 已解鎖 (點擊進入驗收)'; } 
+    if (isUnlocked) { banner.classList.remove('locked'); if(id('bossStatusText')) id('bossStatusText').textContent = '🟢 已解鎖 (點擊進入演練)'; } 
     else { banner.classList.add('locked'); if(id('bossStatusText')) id('bossStatusText').textContent = '需五位角色皆通關一項任務以解鎖'; }
   }
   renderHomeRoles();
@@ -850,7 +850,7 @@ function renderCaseDex() {
   if(!container) return;
   container.innerHTML = '';
   
-  if(cases.length === 0) { container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:30px;">尚無紀錄。請先挑戰「綜合驗收」！</p>'; return; }
+  if(cases.length === 0) { container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:30px;">尚無紀錄。請先挑戰「個案救治」！</p>'; return; }
   cases.forEach(([caseStr, score]) => {
     let iconsHTML = ''; const roles = getActiveRoles();
     for(let i=0; i<5; i++) { if(roles[i] && caseStr[i]) iconsHTML += roles[i].icon; }
