@@ -67,8 +67,9 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .btn-back:active { transform: scale(0.97); background: rgba(0,0,0,0.8); }
 .btn-back .back-icon { font-size: 20px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.8)); }
 
-.btn-rescue { background: linear-gradient(180deg, #0eb855, #097536); border: 1px solid #3dff8e; color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); padding: 10px; font-size: 13px; }
-.btn-rescue:active { background: #097536; }
+/* 💡 修正 1：高質感的綠色救援按鈕 (微寶石漸層+立體陰影) */
+.btn-rescue { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border: none; color: #004d26; font-weight: 900; text-shadow: 0 1px 1px rgba(255,255,255,0.4); padding: 12px; font-size: 13px; border-radius: 8px; box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4), inset 0 -3px 0 rgba(0,0,0,0.15); transition: all 0.2s; margin-bottom: 4px;}
+.btn-rescue:active { transform: scale(0.96) translateY(2px); box-shadow: 0 2px 5px rgba(56, 239, 125, 0.4), inset 0 2px 0 rgba(0,0,0,0.1); background: linear-gradient(135deg, #0f8a80 0%, #2bd56c 100%);}
 
 /* ===== 主畫面 ===== */
 #scrHome { padding: 6px 8px 75px 8px; justify-content: center; overflow: hidden; display: flex; flex-direction: column; gap: 6px; } 
@@ -308,10 +309,10 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
 </div>
 
 <div class="modal-overlay" id="customMsgModal" style="z-index:99999;">
-  <div class="modal-content" style="border-color: var(--theme-primary); padding:20px;">
+  <div class="modal-content" style="border-color: var(--theme-primary); padding:20px; max-width: 300px;">
     <h3 id="customMsgTitle" style="color:var(--theme-primary); margin: 0 0 12px 0; font-size: 18px;">系統提示</h3>
     <p id="customMsgText" style="color:#fff; font-size:14px; line-height:1.5; text-align:left; margin:0 0 20px 0; white-space:pre-wrap;"></p>
-    <div style="display:flex; gap:10px; justify-content:center;" id="customMsgBtnWrap"></div>
+    <div style="display:flex; gap:10px; justify-content:center; width: 100%;" id="customMsgBtnWrap"></div>
   </div>
 </div>
 
@@ -348,7 +349,8 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
 function customAlert(msg, callback, title="系統提示") {
   id('customMsgTitle').textContent = title;
   id('customMsgText').textContent = msg;
-  id('customMsgBtnWrap').innerHTML = `<button class="btn" style="background:var(--theme-primary); color:var(--btn-text);" onclick="closeCustomMsg(); ${callback ? 'customMsgCallback();' : ''}">確定</button>`;
+  // 💡 修正 2：確保按鈕寬度分配正確，不溢出卡片
+  id('customMsgBtnWrap').innerHTML = `<button class="btn" style="flex:1; width:auto; background:var(--theme-primary); color:var(--btn-text);" onclick="closeCustomMsg(); ${callback ? 'customMsgCallback();' : ''}">確定</button>`;
   if(callback) window.customMsgCallback = callback;
   id('customMsgModal').style.display = 'flex';
 }
@@ -356,9 +358,10 @@ function customAlert(msg, callback, title="系統提示") {
 function customConfirm(msg, onConfirm, onCancel, title="請確認") {
   id('customMsgTitle').textContent = title;
   id('customMsgText').textContent = msg;
+  // 💡 修正 2：使用 flex:1 和 width:auto，確保雙按鈕等距縮放不溢出
   id('customMsgBtnWrap').innerHTML = `
-    <button class="btn" style="background:#555; color:#fff;" onclick="closeCustomMsg(); ${onCancel ? 'customMsgCancel();' : ''}">取消</button>
-    <button class="btn" style="background:var(--theme-primary); color:var(--btn-text);" onclick="closeCustomMsg(); customMsgConfirm();">確定</button>
+    <button class="btn" style="flex:1; width:auto; background:#555; color:#fff;" onclick="closeCustomMsg(); ${onCancel ? 'customMsgCancel();' : ''}">取消</button>
+    <button class="btn" style="flex:1; width:auto; background:var(--theme-primary); color:var(--btn-text);" onclick="closeCustomMsg(); customMsgConfirm();">確定</button>
   `;
   window.customMsgConfirm = onConfirm;
   if(onCancel) window.customMsgCancel = onCancel;
@@ -402,7 +405,7 @@ let playerState = {
 };
 
 const ROLES_DATA_BEG = [
-  { id: 'beg_id', name: '中風辨識', subtitle: '及早發現', icon: '🧠', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 辨識臉部不對稱(F)', '2. 測試手臂無力(A)', '3. 聆聽說話清晰度(S)', '4. 記下發作時間(T)', '5. 撥打119與就醫'] },
+  { id: 'beg_id', name: '中風辨識', subtitle: '及早發現', icon: '🧠', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 辨識臉部不對চ্ছু(F)', '2. 測試手臂無力(A)', '3. 聆聽說話清晰度(S)', '4. 記下發作時間(T)', '5. 撥打119與就醫'] },
   { id: 'beg_hosp', name: '住院須知', subtitle: '急性期', icon: '🏥', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 認識影像檢查', '2. 抽血與點滴目的', '3. 防跌倒與床欄', '4. 吞嚥與安全飲食', '5. 認識醫療團隊'] },
   { id: 'beg_care', name: '基礎照護', subtitle: '病房起居', icon: '🤲', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 協助翻身拍背', '2. 管路日常注意', '3. 安全上下床技巧', '4. 患側先穿健側脫', '5. 輪椅助行器認識'] },
   { id: 'beg_rehab', name: '復健入門', subtitle: '早期活動', icon: '💪', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 被動關節活動', '2. 良姿位擺位原則', '3. 床邊坐站平衡', '4. 預防關節攣縮', '5. 鼓勵使用患側'] },
@@ -446,7 +449,7 @@ function getActiveCompletedCases() { return playerState.mode === 'beginner' ? pl
 function getActiveTaskScores() { return playerState.mode === 'beginner' ? playerState.taskScoresBeg : playerState.taskScoresAdv; }
 function id(elId) { return document.getElementById(elId); }
 
-const SAVE_KEY = 'BrainPioneer_SaveData_v44';
+const SAVE_KEY = 'BrainPioneer_SaveData_v45';
 
 function saveGameData() {
   const dataToSave = {
@@ -759,9 +762,9 @@ function renderDexCards(tab, btnEl) {
   id('cardGameWrap').style.display = 'flex';
   
   if (isBegMaster && isAdvMaster) {
-    btn.innerHTML = "🃏 挑戰健康卡新接龍";
+    btn.innerHTML = "🃏 挑戰健康卡新接龍 (免費)";
   } else {
-    btn.innerHTML = "🃏 挑戰健康卡新接龍";
+    btn.innerHTML = "🃏 挑戰健康卡新接龍 (需 300 幣)";
   }
 
   grid.innerHTML = '';
