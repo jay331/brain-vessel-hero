@@ -541,7 +541,93 @@ function playTask(taskIndex) {
   if (role.dailyAttempts <= 0) { alert("今日機會已用盡！"); return; }
   
   const gameId = `${role.id}_${taskIndex}`;
-  const gameUrl = GAME_URLS[gameId];
+// ==========================================
+// 💡 小遊戲檔案路徑對照表 (全部 50 關架構已建立)
+// ==========================================
+const GAME_URLS = {
+
+  // ==========================================
+  // 🔰 初階版 (病患/家屬) - 共 25 關
+  // ==========================================
+  
+  // 1. 中風辨識 (beg_id)
+  'beg_id_0': 'game_beg_id_0.html', // 第 1 關：辨識臉部不對稱(F)
+  'beg_id_1': 'game_beg_id_1.html', // 第 2 關：測試手臂無力(A)
+  'beg_id_2': 'game_beg_id_2.html', // 第 3 關：聆聽說話清晰度(S)
+  'beg_id_3': 'game_beg_id_3.html', // 第 4 關：記下發作時間(T)
+  'beg_id_4': 'game_beg_id_4.html', // 第 5 關：撥打119與就醫
+
+  // 2. 住院須知 (beg_hosp)
+  'beg_hosp_0': 'game_beg_hosp_0.html', // 第 1 關：認識影像檢查
+  'beg_hosp_1': 'game_beg_hosp_1.html', // 第 2 關：抽血與點滴目的
+  'beg_hosp_2': 'game_beg_hosp_2.html', // 第 3 關：防跌倒與床欄
+  'beg_hosp_3': 'game_beg_hosp_3.html', // 第 4 關：吞嚥與安全飲食
+  'beg_hosp_4': 'game_beg_hosp_4.html', // 第 5 關：認識醫療團隊
+
+  // 3. 基礎照護 (beg_care)
+  'beg_care_0': 'game_beg_care_0.html', // 第 1 關：協助翻身拍背
+  'beg_care_1': 'game_beg_care_1.html', // 第 2 關：管路日常注意
+  'beg_care_2': 'game_beg_care_2.html', // 第 3 關：安全上下床技巧
+  'beg_care_3': 'game_beg_care_3.html', // 第 4 關：患側先穿健側脫
+  'beg_care_4': 'game_beg_care_4.html', // 第 5 關：輪椅助行器認識
+
+  // 4. 復健入門 (beg_rehab)
+  'beg_rehab_0': 'game_beg_rehab_0.html', // 第 1 關：被動關節活動
+  'beg_rehab_1': 'game_beg_rehab_1.html', // 第 2 關：良姿位擺位原則
+  'beg_rehab_2': 'game_beg_rehab_2.html', // 第 3 關：床邊坐站平衡
+  'beg_rehab_3': 'game_beg_rehab_3.html', // 第 4 關：預防關節攣縮
+  'beg_rehab_4': 'game_beg_rehab_4.html', // 第 5 關：鼓勵使用患側
+
+  // 5. 返家準備 (beg_home)
+  'beg_home_0': 'game_beg_home_0.html', // 第 1 關：認識危險因子
+  'beg_home_1': 'game_beg_home_1.html', // 第 2 關：規律服藥不擅停
+  'beg_home_2': 'game_beg_home_2.html', // 第 3 關：居家環境防跌
+  'beg_home_3': 'game_beg_home_3.html', // 第 4 關：血壓血糖量測
+  'beg_home_4': 'game_beg_home_4.html', // 第 5 關：申請長照資源
+
+
+  // ==========================================
+  // ⚕️ 進階版 (專業人員) - 共 25 關
+  // ==========================================
+
+  // 1. EMT (role_emt)
+  'role_emt_0': 'game_role_emt_0.html', // 第 1 關：基礎駕駛與鳴笛
+  'role_emt_1': 'game_role_emt_1.html', // 第 2 關：閃避車流考驗
+  'role_emt_2': 'game_role_emt_2.html', // 第 3 關：惡劣天候救援
+  'role_emt_3': 'game_role_emt_3.html', // 第 4 關：複雜路口判斷
+  'role_emt_4': 'game_', // 第 5 關：極限護送抵達
+
+  // 2. 取栓專家 (role_dr)
+  'role_dr_0': 'game_role_dr_0.html', // 第 1 關：導管基礎操作
+  'role_dr_1': 'game_role_dr_1.html', // 第 2 關：尋找阻塞點
+  'role_dr_2': 'game_role_dr_2.html', // 第 3 關：突破血栓阻礙
+  'role_dr_3': 'game_role_dr_3.html', // 第 4 關：支架釋放技巧
+  'role_dr_4': 'game_role_dr_4.html', // 第 5 關：完美血流再通
+
+  // 3. 護理師 (role_nurse)
+  'role_nurse_0': 'game_role_nurse_0.html', // 第 1 關：生命徵象監測
+  'role_nurse_1': 'game_role_nurse_1.html', // 第 2 關：FAST指標辨識
+  'role_nurse_2': 'game_role_nurse_2.html', // 第 3 關：抽血與給藥準備
+  'role_nurse_3': 'game_role_nurse_3.html', // 第 4 關：突發狀況排除
+  'role_nurse_4': 'game_role_nurse_4.html', // 第 5 關：高壓急診調度
+
+  // 4. 復健師 (role_pt)
+  'role_pt_0': 'game_role_pt_0.html', // 第 1 關：關節活動度評估
+  'role_pt_1': 'game_role_pt_1.html', // 第 2 關：翻身與坐起訓練
+  'role_pt_2': 'game_role_pt_2.html', // 第 3 關：站立平衡考驗
+  'role_pt_3': 'game_role_pt_3.html', // 第 4 關：步態矯正與行走
+  'role_pt_4': 'game_role_pt_4.html', // 第 5 關：日常生活功能重建
+
+  // 5. 營養師 (role_diet)
+  'role_diet_0': 'game_role_diet_0.html', // 第 1 關：認識地中海飲食
+  'role_diet_1': 'game_role_diet_1.html', // 第 2 關：挑選優質蛋白質
+  'role_diet_2': 'game_role_diet_2.html', // 第 3 關：避開高鈉陷阱
+  'role_diet_3': 'game_role_diet_3.html', // 第 4 關：吞嚥困難餐食
+  'role_diet_4': 'game_role_diet_4.html', // 第 5 關：個人化菜單設計
+
+};
+
+  
 
   if (gameUrl) {
     role.dailyAttempts--; saveGameData(); updateHUD(); openRoleDetail(activeRoleId);
