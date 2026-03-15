@@ -42,7 +42,7 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
 .player-text-wrap { display: flex; flex-direction: column; justify-content: center; gap: 2px; }
 .player-name { font-size: 11px; font-weight: bold; color: #fff; }
-.level-badge { display:none;}
+.level-badge { display:none; }
 .resources { display: flex; flex-direction: row; align-items: center; gap: 4px; flex-shrink: 0; }
 .res-item { display: flex; align-items: center; gap: 4px; font-weight: 900; font-size: 11px; background: rgba(0,0,0,0.6); padding: 4px 6px; border-radius: 99px; border: 1px solid var(--theme-dim); box-shadow: 0 2px 5px rgba(0,0,0,0.5); white-space: nowrap; }
 .green-coin { display: inline-flex; align-items: center; justify-content: center; width: 12px; height: 12px; background: linear-gradient(180deg, #3dff8e, #0eb855); border-radius: 50%; color: #000; font-size: 9px; }
@@ -67,7 +67,11 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .btn-back:active { transform: scale(0.97); background: rgba(0,0,0,0.8); }
 .btn-back .back-icon { font-size: 20px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.8)); }
 
-/* ===== 主畫面 (動態高度等比例均分，絕對不捲動) ===== */
+/* 💡 修正 1：專屬綠色救援按鈕 */
+.btn-rescue { background: linear-gradient(180deg, #0eb855, #097536); border: 1px solid #3dff8e; color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); padding: 10px; font-size: 13px; }
+.btn-rescue:active { background: #097536; }
+
+/* ===== 主畫面 ===== */
 #scrHome { padding: 6px 8px 75px 8px; justify-content: center; overflow: hidden; display: flex; flex-direction: column; gap: 6px; } 
 
 .role-list { display: flex; flex-direction: column; gap: 6px; margin: 0; flex: 5;}
@@ -77,8 +81,6 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .role-info { flex: 1; display: flex; flex-direction: column; justify-content: center;}
 .role-name { font-size: 15px; font-weight: 900; color: var(--theme-primary); margin: 0 0 2px 0; text-shadow: 1px 1px 2px #000; line-height: 1.2;}
 .role-task { font-size: 11px; color: #fff; font-weight: bold; margin: 0; opacity: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); line-height: 1.2;}
-
-/* 💡 修正 5：五大主題進入按鈕圖示升級 */
 .role-status { flex-shrink: 0; }
 .role-go-btn { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); color: var(--btn-text); display: flex; align-items: center; justify-content: center; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.8); transition: transform 0.2s;}
 .role-go-btn.done { background: rgba(255,255,255,0.05); border: 1px solid var(--theme-dim); color: var(--theme-primary); box-shadow: none; font-size: 14px;}
@@ -92,7 +94,6 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 /* 任務詳情內頁 */
 .subtask-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; overflow-y:auto; flex:1;}
 .subtask-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-radius: 8px; border: 1px solid var(--theme-dim); font-weight: bold; font-size: 14px; transition: all 0.2s; flex-shrink: 0;}
-/* 💡 修正 4：已完成的任務改用低調灰色與專屬色勾勾，不刺眼 */
 .subtask-item.completed { background: rgba(255, 255, 255, 0.05); border-color: #444; color: #aaa; }
 .subtask-item.completed .status-text { color: var(--theme-primary); filter: drop-shadow(0 0 2px rgba(0,0,0,0.8)); font-size: 15px;}
 .subtask-item.active { background: linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); border: 2px solid #fff; color: var(--btn-text); text-shadow: var(--btn-shadow); cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5), 0 0 15px var(--theme-primary); transform: scale(1.02); z-index:2; }
@@ -133,7 +134,6 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .wizard-option .icon { font-size: 18px; width: 22px; text-align: center; }
 .wizard-option .text { font-size: 13px; color: #fff; }
 .trend-card { background: rgba(0,0,0,0.5); border: 1px solid var(--theme-dim); border-radius: 8px; padding: 10px; margin-bottom: 8px; flex-shrink: 0;}
-/* 💡 修正 1：量表文字防止換行 */
 .health-dist-title { display: flex; justify-content: space-between; font-size: 10px; color: #ccc; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 
 /* 底部導覽列 */
@@ -143,12 +143,10 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .nav-item.active { color: var(--theme-primary); }
 .nav-item.active .icon { transform: translateY(-2px); }
 
-/* 💡 修正 2：模式切換方形按鈕，依據模式改變底色 */
-.mode-toggle-sq { width: 58px; height: 50px; border: 1px solid var(--theme-dim); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--theme-primary); font-size: 10px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.05); }
-body.mode-advanced .mode-toggle-sq { background: linear-gradient(145deg, #332b10, #0a0a0a); }
-body.mode-beginner .mode-toggle-sq { background: linear-gradient(145deg, #101c2a, #0a0a0a); }
+/* 💡 修正 2：深色底方形按鈕與 Boss 綜合演練底色同步，且圖示會跟著主題發光 */
+.mode-toggle-sq { width: 58px; height: 50px; background: linear-gradient(135deg, var(--theme-dim), #0a0a0a); border: 1px solid var(--theme-primary); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--theme-primary); font-size: 10px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.05); }
 .mode-toggle-sq:active { background: #000; transform: scale(0.95); }
-.mode-toggle-sq .icon { font-size: 18px; margin-bottom: 2px; text-shadow: 0 0 10px var(--theme-primary);}
+.mode-toggle-sq .icon { font-size: 20px; margin-bottom: 2px; text-shadow: 0 0 10px var(--theme-primary);}
 
 /* 彈出視窗 */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 5000; padding: 15px;}
@@ -194,8 +192,8 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(145deg, #101c2a
           
           <div id="rescuePanel" style="display:none; flex-direction:column; gap:8px; margin-top:4px; flex-shrink:0;">
             <div style="font-size:12px; color:#ff5252; text-align:center; font-weight:bold;">⚠️ 挑戰次數已用盡</div>
-            <button class="btn" style="background:linear-gradient(180deg, #1e88e5, #1565c0); border-color:#64b5f6; padding:10px; font-size:13px;" onclick="readEduCard()">📖 觀看衛教單張 (獲得 3 次)</button>
-            <button class="btn" style="background:linear-gradient(180deg, #d4af37, #8b7322); border-color:#f9d976; color:#000; padding:10px; font-size:13px; text-shadow:none;" onclick="buyAttempt()">💰 500 健康幣購買 (獲得 3 次)</button>
+            <button class="btn btn-rescue" onclick="readEduCard()">📖 觀看衛教單張 (獲得 3 次)</button>
+            <button class="btn btn-rescue" onclick="buyAttempt()">💰 500 健康幣購買 (獲得 3 次)</button>
           </div>
 
         </div>
@@ -286,7 +284,7 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(145deg, #101c2a
         </div>
         
         <div class="mode-toggle-sq" onclick="toggleMode()">
-          <div class="icon">💠</div><span id="navModeText" style="font-size:10px;">初階版</span>
+          <div class="icon">❖</div><span id="navModeText" style="font-size:10px;">初階版</span>
         </div>
 
         <div class="nav-item" id="navLeaderboard" onclick="navBtn4Action()">
@@ -341,8 +339,8 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(145deg, #101c2a
 // ==========================================
 const GAME_URLS = {
   // 🔰 初階版 - 共 25 關
-  'beg_id_0': '', 'beg_id_1': '', 'beg_id_2': '', 'beg_id_3': '', 'beg_id_4': '',
-  'beg_hosp_0': '', 'beg_hosp_1': '', 'beg_hosp_2': '', 'beg_hosp_3': '', 'beg_hosp_4': '',
+  'beg_id_0': 'game_name.html', 'beg_id_1': '', 'beg_id_2': '', 'beg_id_3': '', 'beg_id_4': '',
+  'beg_hosp_0': 'game_hospital.html', 'beg_hosp_1': '', 'beg_hosp_2': '', 'beg_hosp_3': '', 'beg_hosp_4': '',
   'beg_care_0': '', 'beg_care_1': '', 'beg_care_2': '', 'beg_care_3': '', 'beg_care_4': '',
   'beg_rehab_0': '', 'beg_rehab_1': '', 'beg_rehab_2': '', 'beg_rehab_3': '', 'beg_rehab_4': '',
   'beg_home_0': '', 'beg_home_1': '', 'beg_home_2': '', 'beg_home_3': '', 'beg_home_4': '',
@@ -353,8 +351,8 @@ const GAME_URLS = {
   'role_emt_2': 'game_race_lev1.html', 
   'role_emt_3': 'game_race_lev1.html', 
   'role_emt_4': 'game_race_lev1.html', 
-  'role_dr_0': '', 'role_dr_1': '', 'role_dr_2': '', 'role_dr_3': '', 'role_dr_4': '',
-  'role_nurse_0': '', 'role_nurse_1': '', 'role_nurse_2': '', 'role_nurse_3': '', 'role_nurse_4': '',
+  'role_dr_0': 'game_shoot_lev1.html', 'role_dr_1': '', 'role_dr_2': '', 'role_dr_3': '', 'role_dr_4': '',
+  'role_nurse_0': 'game_match_lev1.html', 'role_nurse_1': 'game_match_lev2.html', 'role_nurse_2': '', 'role_nurse_3': '', 'role_nurse_4': '',
   'role_pt_0': '', 'role_pt_1': '', 'role_pt_2': '', 'role_pt_3': '', 'role_pt_4': '',
   'role_diet_0': '', 'role_diet_1': '', 'role_diet_2': '', 'role_diet_3': '', 'role_diet_4': '',
 };
@@ -413,7 +411,7 @@ function getActiveCompletedCases() { return playerState.mode === 'beginner' ? pl
 function getActiveTaskScores() { return playerState.mode === 'beginner' ? playerState.taskScoresBeg : playerState.taskScoresAdv; }
 function id(elId) { return document.getElementById(elId); }
 
-const SAVE_KEY = 'BrainPioneer_SaveData_v40';
+const SAVE_KEY = 'BrainPioneer_SaveData_v38';
 
 function saveGameData() {
   const dataToSave = {
@@ -489,7 +487,7 @@ function toggleMode() {
   playerState.mode = playerState.mode === 'beginner' ? 'advanced' : 'beginner'; 
   saveGameData(); 
   updateModeUI(); 
-  showScreen('scrHome'); 
+  showScreen('scrHome');
 }
 
 function updateModeUI() {
@@ -864,7 +862,6 @@ function finishScaleWizard() {
   saveGameData(); switchScaleTab('list');
 }
 
-/* 💡 修正 1：量表文字防止換行 */
 function renderScaleList() {
   const container = id('trendListContainer'); container.innerHTML = '';
   if (playerState.scaleRecords.length === 0) { container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:30px;">尚無紀錄，請點擊「開始評估」。</p>'; return; }
