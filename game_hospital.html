@@ -65,6 +65,20 @@ button,input{font:inherit}
   background:radial-gradient(circle at 50% 8%, rgba(255,255,255,.35), transparent 28%),linear-gradient(180deg,rgba(255,255,255,.07),transparent 32%);
   pointer-events:none;z-index:1
 }
+
+/* ===== 新增：動態縮放容器 ===== */
+.game-world {
+  position: absolute;
+  left: 50%;
+  top: 45%; /* 稍微往上偏，預留下方搖桿的空間 */
+  width: 860px;
+  height: 500px;
+  transform: translate(-50%, -50%);
+  transform-origin: center center;
+  z-index: 2;
+  transition: transform 0.2s ease-out; /* 縮放時更滑順 */
+}
+
 .floorPlane{
   position:absolute;left:50%;top:50%;width:760px;height:580px;transform:translate(-50%,-50%) rotateX(62deg) rotateZ(-45deg);
   border-radius:34px;
@@ -79,7 +93,7 @@ button,input{font:inherit}
   background:radial-gradient(circle at 50% 0%, rgba(0,0,0,.14), transparent 70%);
 }
 
-.stage{position:absolute;inset:0;z-index:2;transform:scale(1.12);transform-origin:center center}
+.stage{position:absolute;inset:0;z-index:3;transform:scale(1.12);transform-origin:center center}
 .room{position:absolute;border-radius:22px;overflow:hidden;box-shadow:0 10px 16px rgba(0,0,0,.14)}
 .room .floor{
   position:absolute;inset:0;
@@ -128,7 +142,6 @@ button,input{font:inherit}
 .bed{width:112px;height:54px;background:linear-gradient(180deg,#d4e4ef,#adc5d9);border:3px solid rgba(255,255,255,.75)}
 .bed::before{content:"";position:absolute;right:8px;top:6px;width:26px;height:42px;border-radius:10px;background:linear-gradient(180deg,#7ca2c0,#587f9f)}
 
-/* ===== 優化：加入 cursor:pointer 解決 iOS Safari 點擊失效問題 ===== */
 .character{
   position:absolute;width:58px;height:82px;transform:translate(-50%,-50%);z-index:8;
   filter:drop-shadow(0 8px 8px rgba(0,0,0,.24));
@@ -218,7 +231,7 @@ button,input{font:inherit}
 .cardLabel{position:absolute;left:50%;top:10px;transform:translateX(-50%);font-size:20px;font-weight:900;color:#16334d;white-space:nowrap}
 .card .miniCT{position:absolute;left:50%;top:54px;transform:translateX(-50%);width:92px;height:78px;border-radius:20px;background:linear-gradient(180deg,#dbe8f2,#bccfe1);border:3px solid rgba(255,255,255,.8)}
 .card .miniCT::before{content:"";position:absolute;left:50%;top:10px;transform:translateX(-50%);width:50px;height:50px;border-radius:50%;background:radial-gradient(circle at 50% 48%, #2b3e50 0 24%, #f7fbfe 25% 46%, #6f99bc 47% 61%, #edf5fa 62% 100%)}
-.card .miniCT::after{content:"";position:absolute;left:50px;top:34px;width:44px;height:13px;border-radius:7px;background:linear-gradient(180deg,#b0d0e8,#8ab7d6)}
+.card .miniCT::after{content:"absolute;left:50px;top:34px;width:44px;height:13px;border-radius:7px;background:linear-gradient(180deg,#b0d0e8,#8ab7d6)}
 .rewardDesc{font-size:13px;line-height:1.65;color:#eaf2fa}
 .rewardBtn{background:linear-gradient(180deg,#8ae462,#54b73e);color:#12260c;margin-top:12px;width:100%}
 .rewardSecondary{background:linear-gradient(180deg,#f8d98d,#efb748);color:#3a2b0d;margin-top:8px;width:100%}
@@ -250,10 +263,6 @@ button,input{font:inherit}
   .topbar{height:52px;padding:0 12px;padding-top:var(--safe-top);height:calc(52px + var(--safe-top));}
   .brandText .sub{display:block;font-size:10px;color:#d4dfeb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .scene{top:calc(52px + var(--safe-top))}
-  .floorPlane{width:900px;height:680px}
-  .stage{transform:scale(1)}
-  .missionBtn{top:12px}
-  .missionPanel{top:58px;width:228px}
   .miniHint{top:14px;max-width:min(70vw,420px)}
   .desktopHint{display:block;position:absolute;left:50%;bottom:8px;transform:translateX(-50%);z-index:18;font-size:11px;color:rgba(255,255,255,.82);padding:4px 10px;border-radius:999px;background:rgba(15,24,35,.28)}
 }
@@ -288,70 +297,72 @@ button,input{font:inherit}
       <span id="hintText">先找頭上有「!」的護理師。</span>
     </div>
 
-    <div class="floorPlane"></div>
-    <div class="floorDeco"></div>
+    <div class="game-world" id="gameWorld">
+      <div class="floorPlane"></div>
+      <div class="floorDeco"></div>
 
-    <div class="stage">
-      <div class="room" style="left:170px;top:128px;width:330px;height:232px">
-        <div class="floor"></div>
-        <div class="topWall"></div>
-        <div class="leftWall"></div>
-        <div class="label">CT 室</div>
-      </div>
-      <div class="door" style="left:484px;top:212px"></div>
-      <div class="object ctMachine interactable" id="ctObject" style="left:204px;top:156px">
-        <div class="ctLabel">CT</div>
-      </div>
-      <div class="object desk" style="left:365px;top:168px"></div>
-      <div class="object monitor" style="left:397px;top:222px"></div>
-      <div class="object cart" style="left:196px;top:276px"></div>
-      <div class="object poster" style="left:418px;top:280px"></div>
+      <div class="stage">
+        <div class="room" style="left:170px;top:128px;width:330px;height:232px">
+          <div class="floor"></div>
+          <div class="topWall"></div>
+          <div class="leftWall"></div>
+          <div class="label">CT 室</div>
+        </div>
+        <div class="door" style="left:484px;top:212px"></div>
+        <div class="object ctMachine interactable" id="ctObject" style="left:204px;top:156px">
+          <div class="ctLabel">CT</div>
+        </div>
+        <div class="object desk" style="left:365px;top:168px"></div>
+        <div class="object monitor" style="left:397px;top:222px"></div>
+        <div class="object cart" style="left:196px;top:276px"></div>
+        <div class="object poster" style="left:418px;top:280px"></div>
 
-      <div class="room" style="left:528px;top:126px;width:230px;height:238px">
-        <div class="floor"></div>
-        <div class="topWall"></div>
-        <div class="rightWall"></div>
-        <div class="label">閱片區</div>
-      </div>
-      <div class="object desk" style="left:560px;top:172px"></div>
-      <div class="object monitor" style="left:660px;top:162px"></div>
-      <div class="object bed" style="left:588px;top:274px"></div>
-      <div class="object poster" style="left:688px;top:292px"></div>
+        <div class="room" style="left:528px;top:126px;width:230px;height:238px">
+          <div class="floor"></div>
+          <div class="topWall"></div>
+          <div class="rightWall"></div>
+          <div class="label">閱片區</div>
+        </div>
+        <div class="object desk" style="left:560px;top:172px"></div>
+        <div class="object monitor" style="left:660px;top:162px"></div>
+        <div class="object bed" style="left:588px;top:274px"></div>
+        <div class="object poster" style="left:688px;top:292px"></div>
 
-      <div class="character player" id="player" style="left:530px;top:304px">
-        <div class="marker hide" id="markerPlayer">•</div>
-        <div class="name">玩家</div>
-        <div class="hair"></div>
-        <div class="head"></div>
-        <div class="body"></div>
-        <div class="feet"></div>
-      </div>
+        <div class="character player" id="player" style="left:530px;top:304px">
+          <div class="marker hide" id="markerPlayer">•</div>
+          <div class="name">玩家</div>
+          <div class="hair"></div>
+          <div class="head"></div>
+          <div class="body"></div>
+          <div class="feet"></div>
+        </div>
 
-      <div class="character nurse" id="nurseNpc" style="left:448px;top:254px">
-        <div class="marker" id="markerNurse">!</div>
-        <div class="name">護理師</div>
-        <div class="hair"></div>
-        <div class="head"></div>
-        <div class="body"></div>
-        <div class="feet"></div>
-      </div>
+        <div class="character nurse" id="nurseNpc" style="left:448px;top:254px">
+          <div class="marker" id="markerNurse">!</div>
+          <div class="name">護理師</div>
+          <div class="hair"></div>
+          <div class="head"></div>
+          <div class="body"></div>
+          <div class="feet"></div>
+        </div>
 
-      <div class="character doctor" id="doctorNpc" style="left:642px;top:238px">
-        <div class="marker hide goal" id="markerDoctor">?</div>
-        <div class="name">神經醫師</div>
-        <div class="hair"></div>
-        <div class="head"></div>
-        <div class="body"></div>
-        <div class="feet"></div>
-      </div>
+        <div class="character doctor" id="doctorNpc" style="left:642px;top:238px">
+          <div class="marker hide goal" id="markerDoctor">?</div>
+          <div class="name">神經醫師</div>
+          <div class="hair"></div>
+          <div class="head"></div>
+          <div class="body"></div>
+          <div class="feet"></div>
+        </div>
 
-      <div class="character tech" id="techNpc" style="left:300px;top:238px">
-        <div class="marker hide" id="markerTech">✓</div>
-        <div class="name">放射師</div>
-        <div class="hair"></div>
-        <div class="head"></div>
-        <div class="body"></div>
-        <div class="feet"></div>
+        <div class="character tech" id="techNpc" style="left:300px;top:238px">
+          <div class="marker hide" id="markerTech">✓</div>
+          <div class="name">放射師</div>
+          <div class="hair"></div>
+          <div class="head"></div>
+          <div class="body"></div>
+          <div class="feet"></div>
+        </div>
       </div>
     </div>
 
@@ -413,6 +424,27 @@ button,input{font:inherit}
 </div>
 
 <script>
+// ===== 新增：自動計算螢幕大小進行等比例縮放 =====
+function resizeGame() {
+  const scene = document.getElementById('scene');
+  const gameWorld = document.getElementById('gameWorld');
+  if(!scene || !gameWorld) return;
+  
+  const w = scene.clientWidth;
+  const h = scene.clientHeight;
+  
+  // 基準大小 860x500，計算縮放比例 (保留下方搖桿高度)
+  let scale = Math.min(w / 860, (h * 0.65) / 500);
+  
+  // 避免在電腦螢幕上放得太大
+  if(scale > 1.1) scale = 1.1; 
+  
+  gameWorld.style.transform = `translate(-50%, -50%) scale(${scale})`;
+}
+
+// 監聽螢幕大小改變
+window.addEventListener('resize', resizeGame);
+
 const player = document.getElementById('player');
 const nurseNpc = document.getElementById('nurseNpc');
 const doctorNpc = document.getElementById('doctorNpc');
@@ -453,7 +485,6 @@ const targets = {
   tech:{x:300,y:238,r:68,id:'tech'}
 };
 
-// ===== 完美結合：自動更換按鈕文字 =====
 if (window.parent !== window) {
     claimBtn.textContent = "完成任務並領取獎勵";
 }
@@ -474,7 +505,6 @@ function move(dx,dy){
   updatePlayer();
 }
 
-// ===== 優化：修正了空間重疊判定，確保只觸發「距離最近」的物件 =====
 function detectNear(){
   let found = null;
   let minDist = Infinity;
@@ -590,17 +620,14 @@ closeDialogBtn.onclick = closeDialog;
 dialogMask.addEventListener('click',(e)=>{ if(e.target === dialogMask) closeDialog(); });
 closeRewardBtn.onclick = ()=> rewardMask.style.display = 'none';
 
-// ===== 完美結合：加入 iframe 回報機制 =====
 claimBtn.onclick = ()=>{
   if(state.rewardClaimed) return;
   state.rewardClaimed = true;
   claimBtn.textContent = '處理中...';
   
   if (window.parent !== window) {
-    // 若在主系統內執行，直接回傳過關訊息給主系統
     window.parent.postMessage({ type: 'GAME_CLEAR', score: 1000 }, '*');
   } else {
-    // 若單獨開啟檔案的備用邏輯
     state.coins += 50;
     coinCount.textContent = state.coins;
     claimBtn.textContent = '已領取';
@@ -613,7 +640,6 @@ Array.from(document.querySelectorAll('.joystick button')).forEach(btn=>{
   btn.addEventListener('click',()=> move(Number(btn.dataset.dx), Number(btn.dataset.dy)));
 });
 
-// 點擊移動邏輯
 ctObject.addEventListener('click',()=>{ state.x = 344; state.y = 246; updatePlayer(); setTimeout(interact,90); });
 nurseNpc.addEventListener('click',()=>{ state.x = 496; state.y = 282; updatePlayer(); setTimeout(interact,90); });
 doctorNpc.addEventListener('click',()=>{ state.x = 612; state.y = 276; updatePlayer(); setTimeout(interact,90); });
@@ -628,6 +654,8 @@ window.addEventListener('keydown',(e)=>{
   if(e.code==='Space'){ e.preventDefault(); interact(); }
 });
 
+// ===== 載入時觸發一次縮放 =====
+resizeGame();
 updatePlayer();
 updateMission();
 </script>
