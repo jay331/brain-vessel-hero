@@ -162,6 +162,22 @@
   .sparkle:before{ top:24px; left:28px; }
   .sparkle:after{ right:28px; top:46px; }
 
+  /* ===== 新增：圖片左上角的職稱標籤 ===== */
+  .role-img-title {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background: rgba(255, 255, 255, 0.85);
+    padding: 6px 14px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 900;
+    color: #163152;
+    box-shadow: 0 6px 16px rgba(39,90,150,0.12);
+    z-index: 10;
+    backdrop-filter: blur(4px);
+  }
+
   svg.character{
     width:96%;
     height:96%;
@@ -405,11 +421,11 @@
 
       <div class="info-card" id="infoCard">
         <div class="info-top">
-          <div class="info-label" id="infoLabel">人物展示</div>
+          <div class="info-label" id="infoLabel">認識中風團隊人物</div>
           <div class="score-chip" id="scoreChip">連續答對 0/3</div>
         </div>
-        <div class="info-main" id="infoMain">滑動認識不同職類</div>
-        <div class="info-sub" id="infoSub">目前是預習模式，可以左右滑動看看每個人的工作。</div>
+        <div class="info-main" id="infoMain"></div>
+        <div class="info-sub" id="infoSub"></div>
       </div>
 
       <div class="dots" id="dots"></div>
@@ -604,7 +620,6 @@
   const resetBtn = document.getElementById("resetBtn");
   const scoreChip = document.getElementById("scoreChip");
   
-  // ===== 更新 DOM 選擇器以符合新的手機精簡版 HTML =====
   const infoLabel = document.getElementById("infoLabel");
   const infoMain = document.getElementById("infoMain");
   const infoSub = document.getElementById("infoSub");
@@ -613,7 +628,6 @@
   const winOverlay = document.getElementById("winOverlay");
   const continueBtn = document.getElementById("continueBtn");
 
-  // ===== 檢查是否在 iframe 中執行，更改按鈕文字 =====
   if (window.parent !== window) {
       continueBtn.textContent = "完成任務並領取獎勵";
   }
@@ -809,6 +823,7 @@
     `;
   }
 
+  // ===== 更新：加上職稱標籤到圖片左上角 =====
   function buildSlides(){
     track.innerHTML = roles.map(role => `
       <div class="slide">
@@ -822,10 +837,11 @@
           <div class="illustration-zone">
             <div class="art-frame" style="background:linear-gradient(180deg, ${role.palette[1]}, #ffffff);">
               <div class="sparkle"></div>
+              <div class="role-img-title">${role.name}</div>
               ${characterSVG(role)}
             </div>
           </div>
-          </div>
+        </div>
       </div>
     `).join("");
 
@@ -839,27 +855,33 @@
     updateUI();
   }
 
-  // ===== 更新 updateUI 邏輯以符合新的 HTML IDs =====
+  // ===== 核心變更：調整預習/測驗模式的文字顯示與計分板 =====
   function updateUI(){
     scoreChip.textContent = `連續答對 ${streak}/3`;
     const selectedRole = roles[currentIndex];
 
     if(mode === "study"){
-      infoLabel.textContent = "人物展示";
-      infoMain.textContent = selectedRole.name;
+      infoLabel.textContent = "認識中風團隊人物";
+      scoreChip.style.display = "none"; // 預習模式隱藏計分板
+      
+      // 將職稱說明放大作為主要文字，原本的職稱因為移到圖片上所以隱藏
+      infoMain.style.display = "none"; 
       mainBtn.textContent = "開始測驗";
 
       if(!infoCard.classList.contains("ok") && !infoCard.classList.contains("bad") && !infoCard.classList.contains("win")){
-        infoSub.textContent = selectedRole.studyDesc;
+        // 用 innerHTML 來讓說明文字稍微粗大一些，彌補失去 Main text 的視覺重量
+        infoSub.innerHTML = `<span style="font-size:16px; font-weight:900; color:#163152;">${selectedRole.studyDesc}</span>`;
       }
     } else {
       infoLabel.textContent = "情境題";
+      scoreChip.style.display = ""; // 測驗模式顯示計分板
+      
+      infoMain.style.display = ""; // 恢復顯示情境題題目
       infoMain.textContent = currentQuestion ? currentQuestion.text : "準備開始測驗";
       mainBtn.textContent = "確認答案";
       
-      // 測驗模式下，隱藏角色介紹，顯示請確認的提示
       if(!infoCard.classList.contains("ok") && !infoCard.classList.contains("bad") && !infoCard.classList.contains("win")){
-         infoSub.textContent = "請滑到你認為正確的人，再按下確認答案。";
+         infoSub.innerHTML = "請滑到你認為正確的人，再按下確認答案。";
       }
     }
   }
@@ -926,8 +948,7 @@
     currentQuestion = null;
     pool = [];
     infoCard.className = "info-card";
-    infoSub.textContent = "目前是預習模式，可以左右滑動看看每個人的工作。";
-    setMode("study");
+    setMode("study"); // 直接呼叫 setMode 更新介面，會自動帶入正確的說明
   }
 
   function prev(){
@@ -969,7 +990,6 @@
   mainBtn.addEventListener("click", answer);
   resetBtn.addEventListener("click", resetGame);
 
-  // ===== 過關按鈕邏輯：發送通關訊息給主系統 =====
   continueBtn.addEventListener("click", () => {
     if (window.parent !== window) {
       window.parent.postMessage({ type: 'GAME_CLEAR', score: 1000 }, '*');
