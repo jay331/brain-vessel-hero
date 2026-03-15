@@ -650,6 +650,11 @@
   const winOverlay = document.getElementById("winOverlay");
   const continueBtn = document.getElementById("continueBtn");
 
+  // ===== 核心整合變更 1/2：根據環境動態改變按鈕文字 =====
+  if (window.parent !== window) {
+      continueBtn.textContent = "完成任務並領取獎勵";
+  }
+
   function shuffle(arr){
     const a = [...arr];
     for(let i=a.length-1;i>0;i--){
@@ -1016,11 +1021,18 @@
   mainBtn.addEventListener("click", answer);
   resetBtn.addEventListener("click", resetGame);
 
+  // ===== 核心整合變更 2/2：透過 postMessage 回傳通關訊號給主系統 =====
   continueBtn.addEventListener("click", () => {
-    winOverlay.classList.remove("show");
-    streak = 0;
-    currentQuestion = null;
-    setMode("quiz");
+    if (window.parent !== window) {
+      // 在 iframe 內執行時，傳送過關訊息給主系統
+      window.parent.postMessage({ type: 'GAME_CLEAR', score: 1000 }, '*');
+    } else {
+      // 玩家單獨用瀏覽器打開檔案時的備用邏輯
+      winOverlay.classList.remove("show");
+      streak = 0;
+      currentQuestion = null;
+      setMode("quiz");
+    }
   });
 
   track.addEventListener("touchstart", e => {
