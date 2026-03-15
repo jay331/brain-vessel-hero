@@ -748,7 +748,7 @@ function tryLaunchFreeCell() {
     if(id('gameFrame')) id('gameFrame').src = 'game_freecell.html'; 
     if(id('gameOverlay')) id('gameOverlay').style.display = 'flex';
   } else {
-    if (confirm("🔒 尚未集滿所有圖鑑！\n\n健康卡全解鎖前，每次遊玩需花費 500 健康幣，確定要挑戰嗎？")) {
+    if (confirm("🔒 尚未集滿所有健康卡！\n\n健康卡共52張，全解鎖前，每次遊玩需花費 500 健康幣，確定要挑戰嗎？")) {
       if (playerState.coins >= 500) {
         playerState.coins -= 500;
         saveGameData();
