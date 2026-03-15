@@ -585,6 +585,7 @@ function updateHUD() {
     if (isUnlocked) { banner.classList.remove('locked'); if(id('bossStatusText')) id('bossStatusText').textContent = '🟢 已解鎖 (點擊進入驗收)'; } 
     else { banner.classList.add('locked'); if(id('bossStatusText')) id('bossStatusText').textContent = '需五位角色皆通關一項任務以解鎖'; }
   }
+  renderHomeRoles();
 }
 
 function renderHomeRoles() {
