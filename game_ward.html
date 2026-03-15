@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-<title>腦脈先鋒｜11G 全區真實還原</title>
+<title>腦脈先鋒｜滑動操控 11G 全區</title>
 <style>
 :root{
   --bg:#0c1218; --sky1:#1a2a3a; --sky2:#2a4054;
@@ -11,6 +11,7 @@
   --safe-top:max(8px, env(safe-area-inset-top));
   --safe-bottom:max(10px, env(safe-area-bottom));
 }
+/* 加上 touch-action: none 防止手機瀏覽器跟著滑動 */
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:none;}
 html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:"PingFang TC","Noto Sans TC",sans-serif;color:var(--text)}
 
@@ -27,84 +28,77 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 
 .scene{position:absolute;inset:0;top:calc(48px + var(--safe-top));overflow:hidden;}
 
-/* 鏡頭容器：負責平移畫面 */
-.camera { position: absolute; left: 0; top: 0; width: 100%; height: 100%; transition: transform 0.1s linear; }
+/* 鏡頭容器 */
+.camera { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
 
-/* 遊戲大地圖：擴大至 2400x2000 以容納真實比例 */
+/* 遊戲大地圖 (2400x2000) */
 .game-world {
   position: absolute; left: 0; top: 0;
   width: 2400px; height: 2000px;
   background-color: #333; 
 }
 
-/* 走廊基底 (整個大三角形區域) */
+/* --- 1. 整個病房的大三角走廊基底 --- */
+/* 對應平面圖：左上角斜邊、右側垂直、下方水平 */
 .floor-corridor {
-  position: absolute; left: 0; top: 0; width: 100%; height: 100%;
-  background: #fffcf2; /* 走廊亮色 */
+  position: absolute; left: 200px; top: 100px; width: 1800px; height: 1600px;
+  background: #fffcf2; 
   background-image: radial-gradient(rgba(0,0,0,0.05) 2px, transparent 2px); background-size: 30px 30px;
+  /* 裁切成直角三角形 (左下角是直角) */
+  clip-path: polygon(1800px 0, 1800px 1600px, 0 1600px);
+  box-shadow: inset 0 0 50px rgba(0,0,0,0.1);
 }
 
-/* --- 建築牆面實體 (無法行走的區域) --- */
-/* 1. 右側病房區 (11G01 - 11G10) */
+/* --- 2. 右側病房區 (11G01 - 11G10) --- */
 .ward-right {
-  position: absolute; left: 1800px; top: 100px; width: 400px; height: 1400px;
-  background: #d2b376; border-left: 8px solid #a68b56; box-shadow: -10px 0 20px rgba(0,0,0,0.1);
-  background-image: repeating-linear-gradient(0deg, transparent, transparent 136px, rgba(0,0,0,0.3) 136px, rgba(0,0,0,0.3) 140px);
+  position: absolute; left: 2000px; top: 100px; width: 300px; height: 1600px;
+  background: #d2b376; border-left: 8px solid #a68b56; 
+  display: flex; flex-direction: column;
 }
-.ward-right::before { content: "11G06 病房"; position: absolute; left: 20px; top: 620px; font-weight: bold; color: rgba(0,0,0,0.5); font-size: 24px; }
+.room-right { flex: 1; border-bottom: 2px solid rgba(0,0,0,0.2); display: flex; align-items: center; padding-left: 20px; font-weight: 900; color: rgba(0,0,0,0.4); font-size: 20px; }
 
-/* 2. 下側設施區 (電梯、護理站後方) */
+/* --- 3. 下側電梯與設施區 --- */
 .ward-bottom {
-  position: absolute; left: 400px; top: 1500px; width: 1800px; height: 400px;
-  background: #d2b376; border-top: 8px solid #a68b56; box-shadow: 0 -10px 20px rgba(0,0,0,0.1);
-  display: flex; align-items: flex-start; padding: 20px 100px; gap: 200px;
-  font-weight: bold; color: rgba(0,0,0,0.5); font-size: 28px;
+  position: absolute; left: 200px; top: 1700px; width: 1800px; height: 250px;
+  background: #d2b376; border-top: 8px solid #a68b56;
+  display: flex; align-items: center; justify-content: space-around;
 }
+.facility { background: #e3cca0; padding: 20px 40px; border-radius: 12px; font-weight: 900; font-size: 24px; color: #8c7344; border: 4px solid #c9ae7e; }
+.elevator-hall { background: #b8c6d1; color: #2a4054; border-color: #92a9bc; }
 
-/* 3. 左斜側病房區 (11G11 - 11G23) 利用 clip-path 切出完美斜邊 */
+/* --- 4. 左側斜邊病房區 (11G11 - 11G23) --- */
+/* 利用旋轉的矩形貼在斜邊上 */
 .ward-diag {
-  position: absolute; left: 0; top: 0; width: 1800px; height: 1500px;
-  background: #d2b376;
-  /* 座標：裁切出左上角區域。對角線為 x+y=2100 */
-  clip-path: polygon(0 0, 1800px 0, 1800px 300px, 600px 1500px, 0 1500px);
+  position: absolute; left: -250px; top: 100px; width: 2300px; height: 250px;
+  background: #d2b376; border-bottom: 8px solid #a68b56;
+  transform-origin: left top; transform: rotate(41.6deg); /* 對應 1600/1800 的角度 */
+  display: flex;
 }
-/* 斜邊牆壁的立體感與房門分隔 */
-.ward-diag-border {
-  position: absolute; left: 0; top: 0; width: 1800px; height: 1500px; pointer-events: none;
-  background: repeating-linear-gradient(-45deg, transparent, transparent 146px, rgba(0,0,0,0.2) 146px, rgba(0,0,0,0.2) 150px);
-  clip-path: polygon(0 0, 1800px 0, 1800px 300px, 600px 1500px, 0 1500px);
-}
-/* 畫一條斜線當作牆壁厚度 */
-.diag-wall-line {
-  position: absolute; left: 590px; top: 1490px; width: 1720px; height: 8px; background: #a68b56;
-  transform-origin: left top; transform: rotate(-45deg); box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-}
+.room-diag { flex: 1; border-right: 2px solid rgba(0,0,0,0.2); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 20px; font-weight: 900; color: rgba(0,0,0,0.4); font-size: 20px; }
 
-/* 4. 中央粉紅護理站 (核心障礙物) */
-.nursing-station {
-  position: absolute; left: 1200px; top: 900px; width: 300px; height: 300px;
-  background: #ebc6c9; box-shadow: 10px 10px 30px rgba(0,0,0,0.2);
-  /* 裁切出直角三角形 */
-  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+/* --- 5. 中空的三角護理站 --- */
+/* 護理站內部地板 */
+.nursing-station-floor {
+  position: absolute; left: 1100px; top: 900px; width: 600px; height: 500px;
+  background: #f8e5e7;
+  clip-path: polygon(600px 0, 600px 500px, 0 500px); /* 也是一個小直角三角形 */
 }
-.nursing-station-labels {
-  position: absolute; left: 1350px; top: 1080px; 
-  font-weight: 900; color: #8c565b; font-size: 32px; letter-spacing: 4px; pointer-events: none;
-}
+/* 護理站的環形桌子 (三個邊的長條形障礙物) */
+/* 右邊垂直桌 */
+.desk-right { position: absolute; left: 1670px; top: 900px; width: 30px; height: 400px; background: #d4a3a7; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+/* 下邊水平桌 (留有出入口開口) */
+.desk-bottom-1 { position: absolute; left: 1100px; top: 1370px; width: 200px; height: 30px; background: #d4a3a7; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+.desk-bottom-2 { position: absolute; left: 1450px; top: 1370px; width: 220px; height: 30px; background: #d4a3a7; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+/* 斜邊桌子 */
+.desk-diag { position: absolute; left: 1120px; top: 900px; width: 750px; height: 30px; background: #d4a3a7; border-radius: 10px; transform-origin: left top; transform: rotate(39.8deg); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
 
-/* --- 地板綠色逃生/巡房動線 --- */
-.escape-route {
-  position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none;
-}
+.nursing-label { position: absolute; left: 1400px; top: 1150px; font-weight: 900; color: #b87c82; font-size: 36px; letter-spacing: 10px; }
 
-/* 角色與物件 */
-.object { position: absolute; box-shadow: 0 8px 15px rgba(0,0,0,0.3); border-radius:8px;}
-.rtms { width: 70px; height: 90px; background: linear-gradient(180deg,#eef2f5,#90a6b8); border: 4px solid #fff; left: 1000px; top: 1380px; }
-.rtms::after { content:"rTMS"; position:absolute; top:-26px; left:50%; transform:translateX(-50%); font-size:14px; background:#222; color:#fff; padding:4px 8px; border-radius:4px; font-weight:bold;}
-.elevator { width: 120px; height: 60px; background: #999; border: 4px solid #666; left: 1600px; top: 1500px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:bold;}
+/* 地板巡房動線 (綠線) */
+.escape-route { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; }
 
-.character{position:absolute;width:56px;height:80px;transform:translate(-50%,-100%);z-index:10; cursor:pointer; transition: transform 0.1s;}
-.character:active{transform:translate(-50%,-95%) scale(0.95);}
+/* 角色與標記 */
+.character{position:absolute;width:60px;height:84px;transform:translate(-50%,-100%);z-index:10; cursor:pointer;}
 .marker{position:absolute;left:50%;top:-40px;transform:translateX(-50%);padding:2px 10px;border-radius:999px;background:linear-gradient(180deg,#ffe59c,#f0b94b);color:#2b2108;font-weight:900;animation:bob 1.2s infinite; font-size:18px; pointer-events:none; border:2px solid #fff;}
 .name{position:absolute;left:50%;top:-10px;transform:translateX(-50%);padding:2px 8px;border-radius:999px;background:rgba(15,24,35,.85);font-size:12px;color:var(--gold); white-space:nowrap; pointer-events:none; font-weight:bold;}
 .head{position:absolute;left:50%;top:14px;transform:translateX(-50%);width:36px;height:36px;border-radius:50%;background:#f1c8a0;}
@@ -114,12 +108,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 .player .body{background:linear-gradient(180deg,#fff,#dfeff9)}
 .nurse .body{background:linear-gradient(180deg,#ffb6c1,#e58e9b)} 
 .doctor .body{background:linear-gradient(180deg,#fff,#ccc)} 
-.tech .body{background:linear-gradient(180deg,#8ce260,#54b53d)} 
-
 @keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-5px)}}
-.click-ripple { position: absolute; width: 40px; height: 40px; border: 3px solid var(--gold); border-radius: 50%; transform: translate(-50%, -50%) scale(0); opacity: 1; pointer-events: none; z-index: 5; animation: ripple 0.5s ease-out forwards; }
-.click-error { border-color: #ff4757; } /* 點到牆壁的紅色錯誤波紋 */
-@keyframes ripple { 100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; } }
 
 /* UI */
 .miniHint{ position:absolute;left:50%;top:16px;transform:translateX(-50%);z-index:23; background:rgba(15,24,35,.85);border:1px solid rgba(243,202,112,.4);border-radius:999px;padding:12px 24px; font-size:15px; font-weight:bold; color:#fff; text-align:center; white-space:nowrap; box-shadow: 0 6px 15px rgba(0,0,0,0.4); pointer-events:none; }
@@ -128,6 +117,10 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 .dialogBox h3{margin:0 0 12px 0; color:var(--gold); font-size:22px;}
 .dialogBox p{font-size:17px; line-height:1.6; margin-bottom:20px; color:#e0edf9;}
 .closeBtn{width:100%;padding:14px;border-radius:10px;border:none;background:linear-gradient(180deg,#f3ca70,#d1a23a);color:#4a3505;font-weight:900;font-size:18px;}
+
+/* 虛擬搖桿視覺反饋 */
+.joystick-base { position: absolute; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%); display: none; z-index: 50;}
+.joystick-knob { position: absolute; width: 40px; height: 40px; background: rgba(243,202,112,0.8); border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%); }
 </style>
 </head>
 <body>
@@ -138,52 +131,62 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
   </div>
 
   <div class="scene" id="scene">
-    <div class="miniHint" id="miniHint">👆 點擊走廊移動，試著沿著綠線繞一圈</div>
+    <div class="miniHint" id="miniHint">👆 按住螢幕滑動來移動，單點人物對話</div>
+    
+    <div class="joystick-base" id="joystickBase"><div class="joystick-knob" id="joystickKnob"></div></div>
 
     <div class="camera" id="camera">
       <div class="game-world" id="gameWorld">
         
         <div class="floor-corridor"></div>
-
+        
         <svg class="escape-route">
-          <polygon points="1650,600 1650,1350 900,1350" fill="none" stroke="rgba(46, 204, 113, 0.4)" stroke-width="12" stroke-linejoin="round"/>
+          <polygon points="1850,1650 1850,250 400,1650" fill="none" stroke="rgba(46, 204, 113, 0.4)" stroke-width="12" stroke-linejoin="round"/>
         </svg>
 
-        <div class="ward-diag"></div>
-        <div class="ward-diag-border"></div>
-        <div class="diag-wall-line"></div>
+        <div class="ward-diag">
+          <div class="room-diag">11G11</div><div class="room-diag">11G12</div><div class="room-diag">11G13</div>
+          <div class="room-diag">11G15</div><div class="room-diag">11G16</div><div class="room-diag">11G17</div>
+          <div class="room-diag">11G18</div><div class="room-diag">11G19</div><div class="room-diag">11G20</div>
+          <div class="room-diag">11G21</div><div class="room-diag">11G22</div><div class="room-diag">11G23</div>
+        </div>
         
-        <div class="ward-right"></div>
-        <div class="ward-bottom">
-          <span>客用電梯</span>
-          <span>配膳室</span>
+        <div class="ward-right">
+          <div class="room-right">11G10 病房</div><div class="room-right">11G09 病房</div>
+          <div class="room-right">11G08 病房</div><div class="room-right">11G07 病房</div>
+          <div class="room-right">11G06 病房</div><div class="room-right">11G05 病房</div>
+          <div class="room-right">11G03 病房</div><div class="room-right">11G02 病房</div>
+          <div class="room-right">11G01 病房</div>
         </div>
 
-        <div class="nursing-station"></div>
-        <div class="nursing-station-labels">護理站</div>
+        <div class="ward-bottom">
+          <div class="facility">逃生梯 No.45</div>
+          <div class="facility">庫房 / 空調室</div>
+          <div class="facility elevator-hall">🛗 客用 / 病床電梯</div>
+          <div class="facility">配膳室</div>
+        </div>
 
-        <div class="object rtms"></div>
-        <div class="elevator">客梯區</div>
+        <div class="nursing-station-floor"></div>
+        <div class="nursing-label">護理站</div>
+        <div class="desk-right" id="obs-desk-1"></div>
+        <div class="desk-bottom-1" id="obs-desk-2"></div>
+        <div class="desk-bottom-2" id="obs-desk-3"></div> <div class="desk-diag" id="obs-desk-4"></div>
 
-        <div class="character nurse" id="npc-nurse" style="left:1400px;top:1150px">
+        <div class="character nurse" id="npc-nurse" style="left:1500px;top:1250px">
           <div class="shadow"></div><div class="marker">!</div><div class="name">護理長</div>
           <div class="head"></div><div class="body"></div>
         </div>
-
-        <div class="character doctor" id="npc-doctor" style="left:1750px;top:800px">
+        
+        <div class="character doctor" id="npc-doctor" style="left:1880px;top:850px">
           <div class="shadow"></div><div class="marker">?</div><div class="name">神內醫師</div>
           <div class="head"></div><div class="body"></div>
         </div>
 
-        <div class="character tech" id="npc-tech" style="left:1200px;top:850px">
-          <div class="shadow"></div><div class="marker">...</div><div class="name">復健師</div>
-          <div class="head"></div><div class="body"></div>
-        </div>
-
-        <div class="character player" id="player" style="left:1650px;top:1400px">
+        <div class="character player" id="player" style="left:1500px;top:1650px">
           <div class="shadow"></div><div class="name">玩家</div>
           <div class="head"></div><div class="body"></div>
         </div>
+
       </div>
     </div>
 
@@ -201,27 +204,18 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 // --- 核心狀態 ---
 const player = document.getElementById('player');
 const camera = document.getElementById('camera');
-const gameWorld = document.getElementById('gameWorld');
 const scene = document.getElementById('scene');
+const joystickBase = document.getElementById('joystickBase');
+const joystickKnob = document.getElementById('joystickKnob');
 
-let state = { x: 1650, y: 1400 }; 
-let target = { x: 1650, y: 1400 };
-let speed = 8; // 配合大尺寸地圖，調快移動速度
-let isMoving = false;
-let autoInteractNpcId = null;
-
-// 設定點擊 NPC 時，玩家應該走到的「合法走廊位置」(避免卡在牆內)
-const npcWalkTargets = {
-  'npc-nurse': { x: 1550, y: 1250 }, // 護理站轉角走廊
-  'npc-doctor': { x: 1650, y: 800 }, // 右側走廊
-  'npc-tech': { x: 1250, y: 950 }    // 斜邊走廊
-};
+let state = { x: 1500, y: 1650 }; // 玩家座標 (電梯大廳外)
+let velocity = { x: 0, y: 0 };    // 玩家移動速度向量
+let speed = 9;                    // 最大跑速
 
 // 對話資料
 const dialogData = {
-  'npc-nurse': { title: '護理長', text: '你看見地上的綠色動線了嗎？這是 11G 病房的巡房主幹道，左邊斜坡區是 11G11 到 11G23 病房。' },
-  'npc-doctor': { title: '神內醫師', text: '11G06 的病人剛做完取栓手術，麻煩等一下幫我用 FAST 評估表確認他的臉部有沒有不對稱。' },
-  'npc-tech': { title: '復健師', text: '我在這區測試新進的 rTMS 儀器路線，這長長的斜坡走廊很適合讓輕症中風病人練習走路復健。' }
+  'npc-nurse': { title: '護理長', text: '你現在進入護理站內部了！從我們背後這個小出入口進出很方便。我們平常都在這裡監控 11G 所有病房的動態。' },
+  'npc-doctor': { title: '神內醫師', text: '11G06 的病患剛做完 rTMS 療程，幫我去留意一下他的手部力氣有沒有改善。對了，你知道 FAST 評估表怎麼做嗎？' }
 };
 
 // --- 攝影機跟隨 ---
@@ -233,113 +227,142 @@ function updateCamera() {
   camera.style.transform = `translate(${camX}px, ${camY}px)`;
 }
 
-// --- 核心碰撞偵測 (數學邏輯對應平面圖) ---
-function canMoveTo(x, y) {
-  const r = 30; // 玩家碰撞半徑
-  
-  // 1. 外圍牆壁限制 (不能走出走廊)
-  if (x + r > 1800) return false; // 右牆 (11G01-11G10)
-  if (y + r > 1500) return false; // 下牆
-  if (x + y - r < 2100) return false; // 左斜牆 (11G11-11G23)
+// --- 碰撞偵測 (滑動操控的靈魂：獨立 XY 軸判定) ---
+// 這裡將牆壁和護理站桌子定義為實體方塊
+const obstacles = [
+  { x: 2000, y: 0, w: 400, h: 1700 }, // 右牆 (11G01-11G10)
+  { x: 0, y: 1700, w: 2400, h: 300 }, // 下牆 (電梯區)
+  // 護理站的實體桌子 (透過粗略的矩形邊界來擋人)
+  { x: 1670, y: 900, w: 30, h: 400 }, // 右桌
+  { x: 1100, y: 1370, w: 200, h: 30 }, // 下桌左段
+  { x: 1450, y: 1370, w: 220, h: 30 }  // 下桌右段 (1300~1450 是出入口缺口)
+];
 
-  // 2. 中央護理站限制 (不能穿過粉紅區域)
-  // 護理站邊界：x < 1500 且 y < 1200 且 x+y > 2400
-  if (x - r < 1500 && y - r < 1200 && x + y + r > 2400) {
-      return false;
+function canMoveTo(x, y) {
+  const r = 25; // 玩家碰撞半徑
+  
+  // 1. 左斜邊大牆壁判斷 (斜率方程式 y = 0.88x - 176) -> 簡化為：不能跑到斜線左上方
+  // 對應：1800寬, 1600高 的直角三角形。
+  if ( (1600 - (y - 100)) > (x - 200) * (1600/1800) ) return false;
+  if (x - r < 200) return false;
+
+  // 2. 護理站斜邊桌子判斷
+  // 近似斜線方程式，限制不能穿越斜邊桌子
+  if (x > 1100 && x < 1670 && Math.abs((y - 900) - (x - 1100)*(500/600)) < 30) return false;
+
+  // 3. 檢查矩形障礙物 (右牆、下牆、護理站直桌)
+  for (let obs of obstacles) {
+    if (x + r > obs.x && x - r < obs.x + obs.w &&
+        y + r > obs.y && y - r < obs.y + obs.h) {
+      return false; 
+    }
   }
   return true;
 }
 
 // --- 遊戲主迴圈 ---
 function gameLoop() {
-  const dx = target.x - state.x;
-  const dy = target.y - state.y;
-  const dist = Math.hypot(dx, dy);
+  if (velocity.x !== 0 || velocity.y !== 0) {
+    // 獨立驗證 X 和 Y，實現超滑順的「貼牆滑行」
+    const nextX = state.x + velocity.x;
+    const nextY = state.y + velocity.y;
 
-  if (dist > speed) {
-    const stepX = state.x + (dx / dist) * speed;
-    const stepY = state.y + (dy / dist) * speed;
-
-    // 分離 X 與 Y 軸的碰撞測試，實現「貼牆滑行」的流暢手感
-    if (canMoveTo(stepX, state.y)) state.x = stepX;
-    if (canMoveTo(state.x, stepY)) state.y = stepY;
+    if (canMoveTo(nextX, state.y)) state.x = nextX;
+    if (canMoveTo(state.x, nextY)) state.y = nextY;
 
     player.style.left = state.x + 'px';
     player.style.top = state.y + 'px';
-    isMoving = true;
     updateCamera();
-  } else if (isMoving) {
-    isMoving = false;
-    if (autoInteractNpcId) {
-      triggerDialog(autoInteractNpcId);
-      autoInteractNpcId = null;
-    }
   }
   requestAnimationFrame(gameLoop);
 }
 requestAnimationFrame(gameLoop);
 updateCamera();
 
-// --- 點擊移動與互動 ---
-gameWorld.addEventListener('pointerdown', (e) => {
+// --- 觸控與滑動虛擬搖桿系統 ---
+let isDragging = false;
+let startTouch = { x: 0, y: 0 };
+let currentTouch = { x: 0, y: 0 };
+let isJustTap = true; // 用來區分是「滑動」還是「單點互動」
+
+scene.addEventListener('pointerdown', (e) => {
   if (document.getElementById('dialogMask').style.display === 'flex') return;
-  if (e.target.closest('.character')) return; 
+  if (e.target.closest('.character')) return; // 點到 NPC 交給 NPC 處理
 
-  const rect = gameWorld.getBoundingClientRect();
-  const clickX = e.clientX - rect.left;
-  const clickY = e.clientY - rect.top;
-  
-  // 檢查玩家點擊的地方是否合法 (不能點在牆壁或護理站內)
-  if (!canMoveTo(clickX, clickY)) {
-    createRipple(clickX, clickY, true); // 顯示錯誤波紋
-    document.getElementById('miniHint').innerText = '❌ 這裡有障礙物，請點擊走廊地板';
-    return;
-  }
+  isDragging = true;
+  isJustTap = true;
+  startTouch.x = e.clientX;
+  startTouch.y = e.clientY;
 
-  target.x = clickX;
-  target.y = clickY;
-  autoInteractNpcId = null;
-  createRipple(target.x, target.y, false);
-  document.getElementById('miniHint').innerText = '🏃 前往目的地...';
+  // 顯示虛擬搖桿在手指按下的地方
+  joystickBase.style.left = startTouch.x + 'px';
+  joystickBase.style.top = startTouch.y + 'px';
+  joystickBase.style.display = 'block';
+  joystickKnob.style.transform = `translate(-50%, -50%)`;
 });
 
+window.addEventListener('pointermove', (e) => {
+  if (!isDragging) return;
+  
+  currentTouch.x = e.clientX;
+  currentTouch.y = e.clientY;
+  
+  const dx = currentTouch.x - startTouch.x;
+  const dy = currentTouch.y - startTouch.y;
+  const dist = Math.hypot(dx, dy);
+
+  // 滑動超過 10px 才算移動，避免手抖誤判
+  if (dist > 10) {
+    isJustTap = false;
+    document.getElementById('miniHint').innerText = '🏃 跑動中...';
+    
+    // 計算移動向量
+    const maxDrag = 50; // 搖桿拉到最滿的距離
+    const force = Math.min(dist, maxDrag) / maxDrag;
+    velocity.x = (dx / dist) * speed * force;
+    velocity.y = (dy / dist) * speed * force;
+
+    // 更新搖桿 UI
+    const knobX = (dx / dist) * Math.min(dist, 40);
+    const knobY = (dy / dist) * Math.min(dist, 40);
+    joystickKnob.style.transform = `translate(calc(-50% + ${knobX}px), calc(-50% + ${knobY}px))`;
+  }
+});
+
+window.addEventListener('pointerup', () => {
+  isDragging = false;
+  velocity.x = 0;
+  velocity.y = 0;
+  joystickBase.style.display = 'none';
+  if(!isJustTap) document.getElementById('miniHint').innerText = '👆 按住螢幕滑動來移動，單點人物對話';
+});
+
+// --- NPC 單點互動 ---
 document.querySelectorAll('.character:not(.player)').forEach(npc => {
   npc.addEventListener('pointerdown', (e) => {
     e.stopPropagation();
     if (document.getElementById('dialogMask').style.display === 'flex') return;
 
-    // 取得預設的合法會合點，避免玩家卡在牆壁進不去
-    const walkTarget = npcWalkTargets[npc.id];
-    target.x = walkTarget.x;
-    target.y = walkTarget.y; 
-    autoInteractNpcId = npc.id;
-    
-    createRipple(target.x, target.y, false);
-    document.getElementById('miniHint').innerText = `🚶 走向 ${dialogData[npc.id].title}...`;
+    // 計算玩家跟 NPC 的距離，太遠不能對話
+    const npcX = parseInt(npc.style.left);
+    const npcY = parseInt(npc.style.top);
+    const dist = Math.hypot(state.x - npcX, state.y - npcY);
+
+    if (dist < 150) { // 在 150px 範圍內才能對話
+      const data = dialogData[npc.id];
+      document.getElementById('dialogTitle').innerText = data.title;
+      document.getElementById('dialogText').innerText = data.text;
+      document.getElementById('dialogMask').style.display = 'flex';
+      velocity.x = 0; velocity.y = 0; // 對話時強迫停止移動
+    } else {
+      document.getElementById('miniHint').innerText = '❌ 距離太遠了，請滑動走近一點再點擊';
+    }
   });
 });
 
-// --- UI 控制 ---
-function triggerDialog(npcId) {
-  const data = dialogData[npcId];
-  document.getElementById('dialogTitle').innerText = data.title;
-  document.getElementById('dialogText').innerText = data.text;
-  document.getElementById('dialogMask').style.display = 'flex';
-  document.getElementById('miniHint').innerText = '💬 對話中...';
-}
-
 function closeDialog() {
   document.getElementById('dialogMask').style.display = 'none';
-  document.getElementById('miniHint').innerText = '👆 點擊走廊移動，試著沿著綠線繞一圈';
-}
-
-function createRipple(x, y, isError) {
-  const ripple = document.createElement('div');
-  ripple.className = 'click-ripple' + (isError ? ' click-error' : '');
-  ripple.style.left = x + 'px';
-  ripple.style.top = y + 'px';
-  gameWorld.appendChild(ripple);
-  setTimeout(() => ripple.remove(), 500);
+  document.getElementById('miniHint').innerText = '👆 按住螢幕滑動來移動，單點人物對話';
 }
 
 window.addEventListener('resize', updateCamera);
