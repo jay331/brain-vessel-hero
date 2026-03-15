@@ -190,10 +190,15 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
             <span id="detailAttempts"></span>
           </div>
           
-          <div id="rescuePanel" style="display:none; flex-direction:column; gap:8px; margin-top:4px; flex-shrink:0;">
-            <div style="font-size:12px; color:#ff5252; text-align:center; font-weight:bold;">⚠️ 挑戰次數已用盡</div>
-            <button class="btn btn-rescue" onclick="readEduCard()">📖 觀看衛教單張 (增加 3次 挑戰機會)</button>
-            <button class="btn btn-rescue" onclick="buyAttempt()">💰 使用500健康幣 (增加 3次 挑戰機會)</button>
+<div id="rescuePanel" style="display:none; flex-direction:column; gap:8px; margin-top:8px; flex-shrink:0; background:rgba(0,0,0,0.3); padding:12px; border-radius:8px; border:1px solid var(--theme-dim);">
+            <div style="font-size:13px; color:#ff5252; text-align:center; font-weight:bold; letter-spacing:1px;">⚠️ 挑戰次數已用盡</div>
+            <div style="font-size:12px; color:#ccc; text-align:center; margin-bottom:4px;">
+              選擇以下方式恢復 <span style="color:var(--theme-primary); font-weight:bold;">3 次</span> 機會：
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-rescue" style="flex:1; padding:10px 4px; font-size:14px;" onclick="readEduCard()">📖 觀看衛教</button>
+              <button class="btn btn-rescue" style="flex:1; padding:10px 4px; font-size:14px;" onclick="buyAttempt()">💰 500 健康幣</button>
+            </div>
           </div>
 
         </div>
