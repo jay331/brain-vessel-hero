@@ -18,11 +18,11 @@ body.mode-advanced {
   --btn-shadow: none;
 }
 body.mode-beginner {
-  --theme-primary: #64b5f6; 
-  --theme-dim: #1976d2;
-  --theme-bg: rgba(25, 118, 210, 0.1);
-  --theme-panel: rgba(10, 15, 25, 0.9);
-  --theme-grad: linear-gradient(90deg, rgba(13,30,60,0.8), rgba(10,15,25,0.95));
+  --theme-primary: #1e88e5; 
+  --theme-dim: #0d47a1;
+  --theme-bg: rgba(30, 136, 229, 0.15);
+  --theme-panel: rgba(10, 20, 35, 0.9);
+  --theme-grad: linear-gradient(90deg, rgba(13,71,161,0.8), rgba(10,20,35,0.95));
   --btn-text: #fff;
   --btn-shadow: 1px 1px 2px rgba(0,0,0,0.8);
 }
@@ -36,15 +36,17 @@ input[type="checkbox"] { width: auto; }
 .app { height: 100%; display: flex; flex-direction: column; }
 
 /* ===== HUD 標題列 ===== */
-header { padding: 6px 12px; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(180deg, rgba(0,0,0,0.9), rgba(0,0,0,0.5)); border-bottom: 1px solid var(--theme-dim); z-index: 100; flex-shrink: 0; backdrop-filter: blur(4px); }
-.player-info { display: flex; align-items: center; gap: 10px; }
-.avatar-wrap { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--theme-primary); background: #000; overflow: hidden; position: relative; cursor: pointer;}
+header { padding: 4px 8px; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(180deg, rgba(0,0,0,0.9), rgba(0,0,0,0.5)); border-bottom: 1px solid var(--theme-dim); z-index: 100; flex-shrink: 0; backdrop-filter: blur(4px); }
+.player-info { display: flex; align-items: center; gap: 8px; }
+.avatar-wrap { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--theme-primary); background: #000; overflow: hidden; position: relative; cursor: pointer;}
 .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
 .player-text-wrap { display: flex; flex-direction: column; justify-content: center; gap: 2px; }
-.player-name { font-size: 14px; font-weight: bold; color: #fff; }
-.resources { display: flex; flex-direction: row; align-items: center; gap: 6px; flex-shrink: 0; }
-.res-item { display: flex; align-items: center; gap: 4px; font-weight: 900; font-size: 12px; background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 99px; border: 1px solid var(--theme-dim); box-shadow: 0 2px 5px rgba(0,0,0,0.5); white-space: nowrap; }
-.green-coin { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; background: linear-gradient(180deg, #3dff8e, #0eb855); border-radius: 50%; color: #000; font-size: 10px; }
+.player-name { font-size: 11px; font-weight: bold; color: #fff; }
+.level-badge { background: var(--theme-primary); color: var(--btn-text); font-size: 11px; font-weight: 900; padding: 2px 6px; border-radius: 4px; cursor: pointer; box-shadow: 0 0 8px var(--theme-bg); display:inline-flex; align-items:center; gap:4px; text-shadow: var(--btn-shadow);}
+.level-badge:active { transform: scale(0.95); }
+.resources { display: flex; flex-direction: row; align-items: center; gap: 4px; flex-shrink: 0; }
+.res-item { display: flex; align-items: center; gap: 4px; font-weight: 900; font-size: 11px; background: rgba(0,0,0,0.6); padding: 4px 6px; border-radius: 99px; border: 1px solid var(--theme-dim); box-shadow: 0 2px 5px rgba(0,0,0,0.5); white-space: nowrap; }
+.green-coin { display: inline-flex; align-items: center; justify-content: center; width: 12px; height: 12px; background: linear-gradient(180deg, #3dff8e, #0eb855); border-radius: 50%; color: #000; font-size: 9px; }
 
 /* ===== 佈局與背景 ===== */
 .wrap { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0; }
@@ -75,11 +77,12 @@ header { padding: 6px 12px; display: flex; justify-content: space-between; align
 .role-task { font-size: 11px; color: #fff; font-weight: bold; margin: 0; opacity: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); line-height: 1.2;}
 .role-status { font-size: 16px; color: var(--theme-primary); flex-shrink: 0;}
 
-/* 💡 綜合演練 (Boss)：改回使用原本配色的漸層底色 */
-.boss-banner { background: var(--theme-grad); border: 2px solid var(--theme-primary); border-radius: 8px; padding: 0; display:flex; flex-direction: column; justify-content: center; text-align: center; margin: 0; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.6); flex: 1;}
+/* 💡 修正 1: 綜合演練深色主題底色 */
+.boss-banner { background: linear-gradient(135deg, var(--theme-dim), #0a0a0a); border: 2px solid var(--theme-primary); border-radius: 8px; padding: 0; display:flex; flex-direction: column; justify-content: center; text-align: center; margin: 0; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.8); flex: 1;}
 .boss-banner h3 { margin: 0; color: #fff; font-size: 15px; text-shadow: 1px 1px 3px rgba(0,0,0,0.9); }
-.boss-banner p { margin: 2px 0 0; font-size: 11px; color: #e0e0e0; text-shadow: 1px 1px 2px rgba(0,0,0,0.9); }
+.boss-banner p { margin: 2px 0 0; font-size: 11px; color: var(--text-main); text-shadow: 1px 1px 2px rgba(0,0,0,0.9); }
 .boss-banner.locked { filter: grayscale(100%); opacity: 0.6; border-color: #555; box-shadow: none; pointer-events: none;}
+.boss-banner.locked h3 { color: #aaa; }
 
 /* 任務詳情內頁 */
 .subtask-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; overflow-y:auto; flex:1;}
@@ -97,7 +100,7 @@ header { padding: 6px 12px; display: flex; justify-content: space-between; align
 .card-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; overflow-y: auto; padding: 2px; align-content: flex-start;}
 .card-item { aspect-ratio: 3 / 4; border-radius: 6px; border: 1px solid var(--theme-dim); background: linear-gradient(180deg, #2a241e, #111); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; text-align: center; padding:4px;}
 .card-icon { font-size: 20px; margin-bottom: 2px; }
-.card-title { font-size: 11px; font-weight: bold; line-height: 1.2; padding:0 2px; text-shadow: 1px 1px 2px #000;}
+.card-title { font-size: 9px; font-weight: bold; line-height: 1.2; padding:0 2px;}
 .card-item.locked { filter: grayscale(100%); opacity: 0.3; }
 
 /* ===== 極簡個案與排行榜 ===== */
@@ -131,7 +134,7 @@ header { padding: 6px 12px; display: flex; justify-content: space-between; align
 .nav-item.active { color: var(--theme-primary); }
 .nav-item.active .icon { transform: translateY(-2px); }
 
-/* 💡 修正：切換模式改為平整的方形按鈕 */
+/* 模式切換方形按鈕 */
 .mode-toggle-sq { width: 55px; height: 48px; background: rgba(255,255,255,0.08); border: 1px solid var(--theme-dim); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--theme-primary); font-size: 10px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
 .mode-toggle-sq:active { background: var(--theme-bg); transform: scale(0.95); }
 .mode-toggle-sq .icon { font-size: 16px; margin-bottom: 2px; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.8));}
@@ -149,7 +152,7 @@ header { padding: 6px 12px; display: flex; justify-content: space-between; align
       <div class="avatar-wrap" onclick="document.getElementById('profileModal').style.display='flex'"><img id="hudAvatar" src="https://i.pravatar.cc/150?img=11"></div>
       <div class="player-text-wrap">
         <div class="player-name" id="uiPlayerName">急救新星</div>
-        </div>
+      </div>
     </div>
     <div class="resources">
       <div class="res-item" id="hudCasesWrap" style="display:none;"><span class="icon">👤</span> <span id="uiCases" style="color:#fff;">0</span></div>
@@ -254,6 +257,9 @@ header { padding: 6px 12px; display: flex; justify-content: space-between; align
       </section>
 
       <nav class="bottom-nav" id="mainNav">
+        <div class="nav-item active" id="navHome" onclick="showScreen('scrHome')">
+          <div class="icon">🏠</div><span style="font-size:10px;">任務</span>
+        </div>
         <div class="nav-item" id="navPokedex" onclick="showScreen('scrPokedex'); renderDexCards(playerState.mode === 'beginner' ? 'beg' : 'adv', document.getElementById('pokedexTabs').children[playerState.mode === 'beginner' ? 0 : 1]);">
           <div class="icon">🗂️</div><span style="font-size:10px;">健康卡匣</span>
         </div>
@@ -314,53 +320,30 @@ header { padding: 6px 12px; display: flex; justify-content: space-between; align
 
 <script>
 // ==========================================
-// 💡 小遊戲檔案路徑對照表 (全部 50 關架構已建立)
+// 💡 小遊戲檔案路徑對照表 
 // ==========================================
 const GAME_URLS = {
-
-  // ==========================================
-  // 🔰 初階版 (病患/家屬) - 共 25 關
-  // ==========================================
-  
-  // 1. 中風辨識 (beg_id)
-  'beg_id_0': '', 'beg_id_1': '', 'beg_id_2': '', 'beg_id_3': '', 'beg_id_4': '',
-  
-  // 2. 住院須知 (beg_hosp)
+  // 🔰 初階版 - 共 25 關
+  'beg_id_0': 'game_name.html', 'beg_id_1': 'game_hospital.html', 'beg_id_2': '', 'beg_id_3': '', 'beg_id_4': '',
   'beg_hosp_0': '', 'beg_hosp_1': '', 'beg_hosp_2': '', 'beg_hosp_3': '', 'beg_hosp_4': '',
-
-  // 3. 基礎照護 (beg_care)
   'beg_care_0': '', 'beg_care_1': '', 'beg_care_2': '', 'beg_care_3': '', 'beg_care_4': '',
-
-  // 4. 復健入門 (beg_rehab)
   'beg_rehab_0': '', 'beg_rehab_1': '', 'beg_rehab_2': '', 'beg_rehab_3': '', 'beg_rehab_4': '',
-
-  // 5. 返家準備 (beg_home)
   'beg_home_0': '', 'beg_home_1': '', 'beg_home_2': '', 'beg_home_3': '', 'beg_home_4': '',
 
-
-  // ==========================================
-  // ⚕️ 進階版 (專業人員) - 共 25 關
-  // ==========================================
-
-  // 1. EMT (role_emt)
+  // ⚕️ 進階版 - 共 25 關
   'role_emt_0': 'game_race_lev1.html', 
   'role_emt_1': 'game_race_lev1.html', 
   'role_emt_2': 'game_race_lev1.html', 
   'role_emt_3': 'game_race_lev1.html', 
   'role_emt_4': 'game_race_lev1.html', 
-
-  // 2. 取栓專家 (role_dr)
-  'role_dr_0': '', 'role_dr_1': '', 'role_dr_2': '', 'role_dr_3': '', 'role_dr_4': '',
-
-  // 3. 護理師 (role_nurse)
-  'role_nurse_0': '', 'role_nurse_1': '', 'role_nurse_2': '', 'role_nurse_3': '', 'role_nurse_4': '',
-
-  // 4. 復健師 (role_pt)
+  'role_dr_0': 'game_shoot_lev1.html', 
+  'role_dr_1': '',
+  'role_dr_2': '', 
+  'role_dr_3': '', 
+  'role_dr_4': '',
+  'role_nurse_0': 'game_match_lev1.html', 'role_nurse_1': 'game_match_lev2.html', 'role_nurse_2': '', 'role_nurse_3': '', 'role_nurse_4': '',
   'role_pt_0': '', 'role_pt_1': '', 'role_pt_2': '', 'role_pt_3': '', 'role_pt_4': '',
-
-  // 5. 營養師 (role_diet)
   'role_diet_0': '', 'role_diet_1': '', 'role_diet_2': '', 'role_diet_3': '', 'role_diet_4': '',
-
 };
 
 let currentGameInfo = null;
@@ -417,7 +400,7 @@ function getActiveCompletedCases() { return playerState.mode === 'beginner' ? pl
 function getActiveTaskScores() { return playerState.mode === 'beginner' ? playerState.taskScoresBeg : playerState.taskScoresAdv; }
 function id(elId) { return document.getElementById(elId); }
 
-const SAVE_KEY = 'BrainPioneer_SaveData_v33';
+const SAVE_KEY = 'BrainPioneer_SaveData_v35';
 
 function saveGameData() {
   const dataToSave = {
@@ -489,7 +472,7 @@ function saveProfile(selectedMode) {
   } catch(e) { alert("登入失敗，請重試"); }
 }
 
-// 💡 修正 4：模式切換按鈕除了改換模式，還會自動跳轉回首頁(任務列表)
+// 💡 模式切換按鈕，並自動跳轉回首頁(任務列表)
 function toggleMode() { 
   playerState.mode = playerState.mode === 'beginner' ? 'advanced' : 'beginner'; 
   saveGameData(); 
@@ -530,7 +513,7 @@ function showScreen(screenId) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.querySelector('.mode-toggle-sq').style.opacity = '1';
   
-  if (screenId === 'scrHome') document.querySelectorAll('.nav-item')[0].classList.add('active'); // No specific ID assigned because it's replaced, but let's just not highlight any standard nav for home, or highlight a dummy.
+  if (screenId === 'scrHome') document.querySelectorAll('.nav-item')[0].classList.add('active'); 
   if (screenId === 'scrPokedex') id('navPokedex').classList.add('active');
   if (screenId === 'scrCaseDex') id('navCaseDex').classList.add('active');
   if (screenId === 'scrLeaderboard' || screenId === 'scrStrokeCard') id('navLeaderboard').classList.add('active');
@@ -650,8 +633,8 @@ window.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'GAME_CLEAR') {
     closeGameIframe(); 
     if (!currentGameInfo && event.data.coins) {
-      playerState.coins += event.data.coins; updateHUD(); saveGameData();
-      alert(`🎉 恭喜破關腦脈新接龍！\n獲得 ${event.data.coins} 健康幣！`); return;
+      // 💡 移除新接龍過關的獎勵
+      alert(`🎉 恭喜破關腦脈新接龍！\n（娛樂模式無健康幣獎勵，請多挑戰衛教任務喔！）`); return;
     }
     handleGameClear(event.data.score || 1000); 
   } else if (event.data && event.data.type === 'GAME_OVER') {
@@ -684,12 +667,12 @@ function renderDexCards(tab, btnEl) {
   Array.from(id('pokedexTabs').children).forEach(t => t.classList.remove('active')); btnEl.classList.add('active');
   const grid = id('cardGrid'); 
   
-  // 💡 修正 3：按鈕文字改為判斷是否滿圖鑑，未滿則顯示 100 幣，滿則顯示免費
+  // 💡 挑戰按鈕常駐顯示
   const isBegMaster = playerState.taskScoresBeg.size >= 25;
   const isAdvMaster = playerState.taskScoresAdv.size >= 25;
   const btn = id('tabCardGameBtn');
   
-  id('cardGameWrap').style.display = 'flex'; // 永遠顯示挑戰按鈕
+  id('cardGameWrap').style.display = 'flex';
   
   if (isBegMaster && isAdvMaster) {
     btn.innerHTML = "🃏 挑戰腦脈新接龍 (免費)";
@@ -720,19 +703,19 @@ function renderDexCards(tab, btnEl) {
   }
 }
 
-// 💡 修正 3：卡牌挑戰付費機制（每次遊玩扣款）
+// 💡 挑戰付費機制
 function tryLaunchFreeCell() {
   const isBegMaster = playerState.taskScoresBeg.size >= 25;
   const isAdvMaster = playerState.taskScoresAdv.size >= 25;
   
   if (isBegMaster && isAdvMaster) {
-    // 已經滿圖鑑，免費暢玩
+    // 滿圖鑑，免費暢玩
     if(id('gameTitle')) id('gameTitle').textContent = '🃏 腦脈新接龍'; 
     if(id('gameFrame')) id('gameFrame').src = 'game_freecell.html'; 
     if(id('gameOverlay')) id('gameOverlay').style.display = 'flex';
   } else {
-    // 未滿圖鑑，每次扣 100
-    if (confirm("🔒 尚未集滿所有圖鑑！\n\n每次遊玩需花費 100 健康幣，過關可獲得 10,000 健康幣，確定要挑戰嗎？")) {
+    // 💡 修正 3：未滿圖鑑每次扣 100 幣
+    if (confirm("🔒 尚未集滿所有圖鑑！\n\n健康卡全解鎖前，每次遊玩需花費 100 健康幣，確定要挑戰嗎？")) {
       if (playerState.coins >= 100) {
         playerState.coins -= 100;
         saveGameData();
@@ -741,7 +724,7 @@ function tryLaunchFreeCell() {
         if(id('gameFrame')) id('gameFrame').src = 'game_freecell.html'; 
         if(id('gameOverlay')) id('gameOverlay').style.display = 'flex';
       } else {
-        alert("❌ 健康幣不足！您的存款只有 " + playerState.coins + "，無法遊玩。");
+        alert("❌ 健康幣不足！您的存款只有 " + playerState.coins + "。");
       }
     }
   }
