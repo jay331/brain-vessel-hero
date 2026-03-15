@@ -22,7 +22,8 @@ body.mode-beginner {
   --theme-dim: #1976d2;
   --theme-bg: rgba(25, 118, 210, 0.1);
   --theme-panel: rgba(10, 15, 25, 0.9);
-  --theme-grad: linear-gradient(90deg, rgba(33, 150, 243, 0.25), rgba(25, 118, 210, 0.35));
+  /* 💡 修正 2：初階版五大主題底色大幅調暗 (降低透明度) */
+  --theme-grad: linear-gradient(90deg, rgba(33, 150, 243, 0.15), rgba(25, 118, 210, 0.25));
   --btn-text: #fff;
   --btn-shadow: 1px 1px 2px rgba(0,0,0,0.8);
 }
@@ -67,7 +68,6 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .btn-back:active { transform: scale(0.97); background: rgba(0,0,0,0.8); }
 .btn-back .back-icon { font-size: 20px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.8)); }
 
-/* 💡 修正 1：專屬綠色救援按鈕 */
 .btn-rescue { background: linear-gradient(180deg, #0eb855, #097536); border: 1px solid #3dff8e; color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); padding: 10px; font-size: 13px; }
 .btn-rescue:active { background: #097536; }
 
@@ -96,7 +96,8 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .subtask-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-radius: 8px; border: 1px solid var(--theme-dim); font-weight: bold; font-size: 14px; transition: all 0.2s; flex-shrink: 0;}
 .subtask-item.completed { background: rgba(255, 255, 255, 0.05); border-color: #444; color: #aaa; }
 .subtask-item.completed .status-text { color: var(--theme-primary); filter: drop-shadow(0 0 2px rgba(0,0,0,0.8)); font-size: 15px;}
-.subtask-item.active { background: linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); border: 2px solid #fff; color: var(--btn-text); text-shadow: var(--btn-shadow); cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5), 0 0 15px var(--theme-primary); transform: scale(1.02); z-index:2; }
+/* 💡 修正 2：內頁的活動任務底色也配合調暗一點 */
+.subtask-item.active { background: linear-gradient(135deg, var(--theme-primary), rgba(0,0,0,0.8)); border: 2px solid #fff; color: var(--btn-text); text-shadow: var(--btn-shadow); cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5), 0 0 15px var(--theme-primary); transform: scale(1.02); z-index:2; }
 .subtask-item.locked { background: rgba(0, 0, 0, 0.6); border-color: #333; color: #666; pointer-events: none; }
 .task-stat { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(0,0,0,0.5); border-radius: 6px; font-size:14px; border: 1px solid var(--theme-dim); flex-shrink: 0;}
 
@@ -143,10 +144,12 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .nav-item.active { color: var(--theme-primary); }
 .nav-item.active .icon { transform: translateY(-2px); }
 
-/* 💡 修正 2：深色底方形按鈕與 Boss 綜合演練底色同步，且圖示會跟著主題發光 */
-.mode-toggle-sq { width: 58px; height: 50px; background: linear-gradient(135deg, var(--theme-dim), #0a0a0a); border: 1px solid var(--theme-primary); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--theme-primary); font-size: 10px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.05); }
+/* 💡 修正 1：移除光暈效果，回歸俐落實心圖示 */
+.mode-toggle-sq { width: 58px; height: 50px; border: 1px solid var(--theme-primary); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--theme-primary); font-size: 10px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.05); }
+body.mode-advanced .mode-toggle-sq { background: linear-gradient(135deg, var(--theme-dim), #0a0a0a); }
+body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--theme-dim), #0a0a0a); }
 .mode-toggle-sq:active { background: #000; transform: scale(0.95); }
-.mode-toggle-sq .icon { font-size: 20px; margin-bottom: 2px; text-shadow: 0 0 10px var(--theme-primary);}
+.mode-toggle-sq .icon { font-size: 20px; margin-bottom: 2px; text-shadow: none;}
 
 /* 彈出視窗 */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 5000; padding: 15px;}
@@ -393,7 +396,7 @@ const scaleQuestions = [
     { val: 1, icon: '👕', text: '沒有困難' }, { val: 2, icon: '🙂', text: '有一點困難' }, { val: 3, icon: '😐', text: '中度困難' }, { val: 4, icon: '😟', text: '嚴重困難' }, { val: 5, icon: '🆘', text: '無法自理' }
   ]},
   { id: 'eq3', title: '4/7 日常活動', type: 'choice', options: [
-    { val: 1, icon: '💼', text: '沒有困難' }, { val: 2, icon: '🙂', text: '有一點困難' }, { val: 3, icon: '😐', text: '中度困難' }, { val: 4, icon: '😟', text: '嚴重困難' }, { val: 5, icon: '🚫', text: '無法進行' }
+    { val: 1, icon: '💼', text: '沒有困難' }, { val: 2, icon: '🙂', text: '有一點困難' }, { val: 3, icon: '😐', text: '中度困難' }, { val: 4, icon: '😟', text: '严重困難' }, { val: 5, icon: '🚫', text: '無法進行' }
   ]},
   { id: 'eq4', title: '5/7 疼痛/不舒服', type: 'choice', options: [
     { val: 1, icon: '🟢', text: '沒有疼痛' }, { val: 2, icon: '🟡', text: '有一點' }, { val: 3, icon: '🟠', text: '中度' }, { val: 4, icon: '🔴', text: '嚴重' }, { val: 5, icon: '🔥', text: '極度疼痛' }
@@ -411,7 +414,7 @@ function getActiveCompletedCases() { return playerState.mode === 'beginner' ? pl
 function getActiveTaskScores() { return playerState.mode === 'beginner' ? playerState.taskScoresBeg : playerState.taskScoresAdv; }
 function id(elId) { return document.getElementById(elId); }
 
-const SAVE_KEY = 'BrainPioneer_SaveData_v38';
+const SAVE_KEY = 'BrainPioneer_SaveData_v42';
 
 function saveGameData() {
   const dataToSave = {
@@ -487,7 +490,7 @@ function toggleMode() {
   playerState.mode = playerState.mode === 'beginner' ? 'advanced' : 'beginner'; 
   saveGameData(); 
   updateModeUI(); 
-  showScreen('scrHome');
+  showScreen('scrHome'); 
 }
 
 function updateModeUI() {
@@ -557,7 +560,6 @@ function renderHomeRoles() {
     const isCompleted = role.currentTask > role.totalTasks;
     const progressText = isCompleted ? '✅ 全部通關' : `進度 ${role.currentTask - 1}/${role.totalTasks}`;
     
-    // 💡 修正 5：升級為帶有漸層背景的圓形小按鈕
     const actionBtn = isCompleted ? `<div class="role-go-btn done">✔</div>` : `<div class="role-go-btn">➤</div>`;
     
     container.innerHTML += `
@@ -589,7 +591,6 @@ function openRoleDetail(roleId) {
     }
   }
   
-  // 💡 修正 3：次數改用綠色與空心球球顯示
   let attemptStr = '';
   for(let i=0; i<5; i++) {
     if(i < role.dailyAttempts) attemptStr += '<span style="color:var(--good); font-size:16px; margin:0 2px; text-shadow:0 0 5px var(--good);">●</span>';
@@ -710,6 +711,7 @@ function renderDexCards(tab, btnEl) {
   
   id('cardGameWrap').style.display = 'flex';
   
+  // 💡 修正 3：未解鎖時顯示單次扣除費用 300 幣
   if (isBegMaster && isAdvMaster) {
     btn.innerHTML = "🃏 挑戰健康卡新接龍";
   } else {
@@ -739,6 +741,7 @@ function renderDexCards(tab, btnEl) {
   }
 }
 
+// 💡 修正 3：卡牌遊戲付費機制 (每次 300 幣)
 function tryLaunchFreeCell() {
   const isBegMaster = playerState.taskScoresBeg.size >= 25;
   const isAdvMaster = playerState.taskScoresAdv.size >= 25;
@@ -748,9 +751,9 @@ function tryLaunchFreeCell() {
     if(id('gameFrame')) id('gameFrame').src = 'game_freecell.html'; 
     if(id('gameOverlay')) id('gameOverlay').style.display = 'flex';
   } else {
-    if (confirm("🔒 尚未集滿所有健康卡！\n\n健康卡共52張，全解鎖前，每次遊玩需花費 500 健康幣，確定要挑戰嗎？")) {
-      if (playerState.coins >= 500) {
-        playerState.coins -= 500;
+    if (confirm("🔒 尚未集滿所有健康卡！\n\n健康卡共52張，全解鎖前，每次遊玩需花費 300 健康幣，確定要挑戰嗎？")) {
+      if (playerState.coins >= 300) {
+        playerState.coins -= 300;
         saveGameData();
         updateHUD();
         if(id('gameTitle')) id('gameTitle').textContent = '🃏 腦脈新接龍'; 
