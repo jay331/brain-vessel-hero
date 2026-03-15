@@ -97,7 +97,7 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .subtask-item.completed .status-text { color: var(--theme-primary); filter: drop-shadow(0 0 2px rgba(0,0,0,0.8)); font-size: 15px;}
 .subtask-item.active { background: linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); border: 2px solid #fff; color: var(--btn-text); text-shadow: var(--btn-shadow); cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5), 0 0 15px var(--theme-primary); transform: scale(1.02); z-index:2; }
 .subtask-item.locked { background: rgba(0, 0, 0, 0.6); border-color: #333; color: #666; pointer-events: none; }
-.task-stat { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(0,0,0,0.5); border-radius: 6px; margin-bottom: 10px; font-size:14px; border: 1px solid var(--theme-dim); flex-shrink: 0;}
+.task-stat { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(0,0,0,0.5); border-radius: 6px; font-size:14px; border: 1px solid var(--theme-dim); flex-shrink: 0;}
 
 /* ===== 卡匣共用 ===== */
 .pokedex-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 6px; flex-wrap: nowrap; scrollbar-width: none; justify-content:center; flex-shrink: 0;}
@@ -142,7 +142,6 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .nav-item.active { color: var(--theme-primary); }
 .nav-item.active .icon { transform: translateY(-2px); }
 
-/* 模式切換方形按鈕 */
 .mode-toggle-sq { width: 58px; height: 50px; border: 1px solid var(--theme-primary); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--theme-primary); font-size: 10px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.05); }
 body.mode-advanced .mode-toggle-sq { background: linear-gradient(135deg, var(--theme-dim), #0a0a0a); }
 body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--theme-dim), #0a0a0a); }
@@ -193,8 +192,8 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
           
           <div id="rescuePanel" style="display:none; flex-direction:column; gap:8px; margin-top:4px; flex-shrink:0;">
             <div style="font-size:12px; color:#ff5252; text-align:center; font-weight:bold;">⚠️ 挑戰次數已用盡</div>
-            <button class="btn btn-rescue" onclick="readEduCard()">📖 觀看衛教單張 (獲得 3 次)</button>
-            <button class="btn btn-rescue" onclick="buyAttempt()">💰 500 健康幣購買 (獲得 3 次)</button>
+            <button class="btn btn-rescue" onclick="readEduCard()">📖 觀看衛教單張 (增加 3次 挑戰機會)</button>
+            <button class="btn btn-rescue" onclick="buyAttempt()">💰 使用500健康幣 (增加 3次 挑戰機會)</button>
           </div>
 
         </div>
@@ -308,6 +307,14 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
   <iframe id="gameFrame" style="flex:1; border:none; width:100%; height:100%; background:#111;"></iframe>
 </div>
 
+<div class="modal-overlay" id="customMsgModal" style="z-index:99999;">
+  <div class="modal-content" style="border-color: var(--theme-primary); padding:20px;">
+    <h3 id="customMsgTitle" style="color:var(--theme-primary); margin: 0 0 12px 0; font-size: 18px;">系統提示</h3>
+    <p id="customMsgText" style="color:#fff; font-size:14px; line-height:1.5; text-align:left; margin:0 0 20px 0; white-space:pre-wrap;"></p>
+    <div style="display:flex; gap:10px; justify-content:center;" id="customMsgBtnWrap"></div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="cardDetailModal">
   <div class="modal-content" style="border-color: var(--theme-primary); padding:16px;">
     <button class="close-btn" onclick="document.getElementById('cardDetailModal').style.display='none'">✖</button>
@@ -335,6 +342,36 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
 </div>
 
 <script>
+// ==========================================
+// 💡 自訂視窗函數 (取代原生 alert/confirm)
+// ==========================================
+function customAlert(msg, callback, title="系統提示") {
+  id('customMsgTitle').textContent = title;
+  id('customMsgText').textContent = msg;
+  id('customMsgBtnWrap').innerHTML = `<button class="btn" style="background:var(--theme-primary); color:var(--btn-text);" onclick="closeCustomMsg(); ${callback ? 'customMsgCallback();' : ''}">確定</button>`;
+  if(callback) window.customMsgCallback = callback;
+  id('customMsgModal').style.display = 'flex';
+}
+
+function customConfirm(msg, onConfirm, onCancel, title="請確認") {
+  id('customMsgTitle').textContent = title;
+  id('customMsgText').textContent = msg;
+  id('customMsgBtnWrap').innerHTML = `
+    <button class="btn" style="background:#555; color:#fff;" onclick="closeCustomMsg(); ${onCancel ? 'customMsgCancel();' : ''}">取消</button>
+    <button class="btn" style="background:var(--theme-primary); color:var(--btn-text);" onclick="closeCustomMsg(); customMsgConfirm();">確定</button>
+  `;
+  window.customMsgConfirm = onConfirm;
+  if(onCancel) window.customMsgCancel = onCancel;
+  id('customMsgModal').style.display = 'flex';
+}
+
+function closeCustomMsg() {
+  id('customMsgModal').style.display = 'none';
+}
+
+// ==========================================
+// 💡 小遊戲檔案路徑對照表 
+// ==========================================
 const GAME_URLS = {
   // 🔰 初階版 - 共 25 關
   'beg_id_0': 'game_name.html', 'beg_id_1': '', 'beg_id_2': '', 'beg_id_3': '', 'beg_id_4': '',
@@ -409,7 +446,7 @@ function getActiveCompletedCases() { return playerState.mode === 'beginner' ? pl
 function getActiveTaskScores() { return playerState.mode === 'beginner' ? playerState.taskScoresBeg : playerState.taskScoresAdv; }
 function id(elId) { return document.getElementById(elId); }
 
-const SAVE_KEY = 'BrainPioneer_SaveData_v42';
+const SAVE_KEY = 'BrainPioneer_SaveData_v44';
 
 function saveGameData() {
   const dataToSave = {
@@ -467,7 +504,7 @@ function handleAvatarUpload(event) {
 function saveProfile(selectedMode) {
   try {
     const nameInput = id('inputNickname').value.trim();
-    if (!nameInput) { alert("請輸入暱稱喔！"); return; }
+    if (!nameInput) { customAlert("請輸入暱稱喔！"); return; }
     playerState.name = nameInput; playerState.mode = selectedMode; playerState.avatar = id('previewAvatar').src; playerState.hasSetup = true;
     
     if (nameInput === "ILoveFemh") {
@@ -475,17 +512,17 @@ function saveProfile(selectedMode) {
       ROLES_DATA_BEG.forEach(r => { r.currentTask = 6; r.subTasks.forEach((st, i) => playerState.taskScoresBeg.set(`${r.id}_${i}`, 1000)); });
       ROLES_DATA_ADV.forEach(r => { r.currentTask = 6; r.subTasks.forEach((st, i) => playerState.taskScoresAdv.set(`${r.id}_${i}`, 1000)); });
       playerState.completedCasesBeg.set("11111", 5000); playerState.completedCasesAdv.set("11111", 5000);
-      alert("🔓 開發者模式啟動：已解鎖全部任務、圖鑑與新接龍對戰！");
+      customAlert("🔓 開發者模式啟動：已解鎖全部任務、圖鑑與新接龍對戰！");
     }
     saveGameData(); updateModeUI(); id('profileModal').style.display = 'none';
-  } catch(e) { alert("登入失敗，請重試"); }
+  } catch(e) { customAlert("登入失敗，請重試"); }
 }
 
 function toggleMode() { 
   playerState.mode = playerState.mode === 'beginner' ? 'advanced' : 'beginner'; 
   saveGameData(); 
   updateModeUI(); 
-  showScreen('scrHome'); 
+  showScreen('scrHome');
 }
 
 function updateModeUI() {
@@ -600,7 +637,7 @@ function openRoleDetail(roleId) {
 
 function playTask(taskIndex) {
   const role = getActiveRoles().find(r => r.id === activeRoleId);
-  if (role.dailyAttempts <= 0) { alert("今日機會已用盡！請觀看衛教或使用健康幣購買。"); return; }
+  if (role.dailyAttempts <= 0) { customAlert("今日機會已用盡！請觀看衛教或使用健康幣購買。"); return; }
   
   const gameId = `${role.id}_${taskIndex}`;
   const gameUrl = GAME_URLS[gameId];
@@ -613,29 +650,31 @@ function playTask(taskIndex) {
     if(id('gameOverlay')) id('gameOverlay').style.display = 'flex';
   } else {
     role.dailyAttempts--;
-    if(confirm(`[系統演練] 尚未綁定遊戲檔案，進入模擬演練：\n【${role.subTasks[taskIndex]}】\n\n按下「確定」代表順利過關！`)) {
-      currentGameInfo = { id: gameId, role: role, taskIndex: taskIndex };
-      handleGameClear(1000); 
-    } else {
-      alert(`❌ 挑戰失敗，扣除 1 次機會。再接再厲！`);
-      saveGameData(); updateHUD(); openRoleDetail(activeRoleId);
-    }
+    customConfirm(`[系統演練] 尚未綁定遊戲檔案，進入模擬演練：\n【${role.subTasks[taskIndex]}】\n\n按下「確定」代表順利過關！`, 
+      () => {
+        currentGameInfo = { id: gameId, role: role, taskIndex: taskIndex };
+        handleGameClear(1000); 
+      },
+      () => {
+        customAlert(`❌ 挑戰失敗，扣除 1 次機會。再接再厲！`);
+        saveGameData(); updateHUD(); openRoleDetail(activeRoleId);
+      }
+    );
   }
 }
 
 function forceQuitGame() {
-  if (confirm("確定要緊急撤退嗎？(已經扣除的挑戰機會不會歸還)")) {
+  customConfirm("確定要緊急撤退嗎？(已經扣除的挑戰機會不會歸還)", () => {
     if(id('gameOverlay')) id('gameOverlay').style.display = 'none'; 
     if(id('gameFrame')) id('gameFrame').src = ''; 
     currentGameInfo = null; openRoleDetail(activeRoleId);
-  }
+  });
 }
 function closeGameIframe() { 
   if(id('gameOverlay')) id('gameOverlay').style.display = 'none'; 
   if(id('gameFrame')) id('gameFrame').src = ''; 
 }
 
-// 💡 修正：解鎖時增加關閉 Alert 後自動展示健康卡的機制
 function handleGameClear(score) {
   const info = currentGameInfo;
   if(!info) return;
@@ -644,12 +683,10 @@ function handleGameClear(score) {
   if (info.role.currentTask === info.taskIndex + 1) info.role.currentTask++;
   saveGameData(); updateHUD(); openRoleDetail(activeRoleId);
   
-  // 顯示獲得健康幣通知
-  alert(`🎉 任務成功！得分：${score} 分\n獲得 50 健康幣！\n\n✨ 成功解鎖健康卡，請按下「確定」觀看重點整理！`);
-  
-  // Alert 關閉後，自動打開該關卡的健康卡 Modal
-  const tabMode = playerState.mode === 'beginner' ? 'beg' : 'adv';
-  openCardModal(tabMode, info.role.id, info.taskIndex);
+  customAlert(`🎉 任務成功！得分：${score} 分\n獲得 50 健康幣！\n\n✨ 成功解鎖健康卡，請按下「確定」觀看重點整理！`, () => {
+    const tabMode = playerState.mode === 'beginner' ? 'beg' : 'adv';
+    openCardModal(tabMode, info.role.id, info.taskIndex);
+  });
   
   currentGameInfo = null;
 }
@@ -658,19 +695,22 @@ window.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'GAME_CLEAR') {
     closeGameIframe(); 
     if (!currentGameInfo && event.data.coins) {
-      alert(`🎉 恭喜破關腦脈新接龍！\n（娛樂模式無健康幣獎勵，請多挑戰衛教任務喔！）`); return;
+      customAlert(`🎉 恭喜破關腦脈新接龍！\n（娛樂模式無健康幣獎勵，請多挑戰衛教任務喔！）`); return;
     }
     handleGameClear(event.data.score || 1000); 
   } else if (event.data && event.data.type === 'GAME_OVER') {
-    closeGameIframe(); alert('❌ 任務失敗，請再接再厲！'); currentGameInfo = null; openRoleDetail(activeRoleId);
+    closeGameIframe(); customAlert('❌ 任務失敗，請再接再厲！', () => {
+      currentGameInfo = null; openRoleDetail(activeRoleId);
+    });
   }
 });
 
 function readEduCard() { 
-  alert('📖 【每日衛教小知識】\n\n中風的「黃金搶救時間」非常短暫，發現症狀請務必立刻撥打 119，切勿自行開車送醫！\n\n🎉 複習完成！已為您恢復 3 次挑戰機會！');
-  getActiveRoles().find(r=>r.id===activeRoleId).dailyAttempts += 3; 
-  saveGameData(); 
-  openRoleDetail(activeRoleId); 
+  customAlert('📖 【每日衛教小知識】\n\n中風的「黃金搶救時間」非常短暫，發現症狀請務必立刻撥打 119，切勿自行開車送醫！\n\n🎉 複習完成！已為您恢復 3 次挑戰機會！', () => {
+    getActiveRoles().find(r=>r.id===activeRoleId).dailyAttempts += 3; 
+    saveGameData(); 
+    openRoleDetail(activeRoleId); 
+  });
 }
 
 function buyAttempt() { 
@@ -680,9 +720,9 @@ function buyAttempt() {
     saveGameData(); 
     updateHUD();
     openRoleDetail(activeRoleId); 
-    alert('💰 購買成功！已為您恢復 3 次挑戰機會！');
+    customAlert('💰 購買成功！已為您恢復 3 次挑戰機會！');
   } else { 
-    alert('❌ 健康幣不足！購買 3 次機會需要 500 幣。'); 
+    customAlert('❌ 健康幣不足！購買 3 次機會需要 500 幣。'); 
   } 
 }
 
@@ -697,11 +737,15 @@ function openBossPrep() {
   const completed = getActiveCompletedCases();
   let newCombos = possibleCombos.filter(c => !completed.has(c));
   let selectedComboStr = newCombos.length > 0 ? newCombos[Math.floor(Math.random() * newCombos.length)] : possibleCombos[Math.floor(Math.random() * possibleCombos.length)];
-  if (confirm(`🚨 系統警報 🚨\n即將執行連續 5 項任務的綜合演練...\n本次目標編號：#C-${selectedComboStr}\n\n按「確定」模擬順利過關！`)) {
-    if (Math.floor(800 + Math.random() * 200) > (completed.get(selectedComboStr) || 0)) completed.set(selectedComboStr, Math.floor(800 + Math.random() * 200));
-    playerState.coins += 500; saveGameData(); updateHUD();
-    alert(`🏆 完美救援！個案演練 ${selectedComboStr} 成功！\n獲得 500 健康幣！`);
-  } else { alert(`🚨 失誤過多，演練失敗。`); }
+  
+  customConfirm(`🚨 系統警報 🚨\n即將執行連續 5 項任務的綜合演練...\n本次目標編號：#C-${selectedComboStr}\n\n按「確定」模擬順利過關！`, 
+    () => {
+      if (Math.floor(800 + Math.random() * 200) > (completed.get(selectedComboStr) || 0)) completed.set(selectedComboStr, Math.floor(800 + Math.random() * 200));
+      playerState.coins += 500; saveGameData(); updateHUD();
+      customAlert(`🏆 完美救援！個案演練 ${selectedComboStr} 成功！\n獲得 500 健康幣！`);
+    },
+    () => { customAlert(`🚨 失誤過多，演練失敗。`); }
+  );
 }
 
 function renderDexCards(tab, btnEl) {
@@ -715,9 +759,9 @@ function renderDexCards(tab, btnEl) {
   id('cardGameWrap').style.display = 'flex';
   
   if (isBegMaster && isAdvMaster) {
-    btn.innerHTML = "🃏 挑戰健康卡新接龍 (免費)";
+    btn.innerHTML = "🃏 挑戰健康卡新接龍";
   } else {
-    btn.innerHTML = "🃏 挑戰健康卡新接龍 (需 300 幣)";
+    btn.innerHTML = "🃏 挑戰健康卡新接龍";
   }
 
   grid.innerHTML = '';
@@ -725,7 +769,7 @@ function renderDexCards(tab, btnEl) {
     ROLES_DATA_BEG.forEach(role => {
       role.subTasks.forEach((st, idx) => {
         const isUnl = playerState.taskScoresBeg.has(`${role.id}_${idx}`);
-        const action = isUnl ? `onclick="openCardModal('beg', '${role.id}', ${idx})"` : `onclick="alert('🔒 尚未解鎖此卡片。')"`;
+        const action = isUnl ? `onclick="openCardModal('beg', '${role.id}', ${idx})"` : `onclick="customAlert('🔒 尚未解鎖此卡片。')"`;
         grid.innerHTML += `<div class="card-item ${isUnl?'':'locked'}" ${action}><div class="card-icon">${role.icon}</div><div class="card-title">${st.substring(3)}</div></div>`;
       });
     });
@@ -733,13 +777,13 @@ function renderDexCards(tab, btnEl) {
     ROLES_DATA_ADV.forEach(role => {
       role.subTasks.forEach((st, idx) => {
         const isUnl = playerState.taskScoresAdv.has(`${role.id}_${idx}`);
-        const action = isUnl ? `onclick="openCardModal('adv', '${role.id}', ${idx})"` : `onclick="alert('🔒 尚未解鎖此卡片。')"`;
+        const action = isUnl ? `onclick="openCardModal('adv', '${role.id}', ${idx})"` : `onclick="customAlert('🔒 尚未解鎖此卡片。')"`;
         grid.innerHTML += `<div class="card-item ${isUnl?'':'locked'}" ${action}><div class="card-icon">${role.icon}</div><div class="card-title">${st.substring(3)}</div></div>`;
       });
     });
   } else if (tab === 'hidden') {
-    grid.innerHTML += `<div class="card-item hidden-card ${isBegMaster?'':'locked'}" onclick="if(${isBegMaster}) { id('modalIcon').textContent='🏥'; id('modalTitle').textContent='亞東中風中心'; id('modalCategory').textContent='初階隱藏卡'; id('modalDesc').textContent='整合急診、神經內外科、復健科跨團隊，為病患提供全方位黃金救援與術後照護體系！'; id('cardDetailModal').style.display='flex'; } else alert('🔒 尚未解鎖。請先完成初階版所有 25 個任務！')"><div class="card-icon">🏥</div><div class="card-title" style="color:#4fc3f7">亞東中風中心</div></div>`;
-    grid.innerHTML += `<div class="card-item hidden-card ${isAdvMaster?'':'locked'}" onclick="if(${isAdvMaster}) { id('modalIcon').textContent='🏛️'; id('modalTitle').textContent='亞東紀念醫院'; id('modalCategory').textContent='進階隱藏卡'; id('modalDesc').textContent='秉持持續提升醫療品質，善盡社會醫療責任之宗旨，是您最堅強的醫療後盾！'; id('cardDetailModal').style.display='flex'; } else alert('🔒 尚未解鎖。請先完成進階版所有 25 個任務！')"><div class="card-icon">🏛️</div><div class="card-title" style="color:var(--theme-primary)">亞東紀念醫院</div></div>`;
+    grid.innerHTML += `<div class="card-item hidden-card ${isBegMaster?'':'locked'}" onclick="if(${isBegMaster}) { id('modalIcon').textContent='🏥'; id('modalTitle').textContent='亞東中風中心'; id('modalCategory').textContent='初階隱藏卡'; id('modalDesc').textContent='整合急診、神經內外科、復健科跨團隊，為病患提供全方位黃金救援與術後照護體系！'; id('cardDetailModal').style.display='flex'; } else customAlert('🔒 尚未解鎖。請先完成初階版所有 25 個任務！')"><div class="card-icon">🏥</div><div class="card-title" style="color:#4fc3f7">亞東中風中心</div></div>`;
+    grid.innerHTML += `<div class="card-item hidden-card ${isAdvMaster?'':'locked'}" onclick="if(${isAdvMaster}) { id('modalIcon').textContent='🏛️'; id('modalTitle').textContent='亞東紀念醫院'; id('modalCategory').textContent='進階隱藏卡'; id('modalDesc').textContent='秉持持續提升醫療品質，善盡社會醫療責任之宗旨，是您最堅強的醫療後盾！'; id('cardDetailModal').style.display='flex'; } else customAlert('🔒 尚未解鎖。請先完成進階版所有 25 個任務！')"><div class="card-icon">🏛️</div><div class="card-title" style="color:var(--theme-primary)">亞東紀念醫院</div></div>`;
   }
 }
 
@@ -752,7 +796,7 @@ function tryLaunchFreeCell() {
     if(id('gameFrame')) id('gameFrame').src = 'game_freecell.html'; 
     if(id('gameOverlay')) id('gameOverlay').style.display = 'flex';
   } else {
-    if (confirm("🔒 尚未集滿所有健康卡！\n\n健康卡共52張，全解鎖前，每次遊玩需花費 300 健康幣，確定要挑戰嗎？")) {
+    customConfirm("🔒 尚未集滿所有健康卡！\n\n健康卡共52張，全解鎖前，每次遊玩需花費 300 健康幣，確定要挑戰嗎？", () => {
       if (playerState.coins >= 300) {
         playerState.coins -= 300;
         saveGameData();
@@ -761,9 +805,9 @@ function tryLaunchFreeCell() {
         if(id('gameFrame')) id('gameFrame').src = 'game_freecell.html'; 
         if(id('gameOverlay')) id('gameOverlay').style.display = 'flex';
       } else {
-        alert("❌ 健康幣不足！您的存款只有 " + playerState.coins + "。");
+        customAlert("❌ 健康幣不足！您的存款只有 " + playerState.coins + "。");
       }
-    }
+    });
   }
 }
 
@@ -789,7 +833,7 @@ function renderCaseDex() {
     let iconsHTML = ''; const roles = getActiveRoles();
     for(let i=0; i<5; i++) { if(roles[i] && caseStr[i]) iconsHTML += roles[i].icon; }
     container.innerHTML += `
-      <div class="case-dex-item" onclick="alert('編號：#C-${caseStr}\\n紀錄最高分：${score} 分\\n這是一個完美的跨團隊處置紀錄！')">
+      <div class="case-dex-item" onclick="customAlert('編號：#C-${caseStr}\\n紀錄最高分：${score} 分\\n這是一個完美的跨團隊處置紀錄！')">
         <div style="display:flex; align-items:center; gap:10px;">
           <span class="case-dex-id" style="border:none; padding:0;">#C-${caseStr}</span>
           <span style="font-size:14px; letter-spacing:4px;">${iconsHTML}</span>
@@ -837,7 +881,7 @@ function toggleScEdit(show) {
 }
 function saveStrokeCard() {
   playerState.strokeCard = { date: id('scDate').value, type: id('scType').value, location: id('scLocation').value, risks: Array.from(document.querySelectorAll('input[name="scRisk"]:checked')).map(cb => cb.value) };
-  saveGameData(); alert('名片儲存成功！'); renderStrokeCard();
+  saveGameData(); customAlert('名片儲存成功！', () => { renderStrokeCard(); });
 }
 
 function switchScaleTab(tabId) {
@@ -862,8 +906,9 @@ function finishScaleWizard() {
   const todayDateStr = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' });
   const newRecord = { id: Date.now(), date: todayDateStr, mrs: currentAnswers.mrs, eqSum: currentAnswers.eq1+currentAnswers.eq2+currentAnswers.eq3+currentAnswers.eq4+currentAnswers.eq5, vas: currentAnswers.vas };
   const existingIndex = playerState.scaleRecords.findIndex(r => r.date === todayDateStr);
-  if (existingIndex !== -1) { playerState.scaleRecords[existingIndex] = newRecord; alert("💾 今日評估紀錄已成功更新覆蓋！"); } else { playerState.scaleRecords.unshift(newRecord); playerState.coins += 100; updateHUD(); alert("💾 評估已完成儲存！\n🎉 感謝定期追蹤，獲得 100 健康幣！"); }
-  saveGameData(); switchScaleTab('list');
+  if (existingIndex !== -1) { playerState.scaleRecords[existingIndex] = newRecord; customAlert("💾 今日評估紀錄已成功更新覆蓋！", () => switchScaleTab('list')); } 
+  else { playerState.scaleRecords.unshift(newRecord); playerState.coins += 100; updateHUD(); customAlert("💾 評估已完成儲存！\n🎉 感謝定期追蹤，獲得 100 健康幣！", () => switchScaleTab('list')); }
+  saveGameData(); 
 }
 
 function renderScaleList() {
