@@ -4,13 +4,19 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-<title>腦脈先鋒｜11G 真實比例與房門還原 (修復操作版)</title>
+<title>腦脈先鋒｜11G 究極還原版</title>
 <style>
 :root{
   --bg:#0c1218; --sky1:#1a2a3a; --sky2:#2a4054;
   --gold:#f3ca70; --text:#f5f9ff;
   --safe-top:max(8px, env(safe-area-inset-top));
   --safe-bottom:max(10px, env(safe-area-bottom));
+  /* 顏色定義 */
+  --c-floor: #fffcf2; /* 走廊 */
+  --c-pink: #fce4ec; /* 護理站走道 */
+  --c-room: #fff9c4; /* 一般房間/病房 */
+  --c-wall: #8d6e63; /* 牆壁 */
+  --c-elev: #cfd8dc; /* 電梯區 */
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:none;}
 html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:"PingFang TC","Noto Sans TC",sans-serif;color:var(--text)}
@@ -24,83 +30,87 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
   border-bottom:1px solid rgba(243,202,112,.18);
 }
 .brand{font-size:15px;font-weight:900;}
-.hudChip{background:rgba(0,0,0,.4);padding:4px 10px;border-radius:12px;font-size:12px;font-weight:bold;border:1px solid rgba(243,202,112,.3);}
-
 .scene{position:absolute;inset:0;top:calc(48px + var(--safe-top));overflow:hidden;}
 .camera { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
 
-/* 遊戲大地圖：擴大至 2400x2000，背景設為暗色 */
-.game-world { position: absolute; left: 0; top: 0; width: 2400px; height: 2000px; background-color: #1a1a1a; }
+/* --- 大地圖與基底 --- */
+.game-world { position: absolute; left: 0; top: 0; width: 2600px; height: 2200px; background-color: #222; }
 
-/* 走廊與病房基底地板 */
-.floor-base {
-  position: absolute; left: 0; top: 0; width: 2400px; height: 2000px;
-  background: #fffcf2; 
+/* 走廊地板 */
+.corridor {
+  position: absolute; left: 300px; top: 200px; width: 2000px; height: 1700px;
+  background: var(--c-floor); clip-path: polygon(0 1700px, 2000px 1700px, 2000px 0);
   background-image: radial-gradient(rgba(0,0,0,0.05) 2px, transparent 2px); background-size: 30px 30px;
 }
-/* 遮蔽走廊外的左上方區域 */
-.void-top-left { position: absolute; left: 0; top: 0; width: 2400px; height: 2000px; background: #1a1a1a; clip-path: polygon(0 0, 2400px 0, 0 2400px); z-index: 1;}
 
-/* --- 建築牆面實體與病房 --- */
+/* --- 生成房間的共用樣式 --- */
+.room-block {
+  position: absolute; background: var(--c-room); border: 8px solid var(--c-wall);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; color: #5d4037; font-size: 20px; text-align: center;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+}
+/* 房門標示 (視覺上用淺色蓋住邊框) */
+.door-top { position: absolute; top: -8px; width: 70px; height: 8px; background: var(--c-floor); }
+.door-bottom { position: absolute; bottom: -8px; width: 70px; height: 8px; background: var(--c-floor); }
+.door-left { position: absolute; left: -8px; width: 8px; height: 70px; background: var(--c-floor); }
+.door-right { position: absolute; right: -8px; width: 8px; height: 70px; background: var(--c-floor); }
+.door-pink { background: var(--c-pink) !important; } /* 面向粉紅走道的門 */
 
-/* 1. 右側病房區 (11G01 - 11G10) */
+/* --- 右側病房區 (11G01-11G10) --- */
 .ward-right {
-  position: absolute; left: 1800px; top: 100px; width: 300px; height: 1400px; z-index: 2;
-  display: flex; flex-direction: column; background: #e6dac3; border-right: 8px solid #8c7344;
+  position: absolute; left: 2000px; top: 200px; width: 350px; height: 1500px;
+  display: flex; flex-direction: column; background: var(--c-room); border: 8px solid var(--c-wall);
 }
-.room-right { 
-  flex: 1; border-bottom: 4px solid #a68b56; position: relative;
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 900; color: rgba(0,0,0,0.3); font-size: 20px;
-}
-.room-right::before {
-  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 8px;
-  background: linear-gradient(to bottom, #a68b56 0%, #a68b56 calc(50% - 40px), transparent calc(50% - 40px), transparent calc(50% + 40px), #a68b56 calc(50% + 40px), #a68b56 100%);
-}
+.room-r { flex: 1; border-bottom: 4px solid var(--c-wall); position: relative; display: flex; align-items: center; padding-left: 20px; font-weight: 900; color: #5d4037; font-size: 22px; }
+.door-r-in { position: absolute; left: -8px; bottom: 20px; width: 8px; height: 70px; background: var(--c-floor); }
 
-/* 2. 左斜側病房區 (11G11 - 11G23) */
+/* --- 左側斜向病房區 (11G11-11G23) --- */
 .ward-diag {
-  position: absolute; left: 600px; top: 1500px; width: 1697px; height: 300px; z-index: 2;
+  position: absolute; left: 300px; top: 1900px; width: 2404px; height: 350px;
   transform-origin: left top; transform: rotate(-45deg) translateY(-100%);
-  display: flex; flex-direction: row; background: #e6dac3; border-top: 8px solid #8c7344;
+  display: flex; flex-direction: row; background: var(--c-room); border-top: 8px solid var(--c-wall);
 }
-.room-diag {
-  flex: 1; border-right: 4px solid #a68b56; position: relative;
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 900; color: rgba(0,0,0,0.3); font-size: 20px;
-}
-.room-diag::after {
-  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 8px;
-  background: linear-gradient(to right, #a68b56 0%, #a68b56 calc(50% - 40px), transparent calc(50% - 40px), transparent calc(50% + 40px), #a68b56 calc(50% + 40px), #a68b56 100%);
-}
+.room-d { flex: 1; border-right: 4px solid var(--c-wall); position: relative; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 20px; font-weight: 900; color: #5d4037; font-size: 22px; }
+.door-d-in { position: absolute; bottom: -8px; left: 20px; width: 70px; height: 8px; background: var(--c-floor); }
 
-/* 3. 下側電梯廳 (右下角起點) */
-.ward-bottom {
-  position: absolute; left: 200px; top: 1500px; width: 1900px; height: 300px; z-index: 2;
-  background: #1a1a1a; 
-  display: flex; justify-content: flex-end; 
-}
+/* --- 下方區域 (電梯、陽光室、更衣室) --- */
+.bottom-area { position: absolute; left: 300px; top: 1900px; width: 2000px; height: 250px; background: #222; }
+/* 陽光室 */
+.room-sun { left: 900px; top: 1900px; width: 250px; height: 250px; background: #ffe082; }
+/* 更衣室 */
+.room-locker { left: 1150px; top: 1900px; width: 300px; height: 250px; }
+/* 電梯大廳 */
 .elevator-hall {
-  width: 400px; height: 250px; background: #b8c6d1; border: 8px solid #92a9bc; border-top: none;
+  position: absolute; left: 1650px; top: 1900px; width: 650px; height: 250px;
+  background: var(--c-elev); border: 8px solid #90a4ae; border-top: none;
   display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 20px;
-  font-weight: 900; font-size: 24px; color: #2a4054; position: relative;
+  font-weight: 900; font-size: 32px; color: #37474f;
 }
-.elevator-doors { position: absolute; top: 0; left: 50px; width: 300px; height: 20px; background: #6e8496; border-radius: 0 0 10px 10px; }
+.ward-door-line { position: absolute; left: 1650px; top: 1896px; width: 650px; height: 8px; background: #ff5252; opacity: 0.6;}
 
-/* 4. 中央等寬護理站 */
-.nursing-station-floor {
-  position: absolute; left: 1100px; top: 800px; width: 500px; height: 500px; z-index: 2;
-  background: #f8e5e7; clip-path: polygon(100% 0, 100% 100%, 0 100%); 
+/* --- 中央護理站中樞 (粉紅走道 + 內部房間) --- */
+/* 粉紅走道基底 */
+.pink-hallway {
+  position: absolute; left: 1100px; top: 1000px; width: 600px; height: 600px;
+  background: var(--c-pink); clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  border-bottom: 8px solid #f48fb1; border-right: 8px solid #f48fb1;
 }
-.desk-right { position: absolute; left: 1580px; top: 800px; width: 20px; height: 500px; background: #d4a3a7; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 3;}
-.desk-bottom-1 { position: absolute; left: 1100px; top: 1280px; width: 200px; height: 20px; background: #d4a3a7; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 3;}
-.desk-bottom-2 { position: absolute; left: 1400px; top: 1280px; width: 180px; height: 20px; background: #d4a3a7; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 3;}
-.desk-diag { position: absolute; left: 1100px; top: 1300px; width: 707px; height: 20px; background: #d4a3a7; border-radius: 10px; transform-origin: left top; transform: rotate(-45deg); box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 3;}
-.nursing-label { position: absolute; left: 1350px; top: 1150px; font-weight: 900; color: #b87c82; font-size: 32px; letter-spacing: 10px; pointer-events: none; z-index: 3;}
+/* 討論室 */
+.room-discuss { left: 1450px; top: 1000px; width: 250px; height: 200px; background: #ffcc80; }
+/* 護理長辦公室 */
+.room-headnurse { left: 1450px; top: 1200px; width: 150px; height: 200px; }
+/* 污衣/茶水間 */
+.room-pantry { left: 1600px; top: 1200px; width: 100px; height: 200px; font-size: 16px; }
+/* 備物區 */
+.room-supply { left: 1150px; top: 1400px; width: 300px; height: 200px; }
+/* 前護理站櫃檯 (右側長條) */
+.front-counter { position: absolute; left: 1700px; top: 800px; width: 30px; height: 800px; background: #e57373; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+/* 後護理站櫃檯 (斜向) */
+.back-counter { position: absolute; left: 1080px; top: 1620px; width: 850px; height: 30px; background: #e57373; border-radius: 10px; transform-origin: left top; transform: rotate(-45deg); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
 
-/* 角色 */
+/* 角色與搖桿 UI */
 .character{position:absolute;width:44px;height:64px;transform:translate(-50%,-100%);z-index:10; cursor:pointer;}
-.character:active{transform:translate(-50%,-95%) scale(0.95);}
 .marker{position:absolute;left:50%;top:-30px;transform:translateX(-50%);padding:2px 8px;border-radius:999px;background:linear-gradient(180deg,#ffe59c,#f0b94b);color:#2b2108;font-weight:900;animation:bob 1.2s infinite; font-size:14px; pointer-events:none; border:2px solid #fff;}
 .name{position:absolute;left:50%;top:-10px;transform:translateX(-50%);padding:2px 6px;border-radius:999px;background:rgba(15,24,35,.85);font-size:11px;color:var(--gold); white-space:nowrap; pointer-events:none; font-weight:bold;}
 .head{position:absolute;left:50%;top:10px;transform:translateX(-50%);width:28px;height:28px;border-radius:50%;background:#f1c8a0;}
@@ -113,79 +123,79 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 
 @keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-5px)}}
 
-/* 虛擬搖桿 UI */
-.joystick-base { position: absolute; width: 100px; height: 100px; background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.4); border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%); display: none; z-index: 50;}
-.joystick-knob { position: absolute; width: 40px; height: 40px; background: rgba(243,202,112,0.9); border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+.joystick-base { position: absolute; width: 120px; height: 120px; background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.4); border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%); display: none; z-index: 50;}
+.joystick-knob { position: absolute; width: 50px; height: 50px; background: rgba(243,202,112,0.9); border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
-/* UI */
-.miniHint{ position:absolute;left:50%;top:16px;transform:translateX(-50%);z-index:23; background:rgba(15,24,35,.85);border:1px solid rgba(243,202,112,.4);border-radius:999px;padding:12px 24px; font-size:14px; font-weight:bold; color:#fff; text-align:center; white-space:nowrap; box-shadow: 0 6px 15px rgba(0,0,0,0.4); pointer-events:none; }
+/* 提示與對話框 */
+.miniHint{ position:absolute;left:50%;top:16px;transform:translateX(-50%);z-index:23; background:rgba(15,24,35,.9);border:1px solid rgba(243,202,112,.4);border-radius:999px;padding:12px 24px; font-size:15px; font-weight:bold; color:#fff; text-align:center; white-space:nowrap; box-shadow: 0 6px 15px rgba(0,0,0,0.4); pointer-events:none; }
 .dialogMask{position:absolute;inset:0;z-index:40;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.6); padding-bottom:calc(20px + var(--safe-bottom));}
 .dialogBox{width:92%;max-width:500px;background:linear-gradient(180deg,#1e364f, #142538);border-radius:18px;padding:24px;border:2px solid var(--gold);color:#fff; box-shadow:0 20px 40px rgba(0,0,0,0.6);}
-.dialogBox h3{margin:0 0 12px 0; color:var(--gold); font-size:20px;}
-.dialogBox p{font-size:16px; line-height:1.6; margin-bottom:20px; color:#e0edf9;}
-.closeBtn{width:100%;padding:14px;border-radius:10px;border:none;background:linear-gradient(180deg,#f3ca70,#d1a23a);color:#4a3505;font-weight:900;font-size:16px;}
+.dialogBox h3{margin:0 0 12px 0; color:var(--gold); font-size:22px;}
+.dialogBox p{font-size:17px; line-height:1.6; margin-bottom:20px; color:#e0edf9;}
+.closeBtn{width:100%;padding:14px;border-radius:10px;border:none;background:linear-gradient(180deg,#f3ca70,#d1a23a);color:#4a3505;font-weight:900;font-size:18px;}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="topbar">
-    <div class="brand">🏥 11G 實地探索 (搖桿修復版)</div>
+    <div class="brand">🏥 11G 究極空間還原版</div>
     <div class="hudChip">🪙 120</div>
   </div>
 
   <div class="scene" id="scene">
-    <div class="miniHint" id="miniHint">👆 任意處滑動螢幕即可移動</div>
-    
+    <div class="miniHint" id="miniHint">👆 任意處滑動螢幕，先去下面更衣室看看</div>
     <div class="joystick-base" id="joystickBase"><div class="joystick-knob" id="joystickKnob"></div></div>
 
     <div class="camera" id="camera">
       <div class="game-world" id="gameWorld">
         
-        <div class="floor-base"></div>
-        <div class="void-top-left"></div> 
-        
+        <div class="corridor"></div>
         <svg style="position:absolute; left:0; top:0; width:100%; height:100%; pointer-events:none; z-index:2;">
-          <polygon points="1700,550 1700,1400 850,1400" fill="none" stroke="rgba(46, 204, 113, 0.4)" stroke-width="12" stroke-linejoin="round"/>
+          <polygon points="1850,550 1850,1750 650,1750" fill="none" stroke="rgba(46, 204, 113, 0.4)" stroke-width="12" stroke-linejoin="round"/>
         </svg>
 
         <div class="ward-diag">
-          <div class="room-diag">11G23</div><div class="room-diag">11G22</div><div class="room-diag">11G21</div>
-          <div class="room-diag">11G20</div><div class="room-diag">11G19</div><div class="room-diag">11G18</div>
-          <div class="room-diag">11G17</div><div class="room-diag">11G16</div><div class="room-diag">11G15</div>
-          <div class="room-diag">11G13</div><div class="room-diag">11G12</div><div class="room-diag">11G11</div>
+          <div class="room-d">11G23<div class="door-d-in"></div></div><div class="room-d">11G22<div class="door-d-in"></div></div>
+          <div class="room-d">11G21<div class="door-d-in"></div></div><div class="room-d">11G20<div class="door-d-in"></div></div>
+          <div class="room-d">11G19<div class="door-d-in"></div></div><div class="room-d">11G18<div class="door-d-in"></div></div>
+          <div class="room-d">11G17<div class="door-d-in"></div></div><div class="room-d">11G16<div class="door-d-in"></div></div>
+          <div class="room-d">11G15<div class="door-d-in"></div></div><div class="room-d">11G13<div class="door-d-in"></div></div>
+          <div class="room-d">11G12<div class="door-d-in"></div></div><div class="room-d">11G11<div class="door-d-in"></div></div>
         </div>
 
         <div class="ward-right">
-          <div class="room-right">11G10</div><div class="room-right">11G09</div><div class="room-right">11G08</div>
-          <div class="room-right">11G07</div><div class="room-right" style="color:#d35400;">11G06</div><div class="room-right">11G05</div>
-          <div class="room-right">11G03</div><div class="room-right">11G02</div><div class="room-right">11G01</div>
+          <div class="room-r">11G10<div class="door-r-in"></div></div><div class="room-r">11G09<div class="door-r-in"></div></div>
+          <div class="room-r">11G08<div class="door-r-in"></div></div><div class="room-r">11G07<div class="door-r-in"></div></div>
+          <div class="room-r" style="color:#d35400;">11G06<div class="door-r-in"></div></div><div class="room-r">11G05<div class="door-r-in"></div></div>
+          <div class="room-r">11G03<div class="door-r-in"></div></div><div class="room-r">11G02<div class="door-r-in"></div></div>
+          <div class="room-r">11G01<div class="door-r-in"></div></div>
         </div>
         
-        <div class="ward-bottom">
-          <div class="elevator-hall">
-            <div class="elevator-doors"></div>
-            🛗 客用 / 病床電梯
-          </div>
-        </div>
+        <div class="room-block room-sun">陽光室<div class="door-top" style="left:50px;"></div></div>
+        <div class="room-block room-locker">更衣室<div class="door-top" style="right:50px;"></div></div>
+        <div class="elevator-hall">🛗 客用 / 病床電梯</div>
+        <div class="ward-door-line"></div>
 
-        <div class="nursing-station-floor"></div>
-        <div class="nursing-label">護理站</div>
-        <div class="desk-diag"></div>
-        <div class="desk-right"></div>
-        <div class="desk-bottom-1"></div>
-        <div class="desk-bottom-2"></div> 
+        <div class="pink-hallway"></div>
+        <div class="room-block room-discuss">討論室<div class="door-bottom door-pink" style="left:50px;"></div></div>
+        <div class="room-block room-headnurse">護理長室<div class="door-left door-pink" style="top:50px;"></div></div>
+        <div class="room-block room-pantry">污衣<br>茶水<div class="door-bottom door-pink" style="left:10px;"></div></div>
+        <div class="room-block room-supply">備物區<div class="door-top door-pink" style="left:50px;"></div></div>
+        
+        <div class="front-counter"></div>
+        <div class="back-counter"></div> 
 
-        <div class="character nurse" id="npc-nurse" style="left:1350px;top:1200px; z-index:15;">
+        <div class="character nurse" id="npc-nurse" style="left:1350px;top:1500px; z-index:15;">
           <div class="shadow"></div><div class="marker">!</div><div class="name">學姊</div>
           <div class="head"></div><div class="body"></div>
         </div>
 
-        <div class="character doctor" id="npc-doctor" style="left:1950px;top:722px; z-index:15;">
+        <div class="character doctor" id="npc-doctor" style="left:2150px;top:850px; z-index:15;">
           <div class="shadow"></div><div class="marker">?</div><div class="name">神內醫師</div>
           <div class="head"></div><div class="body"></div>
         </div>
 
-        <div class="character player" id="player" style="left:1900px;top:1650px; z-index:15;">
+        <div class="character player" id="player" style="left:1950px;top:2050px; z-index:15;">
           <div class="shadow"></div><div class="name">玩家</div>
           <div class="head"></div><div class="body"></div>
         </div>
@@ -211,13 +221,13 @@ const scene = document.getElementById('scene');
 const joystickBase = document.getElementById('joystickBase');
 const joystickKnob = document.getElementById('joystickKnob');
 
-let state = { x: 1900, y: 1650 }; // 起點
-let velocity = { x: 0, y: 0 };    // 搖桿速度向量
-let speed = 5.5;                  // 沉穩且足夠流暢的速度
+let state = { x: 1950, y: 2050 }; // 起點：電梯口
+let velocity = { x: 0, y: 0 };    
+let speed = 6; // 調整為最舒適的探索速度
 
 const dialogData = {
-  'npc-nurse': { title: '學姊', text: '你看，走廊縮窄後畫面變得更集中了吧？趕快穿過門框進去右邊的 11G06 病房，醫師在裡面等你。' },
-  'npc-doctor': { title: '神內醫師', text: '來得正好。這床病患疑似有二次中風的跡象，立刻幫我進行 FAST 評估。' }
+  'npc-nurse': { title: '學姊', text: '歡迎來到 11G 護理站內部！這裡有討論室、護理長辦公室和備物區。準備好的話，穿過走廊去 11G06 找神內醫師吧。' },
+  'npc-doctor': { title: '神內醫師', text: '你終於進來了。這個病患需要立刻做 FAST 評估。你知道「F」代表什麼嗎？' }
 };
 
 function updateCamera() {
@@ -228,38 +238,71 @@ function updateCamera() {
   camera.style.transform = `translate(${camX}px, ${camY}px)`;
 }
 
-// --- 簡化且寬鬆的碰撞偵測 (防止卡牆) ---
+// --- 物理碰撞矩陣系統 (利用邊界與實體黑名單阻擋) ---
+const solidBlocks = [
+  // 右側病房 (外牆與隔間，留門)
+  {x: 2000, y: 200, w: 350, h: 1500, isWardR: true}, 
+  // 下方房間
+  {x: 900, y: 1900, w: 250, h: 250, doorTop: {min: 950, max: 1020}}, // 陽光室
+  {x: 1150, y: 1900, w: 300, h: 250, doorTop: {min: 1350, max: 1420}}, // 更衣室
+  // 護理站內部房間
+  {x: 1450, y: 1000, w: 250, h: 200, doorBottom: {min: 1500, max: 1570}}, // 討論室
+  {x: 1450, y: 1200, w: 150, h: 200, doorLeft: {min: 1250, max: 1320}}, // 護理長
+  {x: 1600, y: 1200, w: 100, h: 200, doorBottom: {min: 1610, max: 1680}}, // 污衣
+  {x: 1150, y: 1400, w: 300, h: 200, doorTop: {min: 1200, max: 1270}}, // 備物區
+  // 護理站櫃檯
+  {x: 1700, y: 800, w: 30, h: 800} // 前護理站
+];
+
 function canMoveTo(x, y) {
-  const r = 20;
+  const r = 20; // 玩家體積
   
-  // 1. 電梯大廳 (防掉出地圖邊界)
-  if (y > 1500 - r) {
-    if (x > 1600 - r && x < 2100 + r && y < 1750 - r) return true;
+  // 1. 世界外圍邊界 (包含電梯區)
+  if (x < 300 || x > 2350 || y < 200 || y > 2150) return false;
+  
+  // 電梯區左側牆壁
+  if (y > 1900 && x > 1450 && x < 1650) return false; 
+
+  // 2. 左斜向病房碰撞 (極簡化數學模型)
+  let diagLine = x + y;
+  if (diagLine < 2200 + r) {
+    if (diagLine < 1850 - r) return false; // 病房底牆
+    // 計算是在哪個房間門口 (每間約 200 寬)
+    let distAlong = (x - y + 2200) / 2; 
+    let roomIdx = Math.floor(distAlong / 141);
+    let doorCenter = roomIdx * 141 + 70;
+    // 牆壁與門的判定
+    if (diagLine < 2200 - r && Math.abs(distAlong - doorCenter) > 40) return false;
+  }
+
+  // 3. 護理站後方斜櫃檯
+  if (x > 1080 && x < 1800 && Math.abs(y - (-x + 2700)) < 30) {
+    // 留兩個大開口進入粉紅區
+    if (x > 1200 && x < 1350) return true;
+    if (x > 1650 && x < 1800) return true;
     return false;
   }
 
-  // 2. 護理站桌子 (只擋住外框，留下開口)
-  if (x > 1100 - r && x < 1600 + r && y > 800 - r && y < 1300 + r) {
-    if (x + y > 2400 - r) { // 在護理站三角形內/邊緣
-      if (x > 1300 && x < 1450 && y > 1250) return true; // 開口准許通行
-      return false; 
+  // 4. 檢查所有方形實體建築
+  for (let block of solidBlocks) {
+    if (x + r > block.x && x - r < block.x + block.w &&
+        y + r > block.y && y - r < block.y + block.h) {
+      
+      // 處理有門的房間
+      if (block.doorTop && y - r < block.y + 20 && x > block.doorTop.min && x < block.doorTop.max) continue;
+      if (block.doorBottom && y + r > block.y + block.h - 20 && x > block.doorBottom.min && x < block.doorBottom.max) continue;
+      if (block.doorLeft && x - r < block.x + 20 && y > block.doorLeft.min && y < block.doorLeft.max) continue;
+      
+      // 處理右側 10 間病房的門
+      if (block.isWardR && x - r < block.x + 20) {
+         let roomY = y - 200;
+         let roomIdx = Math.floor(roomY / 150);
+         let doorCenter = roomIdx * 150 + 130; // 門偏下方
+         if (Math.abs(roomY - doorCenter) < 35) continue;
+      }
+      return false; // 撞牆
     }
   }
-
-  // 3. 右側病房 (全面開放進入)
-  if (x > 1800 - r) {
-    if (x > 2100 - r) return false; // 擋住房間最深處的牆
-    return true; 
-  }
-
-  // 4. 左側斜向病房 (全面開放進入)
-  if (x + y < 2100 + r) {
-    if (x + y < 1800 + r) return false; // 擋住房間最深處的牆
-    return true; 
-  }
-
-  // 5. 走廊一般邊界防護
-  if (x < 100 || y < 100) return false;
 
   return true;
 }
@@ -270,7 +313,6 @@ function gameLoop() {
     const nextX = state.x + velocity.x;
     const nextY = state.y + velocity.y;
 
-    // 分離 XY 測試，達成超級滑順的貼牆走
     if (canMoveTo(nextX, state.y)) state.x = nextX;
     if (canMoveTo(state.x, nextY)) state.y = nextY;
 
@@ -311,14 +353,14 @@ window.addEventListener('pointermove', (e) => {
 
   if (dist > 5) {
     isJustTap = false;
-    const maxDrag = 40;
+    const maxDrag = 60;
     const force = Math.min(dist, maxDrag) / maxDrag;
     
     velocity.x = (dx / dist) * speed * force;
     velocity.y = (dy / dist) * speed * force;
 
-    const knobX = (dx / dist) * Math.min(dist, 20);
-    const knobY = (dy / dist) * Math.min(dist, 20);
+    const knobX = (dx / dist) * Math.min(dist, 30);
+    const knobY = (dy / dist) * Math.min(dist, 30);
     joystickKnob.style.transform = `translate(calc(-50% + ${knobX}px), calc(-50% + ${knobY}px))`;
 
     document.getElementById('miniHint').innerText = '🏃 跑動中...';
@@ -329,7 +371,7 @@ window.addEventListener('pointerup', () => {
   isDragging = false;
   velocity = { x: 0, y: 0 };
   joystickBase.style.display = 'none';
-  if(!isJustTap) document.getElementById('miniHint').innerText = '👆 任意處滑動螢幕來移動';
+  if(!isJustTap) document.getElementById('miniHint').innerText = '👆 任意處滑動螢幕，先去下面更衣室看看';
 });
 
 // --- NPC 互動 ---
@@ -342,23 +384,23 @@ document.querySelectorAll('.character:not(.player)').forEach(npc => {
     const npcY = parseInt(npc.style.top);
     const dist = Math.hypot(state.x - npcX, state.y - npcY);
 
-    if (dist < 180) { // 必須走到附近才能對話
+    if (dist < 200) { 
       const data = dialogData[npc.id];
       document.getElementById('dialogTitle').innerText = data.title;
       document.getElementById('dialogText').innerText = data.text;
       document.getElementById('dialogMask').style.display = 'flex';
-      velocity = { x: 0, y: 0 }; // 對話時強迫停止
+      velocity = { x: 0, y: 0 }; 
       joystickBase.style.display = 'none';
       isDragging = false;
     } else {
-      document.getElementById('miniHint').innerText = '❌ 距離太遠了，請滑動走近一點';
+      document.getElementById('miniHint').innerText = '❌ 距離太遠了，請滑動走進房間裡';
     }
   });
 });
 
 function closeDialog() {
   document.getElementById('dialogMask').style.display = 'none';
-  document.getElementById('miniHint').innerText = '👆 任意處滑動螢幕來移動';
+  document.getElementById('miniHint').innerText = '👆 任意處滑動螢幕移動';
 }
 
 window.addEventListener('resize', updateCamera);
