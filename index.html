@@ -228,10 +228,27 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
         <button class="btn btn-back" onclick="showScreen('scrHome')"><span class="back-icon">🏠</span> 返回主畫面</button>
       </section>
       
-      <section class="screen" id="scrCaseDex">
-        <div class="panel">
-          <h2 id="caseDexTitle">個案圖鑑</h2>
-          <div id="caseDexList" style="flex: 1; overflow-y: auto;"></div>
+<section class="screen" id="scrCaseDex">
+        <div class="panel" style="display: flex; flex-direction: column;">
+          <h2 id="caseDexTitle">個案與拼圖收藏</h2>
+          
+          <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; border: 1px solid var(--theme-dim); margin-bottom: 12px; text-align: center; flex-shrink: 0;">
+            <div style="font-size: 13px; color: #ccc; margin-bottom: 8px;">
+              待解鎖拼圖：<span id="uiPuzzleAvail" style="color:var(--good); font-weight:bold; font-size:16px; margin: 0 4px;">0</span>張 
+              <span style="font-size:11px;">(收集進度: <span id="uiPuzzleCollected">0</span>/50)</span>
+            </div>
+            <div id="puzzleActionWrap" style="display:flex; gap:8px; justify-content:center;"></div>
+            <div style="font-size: 11px; color: var(--theme-primary); margin-top: 6px;">💡 每救治 5 名個案可獲 1 次拼圖機會</div>
+          </div>
+
+          <div class="pokedex-tabs" id="caseDexTabs">
+            <button class="tab-btn active" onclick="switchCaseTab('list', this)">個案紀錄</button>
+            <button class="tab-btn" onclick="switchCaseTab('gallery', this)">拼圖收藏</button>
+          </div>
+
+          <div id="caseDexList" style="flex: 1; overflow-y: auto; display:block;"></div>
+          <div id="puzzleGallery" class="card-grid" style="flex: 1; overflow-y: auto; display:none; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 4px;"></div>
+          
         </div>
         <button class="btn btn-back" onclick="showScreen('scrHome')"><span class="back-icon">🏠</span> 返回主畫面</button>
       </section>
@@ -380,6 +397,8 @@ function customConfirm(msg, onConfirm, onCancel, title="請確認") {
   id('customMsgModal').style.display = 'flex';
 }
 
+
+  
 function closeCustomMsg() {
   id('customMsgModal').style.display = 'none';
 }
@@ -413,7 +432,8 @@ let playerState = {
   hasSetup: false, name: "", avatar: "https://i.pravatar.cc/150?img=11", mode: "beginner", coins: 38219, 
   completedCasesBeg: new Map(), completedCasesAdv: new Map(),
   taskScoresBeg: new Map(), taskScoresAdv: new Map(),
-  scaleRecords: [], strokeCard: null
+  scaleRecords: [], strokeCard: null, // 加入解鎖陣列與購買次數
+  unlockedPuzzles: [], boughtPuzzles: 0
 };
 
 const ROLES_DATA_BEG = [
@@ -456,6 +476,111 @@ const scaleQuestions = [
 
 let currentQIndex = 0; let currentAnswers = {}; let trendChartInstance = null; let activeRoleId = null;
 
+// ====== 圖鑑與拼圖邏輯 ======
+function switchCaseTab(tab, btnEl) {
+  Array.from(id('caseDexTabs').children).forEach(t => t.classList.remove('active')); 
+  btnEl.classList.add('active');
+  id('caseDexList').style.display = tab === 'list' ? 'block' : 'none';
+  id('puzzleGallery').style.display = tab === 'gallery' ? 'grid' : 'none';
+}
+
+function renderCaseDex() {
+  const isBeg = playerState.mode === 'beginner'; 
+  const completedMap = getActiveCompletedCases();
+  const cases = Array.from(completedMap.entries()).sort((a,b)=>a[0].localeCompare(b[0]));
+  const listContainer = id('caseDexList'); 
+  
+  // 1. 渲染原本的個案列表
+  if(listContainer) {
+    listContainer.innerHTML = '';
+    if(cases.length === 0) { 
+      listContainer.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:30px;">尚無紀錄。請先挑戰「個案救治」！</p>'; 
+    } else {
+      cases.forEach(([caseStr, score]) => {
+        let iconsHTML = ''; const roles = getActiveRoles();
+        for(let i=0; i<5; i++) { if(roles[i] && caseStr[i]) iconsHTML += roles[i].icon; }
+        listContainer.innerHTML += `
+          <div class="case-dex-item" onclick="customAlert('紀錄最高分：${score} 分\\n這是一個完美的跨團隊處置紀錄！', null, '編號：#C-${caseStr}')">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span class="case-dex-id" style="border:none; padding:0;">#C-${caseStr}</span>
+              <span style="font-size:14px; letter-spacing:4px;">${iconsHTML}</span>
+            </div>
+            <span class="case-score-badge" style="background:transparent; border:1px solid var(--good);">${score} 分</span>
+          </div>`;
+      });
+    }
+  }
+
+  // 2. 計算拼圖次數
+  const totalEarned = Math.floor(completedMap.size / 5) + playerState.boughtPuzzles;
+  const collectedCount = playerState.unlockedPuzzles.length;
+  const availableCount = totalEarned - collectedCount;
+  
+  id('uiPuzzleAvail').textContent = availableCount > 0 ? availableCount : 0;
+  id('uiPuzzleCollected').textContent = collectedCount;
+
+  // 3. 渲染操作按鈕
+  const actionWrap = id('puzzleActionWrap');
+  if (collectedCount >= 50) {
+    actionWrap.innerHTML = `<div style="color:var(--good); font-weight:bold; padding: 10px;">🏆 已收集全套 50 張拼圖！</div>`;
+  } else if (availableCount > 0) {
+    actionWrap.innerHTML = `<button class="btn btn-rescue" style="margin:0; width:auto; padding: 10px 20px; font-size:15px;" onclick="startRandomPuzzle()">🎲 抽取並挑戰拼圖</button>`;
+  } else {
+    actionWrap.innerHTML = `<button class="btn" style="margin:0; width:auto; padding: 10px 20px; font-size:14px; background:linear-gradient(180deg,#d4af37,#8b7322); color:#000;" onclick="buyPuzzleChance()">💰 5000 幣解鎖拼圖</button>`;
+  }
+
+  // 4. 渲染已解鎖的拼圖畫廊
+  const gallery = id('puzzleGallery');
+  gallery.innerHTML = '';
+  playerState.unlockedPuzzles.forEach(pid => {
+    gallery.innerHTML += `
+      <div class="card-item" style="aspect-ratio: 1/1; padding: 0; overflow: hidden; position: relative;" onclick="replayPuzzle(${pid})">
+        <img src="puzzle_${pid}.jpg" style="width:100%; height:100%; object-fit:cover; opacity: 0.8; transition: opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8">
+        <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.7); color:#fff; font-size:11px; font-weight:bold; padding:4px 0;">#${pid}</div>
+      </div>
+    `;
+  });
+}
+
+function buyPuzzleChance() {
+  if (playerState.coins >= 5000) {
+    customConfirm("確定要花費 5000 健康幣購買 1 次拼圖解鎖機會嗎？", () => {
+      playerState.coins -= 5000;
+      playerState.boughtPuzzles += 1;
+      saveGameData();
+      updateHUD();
+      renderCaseDex();
+    }, null, "購買拼圖機會");
+  } else {
+    customAlert("您的健康幣不足 5000 元喔！", null, "❌ 餘額不足");
+  }
+}
+
+function startRandomPuzzle() {
+  // 隨機選一個還沒解鎖的編號 (1~50)
+  const availableIds = [];
+  for(let i = 1; i <= 50; i++) {
+    if(!playerState.unlockedPuzzles.includes(i)) availableIds.push(i);
+  }
+  if (availableIds.length === 0) return;
+  const randomId = availableIds[Math.floor(Math.random() * availableIds.length)];
+  
+  // 記錄目前正在挑戰的拼圖 (還沒解鎖)
+  window.currentChallengePuzzleId = randomId;
+  
+  id('gameTitle').textContent = `🧩 解鎖新拼圖 #${randomId}`; 
+  id('gameFrame').src = `game_jigsaw.html?imgId=${randomId}`; 
+  id('gameOverlay').style.display = 'flex';
+}
+
+function replayPuzzle(pid) {
+  // 標記這只是複習，不是新挑戰
+  window.currentChallengePuzzleId = null; 
+  id('gameTitle').textContent = `🧩 欣賞拼圖 #${pid}`; 
+  id('gameFrame').src = `game_jigsaw.html?imgId=${pid}`; 
+  id('gameOverlay').style.display = 'flex';
+}
+  
 function getActiveRoles() { return playerState.mode === 'beginner' ? ROLES_DATA_BEG : ROLES_DATA_ADV; }
 function getActiveCompletedCases() { return playerState.mode === 'beginner' ? playerState.completedCasesBeg : playerState.completedCasesAdv; }
 function getActiveTaskScores() { return playerState.mode === 'beginner' ? playerState.taskScoresBeg : playerState.taskScoresAdv; }
@@ -463,18 +588,22 @@ function id(elId) { return document.getElementById(elId); }
 
 const SAVE_KEY = 'BrainPioneer_SaveData_v46';
 
+
 function saveGameData() {
   const dataToSave = {
     hasSetup: playerState.hasSetup, name: playerState.name, avatar: playerState.avatar, mode: playerState.mode, coins: playerState.coins, 
     completedCasesBeg: Array.from(playerState.completedCasesBeg.entries()), completedCasesAdv: Array.from(playerState.completedCasesAdv.entries()),
     taskScoresBeg: Array.from(playerState.taskScoresBeg.entries()), taskScoresAdv: Array.from(playerState.taskScoresAdv.entries()),
     scaleRecords: playerState.scaleRecords, strokeCard: playerState.strokeCard,
+    unlockedPuzzles: playerState.unlockedPuzzles, boughtPuzzles: playerState.boughtPuzzles,
     roleProgressBeg: ROLES_DATA_BEG.map(r => ({ id: r.id, currentTask: r.currentTask, dailyAttempts: r.dailyAttempts })),
     roleProgressAdv: ROLES_DATA_ADV.map(r => ({ id: r.id, currentTask: r.currentTask, dailyAttempts: r.dailyAttempts }))
   };
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(dataToSave)); } catch(e) {}
 }
 
+
+  
 function loadGameData() {
   try {
     const savedJSON = localStorage.getItem(SAVE_KEY);
@@ -487,6 +616,8 @@ function loadGameData() {
       if(parsed.coins !== undefined) playerState.coins = parsed.coins;
       if(parsed.strokeCard) playerState.strokeCard = parsed.strokeCard;
       if(parsed.scaleRecords) playerState.scaleRecords = parsed.scaleRecords;
+      if(parsed.unlockedPuzzles) playerState.unlockedPuzzles = parsed.unlockedPuzzles;
+      if(parsed.boughtPuzzles) playerState.boughtPuzzles = parsed.boughtPuzzles;
       
       if(parsed.completedCasesBeg) playerState.completedCasesBeg = new Map(parsed.completedCasesBeg);
       if(parsed.completedCasesAdv) playerState.completedCasesAdv = new Map(parsed.completedCasesAdv);
@@ -719,10 +850,29 @@ window.addEventListener('message', (event) => {
     handleGameClear(event.data.score || 1000); 
   } else if (event.data && event.data.type === 'GAME_OVER') {
     closeGameIframe(); 
-    // 💡 修正 4：實裝失敗後扣除次數的提示畫面
     customAlert('扣除 1 次挑戰機會，請再接再厲！', () => {
       currentGameInfo = null; openRoleDetail(activeRoleId);
     }, "❌ 任務失敗");
+  } 
+  // ★ 新增：接收拼圖的關閉指令
+  else if (event.data && event.data.type === 'CLOSE_IFRAME') {
+    closeGameIframe();
+  }
+  // ★ 新增：接收拼圖過關指令
+  else if (event.data && event.data.type === 'PUZZLE_CLEAR') {
+    const pid = event.data.puzzleId;
+    
+    // 如果這是一次「新挑戰」且圖鑑尚未收錄
+    if (window.currentChallengePuzzleId === pid && !playerState.unlockedPuzzles.includes(pid)) {
+      playerState.unlockedPuzzles.push(pid);
+      playerState.coins += 200; // 給予少許拼圖完成獎勵
+      saveGameData();
+      updateHUD();
+      renderCaseDex();
+      setTimeout(() => {
+        customAlert(`成功解鎖第 ${pid} 號拼圖，並獲得 200 健康幣！`, null, "🎉 拼圖收藏成功");
+      }, 500);
+    }
   }
 });
 
