@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-<title>5x5 滿版沉浸拖曳版 (完美防誤觸)</title>
+<title>5x5 滿版沉浸拖曳版 (智慧預覽機制)</title>
 <style>
   :root {
     --bg1: #0f172a;
@@ -329,11 +329,19 @@
 
   <footer class="tray-area" id="tray"></footer>
 
+  <div id="introModal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h2>🧩 拼圖畫廊</h2>
+      <img id="introImage" class="full-image" alt="完整原圖預覽">
+      <button class="btn-finish" id="btnStart">重溫挑戰 (打亂)</button>
+    </div>
+  </div>
+
   <div id="completionModal" class="modal-overlay hidden">
     <div class="modal-content">
       <h2>🎉 恭喜完成！</h2>
       <img id="modalImage" class="full-image" alt="完整原圖">
-      <button class="btn-finish" id="btnFinish">確認</button>
+      <button class="btn-finish" id="btnFinish">領取獎勵並離開</button>
     </div>
   </div>
 
@@ -345,12 +353,12 @@
   const COLS = 5;
   const TOTAL = ROWS * COLS;
   
-  // ★ 解析主系統傳遞過來的網址參數
+  // ★ 解析主系統傳遞過來的暗號
   const urlParams = new URLSearchParams(window.location.search);
-  const imgId = urlParams.get('imgId') || '1'; // 預設為 1
+  const imgId = urlParams.get('imgId') || '1'; 
+  const isReplay = urlParams.get('isReplay') === 'true'; // 是否為複習模式
   
-  // 💡 注意這裡：我先幫你設回 .jpg，如果你的檔案是 .png 請把這裡改掉！
-  const IMG_SRC = `assets/puzzle_${imgId}.png`;
+  const IMG_SRC = `assets/puzzle_${imgId}.jpg`;
   const puzzleId = parseInt(imgId);
 
   const boardArea = document.getElementById("boardArea");
@@ -362,6 +370,10 @@
   const btnShuffle = document.getElementById("btnShuffle");
   const btnHint = document.getElementById("btnHint");
   
+  const introModal = document.getElementById("introModal");
+  const introImage = document.getElementById("introImage");
+  const btnStart = document.getElementById("btnStart");
+
   const completionModal = document.getElementById("completionModal");
   const modalImage = document.getElementById("modalImage");
   const btnFinish = document.getElementById("btnFinish");
@@ -379,8 +391,8 @@
 
   image.onload = () => init();
   
-  // 💡 升級版錯誤提示：會直接告訴你它找不到哪一張圖
   image.onerror = () => {
+    introModal.classList.add("hidden"); 
     statusEl.textContent = "載入失敗";
     board.innerHTML = `<div class="error-msg">找不到圖片：<br><span style="color:#fff;">${IMG_SRC}</span><br><br><span style="font-size:12px; color:#aaa;">請確認 assets 資料夾內有這張圖片，且副檔名正確！</span></div>`;
   };
@@ -390,17 +402,35 @@
   function init(){
     updateSizes();
     generateEdgeMap();
-    buildPieces();
-    scatterPieces();
-    updateStatus();
+    buildPieces(); 
 
     board.style.setProperty("--board-preview", `url("${IMG_SRC}")`);
-    modalImage.src = IMG_SRC; 
+    introImage.src = IMG_SRC;  
+    modalImage.src = IMG_SRC;  
 
     window.addEventListener("resize", () => {
       const oldBoard = BOARD_SIZE;
       updateSizes();
       rescalePieces(oldBoard, BOARD_SIZE);
+    });
+
+    // ★ 智慧判斷開場模式
+    if (isReplay) {
+      // 從圖鑑進來：秀出畫廊預覽
+      introModal.classList.remove("hidden");
+    } else {
+      // 第一次挑戰：不秀預覽，直接炸開打亂
+      setTimeout(() => {
+        scatterPieces();
+        updateStatus();
+      }, 50); // 給予 50 毫秒渲染緩衝，確保動畫順暢
+    }
+
+    // 畫廊模式下的「開始打亂」按鈕
+    btnStart.addEventListener("click", () => {
+      introModal.classList.add("hidden");
+      scatterPieces();
+      updateStatus();
     });
 
     btnMenu.addEventListener("click", (e) => {
@@ -427,10 +457,10 @@
       btnHint.textContent = showHint ? "隱藏底圖提示" : "顯示底圖提示";
     });
 
-    // ★ 結算畫面「確認」按鈕的邏輯
+    // ★ 結算：按下按鈕後才通知主系統發獎勵跟關閉
     btnFinish.addEventListener("click", () => {
       completionModal.classList.add("hidden");
-      // 通知主系統關閉 iframe
+      window.parent.postMessage({ type: 'PUZZLE_CLEAR', puzzleId: puzzleId }, '*');
       window.parent.postMessage({ type: 'CLOSE_IFRAME' }, '*');
     });
   }
@@ -744,8 +774,6 @@
     if(done === TOTAL){
       setTimeout(() => {
         completionModal.classList.remove("hidden");
-        // ★ 通知主系統拼圖過關
-        window.parent.postMessage({ type: 'PUZZLE_CLEAR', puzzleId: puzzleId }, '*');
       }, 400); 
     }
   }
