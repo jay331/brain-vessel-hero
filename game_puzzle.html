@@ -346,7 +346,15 @@
   const ROWS = 5;
   const COLS = 5;
   const TOTAL = ROWS * COLS;
-  const IMG_SRC = "tms.png";
+  cconst ROWS = 5;
+  const COLS = 5;
+  const TOTAL = ROWS * COLS;
+  
+  // ★ 解析主系統傳遞過來的網址參數
+  const urlParams = new URLSearchParams(window.location.search);
+  const imgId = urlParams.get('imgId') || '1'; // 預設為 1
+  const IMG_SRC = `puzzle_${imgId}.jpg`;
+  const puzzleId = parseInt(imgId);
 
   const boardArea = document.getElementById("boardArea");
   const board = document.getElementById("board");
@@ -421,8 +429,11 @@
       btnHint.textContent = showHint ? "隱藏底圖提示" : "顯示底圖提示";
     });
 
-    btnFinish.addEventListener("click", () => {
-      completionModal.classList.add("hidden");
+btnFinish.addEventListener("click", () => {
+    completionModal.classList.add("hidden");
+    // 通知主系統關閉 iframe
+    window.parent.postMessage({ type: 'CLOSE_IFRAME' }, '*');
+  });
       // ★ 這裡放置過關跳轉的邏輯
     });
   }
@@ -739,13 +750,16 @@
     tray.appendChild(piece.el);
   }
 
-  function updateStatus(){
+function updateStatus(){
     const done = pieces.filter(p => p.locked).length;
     statusEl.textContent = `${done} / ${TOTAL}`;
     
+    // ★ 拼完最後一塊時，等待鎖定動畫跑完，再顯示結算畫面並通知主系統
     if(done === TOTAL){
       setTimeout(() => {
         completionModal.classList.remove("hidden");
+        // 通知主系統拼圖過關，傳遞當前拼圖 ID
+        window.parent.postMessage({ type: 'PUZZLE_CLEAR', puzzleId: puzzleId }, '*');
       }, 400); 
     }
   }
