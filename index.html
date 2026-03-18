@@ -555,14 +555,16 @@ function startRandomPuzzle() {
   window.currentChallengePuzzleId = randomId;
   
   id('gameTitle').textContent = `🧩 解鎖新拼圖 #${randomId}`; 
-  id('gameFrame').src = `game_jigsaw.html?imgId=${randomId}`; 
+  // ★ 加上 &isReplay=false (代表是第一次挑戰，不給看預覽)
+  id('gameFrame').src = `game_jigsaw.html?imgId=${randomId}&isReplay=false`; 
   id('gameOverlay').style.display = 'flex';
 }
 
 function replayPuzzle(pid) {
   window.currentChallengePuzzleId = null; 
   id('gameTitle').textContent = `🧩 欣賞拼圖 #${pid}`; 
-  id('gameFrame').src = `game_jigsaw.html?imgId=${pid}`; 
+  // ★ 加上 &isReplay=true (代表是從圖鑑點進來的，先秀預覽)
+  id('gameFrame').src = `game_jigsaw.html?imgId=${pid}&isReplay=true`; 
   id('gameOverlay').style.display = 'flex';
 }
 
