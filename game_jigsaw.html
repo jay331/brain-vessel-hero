@@ -353,7 +353,7 @@
   // ★ 解析主系統傳遞過來的網址參數
   const urlParams = new URLSearchParams(window.location.search);
   const imgId = urlParams.get('imgId') || '1'; // 預設為 1
-  const IMG_SRC = `assets/puzzle_${imgId}.jpg`;
+  const IMG_SRC = `assets/puzzle_${imgId}.png`;
   const puzzleId = parseInt(imgId);
 
   const boardArea = document.getElementById("boardArea");
