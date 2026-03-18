@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<title>8x8 傳統拼圖版｜最終穩定版</title>
+<style>
+  :root{
+    --bg1:#0f172a;
+    --bg2:#111827;
+    --panel:rgba(17,24,39,.88);
+    --text:#f8fafc;
+    --muted:#94a3b8;
+    --accent:#38bdf8;
+    --board-size:min(92vw,720px);
+  }
+
+  *{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+  }
+
+  html,body{
+    margin:0;
+    min-height:100%;
+    background:linear-gradient(180deg,var(--bg1),var(--bg2));
+    color:var(--text);
+    font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;
+  }
+
+  body{
+    min-height:100vh;
+  }
+
+  .wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding:16px;
+  }
+
+  h1{
+    margin:0 0 10px;
+    text-align:center;
+    font-size:24px;
+  }
+
+  .topbar{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:10px;
+    margin-bottom:14px;
+  }
+
+  button{
+    border:none;
+    border-radius:12px;
+    padding:10px 14px;
+    cursor:pointer;
+    font-size:15px;
+    font-weight:700;
+    background:var(--accent);
+    color:#062033;
+    transition: opacity 0.2s;
+  }
+
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  button.secondary{
+    background:#334155;
+    color:#fff;
+  }
+
+  .status{
+    padding:9px 12px;
+    border-radius:12px;
+    background:#1e293b;
+    font-size:14px;
+  }
+
+  .done{
+    background:rgba(34,197,94,.18);
+    border:1px solid rgba(34,197,94,.34);
+    color:#dcfce7;
+  }
+
+  .layout{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:16px;
+  }
+
+  @media (min-width:1080px){
+    .layout{
+      grid-template-columns:calc(var(--board-size) + 24px) minmax(300px,1fr);
+      align-items:start;
+      justify-content:center;
+    }
+  }
+
+  .panel{
+    background:var(--panel);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:20px;
+    padding:12px;
+    box-shadow:0 12px 30px rgba(0,0,0,.28);
+  }
+
+  .panel h2{
+    margin:2px 0 10px;
+    font-size:16px;
+  }
+
+  .boardWrap{
+    display:flex;
+    justify-content:center;
+  }
+
+  /* 修正 3：移除 .board 的 overflow: hidden，避免裁切凸出的拼圖 */
+  .board{
+    position:relative;
+    width:var(--board-size);
+    height:var(--board-size);
+  }
+
+  /* 新增 .board-bg 負責底圖與圓角裁切 */
+  .board-bg {
+    position:absolute;
+    inset:0;
+    border-radius:18px;
+    overflow:hidden;
+    background:#0b1220;
+    border:1px solid rgba(255,255,255,.08);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);
+  }
+
+  .board.hint .board-bg{
+    background-image:var(--board-preview);
+    background-size:100% 100%;
+    background-repeat:no-repeat;
+  }
+
+  .boardGrid{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    background-image:
+      linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px);
+    background-size:calc(100% / 8) calc(100% / 8);
+    opacity:.4;
+  }
+
+  .tray{
+    position:relative;
+    min-height:540px;
+    border-radius:16px;
+    background:#0b1220;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,.06);
+  }
+
+  .previewBox{
+    margin-top:12px;
+  }
+
+  .previewBox img{
+    width:100%;
+    max-width:320px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.12);
+    display:none;
+  }
+
+  .small{
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.55;
+    margin-top:8px;
+  }
+
+  .piece{
+    position:absolute;
+    user-select:none;
+    touch-action:none;
+    cursor:grab;
+    transition:box-shadow .15s ease, transform .15s ease;
+    filter:drop-shadow(0 4px 8px rgba(0,0,0,.28));
+    transform-origin:center center;
+  }
+
+  .piece.locked{
+    cursor:default;
+    filter:drop-shadow(0 3px 5px rgba(0,0,0,.22));
+  }
+
+  .piece.dragging{
+    cursor:grabbing;
+    filter:drop-shadow(0 14px 18px rgba(0,0,0,.35));
+    transform:scale(1.02);
+  }
+
+  .piece.floating{
+    position:fixed !important;
+    margin:0;
+  }
+
+  .piece svg{
+    display:block;
+    overflow:visible;
+  }
+
+  .piece.correctPulse{
+    animation:okpop .25s ease;
+  }
+
+  @keyframes okpop{
+    0%{ transform:scale(1.02); }
+    60%{ transform:scale(1.08); }
+    100%{ transform:scale(1); }
+  }
+
+  .error-msg {
+    padding: 20px;
+    text-align: center;
+    color: #f87171;
+    font-weight: bold;
+    width: 100%;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🧩 8x8 傳統拼圖版</h1>
+
+  <div class="topbar">
+    <button id="btnShuffle">重新打亂</button>
+    <button id="btnHint" class="secondary">顯示底圖提示</button>
+    <button id="btnPreview" class="secondary">顯示原圖</button>
+    <div class="status" id="status">載入中...</div>
+  </div>
+
+  <div class="layout">
+    <div class="panel">
+      <h2>拼圖區</h2>
+      <div class="boardWrap">
+        <div id="board" class="board">
+          <div class="board-bg">
+            <div class="boardGrid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>零件區</h2>
+      <div id="tray" class="tray"></div>
+
+      <div class="previewBox">
+        <img id="preview" alt="原圖預覽">
+        <div class="small">
+          圖片請和此 HTML 放在同一資料夾，名稱設為 <b>tms.png</b><br>
+          支援滑鼠與手機拖曳，拖到正確位置附近會自動吸附。
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const ROWS = 8;
+  const COLS = 8;
+  const TOTAL = ROWS * COLS;
+  const IMG_SRC = "tms.png";
+
+  const board = document.getElementById("board");
+  const tray = document.getElementById("tray");
+  const statusEl = document.getElementById("status");
+  const preview = document.getElementById("preview");
+  const btnShuffle = document.getElementById("btnShuffle");
+  const btnHint = document.getElementById("btnHint");
+  const btnPreview = document.getElementById("btnPreview");
+
+  let BOARD_SIZE = 700;
+  let CELL = 87.5;
+  let TAB = 18;
+  let SNAP = 24;
+  let showHint = false;
+  let showPreview = false;
+  
+  // 修正 2：全域的 Z-index 計數器，確保拿起的拼圖永遠在最上層
+  let highestZ = 1000;
+
+  const pieces = [];
+  const edgeMap = [];
+  const image = new Image();
+
+  image.onload = () => init();
+  
+  // 修正 5：圖片缺失的友善防呆處理
+  image.onerror = () => {
+    statusEl.textContent = "載入失敗";
+    const errorHTML = `<div class="error-msg">找不到圖片 <b>${IMG_SRC}</b>。<br>請將圖片與 HTML 放在同一資料夾並重新整理。</div>`;
+    board.innerHTML = errorHTML;
+    tray.innerHTML = errorHTML;
+    btnShuffle.disabled = true;
+    btnHint.disabled = true;
+    btnPreview.disabled = true;
+  };
+  
+  image.src = IMG_SRC;
+
+  function init(){
+    preview.src = IMG_SRC;
+    updateSizes();
+    generateEdgeMap();
+    buildPieces();
+    scatterPieces();
+    updateStatus();
+
+    board.style.setProperty("--board-preview", `url("${IMG_SRC}")`);
+
+    window.addEventListener("resize", () => {
+      const oldBoard = BOARD_SIZE;
+      updateSizes();
+      rescalePieces(oldBoard, BOARD_SIZE);
+    });
+
+    btnShuffle.addEventListener("click", () => {
+      scatterPieces();
+      updateStatus();
+    });
+
+    btnHint.addEventListener("click", () => {
+      showHint = !showHint;
+      board.classList.toggle("hint", showHint);
+      btnHint.textContent = showHint ? "隱藏底圖提示" : "顯示底圖提示";
+    });
+
+    btnPreview.addEventListener("click", () => {
+      showPreview = !showPreview;
+      preview.style.display = showPreview ? "block" : "none";
+      btnPreview.textContent = showPreview ? "隱藏原圖" : "顯示原圖";
+    });
+  }
+
+  function updateSizes(){
+    BOARD_SIZE = Math.round(board.clientWidth);
+    CELL = BOARD_SIZE / COLS;
+    TAB = Math.round(CELL * 0.22);
+    SNAP = Math.max(18, CELL * 0.22);
+    tray.style.minHeight = Math.max(420, BOARD_SIZE * 0.76) + "px";
+  }
+
+  function rescalePieces(oldBoard, newBoard){
+    const scale = newBoard / oldBoard;
+
+    pieces.forEach(p => {
+      p.correctX = p.col * CELL - TAB;
+      p.correctY = p.row * CELL - TAB;
+      p.width = CELL + TAB * 2;
+      p.height = CELL + TAB * 2;
+
+      if(p.locked){
+        p.currentX = p.correctX;
+        p.currentY = p.correctY;
+      }else{
+        // 修正 1：分開處理 board 和 tray 裡面的拼圖縮放
+        if(p.el.parentElement === board){
+          p.currentX *= scale;
+          p.currentY *= scale;
+        }else if(p.el.parentElement === tray){
+          // 確保 tray 內的拼圖在視窗改變時不會飛出邊界
+          const maxX = Math.max(8, tray.clientWidth - p.width - 8);
+          const maxY = Math.max(8, tray.clientHeight - p.height - 8);
+          p.currentX = Math.min(Math.max(8, p.currentX), maxX);
+          p.currentY = Math.min(Math.max(8, p.currentY), maxY);
+        }
+      }
+
+      renderPieceSVG(p);
+      placePiece(p, p.currentX, p.currentY);
+    });
+  }
+
+  function randSign(){
+    return Math.random() > 0.5 ? 1 : -1;
+  }
+
+  function generateEdgeMap(){
+    for(let r = 0; r < ROWS; r++){
+      edgeMap[r] = [];
+      for(let c = 0; c < COLS; c++){
+        const top = r === 0 ? 0 : -edgeMap[r - 1][c].bottom;
+        const left = c === 0 ? 0 : -edgeMap[r][c - 1].right;
+        const right = c === COLS - 1 ? 0 : randSign();
+        const bottom = r === ROWS - 1 ? 0 : randSign();
+        edgeMap[r][c] = { top, right, bottom, left };
+      }
+    }
+  }
+
+  function buildPieces(){
+    board.querySelectorAll(".piece").forEach(el => el.remove());
+    tray.innerHTML = "";
+    pieces.length = 0;
+
+    for(let r = 0; r < ROWS; r++){
+      for(let c = 0; c < COLS; c++){
+        const id = r * COLS + c;
+        const piece = {
+          id,
+          row: r,
+          col: c,
+          edges: edgeMap[r][c],
+          width: CELL + TAB * 2,
+          height: CELL + TAB * 2,
+          correctX: c * CELL - TAB,
+          correctY: r * CELL - TAB,
+          currentX: 0,
+          currentY: 0,
+          locked: false,
+          el: document.createElement("div")
+        };
+
+        piece.el.className = "piece";
+        piece.el.dataset.id = id;
+        piece.el.style.width = piece.width + "px";
+        piece.el.style.height = piece.height + "px";
+        
+        renderPieceSVG(piece);
+        attachDrag(piece);
+
+        pieces.push(piece);
+        tray.appendChild(piece.el);
+      }
+    }
+  }
+
+  function renderPieceSVG(piece){
+    piece.el.style.width = (CELL + TAB * 2) + "px";
+    piece.el.style.height = (CELL + TAB * 2) + "px";
+
+    const path = makePiecePath(piece.edges, CELL, TAB);
+    const uid = `clip_${piece.id}_${Math.random().toString(36).slice(2,10)}`;
+    const viewW = CELL + TAB * 2;
+    const viewH = CELL + TAB * 2;
+
+    piece.el.innerHTML = `
+<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <clipPath id="${uid}" clipPathUnits="userSpaceOnUse">
+      <path d="${path}"></path>
+    </clipPath>
+  </defs>
+
+  <path d="${path}" fill="rgba(255,255,255,0.14)" stroke="rgba(255,255,255,0.38)" stroke-width="1"></path>
+
+  <image
+    href="${IMG_SRC}"
+    xlink:href="${IMG_SRC}"
+    x="${-piece.col * CELL + TAB}"
+    y="${-piece.row * CELL + TAB}"
+    width="${BOARD_SIZE}"
+    height="${BOARD_SIZE}"
+    preserveAspectRatio="none"
+    clip-path="url(#${uid})"></image>
+
+  <path d="${path}" fill="none" stroke="rgba(0,0,0,0.24)" stroke-width="1"></path>
+</svg>
+`;
+  }
+
+  function makePiecePath(edges, cell, tab){
+    const x0 = tab, y0 = tab;
+    const x1 = tab + cell, y1 = tab + cell;
+    const midX = tab + cell / 2;
+    const midY = tab + cell / 2;
+    const knobW = cell * 0.22;
+    const knobH = tab * 0.95;
+
+    function topSeg(type){
+      if(type === 0) return `L ${x1} ${y0}`;
+      const dir = -type;
+      return [
+        `L ${midX - knobW} ${y0}`,
+        `C ${midX - knobW*0.55} ${y0}, ${midX - knobW*0.65} ${y0 + dir*knobH}, ${midX} ${y0 + dir*knobH}`,
+        `C ${midX + knobW*0.65} ${y0 + dir*knobH}, ${midX + knobW*0.55} ${y0}, ${midX + knobW} ${y0}`,
+        `L ${x1} ${y0}`
+      ].join(" ");
+    }
+
+    function rightSeg(type){
+      if(type === 0) return `L ${x1} ${y1}`;
+      const dir = type;
+      return [
+        `L ${x1} ${midY - knobW}`,
+        `C ${x1} ${midY - knobW*0.55}, ${x1 + dir*knobH} ${midY - knobW*0.65}, ${x1 + dir*knobH} ${midY}`,
+        `C ${x1 + dir*knobH} ${midY + knobW*0.65}, ${x1} ${midY + knobW*0.55}, ${x1} ${midY + knobW}`,
+        `L ${x1} ${y1}`
+      ].join(" ");
+    }
+
+    function bottomSeg(type){
+      if(type === 0) return `L ${x0} ${y1}`;
+      const dir = type;
+      return [
+        `L ${midX + knobW} ${y1}`,
+        `C ${midX + knobW*0.55} ${y1}, ${midX + knobW*0.65} ${y1 + dir*knobH}, ${midX} ${y1 + dir*knobH}`,
+        `C ${midX - knobW*0.65} ${y1 + dir*knobH}, ${midX - knobW*0.55} ${y1}, ${midX - knobW} ${y1}`,
+        `L ${x0} ${y1}`
+      ].join(" ");
+    }
+
+    function leftSeg(type){
+      if(type === 0) return `L ${x0} ${y0}`;
+      const dir = -type;
+      return [
+        `L ${x0} ${midY + knobW}`,
+        `C ${x0} ${midY + knobW*0.55}, ${x0 + dir*knobH} ${midY + knobW*0.65}, ${x0 + dir*knobH} ${midY}`,
+        `C ${x0 + dir*knobH} ${midY - knobW*0.65}, ${x0} ${midY - knobW*0.55}, ${x0} ${midY - knobW}`,
+        `L ${x0} ${y0}`
+      ].join(" ");
+    }
+
+    return [
+      `M ${x0} ${y0}`,
+      topSeg(edges.top),
+      rightSeg(edges.right),
+      bottomSeg(edges.bottom),
+      leftSeg(edges.left),
+      `Z`
+    ].join(" ");
+  }
+
+  function scatterPieces(){
+    const pad = 8;
+
+    pieces.forEach((p, idx) => {
+      p.locked = false;
+      p.el.classList.remove("locked", "correctPulse", "dragging", "floating");
+      
+      // 打亂時給予基本的層級
+      p.el.style.zIndex = String(100 + idx);
+
+      if(p.el.parentElement !== tray) tray.appendChild(p.el);
+
+      const maxX = Math.max(pad, tray.clientWidth - p.width - pad);
+      const maxY = Math.max(pad, tray.clientHeight - p.height - pad);
+      const x = pad + Math.random() * maxX;
+      const y = pad + Math.random() * maxY;
+
+      placePiece(p, x, y);
+    });
+  }
+
+  function placePiece(piece, x, y){
+    piece.currentX = x;
+    piece.currentY = y;
+    piece.el.style.left = x + "px";
+    piece.el.style.top = y + "px";
+  }
+
+  function attachDrag(piece){
+    let dragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    piece.el.addEventListener("pointerdown", (e) => {
+      if(piece.locked) return;
+
+      dragging = true;
+      piece.el.setPointerCapture(e.pointerId);
+      piece.el.classList.add("dragging");
+      
+      // 修正 2：每次拿起拼圖，都把它的 z-index 提到最高
+      highestZ++;
+      piece.el.style.zIndex = String(highestZ);
+
+      const rect = piece.el.getBoundingClientRect();
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
+
+      document.body.appendChild(piece.el);
+      piece.el.classList.add("floating");
+      piece.el.style.left = rect.left + "px";
+      piece.el.style.top = rect.top + "px";
+    });
+
+    piece.el.addEventListener("pointermove", (e) => {
+      if(!dragging || piece.locked) return;
+
+      const left = e.clientX - offsetX;
+      const top = e.clientY - offsetY;
+      piece.el.style.left = left + "px";
+      piece.el.style.top = top + "px";
+    });
+
+    function endDrag(e){
+      if(!dragging) return;
+      dragging = false;
+      piece.el.classList.remove("dragging");
+
+      const boardRect = board.getBoundingClientRect();
+      const trayRect = tray.getBoundingClientRect();
+
+      const pieceLeft = e.clientX - offsetX;
+      const pieceTop = e.clientY - offsetY;
+
+      const pieceCenterX = pieceLeft + piece.width / 2;
+      const pieceCenterY = pieceTop + piece.height / 2;
+
+      const isOverBoard =
+        pieceCenterX >= boardRect.left &&
+        pieceCenterX <= boardRect.right &&
+        pieceCenterY >= boardRect.top &&
+        pieceCenterY <= boardRect.bottom;
+
+      if(isOverBoard){
+        board.appendChild(piece.el);
+        piece.el.classList.remove("floating");
+
+        // 修正 4：扣除 border (clientLeft/Top) 帶來的 1px 誤差
+        const boardX = pieceLeft - boardRect.left - board.clientLeft;
+        const boardY = pieceTop - boardRect.top - board.clientTop;
+
+        placePiece(piece, boardX, boardY);
+
+        const dx = piece.currentX - piece.correctX;
+        const dy = piece.currentY - piece.correctY;
+        const dist = Math.hypot(dx, dy);
+
+        if(dist < SNAP){
+          lockPiece(piece);
+        }
+        // 如果沒有 lock，就不重置 z-index，保留 highestZ 讓它在最上面
+      } else {
+        tray.appendChild(piece.el);
+        piece.el.classList.remove("floating");
+
+        // 修正 4：同樣扣除 tray 的 border 誤差
+        const tx = Math.min(
+          Math.max(8, pieceLeft - trayRect.left - tray.clientLeft),
+          Math.max(8, tray.clientWidth - piece.width - 8)
+        );
+        const ty = Math.min(
+          Math.max(8, pieceTop - trayRect.top - tray.clientTop),
+          Math.max(8, tray.clientHeight - piece.height - 8)
+        );
+
+        placePiece(piece, tx, ty);
+      }
+
+      updateStatus();
+    }
+
+    piece.el.addEventListener("pointerup", endDrag);
+    piece.el.addEventListener("pointercancel", endDrag);
+  }
+
+  function lockPiece(piece){
+    piece.locked = true;
+    board.appendChild(piece.el);
+    piece.el.classList.remove("floating");
+    placePiece(piece, piece.correctX, piece.correctY);
+    piece.el.classList.add("locked", "correctPulse");
+    
+    // 鎖定後的拼圖固定在一個比較底層的安全層級，讓還在拖曳的拼圖可以壓過它
+    piece.el.style.zIndex = String(500 + piece.id);
+
+    setTimeout(() => {
+      piece.el.classList.remove("correctPulse");
+    }, 260);
+  }
+
+  function updateStatus(){
+    const done = pieces.filter(p => p.locked).length;
+    statusEl.textContent = `已完成 ${done} / ${TOTAL}`;
+    statusEl.className = done === TOTAL ? "status done" : "status";
+
+    if(done === TOTAL){
+      statusEl.textContent = "🎉 完成 64 / 64";
+      setTimeout(() => alert("🎉 恭喜完成傳統拼圖！"), 120);
+    }
+  }
+})();
+</script>
+</body>
+</html>
