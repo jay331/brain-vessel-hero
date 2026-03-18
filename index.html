@@ -483,8 +483,19 @@ function switchCaseTab(tab, btnEl) {
   id('caseDexList').style.display = tab === 'list' ? 'block' : 'none';
   id('puzzleGallery').style.display = tab === 'gallery' ? 'grid' : 'none';
 }
+// ====== 圖鑑與拼圖邏輯 (防呆強化版) ======
+function switchCaseTab(tab, btnEl) {
+  Array.from(id('caseDexTabs').children).forEach(t => t.classList.remove('active')); 
+  btnEl.classList.add('active');
+  id('caseDexList').style.display = tab === 'list' ? 'block' : 'none';
+  id('puzzleGallery').style.display = tab === 'gallery' ? 'grid' : 'none';
+}
 
 function renderCaseDex() {
+  // 【安全修復】確保舊存檔也有這兩個變數
+  if (!playerState.unlockedPuzzles) playerState.unlockedPuzzles = [];
+  if (!playerState.boughtPuzzles) playerState.boughtPuzzles = 0;
+
   const isBeg = playerState.mode === 'beginner'; 
   const completedMap = getActiveCompletedCases();
   const cases = Array.from(completedMap.entries()).sort((a,b)=>a[0].localeCompare(b[0]));
@@ -510,6 +521,79 @@ function renderCaseDex() {
       });
     }
   }
+
+  // 2. 計算拼圖次數 (加入防呆)
+  const totalEarned = Math.floor(completedMap.size / 5) + playerState.boughtPuzzles;
+  const collectedCount = playerState.unlockedPuzzles.length;
+  const availableCount = totalEarned - collectedCount;
+  
+  id('uiPuzzleAvail').textContent = availableCount > 0 ? availableCount : 0;
+  id('uiPuzzleCollected').textContent = collectedCount;
+
+  // 3. 渲染操作按鈕
+  const actionWrap = id('puzzleActionWrap');
+  if (collectedCount >= 50) {
+    actionWrap.innerHTML = `<div style="color:var(--good); font-weight:bold; padding: 10px;">🏆 已收集全套 50 張拼圖！</div>`;
+  } else if (availableCount > 0) {
+    actionWrap.innerHTML = `<button class="btn btn-rescue" style="margin:0; width:auto; padding: 10px 20px; font-size:15px;" onclick="startRandomPuzzle()">🎲 抽取並挑戰拼圖</button>`;
+  } else {
+    // 5000 健康幣解鎖按鈕
+    actionWrap.innerHTML = `<button class="btn" style="margin:0; width:auto; padding: 10px 20px; font-size:14px; background:linear-gradient(180deg,#d4af37,#8b7322); color:#000; text-shadow:none; border-color:#d4af37;" onclick="buyPuzzleChance()">💰 5000 幣解鎖拼圖</button>`;
+  }
+
+  // 4. 渲染已解鎖的拼圖畫廊
+  const gallery = id('puzzleGallery');
+  gallery.innerHTML = '';
+  playerState.unlockedPuzzles.forEach(pid => {
+    gallery.innerHTML += `
+      <div class="card-item" style="aspect-ratio: 1/1; padding: 0; overflow: hidden; position: relative; cursor: pointer;" onclick="replayPuzzle(${pid})">
+        <img src="assets/puzzle_${pid}.jpg" style="width:100%; height:100%; object-fit:cover; opacity: 0.8; transition: opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8">
+        <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.7); color:#fff; font-size:11px; font-weight:bold; padding:4px 0;">#${pid}</div>
+      </div>
+    `;
+  });
+}
+
+function buyPuzzleChance() {
+  if (playerState.coins >= 5000) {
+    customConfirm("確定要花費 5000 健康幣購買 1 次拼圖解鎖機會嗎？", () => {
+      playerState.coins -= 5000;
+      if (!playerState.boughtPuzzles) playerState.boughtPuzzles = 0;
+      playerState.boughtPuzzles += 1;
+      saveGameData(); // 儲存扣款與購買紀錄
+      updateHUD();    // 更新左上角金幣顯示
+      renderCaseDex(); // 重新渲染圖鑑區，這時按鈕就會變成「🎲 抽取並挑戰拼圖」了
+    }, null, "🧩 購買拼圖機會");
+  } else {
+    customAlert("您的健康幣不足 5000 元喔！\n快去完成每日任務賺取金幣吧！", null, "❌ 餘額不足");
+  }
+}
+
+function startRandomPuzzle() {
+  if (!playerState.unlockedPuzzles) playerState.unlockedPuzzles = [];
+  
+  // 隨機選一個還沒解鎖的編號 (1~50)
+  const availableIds = [];
+  for(let i = 1; i <= 50; i++) {
+    if(!playerState.unlockedPuzzles.includes(i)) availableIds.push(i);
+  }
+  if (availableIds.length === 0) return;
+  const randomId = availableIds[Math.floor(Math.random() * availableIds.length)];
+  
+  // 記錄目前正在挑戰的拼圖
+  window.currentChallengePuzzleId = randomId;
+  
+  id('gameTitle').textContent = `🧩 解鎖新拼圖 #${randomId}`; 
+  id('gameFrame').src = `game_jigsaw.html?imgId=${randomId}`; 
+  id('gameOverlay').style.display = 'flex';
+}
+
+function replayPuzzle(pid) {
+  window.currentChallengePuzzleId = null; // 標記這只是複習，不給額外獎勵
+  id('gameTitle').textContent = `🧩 欣賞拼圖 #${pid}`; 
+  id('gameFrame').src = `game_jigsaw.html?imgId=${pid}`; 
+  id('gameOverlay').style.display = 'flex';
+}
 
   // 2. 計算拼圖次數
   const totalEarned = Math.floor(completedMap.size / 5) + playerState.boughtPuzzles;
