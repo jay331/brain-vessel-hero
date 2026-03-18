@@ -185,25 +185,24 @@
     overflow-y: hidden;
     white-space: nowrap;
     gap: 8px;
-    touch-action: pan-x; /* 允許橫向捲動 */
+    touch-action: pan-x; 
   }
 
   .tray-area::-webkit-scrollbar {
     display: none;
   }
 
-  /* ★ CSS 修改重點：根據所在區域決定觸控行為 */
   .piece {
     position: relative;
     flex-shrink: 0;
     user-select: none;
-    touch-action: none; /* 預設在版面上禁止原生手勢，全權交給 JS 拖曳 */
+    touch-action: none;
     cursor: grab;
     filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
   }
 
   .tray-area .piece {
-    touch-action: pan-x; /* 當拼圖在下方零件區時，允許原生的橫向滑動 */
+    touch-action: pan-x; 
   }
 
   .piece.floating {
@@ -243,7 +242,6 @@
     padding-top: 50%;
   }
 
-  /* 結算畫面 (Modal) 樣式 */
   .modal-overlay {
     position: fixed;
     inset: 0;
@@ -346,14 +344,13 @@
   const ROWS = 5;
   const COLS = 5;
   const TOTAL = ROWS * COLS;
-  cconst ROWS = 5;
-  const COLS = 5;
-  const TOTAL = ROWS * COLS;
   
   // ★ 解析主系統傳遞過來的網址參數
   const urlParams = new URLSearchParams(window.location.search);
   const imgId = urlParams.get('imgId') || '1'; // 預設為 1
-  const IMG_SRC = `assets/puzzle_${imgId}.png`;
+  
+  // 💡 注意這裡：我先幫你設回 .jpg，如果你的檔案是 .png 請把這裡改掉！
+  const IMG_SRC = `assets/puzzle_${imgId}.jpg`;
   const puzzleId = parseInt(imgId);
 
   const boardArea = document.getElementById("boardArea");
@@ -382,9 +379,10 @@
 
   image.onload = () => init();
   
+  // 💡 升級版錯誤提示：會直接告訴你它找不到哪一張圖
   image.onerror = () => {
     statusEl.textContent = "載入失敗";
-    board.innerHTML = `<div class="error-msg">找不到圖片 tms.png</div>`;
+    board.innerHTML = `<div class="error-msg">找不到圖片：<br><span style="color:#fff;">${IMG_SRC}</span><br><br><span style="font-size:12px; color:#aaa;">請確認 assets 資料夾內有這張圖片，且副檔名正確！</span></div>`;
   };
   
   image.src = IMG_SRC;
@@ -429,12 +427,11 @@
       btnHint.textContent = showHint ? "隱藏底圖提示" : "顯示底圖提示";
     });
 
-btnFinish.addEventListener("click", () => {
-    completionModal.classList.add("hidden");
-    // 通知主系統關閉 iframe
-    window.parent.postMessage({ type: 'CLOSE_IFRAME' }, '*');
-  });
-      // ★ 這裡放置過關跳轉的邏輯
+    // ★ 結算畫面「確認」按鈕的邏輯
+    btnFinish.addEventListener("click", () => {
+      completionModal.classList.add("hidden");
+      // 通知主系統關閉 iframe
+      window.parent.postMessage({ type: 'CLOSE_IFRAME' }, '*');
     });
   }
 
@@ -600,7 +597,6 @@ btnFinish.addEventListener("click", () => {
     tray.scrollLeft = 0;
   }
 
-  // ★ JS 修改重點：意圖判定與延遲拖曳
   function attachDrag(piece){
     let isPressing = false;
     let dragging = false;
@@ -622,29 +618,21 @@ btnFinish.addEventListener("click", () => {
       initTop = rect.top;
       offsetX = startX - initLeft;
       offsetY = startY - initTop;
-      
-      // 注意：這裡不再立刻拔起拼圖，等待 pointermove 判定
     });
 
     piece.el.addEventListener("pointermove", (e) => {
       if(!isPressing) return;
 
-      // 如果還沒確認是在「拖曳」
       if(!dragging){
         const dx = e.clientX - startX;
         const dy = e.clientY - startY;
 
-        // 手指移動超過 5px 才開始判定 (容錯防手抖)
         if(Math.hypot(dx, dy) > 5){
-          
-          // 如果拼圖在底部的零件清單中，且「橫向移動距離 > 直向移動距離」
-          // 代表玩家意圖是「左右滑動尋找拼圖」
           if(piece.el.parentElement === tray && Math.abs(dx) > Math.abs(dy)){
-            isPressing = false; // 取消 JS 拖曳判定，交給瀏覽器原生滑動
+            isPressing = false; 
             return;
           }
 
-          // 否則，判定為「往上拉出」或「在板子上移動」，正式啟動拖曳！
           dragging = true;
           piece.el.setPointerCapture(e.pointerId);
           highestZ++;
@@ -663,7 +651,6 @@ btnFinish.addEventListener("click", () => {
         }
       }
 
-      // 如果已經判定為拖曳中，即時更新座標
       if(dragging){
         piece.el.style.left = (e.clientX - offsetX) + "px";
         piece.el.style.top = (e.clientY - offsetY) + "px";
@@ -750,15 +737,14 @@ btnFinish.addEventListener("click", () => {
     tray.appendChild(piece.el);
   }
 
-function updateStatus(){
+  function updateStatus(){
     const done = pieces.filter(p => p.locked).length;
     statusEl.textContent = `${done} / ${TOTAL}`;
     
-    // ★ 拼完最後一塊時，等待鎖定動畫跑完，再顯示結算畫面並通知主系統
     if(done === TOTAL){
       setTimeout(() => {
         completionModal.classList.remove("hidden");
-        // 通知主系統拼圖過關，傳遞當前拼圖 ID
+        // ★ 通知主系統拼圖過關
         window.parent.postMessage({ type: 'PUZZLE_CLEAR', puzzleId: puzzleId }, '*');
       }, 400); 
     }
