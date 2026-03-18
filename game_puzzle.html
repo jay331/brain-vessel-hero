@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-<title>5x5 滿版沉浸拖曳版 (含專屬結算畫面)</title>
+<title>5x5 滿版沉浸拖曳版 (完美防誤觸)</title>
 <style>
   :root {
     --bg1: #0f172a;
@@ -185,20 +185,25 @@
     overflow-y: hidden;
     white-space: nowrap;
     gap: 8px;
-    touch-action: pan-x; 
+    touch-action: pan-x; /* 允許橫向捲動 */
   }
 
   .tray-area::-webkit-scrollbar {
     display: none;
   }
 
+  /* ★ CSS 修改重點：根據所在區域決定觸控行為 */
   .piece {
     position: relative;
     flex-shrink: 0;
     user-select: none;
-    touch-action: none;
+    touch-action: none; /* 預設在版面上禁止原生手勢，全權交給 JS 拖曳 */
     cursor: grab;
     filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+  }
+
+  .tray-area .piece {
+    touch-action: pan-x; /* 當拼圖在下方零件區時，允許原生的橫向滑動 */
   }
 
   .piece.floating {
@@ -238,7 +243,7 @@
     padding-top: 50%;
   }
 
-  /* ★ 新增：結算畫面 (Modal) 樣式 */
+  /* 結算畫面 (Modal) 樣式 */
   .modal-overlay {
     position: fixed;
     inset: 0;
@@ -352,7 +357,6 @@
   const btnShuffle = document.getElementById("btnShuffle");
   const btnHint = document.getElementById("btnHint");
   
-  // ★ 取得結算畫面的元素
   const completionModal = document.getElementById("completionModal");
   const modalImage = document.getElementById("modalImage");
   const btnFinish = document.getElementById("btnFinish");
@@ -385,7 +389,7 @@
     updateStatus();
 
     board.style.setProperty("--board-preview", `url("${IMG_SRC}")`);
-    modalImage.src = IMG_SRC; // 將圖片路徑同步給結算畫面
+    modalImage.src = IMG_SRC; 
 
     window.addEventListener("resize", () => {
       const oldBoard = BOARD_SIZE;
@@ -417,18 +421,9 @@
       btnHint.textContent = showHint ? "隱藏底圖提示" : "顯示底圖提示";
     });
 
-    // ★ 結算畫面「確認」按鈕的邏輯
     btnFinish.addEventListener("click", () => {
       completionModal.classList.add("hidden");
-      
-      // =========================================
-      // 💡 在這裡加入你「結束遊戲」或「下一關」的邏輯！
-      // 例如：
-      // 1. 回到主選單： window.location.href = "index.html";
-      // 2. 跳轉下一關： window.location.href = "level_2.html";
-      // 3. 原地重置： scatterPieces(); updateStatus();
-      // 4. 關閉當前視窗 (僅在某些環境下有效)： window.close();
-      // =========================================
+      // ★ 這裡放置過關跳轉的邏輯
     });
   }
 
@@ -594,41 +589,78 @@
     tray.scrollLeft = 0;
   }
 
+  // ★ JS 修改重點：意圖判定與延遲拖曳
   function attachDrag(piece){
+    let isPressing = false;
     let dragging = false;
+    let startX = 0;
+    let startY = 0;
     let offsetX = 0;
     let offsetY = 0;
+    let initLeft = 0;
+    let initTop = 0;
 
     piece.el.addEventListener("pointerdown", (e) => {
       if(piece.locked || dragging) return;
-      dragging = true;
-      piece.el.setPointerCapture(e.pointerId);
-      highestZ++;
+      isPressing = true;
+      startX = e.clientX;
+      startY = e.clientY;
 
       const rect = piece.el.getBoundingClientRect();
-      offsetX = e.clientX - rect.left;
-      offsetY = e.clientY - rect.top;
-
-      piece.el.style.position = "fixed";
-      piece.el.style.left = rect.left + "px";
-      piece.el.style.top = rect.top + "px";
-      piece.el.style.zIndex = highestZ;
+      initLeft = rect.left;
+      initTop = rect.top;
+      offsetX = startX - initLeft;
+      offsetY = startY - initTop;
       
-      if(!menuPanel.classList.contains("hidden")){
-        menuPanel.classList.add("hidden");
-      }
-
-      document.body.appendChild(piece.el);
-      piece.el.classList.add("floating");
+      // 注意：這裡不再立刻拔起拼圖，等待 pointermove 判定
     });
 
     piece.el.addEventListener("pointermove", (e) => {
-      if(!dragging) return;
-      piece.el.style.left = (e.clientX - offsetX) + "px";
-      piece.el.style.top = (e.clientY - offsetY) + "px";
+      if(!isPressing) return;
+
+      // 如果還沒確認是在「拖曳」
+      if(!dragging){
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+
+        // 手指移動超過 5px 才開始判定 (容錯防手抖)
+        if(Math.hypot(dx, dy) > 5){
+          
+          // 如果拼圖在底部的零件清單中，且「橫向移動距離 > 直向移動距離」
+          // 代表玩家意圖是「左右滑動尋找拼圖」
+          if(piece.el.parentElement === tray && Math.abs(dx) > Math.abs(dy)){
+            isPressing = false; // 取消 JS 拖曳判定，交給瀏覽器原生滑動
+            return;
+          }
+
+          // 否則，判定為「往上拉出」或「在板子上移動」，正式啟動拖曳！
+          dragging = true;
+          piece.el.setPointerCapture(e.pointerId);
+          highestZ++;
+
+          piece.el.style.position = "fixed";
+          piece.el.style.left = (e.clientX - offsetX) + "px";
+          piece.el.style.top = (e.clientY - offsetY) + "px";
+          piece.el.style.zIndex = highestZ;
+          
+          if(!menuPanel.classList.contains("hidden")){
+            menuPanel.classList.add("hidden");
+          }
+
+          document.body.appendChild(piece.el);
+          piece.el.classList.add("floating");
+        }
+      }
+
+      // 如果已經判定為拖曳中，即時更新座標
+      if(dragging){
+        piece.el.style.left = (e.clientX - offsetX) + "px";
+        piece.el.style.top = (e.clientY - offsetY) + "px";
+      }
     });
 
     function endDrag(e){
+      isPressing = false;
       if(!dragging) return;
       dragging = false;
       piece.el.classList.remove("floating");
@@ -711,7 +743,6 @@
     const done = pieces.filter(p => p.locked).length;
     statusEl.textContent = `${done} / ${TOTAL}`;
     
-    // ★ 拼完最後一塊時，等待鎖定動畫(260ms)跑完，再顯示結算畫面
     if(done === TOTAL){
       setTimeout(() => {
         completionModal.classList.remove("hidden");
