@@ -2,296 +2,243 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
-<title>5x5 傳統拼圖版｜手機優化版</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>5x5 單屏完美拖曳版 (自由放置)</title>
 <style>
-  :root{
-    --bg1:#0f172a;
-    --bg2:#111827;
-    --panel:rgba(17,24,39,.88);
-    --text:#f8fafc;
-    --muted:#94a3b8;
-    --accent:#38bdf8;
-    --board-size:min(92vw,720px);
+  :root {
+    --bg1: #0f172a;
+    --bg2: #111827;
+    --text: #f8fafc;
+    --accent: #38bdf8;
+    --tray-bg: rgba(30, 41, 59, 0.9);
   }
 
-  *{
-    box-sizing:border-box;
-    -webkit-tap-highlight-color:transparent;
+  * {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  html,body{
-    margin:0;
-    min-height:100%;
-    background:linear-gradient(180deg,var(--bg1),var(--bg2));
-    color:var(--text);
-    font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;
+  /* 鎖定全螢幕，禁止任何原生上下滾動 */
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+    background: linear-gradient(180deg, var(--bg1), var(--bg2));
+    color: var(--text);
+    font-family: "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
   }
 
-  body{
-    min-height:100vh;
+  /* 遊戲主體架構：上下排列的 Flexbox */
+  .game-app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-width: 600px;
+    margin: 0 auto;
   }
 
-  .wrap{
-    max-width:1180px;
-    margin:0 auto;
-    padding:16px;
+  /* 1. 頂部控制列 */
+  .header {
+    flex-shrink: 0;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,0,0,0.2);
   }
 
-  h1{
-    margin:0 0 10px;
-    text-align:center;
-    font-size:24px;
+  .header h1 {
+    margin: 0;
+    font-size: 18px;
   }
 
-  .topbar{
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:center;
-    gap:10px;
-    margin-bottom:14px;
+  .controls {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    justify-content: center;
   }
 
-  button{
-    border:none;
-    border-radius:12px;
-    padding:10px 14px;
-    cursor:pointer;
-    font-size:15px;
-    font-weight:700;
-    background:var(--accent);
-    color:#062033;
-    transition: opacity 0.2s;
+  button {
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-weight: 700;
+    background: var(--accent);
+    color: #062033;
+    cursor: pointer;
   }
 
-  button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  button.secondary {
+    background: #334155;
+    color: #fff;
   }
 
-  button.secondary{
-    background:#334155;
-    color:#fff;
+  .status {
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #1e293b;
+    font-size: 13px;
+    font-weight: bold;
   }
 
-  .status{
-    padding:9px 12px;
-    border-radius:12px;
-    background:#1e293b;
-    font-size:14px;
+  /* 2. 中間拼圖區 (自動填滿剩餘空間) */
+  .board-area {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    min-height: 0;
+    position: relative; /* 讓自由放置的拼圖可以在這區活動 */
   }
 
-  .done{
-    background:rgba(34,197,94,.18);
-    border:1px solid rgba(34,197,94,.34);
-    color:#dcfce7;
-  }
-
-  .layout{
-    display:grid;
-    grid-template-columns:1fr;
-    gap:16px;
-  }
-
-  @media (min-width:1080px){
-    .layout{
-      grid-template-columns:calc(var(--board-size) + 24px) minmax(300px,1fr);
-      align-items:start;
-      justify-content:center;
-    }
-  }
-
-  .panel{
-    background:var(--panel);
-    border:1px solid rgba(255,255,255,.08);
-    border-radius:20px;
-    padding:12px;
-    box-shadow:0 12px 30px rgba(0,0,0,.28);
-  }
-
-  .panel h2{
-    margin:2px 0 10px;
-    font-size:16px;
-  }
-
-  .boardWrap{
-    display:flex;
-    justify-content:center;
-  }
-
-  .board{
-    position:relative;
-    width:var(--board-size);
-    height:var(--board-size);
+  .board {
+    position: relative;
+    /* 寬高會透過 JS 動態計算，保持完美正方形 */
   }
 
   .board-bg {
-    position:absolute;
-    inset:0;
-    border-radius:18px;
-    overflow:hidden;
-    background:#0b1220;
-    border:1px solid rgba(255,255,255,.08);
-    box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #0b1220;
+    border: 2px solid rgba(255,255,255,0.1);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   }
 
-  .board.hint .board-bg{
-    background-image:var(--board-preview);
-    background-size:100% 100%;
-    background-repeat:no-repeat;
+  .board.hint .board-bg {
+    background-image: var(--board-preview);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
   }
 
-  .boardGrid{
-    position:absolute;
-    inset:0;
-    pointer-events:none;
+  .boardGrid {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
     background-image:
-      linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px);
-    /* 修改這裡：將網格大小改為 5 等份 */
-    background-size:calc(100% / 5) calc(100% / 5);
-    opacity:.4;
+      linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px);
+    background-size: calc(100% / 5) calc(100% / 5);
+    opacity: 0.5;
   }
 
-  .tray{
-    position:relative;
-    min-height:540px;
-    border-radius:16px;
-    background:#0b1220;
-    overflow:hidden;
-    border:1px solid rgba(255,255,255,.06);
+  /* 3. 底部單列零件區 */
+  .tray-area {
+    flex-shrink: 0;
+    height: 125px;
+    background: var(--tray-bg);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    gap: 8px;
+    touch-action: pan-x; 
   }
 
-  .previewBox{
-    margin-top:12px;
+  .tray-area::-webkit-scrollbar {
+    display: none;
   }
 
-  .previewBox img{
-    width:100%;
-    max-width:320px;
-    border-radius:12px;
-    border:1px solid rgba(255,255,255,.12);
-    display:none;
+  .piece {
+    position: relative;
+    flex-shrink: 0;
+    user-select: none;
+    touch-action: none;
+    cursor: grab;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
   }
 
-  .small{
-    color:var(--muted);
-    font-size:13px;
-    line-height:1.55;
-    margin-top:8px;
+  .piece.floating {
+    position: fixed !important;
+    margin: 0 !important;
+    cursor: grabbing;
+    filter: drop-shadow(0 15px 20px rgba(0,0,0,0.6));
+    opacity: 0.95; 
   }
 
-  .piece{
-    position:absolute;
-    user-select:none;
-    touch-action:none;
-    cursor:grab;
-    transition:box-shadow .15s ease, transform .15s ease;
-    filter:drop-shadow(0 4px 8px rgba(0,0,0,.28));
-    transform-origin:center center;
+  .piece.locked {
+    position: absolute !important;
+    cursor: default;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
   }
 
-  .piece.locked{
-    cursor:default;
-    filter:drop-shadow(0 3px 5px rgba(0,0,0,.22));
+  .piece svg {
+    display: block;
+    overflow: visible;
   }
 
-  .piece.dragging{
-    cursor:grabbing;
-    filter:drop-shadow(0 14px 18px rgba(0,0,0,.35));
-    transform:scale(1.02);
+  .piece.correctPulse {
+    animation: okpop .25s ease;
   }
 
-  .piece.floating{
-    position:fixed !important;
-    margin:0;
-  }
-
-  .piece svg{
-    display:block;
-    overflow:visible;
-  }
-
-  .piece.correctPulse{
-    animation:okpop .25s ease;
-  }
-
-  @keyframes okpop{
-    0%{ transform:scale(1.02); }
-    60%{ transform:scale(1.08); }
-    100%{ transform:scale(1); }
+  @keyframes okpop {
+    0% { transform: scale(1); filter: brightness(1.5); }
+    50% { transform: scale(1.05); filter: brightness(1.2); }
+    100% { transform: scale(1); filter: brightness(1); }
   }
 
   .error-msg {
-    padding: 20px;
-    text-align: center;
     color: #f87171;
     font-weight: bold;
+    text-align: center;
     width: 100%;
   }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>🧩 5x5 傳統拼圖版</h1>
+<div class="game-app">
+  
+  <header class="header">
+    <h1>🧩 5x5 拼圖任務</h1>
+    <div class="controls">
+      <button id="btnShuffle">重新打亂</button>
+      <button id="btnHint" class="secondary">提示</button>
+      <div class="status" id="status">載入中...</div>
+    </div>
+  </header>
 
-  <div class="topbar">
-    <button id="btnShuffle">重新打亂</button>
-    <button id="btnHint" class="secondary">顯示底圖提示</button>
-    <button id="btnPreview" class="secondary">顯示原圖</button>
-    <div class="status" id="status">載入中...</div>
-  </div>
-
-  <div class="layout">
-    <div class="panel">
-      <h2>拼圖區</h2>
-      <div class="boardWrap">
-        <div id="board" class="board">
-          <div class="board-bg">
-            <div class="boardGrid"></div>
-          </div>
-        </div>
+  <main class="board-area" id="boardArea">
+    <div id="board" class="board">
+      <div class="board-bg">
+        <div class="boardGrid"></div>
       </div>
     </div>
+  </main>
 
-    <div class="panel">
-      <h2>零件區</h2>
-      <div id="tray" class="tray"></div>
+  <footer class="tray-area" id="tray"></footer>
 
-      <div class="previewBox">
-        <img id="preview" alt="原圖預覽">
-        <div class="small">
-          圖片請和此 HTML 放在同一資料夾，名稱設為 <b>tms.png</b><br>
-          支援滑鼠與手機拖曳，拖到正確位置附近會自動吸附。
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <script>
 (() => {
-  // 修改這裡：將尺寸改為 5x5
   const ROWS = 5;
   const COLS = 5;
   const TOTAL = ROWS * COLS;
   const IMG_SRC = "tms.png";
 
+  const boardArea = document.getElementById("boardArea");
   const board = document.getElementById("board");
   const tray = document.getElementById("tray");
   const statusEl = document.getElementById("status");
-  const preview = document.getElementById("preview");
   const btnShuffle = document.getElementById("btnShuffle");
   const btnHint = document.getElementById("btnHint");
-  const btnPreview = document.getElementById("btnPreview");
 
-  let BOARD_SIZE = 700;
-  let CELL = 87.5;
-  let TAB = 18;
-  let SNAP = 24;
+  let BOARD_SIZE = 300;
+  let CELL = 60;
+  let TAB = 15;
+  let SNAP = 25;
   let showHint = false;
-  let showPreview = false;
-  
   let highestZ = 1000;
 
   const pieces = [];
@@ -302,18 +249,12 @@
   
   image.onerror = () => {
     statusEl.textContent = "載入失敗";
-    const errorHTML = `<div class="error-msg">找不到圖片 <b>${IMG_SRC}</b>。<br>請將圖片與 HTML 放在同一資料夾並重新整理。</div>`;
-    board.innerHTML = errorHTML;
-    tray.innerHTML = errorHTML;
-    btnShuffle.disabled = true;
-    btnHint.disabled = true;
-    btnPreview.disabled = true;
+    board.innerHTML = `<div class="error-msg">找不到圖片 tms.png</div>`;
   };
   
   image.src = IMG_SRC;
 
   function init(){
-    preview.src = IMG_SRC;
     updateSizes();
     generateEdgeMap();
     buildPieces();
@@ -329,6 +270,7 @@
     });
 
     btnShuffle.addEventListener("click", () => {
+      pieces.forEach(p => p.el.dispatchEvent(new PointerEvent("pointercancel")));
       scatterPieces();
       updateStatus();
     });
@@ -336,50 +278,45 @@
     btnHint.addEventListener("click", () => {
       showHint = !showHint;
       board.classList.toggle("hint", showHint);
-      btnHint.textContent = showHint ? "隱藏底圖提示" : "顯示底圖提示";
-    });
-
-    btnPreview.addEventListener("click", () => {
-      showPreview = !showPreview;
-      preview.style.display = showPreview ? "block" : "none";
-      btnPreview.textContent = showPreview ? "隱藏原圖" : "顯示原圖";
+      btnHint.textContent = showHint ? "隱藏提示" : "提示";
     });
   }
 
   function updateSizes(){
-    BOARD_SIZE = Math.round(board.clientWidth);
+    const maxWidth = boardArea.clientWidth - 20;
+    const maxHeight = boardArea.clientHeight - 20;
+    BOARD_SIZE = Math.min(maxWidth, maxHeight);
+    
+    board.style.width = BOARD_SIZE + "px";
+    board.style.height = BOARD_SIZE + "px";
+
     CELL = BOARD_SIZE / COLS;
     TAB = Math.round(CELL * 0.22);
-    SNAP = Math.max(18, CELL * 0.22);
-    tray.style.minHeight = Math.max(420, BOARD_SIZE * 0.76) + "px";
+    SNAP = Math.max(20, CELL * 0.25);
   }
 
+  // 處理視窗縮放時，自由散落的拼圖也要跟著等比例縮放座標
   function rescalePieces(oldBoard, newBoard){
     const scale = newBoard / oldBoard;
-
+    
     pieces.forEach(p => {
       p.correctX = p.col * CELL - TAB;
       p.correctY = p.row * CELL - TAB;
       p.width = CELL + TAB * 2;
       p.height = CELL + TAB * 2;
 
-      if(p.locked){
-        p.currentX = p.correctX;
-        p.currentY = p.correctY;
-      }else{
-        if(p.el.parentElement === board){
-          p.currentX *= scale;
-          p.currentY *= scale;
-        }else if(p.el.parentElement === tray){
-          const maxX = Math.max(8, tray.clientWidth - p.width - 8);
-          const maxY = Math.max(8, tray.clientHeight - p.height - 8);
-          p.currentX = Math.min(Math.max(8, p.currentX), maxX);
-          p.currentY = Math.min(Math.max(8, p.currentY), maxY);
-        }
-      }
-
       renderPieceSVG(p);
-      placePiece(p, p.currentX, p.currentY);
+
+      if(p.locked){
+        p.el.style.left = p.correctX + "px";
+        p.el.style.top = p.correctY + "px";
+      } else if (p.el.parentElement === board) {
+        // 如果是自由放置在 board 上的拼圖
+        const currentX = parseFloat(p.el.style.left) || 0;
+        const currentY = parseFloat(p.el.style.top) || 0;
+        p.el.style.left = (currentX * scale) + "px";
+        p.el.style.top = (currentY * scale) + "px";
+      }
     });
   }
 
@@ -417,22 +354,15 @@
           height: CELL + TAB * 2,
           correctX: c * CELL - TAB,
           correctY: r * CELL - TAB,
-          currentX: 0,
-          currentY: 0,
           locked: false,
           el: document.createElement("div")
         };
 
         piece.el.className = "piece";
-        piece.el.dataset.id = id;
-        piece.el.style.width = piece.width + "px";
-        piece.el.style.height = piece.height + "px";
-        
         renderPieceSVG(piece);
         attachDrag(piece);
 
         pieces.push(piece);
-        tray.appendChild(piece.el);
       }
     }
   }
@@ -453,20 +383,13 @@
       <path d="${path}"></path>
     </clipPath>
   </defs>
-
   <path d="${path}" fill="rgba(255,255,255,0.14)" stroke="rgba(255,255,255,0.38)" stroke-width="1"></path>
-
   <image
-    href="${IMG_SRC}"
-    xlink:href="${IMG_SRC}"
-    x="${-piece.col * CELL + TAB}"
-    y="${-piece.row * CELL + TAB}"
-    width="${BOARD_SIZE}"
-    height="${BOARD_SIZE}"
-    preserveAspectRatio="none"
-    clip-path="url(#${uid})"></image>
-
-  <path d="${path}" fill="none" stroke="rgba(0,0,0,0.24)" stroke-width="1"></path>
+    href="${IMG_SRC}" xlink:href="${IMG_SRC}"
+    x="${-piece.col * CELL + TAB}" y="${-piece.row * CELL + TAB}"
+    width="${BOARD_SIZE}" height="${BOARD_SIZE}"
+    preserveAspectRatio="none" clip-path="url(#${uid})"></image>
+  <path d="${path}" fill="none" stroke="rgba(0,0,0,0.3)" stroke-width="1.5"></path>
 </svg>
 `;
   }
@@ -474,90 +397,46 @@
   function makePiecePath(edges, cell, tab){
     const x0 = tab, y0 = tab;
     const x1 = tab + cell, y1 = tab + cell;
-    const midX = tab + cell / 2;
-    const midY = tab + cell / 2;
-    const knobW = cell * 0.22;
-    const knobH = tab * 0.95;
+    const midX = tab + cell / 2, midY = tab + cell / 2;
+    const knobW = cell * 0.22, knobH = tab * 0.95;
 
     function topSeg(type){
       if(type === 0) return `L ${x1} ${y0}`;
       const dir = -type;
-      return [
-        `L ${midX - knobW} ${y0}`,
-        `C ${midX - knobW*0.55} ${y0}, ${midX - knobW*0.65} ${y0 + dir*knobH}, ${midX} ${y0 + dir*knobH}`,
-        `C ${midX + knobW*0.65} ${y0 + dir*knobH}, ${midX + knobW*0.55} ${y0}, ${midX + knobW} ${y0}`,
-        `L ${x1} ${y0}`
-      ].join(" ");
+      return `L ${midX - knobW} ${y0} C ${midX - knobW*0.55} ${y0}, ${midX - knobW*0.65} ${y0 + dir*knobH}, ${midX} ${y0 + dir*knobH} C ${midX + knobW*0.65} ${y0 + dir*knobH}, ${midX + knobW*0.55} ${y0}, ${midX + knobW} ${y0} L ${x1} ${y0}`;
     }
-
     function rightSeg(type){
       if(type === 0) return `L ${x1} ${y1}`;
       const dir = type;
-      return [
-        `L ${x1} ${midY - knobW}`,
-        `C ${x1} ${midY - knobW*0.55}, ${x1 + dir*knobH} ${midY - knobW*0.65}, ${x1 + dir*knobH} ${midY}`,
-        `C ${x1 + dir*knobH} ${midY + knobW*0.65}, ${x1} ${midY + knobW*0.55}, ${x1} ${midY + knobW}`,
-        `L ${x1} ${y1}`
-      ].join(" ");
+      return `L ${x1} ${midY - knobW} C ${x1} ${midY - knobW*0.55}, ${x1 + dir*knobH} ${midY - knobW*0.65}, ${x1 + dir*knobH} ${midY} C ${x1 + dir*knobH} ${midY + knobW*0.65}, ${x1} ${midY + knobW*0.55}, ${x1} ${midY + knobW} L ${x1} ${y1}`;
     }
-
     function bottomSeg(type){
       if(type === 0) return `L ${x0} ${y1}`;
       const dir = type;
-      return [
-        `L ${midX + knobW} ${y1}`,
-        `C ${midX + knobW*0.55} ${y1}, ${midX + knobW*0.65} ${y1 + dir*knobH}, ${midX} ${y1 + dir*knobH}`,
-        `C ${midX - knobW*0.65} ${y1 + dir*knobH}, ${midX - knobW*0.55} ${y1}, ${midX - knobW} ${y1}`,
-        `L ${x0} ${y1}`
-      ].join(" ");
+      return `L ${midX + knobW} ${y1} C ${midX + knobW*0.55} ${y1}, ${midX + knobW*0.65} ${y1 + dir*knobH}, ${midX} ${y1 + dir*knobH} C ${midX - knobW*0.65} ${y1 + dir*knobH}, ${midX - knobW*0.55} ${y1}, ${midX - knobW} ${y1} L ${x0} ${y1}`;
     }
-
     function leftSeg(type){
       if(type === 0) return `L ${x0} ${y0}`;
       const dir = -type;
-      return [
-        `L ${x0} ${midY + knobW}`,
-        `C ${x0} ${midY + knobW*0.55}, ${x0 + dir*knobH} ${midY + knobW*0.65}, ${x0 + dir*knobH} ${midY}`,
-        `C ${x0 + dir*knobH} ${midY - knobW*0.65}, ${x0} ${midY - knobW*0.55}, ${x0} ${midY - knobW}`,
-        `L ${x0} ${y0}`
-      ].join(" ");
+      return `L ${x0} ${midY + knobW} C ${x0} ${midY + knobW*0.55}, ${x0 + dir*knobH} ${midY + knobW*0.65}, ${x0 + dir*knobH} ${midY} C ${x0 + dir*knobH} ${midY - knobW*0.65}, ${x0} ${midY - knobW*0.55}, ${x0} ${midY - knobW} L ${x0} ${y0}`;
     }
-
-    return [
-      `M ${x0} ${y0}`,
-      topSeg(edges.top),
-      rightSeg(edges.right),
-      bottomSeg(edges.bottom),
-      leftSeg(edges.left),
-      `Z`
-    ].join(" ");
+    return `M ${x0} ${y0} ${topSeg(edges.top)} ${rightSeg(edges.right)} ${bottomSeg(edges.bottom)} ${leftSeg(edges.left)} Z`;
   }
 
   function scatterPieces(){
-    const pad = 8;
-
-    pieces.forEach((p, idx) => {
+    const shuffled = [...pieces].sort(() => Math.random() - 0.5);
+    
+    shuffled.forEach((p) => {
       p.locked = false;
-      p.el.classList.remove("locked", "correctPulse", "dragging", "floating");
+      p.el.classList.remove("locked", "correctPulse", "floating");
       
-      p.el.style.zIndex = String(100 + idx);
-
-      if(p.el.parentElement !== tray) tray.appendChild(p.el);
-
-      const maxX = Math.max(pad, tray.clientWidth - p.width - pad);
-      const maxY = Math.max(pad, tray.clientHeight - p.height - pad);
-      const x = pad + Math.random() * maxX;
-      const y = pad + Math.random() * maxY;
-
-      placePiece(p, x, y);
+      p.el.style.position = "";
+      p.el.style.left = "";
+      p.el.style.top = "";
+      
+      tray.appendChild(p.el);
     });
-  }
-
-  function placePiece(piece, x, y){
-    piece.currentX = x;
-    piece.currentY = y;
-    piece.el.style.left = x + "px";
-    piece.el.style.top = y + "px";
+    tray.scrollLeft = 0;
   }
 
   function attachDrag(piece){
@@ -566,84 +445,61 @@
     let offsetY = 0;
 
     piece.el.addEventListener("pointerdown", (e) => {
-      if(piece.locked) return;
-
+      if(piece.locked || dragging) return;
       dragging = true;
       piece.el.setPointerCapture(e.pointerId);
-      piece.el.classList.add("dragging");
-      
       highestZ++;
-      piece.el.style.zIndex = String(highestZ);
 
       const rect = piece.el.getBoundingClientRect();
       offsetX = e.clientX - rect.left;
       offsetY = e.clientY - rect.top;
 
-      document.body.appendChild(piece.el);
-      piece.el.classList.add("floating");
+      piece.el.style.position = "fixed";
       piece.el.style.left = rect.left + "px";
       piece.el.style.top = rect.top + "px";
+      piece.el.style.zIndex = highestZ;
+      
+      document.body.appendChild(piece.el);
+      piece.el.classList.add("floating");
     });
 
     piece.el.addEventListener("pointermove", (e) => {
-      if(!dragging || piece.locked) return;
-
-      const left = e.clientX - offsetX;
-      const top = e.clientY - offsetY;
-      piece.el.style.left = left + "px";
-      piece.el.style.top = top + "px";
+      if(!dragging) return;
+      piece.el.style.left = (e.clientX - offsetX) + "px";
+      piece.el.style.top = (e.clientY - offsetY) + "px";
     });
 
     function endDrag(e){
       if(!dragging) return;
       dragging = false;
-      piece.el.classList.remove("dragging");
+      piece.el.classList.remove("floating");
 
-      const boardRect = board.getBoundingClientRect();
       const trayRect = tray.getBoundingClientRect();
-
+      const boardRect = board.getBoundingClientRect();
+      
       const pieceLeft = e.clientX - offsetX;
       const pieceTop = e.clientY - offsetY;
-
-      const pieceCenterX = pieceLeft + piece.width / 2;
       const pieceCenterY = pieceTop + piece.height / 2;
 
-      const isOverBoard =
-        pieceCenterX >= boardRect.left &&
-        pieceCenterX <= boardRect.right &&
-        pieceCenterY >= boardRect.top &&
-        pieceCenterY <= boardRect.bottom;
+      // 如果游標放開時，拼圖中心點低於零件區(tray)的上緣，就當作退回清單
+      const isOverTray = pieceCenterY >= trayRect.top;
 
-      if(isOverBoard){
-        board.appendChild(piece.el);
-        piece.el.classList.remove("floating");
-
-        const boardX = pieceLeft - boardRect.left - board.clientLeft;
-        const boardY = pieceTop - boardRect.top - board.clientTop;
-
-        placePiece(piece, boardX, boardY);
-
-        const dx = piece.currentX - piece.correctX;
-        const dy = piece.currentY - piece.correctY;
+      if(isOverTray){
+        returnToTray(piece);
+      } else {
+        // 放開在上方拼圖區 (自由放置邏輯)
+        const boardX = pieceLeft - boardRect.left;
+        const boardY = pieceTop - boardRect.top;
+        
+        const dx = boardX - piece.correctX;
+        const dy = boardY - piece.correctY;
         const dist = Math.hypot(dx, dy);
 
         if(dist < SNAP){
-          lockPiece(piece);
+          lockPiece(piece); // 吸附成功
+        } else {
+          leaveOnBoard(piece, boardX, boardY); // 自由停留在放開的位置
         }
-      } else {
-        tray.appendChild(piece.el);
-        piece.el.classList.remove("floating");
-
-        const tx = Math.min(
-          Math.max(8, pieceLeft - trayRect.left - tray.clientLeft),
-          Math.max(8, tray.clientWidth - piece.width - 8)
-        );
-        const ty = Math.min(
-          Math.max(8, pieceTop - trayRect.top - tray.clientTop),
-          Math.max(8, tray.clientHeight - piece.height - 8)
-        );
-
-        placePiece(piece, tx, ty);
       }
 
       updateStatus();
@@ -656,26 +512,39 @@
   function lockPiece(piece){
     piece.locked = true;
     board.appendChild(piece.el);
-    piece.el.classList.remove("floating");
-    placePiece(piece, piece.correctX, piece.correctY);
-    piece.el.classList.add("locked", "correctPulse");
     
-    piece.el.style.zIndex = String(500 + piece.id);
+    piece.el.style.position = "absolute";
+    piece.el.style.left = piece.correctX + "px";
+    piece.el.style.top = piece.correctY + "px";
+    piece.el.style.zIndex = 500 + piece.id;
+    
+    piece.el.classList.add("locked", "correctPulse");
+    setTimeout(() => piece.el.classList.remove("correctPulse"), 260);
+  }
 
-    setTimeout(() => {
-      piece.el.classList.remove("correctPulse");
-    }, 260);
+  // 讓拼圖自由停留在畫面上
+  function leaveOnBoard(piece, x, y){
+    board.appendChild(piece.el);
+    piece.el.style.position = "absolute";
+    piece.el.style.left = x + "px";
+    piece.el.style.top = y + "px";
+    piece.el.style.zIndex = highestZ; // 保持在最上層
+  }
+
+  // 退回下方滑動清單
+  function returnToTray(piece){
+    piece.el.style.position = "";
+    piece.el.style.left = "";
+    piece.el.style.top = "";
+    tray.appendChild(piece.el);
   }
 
   function updateStatus(){
     const done = pieces.filter(p => p.locked).length;
-    // 修改這裡：動態顯示 TOTAL
-    statusEl.textContent = `已完成 ${done} / ${TOTAL}`;
-    statusEl.className = done === TOTAL ? "status done" : "status";
-
+    statusEl.textContent = `進度 ${done} / ${TOTAL}`;
     if(done === TOTAL){
-      statusEl.textContent = `🎉 完成 ${TOTAL} / ${TOTAL}`;
-      setTimeout(() => alert("🎉 恭喜完成傳統拼圖！"), 120);
+      statusEl.textContent = `🎉 任務完成！`;
+      setTimeout(() => alert("🎉 太棒了！拼圖完成！"), 150);
     }
   }
 })();
