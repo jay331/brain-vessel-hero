@@ -3,14 +3,15 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-<title>5x5 單屏完美拖曳版 (邊界防護)</title>
+<title>5x5 滿版沉浸拖曳版 (含專屬結算畫面)</title>
 <style>
   :root {
     --bg1: #0f172a;
     --bg2: #111827;
     --text: #f8fafc;
+    --muted: #94a3b8;
     --accent: #38bdf8;
-    --tray-bg: rgba(30, 41, 59, 0.9);
+    --tray-bg: rgba(30, 41, 59, 0.95);
   }
 
   * {
@@ -36,52 +37,99 @@
     height: 100%;
     max-width: 600px;
     margin: 0 auto;
+    position: relative;
   }
 
-  .header {
-    flex-shrink: 0;
-    padding: 10px 12px;
+  .top-nav {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 12px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    z-index: 2000;
+    pointer-events: none;
+  }
+
+  .top-nav > * {
+    pointer-events: auto;
+  }
+
+  .status-pill {
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+
+  .icon-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: var(--accent);
+    color: #062033;
+    border: none;
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+
+  .menu-panel {
+    position: absolute;
+    top: 60px;
+    right: 14px;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 16px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    background: rgba(0,0,0,0.2);
+    gap: 12px;
+    z-index: 2000;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+    transform-origin: top right;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
   }
 
-  .header h1 {
-    margin: 0;
-    font-size: 18px;
+  .menu-panel.hidden {
+    transform: scale(0.8);
+    opacity: 0;
+    pointer-events: none;
   }
 
-  .controls {
-    display: flex;
-    gap: 8px;
-    width: 100%;
-    justify-content: center;
+  .menu-panel h2 {
+    margin: 0 0 4px 0;
+    font-size: 15px;
+    color: var(--muted);
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 10px;
   }
 
-  button {
+  .menu-panel button {
     border: none;
     border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 14px;
+    padding: 10px 16px;
+    font-size: 15px;
     font-weight: 700;
     background: var(--accent);
     color: #062033;
     cursor: pointer;
   }
 
-  button.secondary {
+  .menu-panel button.secondary {
     background: #334155;
     color: #fff;
-  }
-
-  .status {
-    padding: 8px 12px;
-    border-radius: 8px;
-    background: #1e293b;
-    font-size: 13px;
-    font-weight: bold;
   }
 
   .board-area {
@@ -89,7 +137,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 10px;
+    padding: 65px 4px 10px 4px;
     min-height: 0;
     position: relative;
   }
@@ -127,7 +175,7 @@
 
   .tray-area {
     flex-shrink: 0;
-    height: 125px;
+    height: 120px;
     background: var(--tray-bg);
     border-top: 1px solid rgba(255,255,255,0.1);
     display: flex;
@@ -187,20 +235,86 @@
     font-weight: bold;
     text-align: center;
     width: 100%;
+    padding-top: 50%;
+  }
+
+  /* ★ 新增：結算畫面 (Modal) 樣式 */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(10px);
+    z-index: 3000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    transition: opacity 0.4s ease;
+  }
+
+  .modal-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .modal-content {
+    background: #1e293b;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 24px;
+    padding: 24px;
+    width: 85%;
+    max-width: 360px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    transform: scale(1) translateY(0);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .modal-overlay.hidden .modal-content {
+    transform: scale(0.9) translateY(20px);
+  }
+
+  .modal-content h2 {
+    margin: 0 0 16px 0;
+    font-size: 24px;
+    color: #f8fafc;
+  }
+
+  .modal-content .full-image {
+    width: 100%;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 2px solid rgba(255,255,255,0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+
+  .btn-finish {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: bold;
+    background: var(--accent);
+    color: #062033;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(56, 189, 248, 0.3);
   }
 </style>
 </head>
 <body>
 <div class="game-app">
   
-  <header class="header">
-    <h1>🧩 5x5 拼圖任務</h1>
-    <div class="controls">
-      <button id="btnShuffle">重新打亂</button>
-      <button id="btnHint" class="secondary">提示</button>
-      <div class="status" id="status">載入中...</div>
-    </div>
-  </header>
+  <div class="top-nav">
+    <div class="status-pill" id="status">0 / 25</div>
+    <button class="icon-btn" id="btnMenu">☰</button>
+  </div>
+
+  <div class="menu-panel hidden" id="menuPanel">
+    <h2>🧩 拼圖設定</h2>
+    <button id="btnShuffle">重新打亂</button>
+    <button id="btnHint" class="secondary">顯示底圖提示</button>
+  </div>
 
   <main class="board-area" id="boardArea">
     <div id="board" class="board">
@@ -211,6 +325,14 @@
   </main>
 
   <footer class="tray-area" id="tray"></footer>
+
+  <div id="completionModal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h2>🎉 恭喜完成！</h2>
+      <img id="modalImage" class="full-image" alt="完整原圖">
+      <button class="btn-finish" id="btnFinish">確認</button>
+    </div>
+  </div>
 
 </div>
 
@@ -225,8 +347,15 @@
   const board = document.getElementById("board");
   const tray = document.getElementById("tray");
   const statusEl = document.getElementById("status");
+  const btnMenu = document.getElementById("btnMenu");
+  const menuPanel = document.getElementById("menuPanel");
   const btnShuffle = document.getElementById("btnShuffle");
   const btnHint = document.getElementById("btnHint");
+  
+  // ★ 取得結算畫面的元素
+  const completionModal = document.getElementById("completionModal");
+  const modalImage = document.getElementById("modalImage");
+  const btnFinish = document.getElementById("btnFinish");
 
   let BOARD_SIZE = 300;
   let CELL = 60;
@@ -256,6 +385,7 @@
     updateStatus();
 
     board.style.setProperty("--board-preview", `url("${IMG_SRC}")`);
+    modalImage.src = IMG_SRC; // 將圖片路徑同步給結算畫面
 
     window.addEventListener("resize", () => {
       const oldBoard = BOARD_SIZE;
@@ -263,22 +393,55 @@
       rescalePieces(oldBoard, BOARD_SIZE);
     });
 
+    btnMenu.addEventListener("click", (e) => {
+      e.stopPropagation();
+      menuPanel.classList.toggle("hidden");
+    });
+
+    document.body.addEventListener("click", (e) => {
+      if (!menuPanel.classList.contains("hidden") && !menuPanel.contains(e.target)) {
+        menuPanel.classList.add("hidden");
+      }
+    });
+
     btnShuffle.addEventListener("click", () => {
       pieces.forEach(p => p.el.dispatchEvent(new PointerEvent("pointercancel")));
       scatterPieces();
       updateStatus();
+      menuPanel.classList.add("hidden");
     });
 
     btnHint.addEventListener("click", () => {
       showHint = !showHint;
       board.classList.toggle("hint", showHint);
-      btnHint.textContent = showHint ? "隱藏提示" : "提示";
+      btnHint.textContent = showHint ? "隱藏底圖提示" : "顯示底圖提示";
+    });
+
+    // ★ 結算畫面「確認」按鈕的邏輯
+    btnFinish.addEventListener("click", () => {
+      completionModal.classList.add("hidden");
+      
+      // =========================================
+      // 💡 在這裡加入你「結束遊戲」或「下一關」的邏輯！
+      // 例如：
+      // 1. 回到主選單： window.location.href = "index.html";
+      // 2. 跳轉下一關： window.location.href = "level_2.html";
+      // 3. 原地重置： scatterPieces(); updateStatus();
+      // 4. 關閉當前視窗 (僅在某些環境下有效)： window.close();
+      // =========================================
     });
   }
 
   function updateSizes(){
-    const maxWidth = boardArea.clientWidth - 20;
-    const maxHeight = boardArea.clientHeight - 20;
+    const style = window.getComputedStyle(boardArea);
+    const pLeft = parseFloat(style.paddingLeft);
+    const pRight = parseFloat(style.paddingRight);
+    const pTop = parseFloat(style.paddingTop);
+    const pBottom = parseFloat(style.paddingBottom);
+
+    const maxWidth = boardArea.clientWidth - pLeft - pRight;
+    const maxHeight = boardArea.clientHeight - pTop - pBottom;
+    
     BOARD_SIZE = Math.min(maxWidth, maxHeight);
     
     board.style.width = BOARD_SIZE + "px";
@@ -451,6 +614,10 @@
       piece.el.style.top = rect.top + "px";
       piece.el.style.zIndex = highestZ;
       
+      if(!menuPanel.classList.contains("hidden")){
+        menuPanel.classList.add("hidden");
+      }
+
       document.body.appendChild(piece.el);
       piece.el.classList.add("floating");
     });
@@ -467,15 +634,12 @@
       piece.el.classList.remove("floating");
 
       const boardRect = board.getBoundingClientRect();
-      
       const pieceLeft = e.clientX - offsetX;
       const pieceTop = e.clientY - offsetY;
       
-      // 取拼圖的中心點座標來判定
       const pieceCenterX = pieceLeft + piece.width / 2;
       const pieceCenterY = pieceTop + piece.height / 2;
 
-      // ★ 判斷 1：檢查中心點是否在「拼圖板」範圍內
       const isOverBoard = (
         pieceCenterX >= boardRect.left &&
         pieceCenterX <= boardRect.right &&
@@ -484,7 +648,6 @@
       );
 
       if(isOverBoard){
-        // 在拼圖板上放開
         const boardX = pieceLeft - boardRect.left;
         const boardY = pieceTop - boardRect.top;
         
@@ -493,10 +656,8 @@
         const dist = Math.hypot(dx, dy);
 
         if(dist < SNAP){
-          lockPiece(piece); // 吸附成功
+          lockPiece(piece); 
         } else {
-          // 未吸附，允許留在板子上，但加上「完美貼邊限制 (Clamp)」
-          // 確保拼圖不會超出邊界造成畫面凌亂或捲軸出現
           const minX = -TAB;
           const minY = -TAB;
           const maxX = board.clientWidth - piece.width + TAB;
@@ -508,7 +669,6 @@
           leaveOnBoard(piece, clampedX, clampedY); 
         }
       } else {
-        // ★ 判斷 2：超出邊界或拉到下方零件區 -> 一律退回清單
         returnToTray(piece);
       }
 
@@ -549,10 +709,13 @@
 
   function updateStatus(){
     const done = pieces.filter(p => p.locked).length;
-    statusEl.textContent = `進度 ${done} / ${TOTAL}`;
+    statusEl.textContent = `${done} / ${TOTAL}`;
+    
+    // ★ 拼完最後一塊時，等待鎖定動畫(260ms)跑完，再顯示結算畫面
     if(done === TOTAL){
-      statusEl.textContent = `🎉 任務完成！`;
-      setTimeout(() => alert("🎉 太棒了！拼圖完成！"), 150);
+      setTimeout(() => {
+        completionModal.classList.remove("hidden");
+      }, 400); 
     }
   }
 })();
