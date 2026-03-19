@@ -58,7 +58,9 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .stage { position: relative; width: 100%; height: 100%; overflow: hidden; display: flex; flex-direction: column; background: radial-gradient(circle at 50% 30%, var(--theme-bg), rgba(0,0,0,0.95)), linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.98)), url('https://images.unsplash.com/photo-1551076805-e1869033e561?q=80&w=800&auto=format&fit=crop') center/cover no-repeat; }
 @media (min-width: 481px) { .wrap { padding: 20px; background: #111; } .stage { max-width: 414px; max-height: 896px; border-radius: 16px; border: 2px solid var(--theme-dim); box-shadow: 0 0 30px var(--theme-bg); } }
 
-/* 畫面切換控制 */
+/* ★ 全螢幕地圖樣式：Z-index 4000 (確保低於提示框的 5000) */
+.fullscreen-map { position: fixed !important; inset: 0 !important; z-index: 4000 !important; border-radius: 0 !important; border: none !important; }
+
 .screen { position: absolute; inset: 0; display: none; flex-direction: column; z-index: 10; padding: 10px; overflow-y: auto; padding-bottom: 80px; }
 .screen.show { display: flex; }
 .screen.full-view { padding-top: 10px; padding-bottom: 10px; z-index: 200; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); }
@@ -68,11 +70,9 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .panel h2 { color: var(--theme-primary); margin: 0 0 10px 0; font-size: 16px; text-align: center; border-bottom: 1px dashed var(--theme-dim); padding-bottom: 6px; flex-shrink: 0;}
 .btn { padding: 12px; border-radius: 6px; font-weight: 900; font-size: 15px; text-align: center; background: linear-gradient(180deg, #444, #222); color: #fff; border: 1px solid #666; width: 100%; cursor:pointer; flex-shrink: 0;}
 .btn:active { transform: scale(0.95); }
-
 .btn-back { background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.6)); border: 1px solid var(--theme-dim); color: #fff; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 10px rgba(0,0,0,0.5); border-radius: 8px; transition: all 0.2s; }
 .btn-back:active { transform: scale(0.97); background: rgba(0,0,0,0.8); }
 .btn-rescue { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border: none; color: #004d26; font-weight: 900; text-shadow: 0 1px 1px rgba(255,255,255,0.4); padding: 12px; font-size: 13px; border-radius: 8px; box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4), inset 0 -3px 0 rgba(0,0,0,0.15); transition: all 0.2s; margin-bottom: 4px;}
-.btn-rescue:active { transform: scale(0.96) translateY(2px); box-shadow: 0 2px 5px rgba(56, 239, 125, 0.4), inset 0 2px 0 rgba(0,0,0,0.1); background: linear-gradient(135deg, #0f8a80 0%, #2bd56c 100%);}
 
 /* ===== 主畫面 ===== */
 #scrHome { padding: 6px 8px 75px 8px; justify-content: center; overflow: hidden; display: flex; flex-direction: column; gap: 6px; } 
@@ -101,7 +101,7 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .subtask-item.locked { background: rgba(0, 0, 0, 0.6); border-color: #333; color: #666; pointer-events: none; }
 .task-stat { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(0,0,0,0.5); border-radius: 6px; font-size:14px; border: 1px solid var(--theme-dim); flex-shrink: 0;}
 
-/* ===== 卡匣共用 ===== */
+/* 卡匣等其餘 UI */
 .pokedex-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 6px; flex-wrap: nowrap; scrollbar-width: none; justify-content:center; flex-shrink: 0;}
 .pokedex-tabs::-webkit-scrollbar { display: none; }
 .tab-btn { flex-shrink: 0; padding: 6px 12px; border-radius: 20px; border: 1px solid var(--theme-dim); background: rgba(0,0,0,0.8); color: #ccc; font-weight: bold; font-size: 12px; cursor:pointer; white-space: nowrap; }
@@ -112,13 +112,11 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .card-title { font-size: 11px; font-weight: bold; line-height: 1.2; padding:0 2px; text-shadow: 1px 1px 2px #000;}
 .card-item.locked { filter: grayscale(100%); opacity: 0.3; }
 
-/* ===== 極簡個案與排行榜 ===== */
 .case-dex-item { background: rgba(0,0,0,0.4); border: 1px solid var(--theme-dim); border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; display: flex; flex-direction: row; justify-content: space-between; align-items: center; cursor:pointer; flex-shrink: 0;}
 .case-dex-id { color: var(--theme-primary); font-weight: bold; font-size: 14px; }
 .case-score-badge { color: var(--good); font-size: 11px; font-weight: bold; background: transparent; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--good);}
 .lb-item { display: flex; align-items: center; justify-content: space-between; padding: 10px; background: rgba(0,0,0,0.4); border: 1px solid var(--theme-dim); border-radius: 8px; margin-bottom:6px; flex-shrink: 0;}
 
-/* ===== 中風名片 ===== */
 .business-card { background: linear-gradient(135deg, var(--theme-dim), #000); border-radius: 12px; padding: 15px; color: #fff; box-shadow: 0 8px 16px rgba(0,0,0,0.8); position: relative; overflow: hidden; border: 1px solid var(--theme-primary); flex-shrink: 0;}
 .business-card::after { content: '🏥'; position: absolute; right: -10px; bottom: -20px; font-size: 80px; opacity: 0.05; }
 .bc-title { font-size: 15px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 6px; margin-bottom: 10px; display:flex; justify-content:space-between; color:var(--theme-primary);}
@@ -128,7 +126,6 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .tag-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;}
 .tag { background: rgba(0,0,0,0.5); border: 1px solid var(--theme-primary); padding: 2px 6px; border-radius: 10px; font-size: 10px; }
 
-/* ===== 量表精靈 ===== */
 .wizard-header { font-size: 15px; color: var(--theme-primary); font-weight: bold; margin-bottom: 8px; text-align: center; }
 .wizard-option { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.6); border: 1px solid var(--theme-dim); padding: 10px 12px; border-radius: 8px; margin-bottom: 6px; cursor: pointer; flex-shrink: 0;}
 .wizard-option:active { background: var(--theme-bg); }
@@ -137,7 +134,6 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .trend-card { background: rgba(0,0,0,0.5); border: 1px solid var(--theme-dim); border-radius: 8px; padding: 10px; margin-bottom: 8px; flex-shrink: 0;}
 .health-dist-title { display: flex; justify-content: space-between; font-size: 10px; color: #ccc; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 
-/* 底部導覽列 */
 .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 65px; background: rgba(10,10,10,0.95); border-top: 1px solid #333; display: flex; justify-content: space-around; padding: 0 4px; align-items: center; z-index: 100; backdrop-filter: blur(5px); }
 .nav-item { color: #888; font-weight: bold; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; width: 55px; transition: color 0.2s;}
 .nav-item .icon { font-size: 20px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); transition: transform 0.2s; }
@@ -150,19 +146,10 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
 .mode-toggle-sq:active { background: #000; transform: scale(0.95); }
 .mode-toggle-sq .icon { font-size: 20px; margin-bottom: 2px; text-shadow: none;}
 
-/* 彈出視窗 */
+/* 彈出視窗 - Z-index:5000 確保在全螢幕地圖(4000)之上 */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 5000; padding: 15px;}
 .modal-content { background: var(--theme-panel); border: 1px solid var(--theme-primary); border-radius: 12px; width: 100%; max-width: 320px; padding: 20px; position: relative; text-align: center; max-height: 90vh; overflow-y:auto; }
 .close-btn { position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: #aaa; font-size: 18px; cursor:pointer;}
-
-/* 設定頁面專用 Toggle */
-.setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
-.switch { position: relative; display: inline-block; width: 40px; height: 22px; }
-.switch input { opacity: 0; width: 0; height: 0; }
-.slider { position: absolute; cursor: pointer; inset: 0; background-color: #444; transition: .4s; border-radius: 34px; }
-.slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-input:checked + .slider { background-color: var(--theme-primary); }
-input:checked + .slider:before { transform: translateX(18px); }
 </style>
 </head>
 <body class="mode-beginner">
@@ -172,7 +159,6 @@ input:checked + .slider:before { transform: translateX(18px); }
       <div class="avatar-wrap" onclick="document.getElementById('profileModal').style.display='flex'">
         <img id="hudAvatar" src="https://i.pravatar.cc/150?img=11">
       </div>
-      
       <div class="player-text-wrap">
         <div style="display:flex; align-items:center; gap:4px;">
           <div class="player-name" id="uiPlayerName" onclick="openSettings()">急救新星</div>
@@ -203,9 +189,10 @@ input:checked + .slider:before { transform: translateX(18px); }
     <div class="stage">
       
       <section class="screen show" id="scrHome">
+        
         <div class="role-list" id="roleListContainer" style="display: none;"></div>
         
-        <div id="homeMapContainer" style="display: block; flex: 5; border-radius: 8px; overflow: hidden; border: 1px solid var(--theme-dim); position: relative;">
+        <div id="homeMapContainer" style="display: block; flex: 5; border-radius: 8px; overflow: hidden; border: 1px solid var(--theme-dim); position: relative; transition: all 0.3s;">
           <iframe id="homeMapFrame" style="position:absolute; inset:0; width:100%; height:100%; border:none; background:#000;"></iframe>
         </div>
 
@@ -360,17 +347,17 @@ input:checked + .slider:before { transform: translateX(18px); }
   <div class="modal-content" style="border-color: var(--theme-primary); padding:20px; max-width: 300px;">
     <button class="close-btn" onclick="document.getElementById('settingsModal').style.display='none'">✖</button>
     <h3 style="color:var(--theme-primary); margin: 0 0 20px 0; font-size: 18px;">系統偏好設定</h3>
-    
-    <div class="setting-row" style="opacity:0.4;">
-      <span style="color:#fff; font-size:14px;">背景音樂 (預留)</span>
-      <label class="switch"><input type="checkbox" disabled><span class="slider"></span></label>
-    </div>
-    <div class="setting-row" style="opacity:0.4;">
-      <span style="color:#fff; font-size:14px;">特大字體 (預留)</span>
-      <label class="switch"><input type="checkbox" disabled><span class="slider"></span></label>
-    </div>
+    <div style="font-size:12px; color:#aaa; margin-bottom:15px;">功能開發中...敬請期待！</div>
+    <button class="btn" style="background:var(--theme-primary); color:var(--btn-text); text-shadow:var(--btn-shadow); border:none;" onclick="document.getElementById('settingsModal').style.display='none'">確定</button>
+  </div>
+</div>
 
-    <button class="btn" style="background:var(--theme-primary); color:var(--btn-text); text-shadow:var(--btn-shadow); margin-top:15px; border:none;" onclick="document.getElementById('settingsModal').style.display='none'">確定</button>
+<div class="modal-overlay" id="reviewModal" style="z-index:99999;">
+  <div class="modal-content" style="border-color: #ff9800; padding:20px; max-width: 320px;">
+    <button class="close-btn" onclick="document.getElementById('reviewModal').style.display='none'">✖</button>
+    <h3 style="color:#ff9800; margin: 0 0 15px 0; font-size: 18px;">📜 回顧已通關任務</h3>
+    <div id="reviewTaskList" style="display:flex; flex-direction:column; gap:8px; max-height:60vh; overflow-y:auto; text-align:left;">
+    </div>
   </div>
 </div>
 
@@ -394,11 +381,10 @@ input:checked + .slider:before { transform: translateX(18px); }
 <div class="modal-overlay" id="cardDetailModal"><div class="modal-content"><button class="close-btn" onclick="document.getElementById('cardDetailModal').style.display='none'">✖</button><div id="modalIcon" style="font-size:40px; margin-bottom:8px;"></div><h3 id="modalTitle" style="color:var(--theme-primary); margin:0 0 8px 0; font-size:16px;"></h3><div id="modalCategory" style="font-size:11px; color:var(--text-muted); margin-bottom:12px;"></div><p id="modalDesc" style="color:#fff; font-size:13px; line-height:1.5; text-align:left; background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; border:1px solid #444; margin:0;"></p></div></div>
 
 <script>
-// ★ 補回遺失的核心綁定函數
 const id = (el) => document.getElementById(el);
 
 // ★ 版本升級，防舊資料干擾
-const SAVE_KEY = 'BrainPioneer_SaveData_v6.2'; 
+const SAVE_KEY = 'BrainPioneer_SaveData_v7.2'; 
 
 let playerState = { 
   hasSetup: false, name: "", avatar: "https://i.pravatar.cc/150?img=11", mode: "beginner", coins: 38219, 
@@ -408,6 +394,8 @@ let playerState = {
   scaleRecords: [], strokeCard: null, 
   unlockedPuzzles: [], boughtPuzzles: 0
 };
+
+let isGlobalFs = false; // 追蹤全域全螢幕狀態
 
 // ===============================================
 // ★ 首頁 地圖/清單 顯示切換邏輯
@@ -422,9 +410,12 @@ function setHomeView(isMap) {
     id('roleListContainer').style.display = 'none';
     id('homeMapContainer').style.display = 'block';
     
-    // 避免重複載入 iframe
+    // 將全螢幕狀態透過 URL 參數傳遞給 iframe
+    let url = 'rpg_loader.html?taskId=hub_world';
+    if (isGlobalFs) url += '&fs=1';
+
     if (!id('homeMapFrame').src.includes('hub_world')) {
-      id('homeMapFrame').src = 'rpg_loader.html?taskId=hub_world';
+      id('homeMapFrame').src = url;
     }
   } else {
     id('segList').classList.add('active');
@@ -434,14 +425,42 @@ function setHomeView(isMap) {
   }
 }
 
-// 接收來自大廳地圖 (hub_world) 發送的訊號
+// ★ 接收大廳/遊戲傳來的廣播
 window.addEventListener('message', (event) => {
   if (event.data) {
-    if (event.data.type === 'OPEN_ROLE' && event.data.roleId) {
-      openRoleDetail(event.data.roleId);
+    if (event.data.type === 'ACTION_CONTINUE') {
+      const roles = getActiveRoles();
+      let foundTask = false;
+      for (let r of roles) {
+        if (r.currentTask <= r.totalTasks) {
+          activeRoleId = r.id;
+          playTask(r.currentTask - 1);
+          foundTask = true;
+          break;
+        }
+      }
+      if (!foundTask) customAlert("太棒了！您已經完成所有初階訓練任務！");
+    } 
+    else if (event.data.type === 'ACTION_REVIEW') {
+      openReviewModal();
+    } 
+    // ★ 完美全螢幕：蓋住頂部與底部
+    else if (event.data.type === 'TOGGLE_FULLSCREEN') {
+      isGlobalFs = event.data.isFullscreen;
+      const mapWrap = id('homeMapContainer');
+      if (isGlobalFs) {
+        mapWrap.classList.add('fullscreen-map');
+        id('mainHeader').style.display = 'none'; 
+        id('mainNav').style.display = 'none';    
+      } else {
+        mapWrap.classList.remove('fullscreen-map');
+        id('mainHeader').style.display = 'flex'; 
+        id('mainNav').style.display = 'flex';    
+      }
     }
     else if (event.data.type === 'GAME_CLEAR' || event.data.type === 'GAME_OVER') {
       closeGameIframe();
+      
       if (event.data.type === 'GAME_CLEAR') {
         handleGameClear(event.data.score || 1000);
       } else {
@@ -467,6 +486,40 @@ window.addEventListener('message', (event) => {
 });
 
 // ===============================================
+// 回顧任務選單邏輯
+// ===============================================
+function openReviewModal() {
+  const container = id('reviewTaskList');
+  container.innerHTML = '';
+  const roles = getActiveRoles();
+  let hasCompleted = false;
+
+  roles.forEach(role => {
+    let completedCount = Math.min(role.currentTask - 1, role.totalTasks);
+    if (role.currentTask > role.totalTasks) completedCount = role.totalTasks; // 全破
+
+    for(let i = 0; i < completedCount; i++) {
+      hasCompleted = true;
+      container.innerHTML += `
+        <button class="btn" style="margin-bottom:8px; text-align:left; background:rgba(0,0,0,0.6); border-color:#ff9800; font-size:13px;" onclick="startReviewTask('${role.id}', ${i})">
+          ✔️ ${role.name} - ${role.subTasks[i].substring(3)}
+        </button>`;
+    }
+  });
+
+  if(!hasCompleted) {
+    container.innerHTML = '<p style="color:#aaa; text-align:center;">您目前尚無已通關的任務可供回顧，請先前往「繼續任務」破關喔！</p>';
+  }
+  id('reviewModal').style.display = 'flex';
+}
+
+function startReviewTask(roleId, taskIdx) {
+  id('reviewModal').style.display = 'none';
+  activeRoleId = roleId;
+  playTask(taskIdx); 
+}
+
+// ===============================================
 // 介面更新與資料存取
 // ===============================================
 function openSettings() { id('settingsModal').style.display = 'flex'; }
@@ -476,17 +529,10 @@ function updateModeUI() {
   document.body.className = `mode-${playerState.mode}`;
   id('uiPlayerName').textContent = playerState.name;
   id('hudAvatar').src = playerState.avatar;
-  id('navModeText').textContent = isBeg ? '初階版' : '進階版';
   
-  // 核心：如果是進階版，強制隱藏切換開關並顯示清單
-  if (isBeg) {
-    id('uiStoryToggleWrap').style.display = 'flex';
-    setHomeView(playerState.storyMode);
-  } else {
-    id('uiStoryToggleWrap').style.display = 'none';
-    id('roleListContainer').style.display = 'flex';
-    id('homeMapContainer').style.display = 'none';
-  }
+  // 恢復 UI 選單顯示
+  id('uiStoryToggleWrap').style.display = 'flex';
+  setHomeView(playerState.storyMode);
   
   updateHUD();
   renderHomeRoles();
@@ -562,7 +608,7 @@ function loadGameData() {
 }
 
 // ===============================================
-// 核心邏輯 (其餘保持原版)
+// 核心邏輯
 // ===============================================
 function playTask(taskIndex) {
   const role = getActiveRoles().find(r => r.id === activeRoleId);
@@ -571,9 +617,16 @@ function playTask(taskIndex) {
   const gameId = `${role.id}_${taskIndex}`;
   
   if (playerState.mode === 'beginner' && playerState.storyMode) {
-    id('gameFrame').src = `rpg_loader.html?taskId=${gameId}`;
-    id('gameTitle').textContent = `劇情任務：${role.subTasks[taskIndex].substring(3)}`;
+    // 進入任務，將全螢幕狀態傳給地圖引擎
+    let url = `rpg_loader.html?taskId=${gameId}`;
+    if (isGlobalFs) url += `&fs=1`;
+    id('homeMapFrame').src = url;
+    
+    // 如果是從清單模式按下的，且原本非全螢幕，要確保切換為地圖視窗
+    id('roleListContainer').style.display = 'none';
+    id('homeMapContainer').style.display = 'block';
   } else {
+    // 進階版，或初階版清單模式 -> 直接載入對應的遊戲覆蓋層
     const gameUrl = GAME_URLS[gameId];
     if (gameUrl) {
       id('gameFrame').src = gameUrl;
@@ -582,13 +635,12 @@ function playTask(taskIndex) {
       customAlert("此為模擬演練...", () => handleGameClear(1000));
       return;
     }
+    id('gameOverlay').style.display = 'flex';
   }
 
   role.dailyAttempts--; 
   saveGameData(); 
   updateHUD(); 
-  openRoleDetail(activeRoleId);
-  id('gameOverlay').style.display = 'flex';
 }
 
 function customAlert(msg, callback, title="系統提示", btnText="確定") {
@@ -618,7 +670,7 @@ const scaleQuestions = [
     { val: 1, icon: '👕', text: '沒有困難' }, { val: 2, icon: '🙂', text: '有一點困難' }, { val: 3, icon: '😐', text: '中度困難' }, { val: 4, icon: '😟', text: '嚴重困難' }, { val: 5, icon: '🆘', text: '無法自理' }
   ]},
   { id: 'eq3', title: '4/7 日常活動', type: 'choice', options: [
-    { val: 1, icon: '💼', text: '沒有困難' }, { val: 2, icon: '🙂', text: '有一點困難' }, { val: 3, icon: '😐', text: '中度困難' }, { val: 4, icon: '😟', text: '嚴重困難' }, { val: 5, icon: '🚫', text: '無法進行' }
+    { val: 1, icon: '💼', text: '沒有困难' }, { val: 2, icon: '🙂', text: '有一點困難' }, { val: 3, icon: '😐', text: '中度困難' }, { val: 4, icon: '😟', text: '严重困难' }, { val: 5, icon: '🚫', text: '無法進行' }
   ]},
   { id: 'eq4', title: '5/7 疼痛/不舒服', type: 'choice', options: [
     { val: 1, icon: '🟢', text: '沒有疼痛' }, { val: 2, icon: '🟡', text: '有一點' }, { val: 3, icon: '🟠', text: '中度' }, { val: 4, icon: '🔴', text: '嚴重' }, { val: 5, icon: '🔥', text: '極度疼痛' }
@@ -638,8 +690,18 @@ function showScreen(screenId) {
   document.querySelectorAll('.screen').forEach(s => { s.classList.remove('show'); s.classList.remove('full-view'); });
   const target = id(screenId); if(target) target.classList.add('show');
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  if (screenId === 'scrHome') { id('mainHeader').style.display = 'flex'; id('mainNav').style.display = 'flex'; } 
-  else { id('mainHeader').style.display = 'none'; id('mainNav').style.display = 'none'; target.classList.add('full-view'); }
+  
+  if (screenId === 'scrHome') { 
+    if (!isGlobalFs) {
+      id('mainHeader').style.display = 'flex'; 
+      id('mainNav').style.display = 'flex'; 
+    }
+  } 
+  else { 
+    id('mainHeader').style.display = 'none'; 
+    id('mainNav').style.display = 'none'; 
+    target.classList.add('full-view'); 
+  }
 }
 
 function toggleMode() { 
@@ -708,11 +770,20 @@ function handleGameClear(score) {
   getActiveTaskScores().set(info.id, score); 
   playerState.coins += 50;
   if (info.role.currentTask === info.taskIndex + 1) info.role.currentTask++;
-  saveGameData(); updateHUD(); openRoleDetail(activeRoleId);
+  saveGameData(); updateHUD(); 
+  
   customAlert(`得分：${score} 分\n獲得 50 健康幣！\n\n✨ 成功解鎖健康卡`, () => {
     const tabMode = playerState.mode === 'beginner' ? 'beg' : 'adv';
     openCardModal(tabMode, info.role.id, info.taskIndex);
+
+    // ★ 如果處於全螢幕地圖，通關後無縫留在地圖中，不再切回清單
+    if (isGlobalFs) {
+      id('homeMapFrame').src = 'rpg_loader.html?taskId=hub_world&fs=1';
+    } else {
+      openRoleDetail(activeRoleId);
+    }
   }, "🎉 任務成功！", "觀看健康卡");
+  
   currentGameInfo = null;
 }
 
