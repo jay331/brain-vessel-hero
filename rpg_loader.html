@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-<title>腦脈先鋒｜劇情引導引擎</title>
+<title>腦脈先鋒｜大廳與地圖引擎</title>
 <style>
 :root{  
   --bg: #d9e1e8; --text: #37474f;  
@@ -12,12 +12,10 @@
   --c-room: #d2b48c; --c-wall: #546e7a; 
   --c-desk: #81d4fa; --gold: #ffb300;
 }
-/* 加上 touch-action: none 徹底阻擋手機瀏覽器預設縮放與滑動 */
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:none;}
 html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:"PingFang TC","Noto Sans TC",sans-serif;color:var(--text)}
 .app{position:relative;width:100%;height:100%;overflow:hidden;}
 
-/* 頂部 UI */
 .header { position: absolute; top: 0; width: 100%; height: calc(60px + var(--safe-top)); background: linear-gradient(to bottom, #111, #333); padding-top: var(--safe-top); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; font-weight: 900; font-size: 18px; color: #fff; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: opacity 0.5s;}
 .mission-text { color: #ffca28; flex: 1; text-align: center; }
 .timer { color: #4CAF50; font-size: 20px; background: rgba(0,0,0,0.5); padding: 5px 15px; border-radius: 5px; letter-spacing: 2px;}
@@ -26,7 +24,14 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 .camera { position: absolute; left: 0; top: 0; width: 100%; height: 100%; transition: transform 0.05s ease-out; }
 .game-world { position: absolute; left: 0; top: 0; width: 3000px; height: 2600px; }
 
-/* 地板與房間 */
+/* 1F 醫院大廳場景 (Lobby) */
+.lobby-main { position: absolute; left: 1000px; top: -1200px; width: 1000px; height: 800px; background: #eceff1; border: 12px solid #cfd8dc; border-radius: 20px; box-shadow: inset 0 0 50px rgba(0,0,0,0.1); z-index: 1;}
+.lobby-desk { position: absolute; left: 1350px; top: -900px; width: 300px; height: 100px; background: #81d4fa; border-radius: 50px; border: 4px solid #0288d1; z-index: 3; display: flex; align-items: center; justify-content: center; color: #01579b; font-weight: 900; font-size: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);}
+.lobby-elevator { position: absolute; left: 1400px; top: -1210px; width: 200px; height: 40px; background: #37474f; border-radius: 8px 8px 0 0; z-index: 3; display: flex; align-items: center; justify-content: center; color: #00e676; font-weight: bold; font-size: 14px; box-shadow: 0 -5px 15px rgba(0,0,0,0.3);}
+.teleport-zone { position: absolute; background: rgba(0, 230, 118, 0.2); border: 2px dashed #00e676; border-radius: 8px; z-index: 4; animation: pulseTeleport 1.5s infinite alternate; }
+@keyframes pulseTeleport { 0% { opacity: 0.5; } 100% { opacity: 1; box-shadow: 0 0 15px #00e676; } }
+
+/* 11F 醫院主場景建築與房間 */
 .corridor-main { position: absolute; left: 350px; top: 200px; width: 2200px; height: 1800px; background: var(--c-floor-out); clip-path: polygon(0 1800px, 2200px 1800px, 2200px 0); }
 .workspace-core { position: absolute; left: 1000px; top: 800px; width: 850px; height: 600px; background: var(--c-floor-core); clip-path: polygon(0px 600px, 500px 100px, 850px 100px, 850px 600px); z-index: 1; border-radius: 20px; }
 .desk-island { position: absolute; background: var(--c-desk); border-radius: 10px; z-index: 3; box-shadow: 2px 5px 10px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; color: #01579b; font-weight: 900; border: 3px solid #4fc3f7; }
@@ -37,7 +42,6 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 .door-right::after { left: -6px; bottom: 20px; width: 8px; height: 45px; transform-origin: center top; transform: rotate(45deg); }
 .door-top::after { top: -6px; bottom: auto; transform: rotate(45deg); }
 
-/* 房間座標 */
 .room-discuss  { left: 1590px; top: 825px; width: 270px; height: 130px; } 
 .room-soiled   { left: 1750px; top: 950px; width: 110px; height: 65px; } 
 .room-headnurse{ left: 1650px; top: 950px; width: 105px; height: 150px; } 
@@ -57,8 +61,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 .room-sun     { left: 1060px; top: 1850px; width: 300px; height: 350px; background: #fff9c4; color: #f57f17; } 
 .room-dress   { left: 1350px; top: 1850px; width: 220px; height: 350px; background: #f8bbd0; } 
 .room-stair-c { left: 1560px; top: 1850px; width: 150px; height: 350px; background: #b0bec5; }
-.room-elev-v  { left: 2000px; top: 1850px; width: 250px; height: 150px; background: #cfd8dc; border: 6px solid #546e7a; } 
+.room-elev-v  { left: 2000px; top: 1850px; width: 250px; height: 150px; background: #cfd8dc; border: 6px solid #546e7a; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#37474f;} 
 .room-elev-b  { left: 2250px; top: 1850px; width: 250px; height: 150px; background: #cfd8dc; border: 6px solid #546e7a; } 
+
 .ward-entrance { position: absolute; left: 1710px; top: 1745px; width: 290px; height: 12px; background: rgba(135,206,235,0.4); z-index: 10; border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 0 15px rgba(129,212,250,0.8); backdrop-filter: blur(4px);}
 .ward-entrance::after { content: '管制區'; position: absolute; top: -30px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: #81d4fa; padding: 4px 10px; border-radius: 6px; font-size: 14px;}
 .ward-right { position: absolute; left: 2000px; top: 400px; width: 320px; height: 1350px; display: flex; flex-direction: column; background: var(--c-room); border: 8px solid var(--c-wall); z-index: 2;}
@@ -73,27 +78,45 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 .character{position:absolute;width:50px;height:70px;transform:translate(-50%,-100%);z-index:15; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3)); transition: opacity 0.5s;}
 .head{position:absolute;left:50%;top:10px;transform:translateX(-50%);width:34px;height:34px;border-radius:50%;background:#ffccbc; border: 2px solid #333;}
 .body{position:absolute;left:50%;top:40px;transform:translateX(-50%);width:30px;height:25px;border-radius:10px 10px 5px 5px;background:#fff; border: 2px solid #333;}
-.name{position:absolute;left:50%;top:-20px;transform:translateX(-50%);padding:3px 8px;border-radius:999px;background:#37474f;font-size:12px;color:white;white-space:nowrap;font-weight:bold;}
+.name{position:absolute;left:50%;top:-20px;transform:translateX(-50%);padding:3px 8px;border-radius:999px;background:#37474f;font-size:12px;color:white;white-space:nowrap;font-weight:bold; z-index:20;}
 
+/* 動態生成的 NPC 樣式 */
 .target-npc { position: absolute; width: 50px; height: 80px; z-index: 10; display: flex; flex-direction: column; align-items: center; transform: translate(-50%, -50%);}
 .target-npc .head { background: #e57373; top: 0;}
 .target-npc .body { background: #bbdefb; top: 30px; height: 50px;}
+.npc-indicator { position: absolute; top: -45px; font-size: 20px; animation: bounce 1s infinite; z-index:20; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5));}
+@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 
 .joystick-base { position: absolute; width: 140px; height: 140px; background: rgba(255,255,255,0.3); border: 3px solid rgba(255,255,255,0.6); border-radius: 50%; display: none; z-index: 50; transform: translate(-50%, -50%);}
 .joystick-knob { position: absolute; width: 60px; height: 60px; background: var(--gold); border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%);}
 
-/* 劇情與對話UI */
-.story-intro { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.85) 80%); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 40px 30px 60px 30px; color: white; text-align: left; transition: opacity 0.8s ease-out;}
-.typewriter { font-size: 22px; line-height: 1.8; margin-bottom: 30px; min-height: 120px; font-weight: bold; text-shadow: 0 2px 5px rgba(0,0,0,0.8);}
-.btn-start { padding: 15px 40px; font-size: 20px; background: #2196F3; color: white; border: none; border-radius: 30px; cursor: pointer; opacity: 0; transform: translateY(20px); transition: all 0.5s; font-weight: bold; box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);}
+/* 開場黑幕與打字機 */
+.story-intro { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.98) 80%); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 40px 30px 60px 30px; color: white; text-align: left; transition: opacity 0.8s ease-out;}
+.typewriter { font-size: 20px; line-height: 1.8; margin-bottom: 20px; min-height: 100px; font-weight: bold; text-shadow: 0 2px 5px rgba(0,0,0,0.8);}
+.btn-start { padding: 14px 40px; font-size: 18px; background: rgba(33, 150, 243, 0.9); color: white; border: 2px solid #64b5f6; border-radius: 30px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(4px); transition: transform 0.2s, background 0.2s; opacity: 0; transform: translateY(20px);}
 .btn-start.show { opacity: 1; transform: translateY(0); }
+.btn-start:active { transform: scale(0.95); background: #1976d2; }
 
+/* ★ 隱形低調的全螢幕切換按鈕 ★ */
+.btn-fs-toggle { 
+  position: absolute; top: max(10px, env(safe-area-inset-top)); right: 10px; 
+  background: rgba(0,0,0,0.2); color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.2); 
+  width: 36px; height: 36px; border-radius: 8px; z-index: 101; cursor: pointer; 
+  display: none; align-items: center; justify-content: center; font-size: 20px; 
+  backdrop-filter: blur(2px); transition: all 0.2s;
+}
+.btn-fs-toggle:active { background: rgba(0,0,0,0.5); }
+
+/* 對話框樣式 (含離開按鈕) */
 .dialog-box { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 600px; background: rgba(255,255,255,0.95); border: 4px solid #4CAF50; border-radius: 15px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 200; display: none; flex-direction: column;}
 .dialog-name { font-size: 18px; font-weight: 900; color: #4CAF50; margin-bottom: 8px;}
 .dialog-text { font-size: 18px; color: #333; line-height: 1.6;}
-.btn-next-dialog { margin-top: 15px; align-self: flex-end; padding: 8px 20px; background: #4CAF50; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer;}
+.dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; }
+.btn-dialog { padding: 8px 20px; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+.btn-cancel { background: #78909c; }
+.btn-confirm { background: #4CAF50; }
+.btn-dialog:active { transform: scale(0.95); }
 
-/* 遊戲 iframe 容器 */
 .animation-screen { position: absolute; inset: 0; background: #111; z-index: 500; display: none; flex-direction: column;}
 #animFrame { flex: 1; border: none; width: 100%; height: 100%;}
 </style>
@@ -103,10 +126,12 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
   
   <div class="story-intro" id="storyIntro">
     <div class="typewriter" id="typewriterText"></div>
-    <button class="btn-start" id="btnStartGame">行動！</button>
+    <button class="btn-start" id="btnStartGame" onclick="startExplore()">出發</button>
   </div>
 
-  <div class="header" id="uiHeader" style="opacity:0;">
+  <button class="btn-fs-toggle" id="btnFsToggle" onclick="toggleFs()">⛶</button>
+
+  <div class="header" id="uiHeader" style="opacity:0; display:none;">
     <div id="ui-role">玩家</div>
     <div class="mission-text" id="ui-mission">任務：</div>
     <div class="timer" id="ui-timer">搶救中</div>
@@ -117,35 +142,36 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
     
     <div class="camera" id="camera">
       <div class="game-world" id="gameWorld">
-        <div class="corridor-main"></div>
-        <div class="workspace-core"></div>
-        <div class="room-block room-discuss">討論室</div>
-        <div class="room-block room-soiled">污物室</div>
-        <div class="room-block room-headnurse">護理長</div>
-        <div class="room-block room-pantry">茶水間</div>
-        <div class="room-block room-office">辦公室</div>
-        <div class="room-block room-prep">準備室</div>
-        <div class="room-block room-treatment has-door door-top">治療室</div>
-        <div class="room-block room-supply">備物區</div>
-        <div class="room-block room-toilet">廁所</div>
-        <div class="room-block room-oncall1">值班 A</div>
-        <div class="room-block room-treatment2">治療室2</div>
-        <div class="room-block room-oncall2">值班 B</div>
-        <div class="room-block room-talkroom">衛教室</div>
-        <div class="ward-entrance"></div>
-        <div class="room-block room-stair-l">逃生梯</div>
-        <div class="room-block room-elec">配電室</div>
-        <div class="room-block room-ac">空調室</div>
-        <div class="room-block room-sun">日光室</div>
-        <div class="room-block room-dress">護士更衣室</div>
-        <div class="room-block room-stair-c">逃生梯</div>
-        <div class="room-block room-elev-v">訪客電梯</div>
-        <div class="room-block room-elev-b">病床電梯</div>
-        <div class="desk-island desk-front">前櫃台</div>
-        <div class="desk-island desk-back">後護理站</div>
-        <div class="ward-diag">
-          <div class="room-d">11G23</div><div class="room-d">11G22</div><div class="room-d">11G21</div><div class="room-d">11G20</div><div class="room-d">11G19</div><div class="room-d">11G18</div><div class="room-d">11G17</div><div class="room-d">11G16</div><div class="room-d">11G15</div><div class="room-d">11G14</div><div class="room-d">11G13</div><div class="room-d">11G12</div>
+        
+        <div class="lobby-main">
+          <div style="position:absolute; left:10%; right:10%; top:20%; bottom:20%; border:2px solid rgba(0,0,0,0.05); border-radius:20px;"></div>
         </div>
+        <div class="lobby-desk">大廳服務中心</div>
+        <div class="lobby-elevator">往 11G 病房 ⬆️</div>
+        <div class="teleport-zone" style="left: 1400px; top: -1170px; width: 200px; height: 50px;"></div>
+
+        <div class="corridor-main"></div><div class="workspace-core"></div>
+        <div class="room-block room-discuss">討論室</div><div class="room-block room-soiled">污物室</div>
+        <div class="room-block room-headnurse">護理長</div><div class="room-block room-pantry">茶水間</div>
+        <div class="room-block room-office">辦公室</div><div class="room-block room-prep">準備室</div>
+        <div class="room-block room-treatment has-door door-top">治療室</div>
+        <div class="room-block room-supply">備物區</div><div class="room-block room-toilet">廁所</div>
+        <div class="room-block room-oncall1">值班 A</div><div class="room-block room-treatment2">治療室2</div>
+        <div class="room-block room-oncall2">值班 B</div><div class="room-block room-talkroom">衛教室</div>
+        <div class="ward-entrance"></div>
+        <div class="room-block room-stair-l">逃生梯</div><div class="room-block room-elec">配電室</div>
+        <div class="room-block room-ac">空調室</div><div class="room-block room-sun">日光室</div>
+        <div class="room-block room-dress">護士更衣室</div><div class="room-block room-stair-c">逃生梯</div>
+        
+        <div class="room-elev-v">
+          <div style="font-size:18px; font-weight:900;">病床電梯</div>
+          <div style="font-size:12px; color:#ffeb3b; margin-top:5px; background:rgba(0,0,0,0.6); padding:2px 8px; border-radius:4px; z-index:4;">往 1F 大廳 ⬇️</div>
+        </div>
+        <div class="teleport-zone" style="left: 2000px; top: 1950px; width: 250px; height: 50px;"></div>
+
+        <div class="room-elev-b">病床電梯</div>
+        <div class="desk-island desk-front">前櫃台</div><div class="desk-island desk-back">後護理站</div>
+        <div class="ward-diag"><div class="room-d">11G23</div><div class="room-d">11G22</div><div class="room-d">11G21</div><div class="room-d">11G20</div><div class="room-d">11G19</div><div class="room-d">11G18</div><div class="room-d">11G17</div><div class="room-d">11G16</div><div class="room-d">11G15</div><div class="room-d">11G14</div><div class="room-d">11G13</div><div class="room-d">11G12</div></div>
         <div class="ward-top"><div>11G10</div><div style="margin-top: 30px;">11G11</div></div>
         <div class="ward-right">
           <div class="room-rv">11G09</div><div class="room-rv">11G08</div><div class="room-rv">11G07</div>
@@ -153,12 +179,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
           <div class="room-rv">11G05</div><div class="room-rv">11G04</div><div class="room-rv">11G03</div><div class="room-rv">11G02</div><div class="room-rv">11G01</div>
         </div>
 
-        <div class="target-npc" id="targetNPC" style="display:none;">
-          <div class="name" id="npcName">目標</div>
-          <div class="head"></div><div class="body"></div>
-        </div>
+        <div id="npcContainer"></div>
 
-        <div class="character player" id="player" style="left:1880px;top:2050px;opacity:0;">
+        <div class="character player" id="player" style="left:1500px;top:-600px;opacity:0;">
           <div class="name" id="playerName">玩家</div><div class="head"></div><div class="body"></div>
         </div>
       </div>
@@ -167,7 +190,10 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
     <div class="dialog-box" id="dialogBox">
       <div class="dialog-name" id="dialogName">我</div>
       <div class="dialog-text" id="dialogText"></div>
-      <button class="btn-next-dialog" id="btnNextDialog">繼續</button>
+      <div class="dialog-actions">
+        <button class="btn-dialog btn-cancel" id="btnCancelDialog">離開</button>
+        <button class="btn-dialog btn-confirm" id="btnNextDialog">繼續</button>
+      </div>
     </div>
   </div>
   
@@ -179,20 +205,30 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 
 <script>
 // ==========================================
-// 1. 任務資料庫
+// 1. 任務與場景資料庫
 // ==========================================
 const RPG_TASKS = {
+"hub_world": {
+    roleName: "急救新星",
+    intro: "歡迎來到遙遠的東方醫院！\n\n 戰勝腦中風不靠運氣\n靠的是不斷累積的知識與能力 💪\n\n 出發後，請在大廳尋求醫療團隊指引",
+    missionText: "自由探索醫院",
+    startPos: { x: 1500, y: -600 }, 
+    npcs: [
+      { id: 'npc_continue', name: '主治醫師', color: '#4CAF50', head: '#a5d6a7', body: '#fff', pos: { x: 1750, y: -800 }, icon: '▶️', dialogs: [{name: "主治醫師", text: "準備好進行下一個訓練了嗎？時間就是大腦，我們馬上出發！"}], action: 'ACTION_CONTINUE' },
+      { id: 'npc_review',   name: '護理長',   color: '#ff9800', head: '#ffcc80', body: '#fff', pos: { x: 1250, y: -800 }, icon: '📜', dialogs: [{name: "護理長", text: "溫故知新是很重要的，來看看你已經完成了哪些挑戰吧。"}], action: 'ACTION_REVIEW' },
+      { id: 'npc_guide',    name: '志工',     color: '#9c27b0', head: '#ce93d8', body: '#e1bee7', pos: { x: 1500, y: -750 }, icon: '💬', dialogs: [{name: "志工", text: "歡迎來到遙遠的東方醫院！你可以自由在這裡探索，搭乘上方的電梯可以前往 11G 病房區喔！"}], action: 'NONE' }
+    ]
+  },
   "beg_id_0": {
     roleName: "實習醫生",
-    intro: "半夢半醒中，你發現你躺在 11G06 的病床上...\n隱約聽到你是因為腦中風住院...\n你平時對腦中風並不了解，但有個好朋友是實習醫師。\n\n你用盡力氣發出心電感應，希望他能來找到你...",
+    intro: "半夢半醒中，你發現你居然一開局就中風了... \n\n想起你的好朋友是這裡的實習醫師...\n\n你用盡腦力發出心電感應，希望好朋友能來找到你...",
     missionText: "前往 11G06 病房尋找中風的好友",
-    btnText: "發送心電感應，呼叫好友！",
-    startPos: { x: 1880, y: 2050 }, 
-    targetPos: { x: 2150, y: 920 }, 
-    npcName: "病患",
-    dialogs: [
-      { name: "我 (病患)", text: "你終於找到我了！我好像中風了，可是我根本不知道那是什麼..." },
-      { name: "實習醫生", text: "別怕！我用最新的「醫學動畫平板」解釋給你聽，一看就懂！" }
+    startPos: { x: 2125, y: 1900 }, 
+    npcs: [
+      { id: 'patient', name: '病患', color: '#e57373', head: '#e57373', body: '#bbdefb', pos: { x: 2150, y: 920 }, icon: '🎯', dialogs: [
+        { name: "我 (病患)", text: "你終於來了！我好像中風了，可是我根本不知道那是什麼..." },
+        { name: "實習醫生", text: "別怕！我用最新的「醫學動畫平板」解釋給你聽，一看就懂！" }
+      ], action: 'PLAY_ANIMATION' }
     ],
     gameUrl: "game_strokeis.html" 
   },
@@ -200,123 +236,195 @@ const RPG_TASKS = {
     roleName: "實習醫生",
     intro: "醫生說中風治療需要一整個團隊的協助...\n你決定前往護理站，看看有哪些專業人員在幫忙。",
     missionText: "前往護理站尋找護理師",
-    btnText: "前往護理站！",
     startPos: { x: 2150, y: 920 },    
-    targetPos: { x: 1350, y: 1280 },  
-    npcName: "護理師",
-    dialogs: [
-      { name: "我 (病患)", text: "請問除了醫生之外，還有誰會幫我評估病情呢？" },
-      { name: "護理師", text: "我們有復健師、營養師組成的一支強大團隊喔！來看看這段介紹吧。" }
+    npcs: [
+      { id: 'nurse', name: '護理師', color: '#ff9800', head: '#ffcc80', body: '#fff', pos: { x: 1350, y: 1280 }, icon: '🎯', dialogs: [
+        { name: "我 (病患)", text: "請問除了醫生之外，還有誰會幫我評估病情呢？" },
+        { name: "護理師", text: "我們有復健師、營養師組成的一支強大團隊喔！來看看這段介紹吧。" }
+      ], action: 'PLAY_ANIMATION' }
     ],
-    gameUrl: "game_name.html" // 對應你原本設定的網址
-  },
-  "default": {
-    roleName: "家屬",
-    intro: "為了更了解病情，你需要前往護理站詢問專業人員。",
-    missionText: "前往護理站尋找護理師",
-    btnText: "出發",
-    startPos: { x: 2150, y: 920 }, 
-    targetPos: { x: 1350, y: 1280 }, 
-    npcName: "護理師",
-    dialogs: [
-      { name: "我", text: "請問接下來的照護流程是什麼？" },
-      { name: "護理師", text: "這份資料非常重要，請您仔細確認！" }
-    ],
-    gameUrl: "" 
+    gameUrl: "game_name.html" 
   }
 };
 
-// 2. 解析網址參數
+// 讀取 URL 參數，支援 fs 全螢幕狀態同步
 const urlParams = new URLSearchParams(window.location.search);
-const taskId = urlParams.get('taskId') || 'beg_id_0';
-const task = RPG_TASKS[taskId] || RPG_TASKS["default"];
+const taskId = urlParams.get('taskId') || 'hub_world';
+const task = RPG_TASKS[taskId] || RPG_TASKS["hub_world"];
+let isFsMode = urlParams.get('fs') === '1';
 
-// 3. 遊戲狀態初始化
 let state = { x: task.startPos.x, y: task.startPos.y };
 let velocity = { x: 0, y: 0 };
 const speed = 5; 
-let missionStage = -1; // -1:劇情, 0:尋找, 1:對話, 2:玩遊戲
+let missionStage = -1; 
 let gameActive = false; 
+let currentNpc = null;
 
-// 綁定 UI 與劇本
+// UI 綁定
 document.getElementById('playerName').innerText = task.roleName;
 document.getElementById('ui-role').innerText = task.roleName;
 document.getElementById('ui-mission').innerText = "任務：" + task.missionText;
-document.getElementById('btnStartGame').innerText = task.btnText;
-document.getElementById('targetNPC').style.left = task.targetPos.x + 'px';
-document.getElementById('targetNPC').style.top = task.targetPos.y + 'px';
-document.getElementById('targetNPC').style.display = 'flex';
-document.getElementById('npcName').innerText = task.npcName;
 
+// 動態生成 NPC
+const npcContainer = document.getElementById('npcContainer');
+if (task.npcs) {
+  task.npcs.forEach(n => {
+    let npcDiv = document.createElement('div');
+    npcDiv.className = 'target-npc';
+    npcDiv.style.left = n.pos.x + 'px';
+    npcDiv.style.top = n.pos.y + 'px';
+    
+    let indicatorHtml = n.icon ? `<div class="npc-indicator">${n.icon}</div>` : '';
+    npcDiv.innerHTML = `
+      ${indicatorHtml}
+      <div class="name" style="background:${n.color || '#37474f'}">${n.name}</div>
+      <div class="head" style="background:${n.head || '#e57373'}"></div>
+      <div class="body" style="background:${n.body || '#bbdefb'}"></div>
+    `;
+    npcContainer.appendChild(npcDiv);
+  });
+}
+
+// ==========================================
+// ★ 開場與全螢幕切換邏輯
+// ==========================================
 let typeIndex = 0;
 function typeWriter() {
   const introStr = task.intro;
   if (typeIndex < introStr.length) {
-    if (introStr.charAt(typeIndex) === '\n') {
-      document.getElementById('typewriterText').innerHTML += '<br>';
-    } else {
-      document.getElementById('typewriterText').innerHTML += introStr.charAt(typeIndex);
-    }
+    let char = introStr.charAt(typeIndex);
+    document.getElementById('typewriterText').innerHTML += (char === '\n') ? '<br>' : char;
     typeIndex++;
-    // 【修改速度】從 50 改為 120，讓文字出現得更慢、更容易閱讀
-    setTimeout(typeWriter, 120); 
+    setTimeout(typeWriter, 80); 
   } else {
     document.getElementById('btnStartGame').classList.add('show');
   }
 }
 
 window.onload = () => {
-  state.x = task.targetPos.x - 50; 
-  state.y = task.targetPos.y;
+  // 如果載入時已經是全螢幕模式，直接修改按鈕圖示
+  if (isFsMode) document.getElementById('btnFsToggle').innerHTML = "🗗";
+  
   updateCamera();
-  setTimeout(typeWriter, 1000); 
+  setTimeout(typeWriter, 600); 
 };
 
-document.getElementById('btnStartGame').onclick = () => {
+function startExplore() {
   document.getElementById('storyIntro').style.opacity = '0';
   setTimeout(() => {
     document.getElementById('storyIntro').style.display = 'none';
-    state.x = task.startPos.x;
-    state.y = task.startPos.y;
-    updateCamera();
     document.getElementById('player').style.opacity = '1';
-    document.getElementById('uiHeader').style.opacity = '1';
-    gameActive = true;
+    
+    // 顯示全螢幕切換按鈕
+    document.getElementById('btnFsToggle').style.display = 'flex';
+    
+    if (taskId !== 'hub_world') {
+      document.getElementById('uiHeader').style.display = 'flex';
+      setTimeout(() => { document.getElementById('uiHeader').style.opacity = '1'; }, 50);
+    }
+    
     missionStage = 0;
-  }, 800);
-};
+    gameActive = true;
+  }, 500);
+}
 
-// 對話邏輯
-let currentDialogIndex = 0;
+function toggleFs() {
+  isFsMode = !isFsMode;
+  const btn = document.getElementById('btnFsToggle');
+  btn.innerHTML = isFsMode ? "🗗" : "⛶";
+  
+  // 發送訊號給外層 index.html
+  window.parent.postMessage({type: 'TOGGLE_FULLSCREEN', isFullscreen: isFsMode}, '*');
+  handleEnd();
+}
+
+// ==========================================
+// ★ 防死鎖對話邏輯 (加入離開按鈕)
+// ==========================================
+function startNpcDialog(npc) {
+  currentNpc = npc;
+  currentDialogIndex = 0;
+  showDialog();
+}
+
 function showDialog() {
   gameActive = false; 
   velocity = {x:0, y:0};
+  document.getElementById('joystickBase').style.display = 'none';
   document.getElementById('dialogBox').style.display = 'flex';
   
-  const d = task.dialogs[currentDialogIndex];
+  const d = currentNpc.dialogs[currentDialogIndex];
   document.getElementById('dialogName').innerText = d.name;
-  document.getElementById('dialogName').style.color = (d.name === task.roleName) ? '#4CAF50' : '#e57373';
+  document.getElementById('dialogName').style.color = (d.name === task.roleName) ? '#4CAF50' : currentNpc.color;
   document.getElementById('dialogText').innerText = d.text;
+
+  // 若為最後一句，文字顯示改變
+  if (currentDialogIndex === currentNpc.dialogs.length - 1) {
+    document.getElementById('btnNextDialog').innerText = currentNpc.action === 'NONE' ? '結束對話' : '確認前往';
+  } else {
+    document.getElementById('btnNextDialog').innerText = '繼續';
+  }
 }
 
+// ★ 防卡死退後機制：退後 40px，確保能重複觸發
+function stepBackFromNpc() {
+  if (currentNpc) {
+    const dx = state.x - currentNpc.pos.x;
+    const dy = state.y - currentNpc.pos.y;
+    const dist = Math.hypot(dx, dy) || 1;
+    let newX = state.x + (dx / dist) * 40;
+    let newY = state.y + (dy / dist) * 40;
+    
+    // 檢查退後的位置會不會撞到牆壁，如果會，只改變 Y 軸退後
+    if (canMoveTo(newX, newY)) {
+      state.x = newX; state.y = newY;
+    } else {
+      state.y += 40;
+    }
+    updateCamera();
+  }
+}
+
+// 點擊「離開」：中斷對話、退後並恢復任務狀態
+document.getElementById('btnCancelDialog').onclick = () => {
+  document.getElementById('dialogBox').style.display = 'none';
+  stepBackFromNpc();
+  missionStage = 0; // 重置狀態
+  setTimeout(() => { gameActive = true; currentNpc = null; }, 300);
+};
+
+// 點擊「繼續」
 document.getElementById('btnNextDialog').onclick = () => {
   currentDialogIndex++;
-  if (currentDialogIndex < task.dialogs.length) {
+  if (currentDialogIndex < currentNpc.dialogs.length) {
     showDialog();
   } else {
     document.getElementById('dialogBox').style.display = 'none';
-    playAnimation();
+    finishNpcDialog();
   }
 };
 
-function playAnimation() {
-  missionStage = 2;
-  gameActive = false;
-  if (task.gameUrl) {
-    document.getElementById('animScreen').style.display = 'flex';
-    document.getElementById('animFrame').src = task.gameUrl;
-  } else {
-    window.parent.postMessage({ type: 'GAME_CLEAR', score: 1000 }, '*');
+function finishNpcDialog() {
+  if (currentNpc.action === 'ACTION_CONTINUE' || currentNpc.action === 'ACTION_REVIEW') {
+    window.parent.postMessage({type: currentNpc.action}, '*');
+    stepBackFromNpc();
+    missionStage = 0; 
+    setTimeout(() => { gameActive = true; currentNpc = null; }, 800);
+  } 
+  else if (currentNpc.action === 'PLAY_ANIMATION') {
+    missionStage = 2; 
+    if (task.gameUrl) {
+      document.getElementById('animScreen').style.display = 'flex';
+      document.getElementById('animFrame').src = task.gameUrl;
+    } else {
+      window.parent.postMessage({ type: 'GAME_CLEAR', score: 1000 }, '*');
+    }
+  } 
+  else {
+    // 純對話結束
+    stepBackFromNpc();
+    missionStage = 0; 
+    setTimeout(() => { gameActive = true; currentNpc = null; }, 300);
   }
 }
 
@@ -327,7 +435,7 @@ window.addEventListener('message', (event) => {
 });
 
 // ==========================================
-// ★ 物理阻擋與移動邏輯 ★
+// ★ 物理阻擋與電梯傳送邏輯 ★
 // ==========================================
 const solidBlocks = [
   {x: 2000, y: 400, w: 320, h: 450}, {x: 2000, y: 1000, w: 320, h: 750},
@@ -337,15 +445,20 @@ const solidBlocks = [
   {x: 950, y: 1420, w: 380, h: 175}, {x: 1330, y: 1420, w: 10, h: 10},
   {x: 1420, y: 1420, w: 320, h: 10}, {x: 1330, y: 1585, w: 410, h: 10},
   {x: 1730, y: 1420, w: 10, h: 170}, {x: 950, y: 1590, w: 810, h: 160},
-  {x: 400, y: 1850, w: 1310, h: 350}, {x: 2000, y: 1850, w: 500, h: 150},
+  {x: 400, y: 1850, w: 1310, h: 350},
   {x: 1710, y: 2150, w: 790, h: 50}
+  // 注意：已移除 {x: 2000, y: 1850, w: 500, h: 150} 以允許玩家走入電梯區
 ];
 
 function canMoveTo(x, y) {
   const r = 20; 
+  if (y < 0) {
+    if (x < 1000 + r || x > 2000 - r || y < -1200 + r || y > -400 - r) return false;
+    if (x > 1350 - r && x < 1650 + r && y > -900 - r && y < -800 + r) return false;
+    return true;
+  }
   if (x < 350 || x > 2500 || y < 150 || y > 2200) return false;
-  let diagLine = x + y;
-  let distAlong = (x - y + 1300) * 0.707;
+  let diagLine = x + y; let distAlong = (x - y + 1300) * 0.707;
   if (distAlong > 0 && distAlong < 2200) { if (diagLine < 2200 + r && diagLine > 1850 - r) return false; }
   if (x > 1200 - r && x < 1400 + r && Math.abs(y - (-0.93*x + 2365)) < 40) return false;
   for (let b of solidBlocks) { if (x+r > b.x && x-r < b.x+b.w && y+r > b.y && y-r < b.y+b.h) return false; }
@@ -367,9 +480,23 @@ function gameLoop() {
       document.getElementById('player').style.top = state.y + 'px'; 
       updateCamera();
       
-      if (missionStage === 0 && Math.hypot(state.x - task.targetPos.x, state.y - task.targetPos.y) < 100) {
-        missionStage = 1;
-        showDialog();
+      // 電梯傳送
+      if (state.y < -1160 && state.x > 1400 && state.x < 1600) {
+        state.x = 2125; state.y = 1900; updateCamera();
+      }
+      else if (state.y > 1960 && state.x > 2000 && state.x < 2250) {
+        state.x = 1500; state.y = -1150; updateCamera();
+      }
+
+      // NPC 碰撞偵測 (missionStage 必須是 0 才能觸發)
+      if (missionStage === 0 && task.npcs) {
+        for (let n of task.npcs) {
+          if (Math.hypot(state.x - n.pos.x, state.y - n.pos.y) < 70) {
+            missionStage = 1;
+            startNpcDialog(n);
+            break;
+          }
+        }
       }
     }
   }
@@ -378,68 +505,46 @@ function gameLoop() {
 requestAnimationFrame(gameLoop);
 
 // ==========================================
-// ★ 手機/電腦雙重搖桿捕捉邏輯 (完美相容) ★
+// 搖桿控制 (防手機原生滑動)
 // ==========================================
 let isDragging = false, startT = {x:0, y:0};
 
 const handleStart = (e) => {
   if (!gameActive) return;
-  
-  // 取得座標 (判斷是滑鼠還是觸控)
+  if(e.target.tagName.toLowerCase() === 'button' || e.target.closest('button')) return;
   let clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
   let clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-
-  isDragging = true;
-  startT = {x: clientX, y: clientY};
+  isDragging = true; startT = {x: clientX, y: clientY};
   
   const jBase = document.getElementById('joystickBase');
-  jBase.style.left = startT.x + 'px';
-  jBase.style.top = startT.y + 'px';
-  jBase.style.display = 'block';
+  jBase.style.left = startT.x + 'px'; jBase.style.top = startT.y + 'px'; jBase.style.display = 'block';
   document.getElementById('joystickKnob').style.transform = `translate(-50%, -50%)`;
 };
 
 const handleMove = (e) => {
   if (!isDragging || !gameActive) return;
-  // 阻擋手機原生滑動事件 (避免畫面跟著捲動導致搖桿中斷)
   e.preventDefault(); 
-
   let clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
   let clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-
-  const dx = clientX - startT.x;
-  const dy = clientY - startT.y;
-  const dist = Math.hypot(dx, dy);
-
+  const dx = clientX - startT.x, dy = clientY - startT.y, dist = Math.hypot(dx, dy);
   if (dist === 0) return;
 
   const move = Math.min(dist, 50);
   document.getElementById('joystickKnob').style.transform = `translate(calc(-50% + ${dx/dist*move}px), calc(-50% + ${dy/dist*move}px))`;
-
   velocity.x = (dx/dist) * speed * Math.min(dist/50, 1);
   velocity.y = (dy/dist) * speed * Math.min(dist/50, 1);
 };
 
-const handleEnd = () => {
-  isDragging = false;
-  velocity = {x:0, y:0};
-  document.getElementById('joystickBase').style.display = 'none';
-};
+const handleEnd = () => { isDragging = false; velocity = {x:0, y:0}; document.getElementById('joystickBase').style.display = 'none'; };
 
-// 將事件綁定在整個場景與視窗上
 const sceneObj = document.getElementById('scene');
-
-// 綁定滑鼠事件 (供電腦版使用)
 sceneObj.addEventListener('mousedown', handleStart);
 window.addEventListener('mousemove', handleMove, { passive: false });
 window.addEventListener('mouseup', handleEnd);
-
-// 綁定觸控事件 (供手機版使用，加上 passive: false 才能徹底 preventDefault)
 sceneObj.addEventListener('touchstart', handleStart, { passive: false });
 window.addEventListener('touchmove', handleMove, { passive: false });
 window.addEventListener('touchend', handleEnd);
 window.addEventListener('touchcancel', handleEnd);
-
 window.addEventListener('resize', updateCamera);
 </script>
 </body>
