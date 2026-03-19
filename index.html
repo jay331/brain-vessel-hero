@@ -35,7 +35,6 @@ input, select { font-family: inherit; background: rgba(0,0,0,0.6); border: 1px s
 input[type="checkbox"] { width: auto; }
 .app { height: 100%; display: flex; flex-direction: column; }
 
-/* ===== HUD 標題列 ===== */
 header { padding: 4px 8px; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(180deg, rgba(0,0,0,0.9), rgba(0,0,0,0.5)); border-bottom: 1px solid var(--theme-dim); z-index: 100; flex-shrink: 0; backdrop-filter: blur(4px); }
 .player-info { display: flex; align-items: center; gap: 8px; }
 .avatar-wrap { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--theme-primary); background: #000; overflow: hidden; position: relative; cursor: pointer;}
@@ -52,19 +51,16 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .res-item { display: flex; align-items: center; gap: 4px; font-weight: 900; font-size: 11px; background: rgba(0,0,0,0.6); padding: 4px 6px; border-radius: 99px; border: 1px solid var(--theme-dim); box-shadow: 0 2px 5px rgba(0,0,0,0.5); white-space: nowrap; }
 .green-coin { display: inline-flex; align-items: center; justify-content: center; width: 12px; height: 12px; background: linear-gradient(180deg, #3dff8e, #0eb855); border-radius: 50%; color: #000; font-size: 9px; }
 
-/* ===== 佈局與背景 ===== */
 .wrap { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0; }
 .stage { position: relative; width: 100%; height: 100%; overflow: hidden; display: flex; flex-direction: column; background: radial-gradient(circle at 50% 30%, var(--theme-bg), rgba(0,0,0,0.95)), linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.98)), url('https://images.unsplash.com/photo-1551076805-e1869033e561?q=80&w=800&auto=format&fit=crop') center/cover no-repeat; }
 @media (min-width: 481px) { .wrap { padding: 20px; background: #111; } .stage { max-width: 414px; max-height: 896px; border-radius: 16px; border: 2px solid var(--theme-dim); box-shadow: 0 0 30px var(--theme-bg); } }
 
-/* ★ 全螢幕地圖樣式：Z-index 4000 (確保低於提示框的 5000) */
 .fullscreen-map { position: fixed !important; inset: 0 !important; z-index: 4000 !important; border-radius: 0 !important; border: none !important; }
 
 .screen { position: absolute; inset: 0; display: none; flex-direction: column; z-index: 10; padding: 10px; overflow-y: auto; padding-bottom: 80px; }
 .screen.show { display: flex; }
 .screen.full-view { padding-top: 10px; padding-bottom: 10px; z-index: 200; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); }
 
-/* ===== 元件 ===== */
 .panel { background: var(--theme-panel); border: 1px solid var(--theme-dim); border-radius: 10px; padding: 12px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; flex: 1;}
 .panel h2 { color: var(--theme-primary); margin: 0 0 10px 0; font-size: 16px; text-align: center; border-bottom: 1px dashed var(--theme-dim); padding-bottom: 6px; flex-shrink: 0;}
 .btn { padding: 12px; border-radius: 6px; font-weight: 900; font-size: 15px; text-align: center; background: linear-gradient(180deg, #444, #222); color: #fff; border: 1px solid #666; width: 100%; cursor:pointer; flex-shrink: 0;}
@@ -73,7 +69,6 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .btn-back:active { transform: scale(0.97); background: rgba(0,0,0,0.8); }
 .btn-rescue { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border: none; color: #004d26; font-weight: 900; text-shadow: 0 1px 1px rgba(255,255,255,0.4); padding: 12px; font-size: 13px; border-radius: 8px; box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4), inset 0 -3px 0 rgba(0,0,0,0.15); transition: all 0.2s; margin-bottom: 4px;}
 
-/* ===== 主畫面 ===== */
 #scrHome { padding: 6px 8px 75px 8px; justify-content: center; overflow: hidden; display: flex; flex-direction: column; gap: 6px; } 
 .role-list { display: flex; flex-direction: column; gap: 6px; margin: 0; flex: 5; overflow-y:auto;}
 .role-card { display: flex; align-items: center; gap: 10px; padding: 0 12px; background: var(--theme-grad); border: 1px solid var(--theme-dim); border-radius: 8px; position: relative; cursor: pointer; flex: 1; min-height:60px;} 
@@ -91,7 +86,6 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .boss-banner p { margin: 2px 0 0; font-size: 11px; color: var(--text-main); text-shadow: 1px 1px 2px rgba(0,0,0,0.9); }
 .boss-banner.locked { filter: grayscale(100%); opacity: 0.6; border-color: #555; box-shadow: none; pointer-events: none;}
 
-/* 任務詳情內頁 */
 .subtask-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; overflow-y:auto; flex:1;}
 .subtask-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-radius: 8px; border: 1px solid var(--theme-dim); font-weight: bold; font-size: 14px; transition: all 0.2s; flex-shrink: 0;}
 .subtask-item.completed { background: rgba(255, 255, 255, 0.05); border-color: #444; color: #aaa; }
@@ -100,7 +94,6 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .subtask-item.locked { background: rgba(0, 0, 0, 0.6); border-color: #333; color: #666; pointer-events: none; }
 .task-stat { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(0,0,0,0.5); border-radius: 6px; font-size:14px; border: 1px solid var(--theme-dim); flex-shrink: 0;}
 
-/* 卡匣等其餘 UI */
 .pokedex-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 6px; flex-wrap: nowrap; scrollbar-width: none; justify-content:center; flex-shrink: 0;}
 .pokedex-tabs::-webkit-scrollbar { display: none; }
 .tab-btn { flex-shrink: 0; padding: 6px 12px; border-radius: 20px; border: 1px solid var(--theme-dim); background: rgba(0,0,0,0.8); color: #ccc; font-weight: bold; font-size: 12px; cursor:pointer; white-space: nowrap; }
@@ -382,7 +375,7 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
 const id = (el) => document.getElementById(el);
 
 // ★ 版本升級，防舊資料干擾
-const SAVE_KEY = 'BrainPioneer_SaveData_v7.3'; 
+const SAVE_KEY = 'BrainPioneer_SaveData_v7.4'; 
 
 let playerState = { 
   hasSetup: false, name: "", avatar: "https://i.pravatar.cc/150?img=11", mode: "beginner", coins: 38219, 
@@ -394,6 +387,14 @@ let playerState = {
 };
 
 let isGlobalFs = false; // 追蹤全域全螢幕狀態
+
+// 獲取帶有狀態參數的大廳 URL
+function getLobbyUrl() {
+  let isFirst = ROLES_DATA_BEG[0].currentTask === 1 ? 1 : 0;
+  let url = `rpg_loader.html?taskId=hub_world&first=${isFirst}`;
+  if (isGlobalFs) url += '&fs=1';
+  return url;
+}
 
 // ===============================================
 // ★ 首頁 地圖/清單 顯示切換邏輯
@@ -408,12 +409,8 @@ function setHomeView(isMap) {
     id('roleListContainer').style.display = 'none';
     id('homeMapContainer').style.display = 'block';
     
-    // 將全螢幕狀態透過 URL 參數傳遞給 iframe
-    let url = 'rpg_loader.html?taskId=hub_world';
-    if (isGlobalFs) url += '&fs=1';
-
     if (!id('homeMapFrame').src.includes('hub_world')) {
-      id('homeMapFrame').src = url;
+      id('homeMapFrame').src = getLobbyUrl();
     }
   } else {
     id('segList').classList.add('active');
@@ -458,10 +455,11 @@ window.addEventListener('message', (event) => {
     }
     else if (event.data.type === 'GAME_CLEAR' || event.data.type === 'GAME_OVER') {
       closeGameIframe();
-      
       if (event.data.type === 'GAME_CLEAR') {
         handleGameClear(event.data.score || 1000);
       } else {
+        // 如果失敗，退回小螢幕大廳，並彈出錯誤
+        id('homeMapFrame').src = getLobbyUrl();
         customAlert('扣除 1 次挑戰機會，請再接再厲！', () => {
           currentGameInfo = null; openRoleDetail(activeRoleId);
         }, "❌ 任務失敗");
@@ -470,9 +468,7 @@ window.addEventListener('message', (event) => {
     else if (event.data.type === 'CLOSE_IFRAME') {
       // 玩家中斷任務：切回 hub_world
       closeGameIframe();
-      let url = 'rpg_loader.html?taskId=hub_world';
-      if (isGlobalFs) url += '&fs=1';
-      id('homeMapFrame').src = url;
+      id('homeMapFrame').src = getLobbyUrl();
     }
     else if (event.data.type === 'PUZZLE_CLEAR') {
       const pid = event.data.puzzleId;
@@ -532,7 +528,7 @@ function updateModeUI() {
   id('uiPlayerName').textContent = playerState.name;
   id('hudAvatar').src = playerState.avatar;
   
-  // ★ 修復：切換進階版時，下方文字與 UI 的同步更新
+  // 切換進階版時，下方文字與 UI 的同步更新
   id('navModeText').textContent = isBeg ? '初階版' : '進階版';
   id('hudCasesWrap').style.display = isBeg ? 'none' : 'flex';
   id('navCaseText').textContent = isBeg ? '演練圖鑑' : '個案圖鑑';
@@ -795,8 +791,9 @@ function handleGameClear(score) {
     const tabMode = playerState.mode === 'beginner' ? 'beg' : 'adv';
     openCardModal(tabMode, info.role.id, info.taskIndex);
 
+    // 如果處於全螢幕地圖，通關後無縫留在地圖中
     if (isGlobalFs) {
-      id('homeMapFrame').src = 'rpg_loader.html?taskId=hub_world&fs=1';
+      id('homeMapFrame').src = getLobbyUrl();
     } else {
       openRoleDetail(activeRoleId);
     }
