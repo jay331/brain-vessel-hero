@@ -97,7 +97,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 .btn-start.show { opacity: 1; transform: translateY(0); }
 .btn-start:active { transform: scale(0.95); background: #1976d2; }
 
-/* ★ 隱形低調的全螢幕切換按鈕 ★ */
+/* 隱形低調的全螢幕切換按鈕 */
 .btn-fs-toggle { 
   position: absolute; top: max(10px, env(safe-area-inset-top)); right: 10px; 
   background: rgba(0,0,0,0.2); color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.2); 
@@ -106,6 +106,15 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
   backdrop-filter: blur(2px); transition: all 0.2s;
 }
 .btn-fs-toggle:active { background: rgba(0,0,0,0.5); }
+
+/* ★ 新增：返回大廳按鈕 (地圖探索模式專用) */
+.btn-return-lobby {
+  position: absolute; top: max(10px, env(safe-area-inset-top)); left: 10px;
+  background: rgba(255,255,255,0.85); color: #1976d2; border: 2px solid #64b5f6;
+  padding: 6px 12px; border-radius: 8px; z-index: 101; cursor: pointer; font-weight: bold;
+  display: none; box-shadow: 0 2px 10px rgba(0,0,0,0.2); transition: all 0.2s;
+}
+.btn-return-lobby:active { background: #e3f2fd; transform: scale(0.95); }
 
 /* 對話框樣式 (含離開按鈕) */
 .dialog-box { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 600px; background: rgba(255,255,255,0.95); border: 4px solid #4CAF50; border-radius: 15px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 200; display: none; flex-direction: column;}
@@ -119,7 +128,6 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 
 .animation-screen { position: absolute; inset: 0; background: #111; z-index: 500; display: none; flex-direction: column;}
 #animFrame { flex: 1; border: none; width: 100%; height: 100%;}
-/* ★ 小遊戲動畫的專屬中斷按鈕 */
 .btn-quit-anim { position: absolute; top: max(10px, env(safe-area-inset-top)); right: 10px; background: rgba(0,0,0,0.7); color: #fff; border: 1px solid #aaa; padding: 6px 15px; border-radius: 6px; z-index: 501; cursor: pointer; font-weight: bold; backdrop-filter: blur(4px); font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.5);}
 .btn-quit-anim:active { background: rgba(0,0,0,0.9); }
 </style>
@@ -129,10 +137,11 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
   
   <div class="story-intro" id="storyIntro">
     <div class="typewriter" id="typewriterText"></div>
-    <button class="btn-start" id="btnStartGame" onclick="startExplore()">開始</button>
+    <button class="btn-start" id="btnStartGame" onclick="startExplore()">出發</button>
   </div>
 
   <button class="btn-fs-toggle" id="btnFsToggle" onclick="toggleFs()">⛶</button>
+  <button class="btn-return-lobby" id="btnReturnLobby" onclick="returnToLobby()">🏠 返回大廳</button>
 
   <div class="header" id="uiHeader" style="opacity:0; display:none;">
     <div id="ui-role">玩家</div>
@@ -214,11 +223,10 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 const RPG_TASKS = {
   "hub_world": {
     roleName: "急救新星",
-    intro: "歡迎來到遙遠的東方醫院！\n\n 戰勝腦中風不靠運氣\n靠的是不斷累積的知識與能力 💪\n\n 出發後，請在大廳尋求醫療團隊指引",
+    intro: "歡迎來到遙遠的東方醫院！\n\n戰勝腦中風不靠運氣\n靠的是不斷累積的知識與能力 💪\n\n出發吧！前往大廳尋求指引",
     missionText: "自由探索醫院",
     startPos: { x: 1500, y: -600 }, 
     npcs: [
-      // ★ 重新佈置位置，三人等距並排在櫃檯正前方
       { id: 'npc_review',   name: '護理長',   color: '#ff9800', head: '#ffcc80', body: '#fff', pos: { x: 1350, y: -750 }, icon: '📜', dialogs: [{name: "護理長", text: "溫故知新是很重要的，來看看你已經完成了哪些挑戰吧。"}], action: 'ACTION_REVIEW' },
       { id: 'npc_guide',    name: '志工',     color: '#9c27b0', head: '#ce93d8', body: '#e1bee7', pos: { x: 1500, y: -750 }, icon: '💬', dialogs: [{name: "志工", text: "歡迎來到亞東醫院！你可以自由在這裡探索，搭乘上方的電梯可以前往 11G 病房區喔！"}], action: 'NONE' },
       { id: 'npc_continue', name: '主治醫師', color: '#4CAF50', head: '#a5d6a7', body: '#fff', pos: { x: 1650, y: -750 }, icon: '▶️', dialogs: [{name: "主治醫師", text: "準備好進行下一個訓練了嗎？時間就是大腦，我們馬上出發！"}], action: 'ACTION_CONTINUE' }
@@ -226,7 +234,7 @@ const RPG_TASKS = {
   },
   "beg_id_0": {
     roleName: "實習醫生",
-    intro: "半夢半醒中，你發現你居然一開局就中風...\n你的好朋友剛好是這家醫院的實習醫師...\n你用盡腦力發出心電感應，希望好朋友能來找到你...",
+    intro: "半夢半醒中，你發現你居然一開局就中風...\n\n你的好朋友剛好是這家醫院的實習醫師...\n\n你用盡腦力發出心電感應，希望好朋友能來找到你...",
     missionText: "前往 11G06 病房尋找中風的好友",
     startPos: { x: 2125, y: 1900 }, 
     npcs: [
@@ -259,7 +267,7 @@ const task = RPG_TASKS[taskId] || RPG_TASKS["hub_world"];
 let isFsMode = urlParams.get('fs') === '1';
 let isFirstTask = urlParams.get('first') === '1';
 
-// ★ 修復：如果是第一次玩，動態修改主治醫師的台詞
+// 如果是第一次玩，動態修改主治醫師的台詞
 if (taskId === 'hub_world' && isFirstTask) {
     let docNpc = task.npcs.find(n => n.id === 'npc_continue');
     if(docNpc) docNpc.dialogs[0].text = "歡迎來到腦脈先鋒的行列！我是主治醫師。守護大腦的旅程即將開始，準備好接受第一項訓練了嗎？";
@@ -273,6 +281,8 @@ let gameActive = false;
 let currentNpc = null;
 
 // UI 綁定
+// ★ 動態按鈕名稱：大廳顯示「出發」，其餘顯示「任務開始」
+document.getElementById('btnStartGame').innerText = (taskId === 'hub_world') ? "出發" : "任務開始";
 document.getElementById('playerName').innerText = task.roleName;
 document.getElementById('ui-role').innerText = task.roleName;
 document.getElementById('ui-mission').innerText = "任務：" + task.missionText;
@@ -314,7 +324,7 @@ function typeWriter() {
 }
 
 window.onload = () => {
-  // 修復：一載入就先將玩家放在畫面中心，解決一開始隱形的 Bug
+  // 一載入就先將玩家放在正確位置，防止一開始隱形
   document.getElementById('player').style.left = state.x + 'px'; 
   document.getElementById('player').style.top = state.y + 'px'; 
   updateCamera();
@@ -329,8 +339,9 @@ function startExplore() {
     document.getElementById('storyIntro').style.display = 'none';
     document.getElementById('player').style.opacity = '1';
     
-    // 顯示全螢幕切換按鈕
+    // 顯示全螢幕切換按鈕 與 返回大廳按鈕
     document.getElementById('btnFsToggle').style.display = 'flex';
+    document.getElementById('btnReturnLobby').style.display = 'block';
     
     if (taskId !== 'hub_world') {
       document.getElementById('uiHeader').style.display = 'flex';
@@ -348,6 +359,19 @@ function toggleFs() {
   btn.innerHTML = isFsMode ? "🗗" : "⛶";
   window.parent.postMessage({type: 'TOGGLE_FULLSCREEN', isFullscreen: isFsMode}, '*');
   handleEnd();
+}
+
+// ★ 新增：返回大廳邏輯
+function returnToLobby() {
+  if (taskId !== 'hub_world') {
+    // 如果在任務中，直接中斷任務 (交給 index.html 處理重新載入 hub_world)
+    window.parent.postMessage({type:'CLOSE_IFRAME'}, '*');
+  } else {
+    // 如果在大廳，強制將玩家傳送回大廳中央 (救車機制)
+    state.x = 1500;
+    state.y = -600;
+    updateCamera();
+  }
 }
 
 // ==========================================
@@ -370,7 +394,7 @@ function showDialog() {
   document.getElementById('dialogName').style.color = (d.name === task.roleName) ? '#4CAF50' : currentNpc.color;
   document.getElementById('dialogText').innerText = d.text;
 
-  // ★ 智能判斷按鈕顯示
+  // 智能判斷按鈕顯示
   if (currentDialogIndex === currentNpc.dialogs.length - 1) {
     if (currentNpc.action === 'NONE') {
       document.getElementById('btnCancelDialog').style.display = 'none'; // 純說明 NPC 隱藏離開按鈕
@@ -493,7 +517,7 @@ function gameLoop() {
       if (canMoveTo(state.x, state.y + velocity.y)) state.y += velocity.y;
     }
     
-    // ★ 隨時繪製座標，確保不隱形
+    // 隨時繪製座標，確保不隱形
     document.getElementById('player').style.left = state.x + 'px'; 
     document.getElementById('player').style.top = state.y + 'px'; 
     updateCamera();
