@@ -44,7 +44,6 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .player-name { font-size: 11px; font-weight: bold; color: #fff; cursor: pointer; padding: 2px 4px; border-radius: 4px; transition: background 0.2s;} 
 .player-name:active { background: rgba(255,255,255,0.1); }
 
-/* ★ 首頁地圖/清單切換按鈕樣式 */
 .segment-ctrl { display: flex; background: rgba(0,0,0,0.6); border-radius: 6px; padding: 2px; border: 1px solid var(--theme-dim); margin-left: 6px; }
 .segment-btn { padding: 2px 8px; font-size: 10px; color: #aaa; border-radius: 4px; cursor: pointer; transition: all 0.2s; font-weight: bold; }
 .segment-btn.active { background: var(--theme-primary); color: var(--btn-text); box-shadow: 0 1px 3px rgba(0,0,0,0.5); }
@@ -146,7 +145,6 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
 .mode-toggle-sq:active { background: #000; transform: scale(0.95); }
 .mode-toggle-sq .icon { font-size: 20px; margin-bottom: 2px; text-shadow: none;}
 
-/* 彈出視窗 - Z-index:5000 確保在全螢幕地圖(4000)之上 */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 5000; padding: 15px;}
 .modal-content { background: var(--theme-panel); border: 1px solid var(--theme-primary); border-radius: 12px; width: 100%; max-width: 320px; padding: 20px; position: relative; text-align: center; max-height: 90vh; overflow-y:auto; }
 .close-btn { position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: #aaa; font-size: 18px; cursor:pointer;}
@@ -384,7 +382,7 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
 const id = (el) => document.getElementById(el);
 
 // ★ 版本升級，防舊資料干擾
-const SAVE_KEY = 'BrainPioneer_SaveData_v7.2'; 
+const SAVE_KEY = 'BrainPioneer_SaveData_v7.3'; 
 
 let playerState = { 
   hasSetup: false, name: "", avatar: "https://i.pravatar.cc/150?img=11", mode: "beginner", coins: 38219, 
@@ -470,7 +468,11 @@ window.addEventListener('message', (event) => {
       }
     }
     else if (event.data.type === 'CLOSE_IFRAME') {
+      // 玩家中斷任務：切回 hub_world
       closeGameIframe();
+      let url = 'rpg_loader.html?taskId=hub_world';
+      if (isGlobalFs) url += '&fs=1';
+      id('homeMapFrame').src = url;
     }
     else if (event.data.type === 'PUZZLE_CLEAR') {
       const pid = event.data.puzzleId;
@@ -529,6 +531,14 @@ function updateModeUI() {
   document.body.className = `mode-${playerState.mode}`;
   id('uiPlayerName').textContent = playerState.name;
   id('hudAvatar').src = playerState.avatar;
+  
+  // ★ 修復：切換進階版時，下方文字與 UI 的同步更新
+  id('navModeText').textContent = isBeg ? '初階版' : '進階版';
+  id('hudCasesWrap').style.display = isBeg ? 'none' : 'flex';
+  id('navCaseText').textContent = isBeg ? '演練圖鑑' : '個案圖鑑';
+  id('navLbText').textContent = isBeg ? '中風名片' : '排行榜';
+  id('navLbIcon').textContent = isBeg ? '📇' : '🏆';
+  id('bossTitleText').textContent = isBeg ? '🛡️ 中風題庫演練' : '🚨 中風個案救治';
   
   // 恢復 UI 選單顯示
   id('uiStoryToggleWrap').style.display = 'flex';
@@ -612,21 +622,30 @@ function loadGameData() {
 // ===============================================
 function playTask(taskIndex) {
   const role = getActiveRoles().find(r => r.id === activeRoleId);
-  if (role.dailyAttempts <= 0) return customAlert("今日機會已用盡！");
+  
+  // ★ 修復：沒體力時，強制縮回小螢幕，並顯示 Rescue Panel 兌換體力
+  if (role.dailyAttempts <= 0) {
+    id('homeMapContainer').classList.remove('fullscreen-map'); 
+    isGlobalFs = false;
+    id('mainHeader').style.display = 'flex'; 
+    id('mainNav').style.display = 'flex';
+    openRoleDetail(activeRoleId);
+    customAlert("今日挑戰機會已用盡！\n請透過觀看衛教或使用健康幣來恢復次數。", null, "⚠️ 體力不足");
+    return;
+  }
 
   const gameId = `${role.id}_${taskIndex}`;
   
-  if (playerState.mode === 'beginner' && playerState.storyMode) {
-    // 進入任務，將全螢幕狀態傳給地圖引擎
+  if (playerState.storyMode) {
+    // 地圖模式：進入任務，並同步傳遞全螢幕狀態
     let url = `rpg_loader.html?taskId=${gameId}`;
     if (isGlobalFs) url += `&fs=1`;
     id('homeMapFrame').src = url;
     
-    // 如果是從清單模式按下的，且原本非全螢幕，要確保切換為地圖視窗
     id('roleListContainer').style.display = 'none';
     id('homeMapContainer').style.display = 'block';
   } else {
-    // 進階版，或初階版清單模式 -> 直接載入對應的遊戲覆蓋層
+    // 清單模式：直接載入遊戲彈窗
     const gameUrl = GAME_URLS[gameId];
     if (gameUrl) {
       id('gameFrame').src = gameUrl;
@@ -776,7 +795,6 @@ function handleGameClear(score) {
     const tabMode = playerState.mode === 'beginner' ? 'beg' : 'adv';
     openCardModal(tabMode, info.role.id, info.taskIndex);
 
-    // ★ 如果處於全螢幕地圖，通關後無縫留在地圖中，不再切回清單
     if (isGlobalFs) {
       id('homeMapFrame').src = 'rpg_loader.html?taskId=hub_world&fs=1';
     } else {
