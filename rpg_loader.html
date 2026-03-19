@@ -16,9 +16,19 @@
 html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:"PingFang TC","Noto Sans TC",sans-serif;color:var(--text)}
 .app{position:relative;width:100%;height:100%;overflow:hidden;}
 
-.header { position: absolute; top: 0; width: 100%; height: calc(60px + var(--safe-top)); background: linear-gradient(to bottom, #111, #333); padding-top: var(--safe-top); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; font-weight: 900; font-size: 18px; color: #fff; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: opacity 0.5s;}
+/* ★ 修正：將上方標題列的字體與高度縮小，適合手機觀看 */
+.header { 
+  position: absolute; top: 0; width: 100%; 
+  height: calc(45px + var(--safe-top)); 
+  background: linear-gradient(to bottom, #111, #333); 
+  padding-top: var(--safe-top); display: flex; align-items: center; 
+  justify-content: space-between; padding: 0 12px; font-weight: 900; 
+  font-size: 14px; color: #fff; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
+  transition: opacity 0.5s;
+}
 .mission-text { color: #ffca28; flex: 1; text-align: center; }
-.timer { color: #4CAF50; font-size: 20px; background: rgba(0,0,0,0.5); padding: 5px 15px; border-radius: 5px; letter-spacing: 2px;}
+.timer { color: #4CAF50; font-size: 13px; background: rgba(0,0,0,0.5); padding: 4px 10px; border-radius: 5px; letter-spacing: 1px;}
+.btn-cancel { padding: 4px 10px; border-radius: 6px; color: #fff; border: none; font-weight: bold; font-size: 11px; cursor: pointer; background: #78909c; }
 
 .scene{position:absolute;inset:0;top:0;overflow:hidden;} 
 .camera { position: absolute; left: 0; top: 0; width: 100%; height: 100%; transition: transform 0.05s ease-out; }
@@ -107,7 +117,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 }
 .btn-fs-toggle:active { background: rgba(0,0,0,0.5); }
 
-/* ★ 新增：返回大廳按鈕 (地圖探索模式專用) */
+/* 返回大廳按鈕 (地圖探索模式專用) */
 .btn-return-lobby {
   position: absolute; top: max(10px, env(safe-area-inset-top)); left: 10px;
   background: rgba(255,255,255,0.85); color: #1976d2; border: 2px solid #64b5f6;
@@ -146,7 +156,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
   <div class="header" id="uiHeader" style="opacity:0; display:none;">
     <div id="ui-role">玩家</div>
     <div class="mission-text" id="ui-mission">任務：</div>
-    <button class="btn-cancel" style="padding:4px 10px; border-radius:6px; color:#fff; border:none; font-weight:bold; font-size:12px; cursor:pointer;" onclick="parent.postMessage({type:'CLOSE_IFRAME'}, '*')">✖ 中斷</button>
+    <button class="btn-cancel" onclick="parent.postMessage({type:'CLOSE_IFRAME'}, '*')">✖ 中斷</button>
   </div>
 
   <div class="scene" id="scene">
@@ -260,14 +270,12 @@ const RPG_TASKS = {
   }
 };
 
-// 讀取 URL 參數，支援 fs 全螢幕狀態同步與 first 首抽判定
 const urlParams = new URLSearchParams(window.location.search);
 const taskId = urlParams.get('taskId') || 'hub_world';
 const task = RPG_TASKS[taskId] || RPG_TASKS["hub_world"];
 let isFsMode = urlParams.get('fs') === '1';
 let isFirstTask = urlParams.get('first') === '1';
 
-// 如果是第一次玩，動態修改主治醫師的台詞
 if (taskId === 'hub_world' && isFirstTask) {
     let docNpc = task.npcs.find(n => n.id === 'npc_continue');
     if(docNpc) docNpc.dialogs[0].text = "歡迎來到腦脈先鋒的行列！我是主治醫師。守護大腦的旅程即將開始，準備好接受第一項訓練了嗎？";
@@ -280,14 +288,11 @@ let missionStage = -1;
 let gameActive = false; 
 let currentNpc = null;
 
-// UI 綁定
-// ★ 動態按鈕名稱：大廳顯示「出發」，其餘顯示「任務開始」
 document.getElementById('btnStartGame').innerText = (taskId === 'hub_world') ? "出發" : "任務開始";
 document.getElementById('playerName').innerText = task.roleName;
 document.getElementById('ui-role').innerText = task.roleName;
 document.getElementById('ui-mission').innerText = "任務：" + task.missionText;
 
-// 動態生成 NPC
 const npcContainer = document.getElementById('npcContainer');
 if (task.npcs) {
   task.npcs.forEach(n => {
@@ -308,7 +313,7 @@ if (task.npcs) {
 }
 
 // ==========================================
-// ★ 開場與全螢幕切換邏輯
+// ★ 視角與開場邏輯
 // ==========================================
 let typeIndex = 0;
 function typeWriter() {
@@ -323,8 +328,15 @@ function typeWriter() {
   }
 }
 
+// ★ 修復：加入相機偏移，讓主角不會被上方的任務標題列擋住
+function updateCamera() {
+  const yOffset = (missionStage >= 0) ? 50 : 0; 
+  const cx = window.innerWidth / 2 - state.x;
+  const cy = window.innerHeight / 2 + yOffset - state.y;
+  document.getElementById('camera').style.transform = `translate(${cx}px, ${cy}px)`;
+}
+
 window.onload = () => {
-  // 一載入就先將玩家放在正確位置，防止一開始隱形
   document.getElementById('player').style.left = state.x + 'px'; 
   document.getElementById('player').style.top = state.y + 'px'; 
   updateCamera();
@@ -339,7 +351,6 @@ function startExplore() {
     document.getElementById('storyIntro').style.display = 'none';
     document.getElementById('player').style.opacity = '1';
     
-    // 顯示全螢幕切換按鈕 與 返回大廳按鈕
     document.getElementById('btnFsToggle').style.display = 'flex';
     document.getElementById('btnReturnLobby').style.display = 'block';
     
@@ -350,6 +361,7 @@ function startExplore() {
     
     missionStage = 0;
     gameActive = true;
+    updateCamera(); // 觸發視角往下移
   }, 500);
 }
 
@@ -361,13 +373,10 @@ function toggleFs() {
   handleEnd();
 }
 
-// ★ 新增：返回大廳邏輯
 function returnToLobby() {
   if (taskId !== 'hub_world') {
-    // 如果在任務中，直接中斷任務 (交給 index.html 處理重新載入 hub_world)
     window.parent.postMessage({type:'CLOSE_IFRAME'}, '*');
   } else {
-    // 如果在大廳，強制將玩家傳送回大廳中央 (救車機制)
     state.x = 1500;
     state.y = -600;
     updateCamera();
@@ -375,7 +384,7 @@ function returnToLobby() {
 }
 
 // ==========================================
-// ★ 防死鎖對話邏輯 (加入離開按鈕智能判斷)
+// ★ 防死鎖對話邏輯 
 // ==========================================
 function startNpcDialog(npc) {
   currentNpc = npc;
@@ -394,10 +403,9 @@ function showDialog() {
   document.getElementById('dialogName').style.color = (d.name === task.roleName) ? '#4CAF50' : currentNpc.color;
   document.getElementById('dialogText').innerText = d.text;
 
-  // 智能判斷按鈕顯示
   if (currentDialogIndex === currentNpc.dialogs.length - 1) {
     if (currentNpc.action === 'NONE') {
-      document.getElementById('btnCancelDialog').style.display = 'none'; // 純說明 NPC 隱藏離開按鈕
+      document.getElementById('btnCancelDialog').style.display = 'none'; 
       document.getElementById('btnNextDialog').innerText = '結束對話';
     } else {
       document.getElementById('btnCancelDialog').style.display = 'block';
@@ -409,7 +417,6 @@ function showDialog() {
   }
 }
 
-// 防卡死退後機制：退後 40px，確保能重複觸發
 function stepBackFromNpc() {
   if (currentNpc) {
     const dx = state.x - currentNpc.pos.x;
@@ -461,7 +468,6 @@ function finishNpcDialog() {
     }
   } 
   else {
-    // 純對話結束
     stepBackFromNpc();
     missionStage = 0; 
     setTimeout(() => { gameActive = true; currentNpc = null; }, 300);
@@ -504,12 +510,6 @@ function canMoveTo(x, y) {
   return true;
 }
 
-function updateCamera() {
-  const cx = window.innerWidth / 2 - state.x;
-  const cy = window.innerHeight / 2 - state.y;
-  document.getElementById('camera').style.transform = `translate(${cx}px, ${cy}px)`;
-}
-
 function gameLoop() {
   if (gameActive) {
     if (velocity.x || velocity.y) {
@@ -517,13 +517,11 @@ function gameLoop() {
       if (canMoveTo(state.x, state.y + velocity.y)) state.y += velocity.y;
     }
     
-    // 隨時繪製座標，確保不隱形
     document.getElementById('player').style.left = state.x + 'px'; 
     document.getElementById('player').style.top = state.y + 'px'; 
     updateCamera();
     
     if (velocity.x || velocity.y) {
-      // 電梯傳送
       if (state.y < -1160 && state.x > 1400 && state.x < 1600) {
         state.x = 2125; state.y = 1900; updateCamera();
       }
@@ -531,7 +529,6 @@ function gameLoop() {
         state.x = 1500; state.y = -1150; updateCamera();
       }
 
-      // NPC 碰撞偵測 (missionStage 必須是 0 才能觸發)
       if (missionStage === 0 && task.npcs) {
         for (let n of task.npcs) {
           if (Math.hypot(state.x - n.pos.x, state.y - n.pos.y) < 70) {
@@ -548,7 +545,7 @@ function gameLoop() {
 requestAnimationFrame(gameLoop);
 
 // ==========================================
-// 搖桿控制 (防手機原生滑動)
+// 搖桿控制 
 // ==========================================
 let isDragging = false, startT = {x:0, y:0};
 
