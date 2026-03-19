@@ -12,6 +12,7 @@
   --c-room: #d2b48c; --c-wall: #546e7a; 
   --c-desk: #81d4fa; --gold: #ffb300;
 }
+/* 加上 touch-action: none 阻止預設縮放 */
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:none;}
 html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:"PingFang TC","Noto Sans TC",sans-serif;color:var(--text)}
 .app{position:relative;width:100%;height:100%;overflow:hidden;}
@@ -25,7 +26,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 .camera { position: absolute; left: 0; top: 0; width: 100%; height: 100%; transition: transform 0.05s ease-out; }
 .game-world { position: absolute; left: 0; top: 0; width: 3000px; height: 2600px; }
 
-/* 地板與房間 (省略細節註解，保持原汁原味) */
+/* 地板與房間 */
 .corridor-main { position: absolute; left: 350px; top: 200px; width: 2200px; height: 1800px; background: var(--c-floor-out); clip-path: polygon(0 1800px, 2200px 1800px, 2200px 0); }
 .workspace-core { position: absolute; left: 1000px; top: 800px; width: 850px; height: 600px; background: var(--c-floor-core); clip-path: polygon(0px 600px, 500px 100px, 850px 100px, 850px 600px); z-index: 1; border-radius: 20px; }
 .desk-island { position: absolute; background: var(--c-desk); border-radius: 10px; z-index: 3; box-shadow: 2px 5px 10px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; color: #01579b; font-weight: 900; border: 3px solid #4fc3f7; }
@@ -112,6 +113,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
     <div class="timer" id="ui-timer">搶救中</div>
   </div>
   
+  <button class="skip-btn" id="skipStoryBtn" style="display:none;" onclick="playAnimation()">⏭ 跳過劇情</button>
 
   <div class="scene" id="scene">
     <div class="joystick-base" id="joystickBase"><div class="joystick-knob" id="joystickKnob"></div></div>
@@ -180,7 +182,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 
 <script>
 // ==========================================
-// 1. 任務資料庫 (這裡可以擴充 25 個初階任務)
+// 1. 任務資料庫
 // ==========================================
 const RPG_TASKS = {
   "beg_id_0": {
@@ -188,8 +190,8 @@ const RPG_TASKS = {
     intro: "半夢半醒中，你發現你躺在 11G06 的病床上...\n隱約聽到你是因為腦中風住院...\n你平時對腦中風並不了解，但有個好朋友是實習醫師。\n\n你用盡力氣發出心電感應，希望他能來找到你...",
     missionText: "前往 11G06 病房尋找中風的好友",
     btnText: "發送心電感應，呼叫醫生！",
-    startPos: { x: 1880, y: 2050 }, // 醫生從電梯口出發
-    targetPos: { x: 2150, y: 920 }, // 11G06 病床座標
+    startPos: { x: 1880, y: 2050 }, 
+    targetPos: { x: 2150, y: 920 }, 
     npcName: "病患",
     dialogs: [
       { name: "我 (病患)", text: "你終於來了！我好像中風了，可是我根本不知道那是什麼..." },
@@ -197,20 +199,19 @@ const RPG_TASKS = {
     ],
     gameUrl: "game_strokeis.html" 
   },
-  // 預設/備用劇本
   "default": {
     roleName: "家屬",
     intro: "為了更了解病情，你需要前往護理站詢問專業人員。",
     missionText: "前往護理站尋找護理師",
     btnText: "出發",
     startPos: { x: 2150, y: 920 }, 
-    targetPos: { x: 1350, y: 1280 }, // 護理站
+    targetPos: { x: 1350, y: 1280 }, 
     npcName: "護理師",
     dialogs: [
       { name: "我", text: "請問接下來的照護流程是什麼？" },
       { name: "護理師", text: "這份資料非常重要，請您仔細確認！" }
     ],
-    gameUrl: "" // 若無網址，將直接回傳通關
+    gameUrl: "" 
   }
 };
 
@@ -236,7 +237,6 @@ document.getElementById('targetNPC').style.top = task.targetPos.y + 'px';
 document.getElementById('targetNPC').style.display = 'flex';
 document.getElementById('npcName').innerText = task.npcName;
 
-// --- 打字機特效 ---
 let typeIndex = 0;
 function typeWriter() {
   const introStr = task.intro;
@@ -253,9 +253,7 @@ function typeWriter() {
   }
 }
 
-// 畫面載入定位
 window.onload = () => {
-  // 開場先將鏡頭拉到目標位置營造氛圍
   state.x = task.targetPos.x - 50; 
   state.y = task.targetPos.y;
   updateCamera();
@@ -266,7 +264,6 @@ document.getElementById('btnStartGame').onclick = () => {
   document.getElementById('storyIntro').style.opacity = '0';
   setTimeout(() => {
     document.getElementById('storyIntro').style.display = 'none';
-    // 視角切回起點，開始遊戲
     state.x = task.startPos.x;
     state.y = task.startPos.y;
     updateCamera();
@@ -278,7 +275,7 @@ document.getElementById('btnStartGame').onclick = () => {
   }, 800);
 };
 
-// --- 對話邏輯 ---
+// 對話邏輯
 let currentDialogIndex = 0;
 function showDialog() {
   gameActive = false; 
@@ -302,28 +299,26 @@ document.getElementById('btnNextDialog').onclick = () => {
   }
 };
 
-// --- 啟動實際小遊戲/動畫 ---
 function playAnimation() {
   missionStage = 2;
   gameActive = false;
-  
   if (task.gameUrl) {
     document.getElementById('animScreen').style.display = 'flex';
     document.getElementById('animFrame').src = task.gameUrl;
   } else {
-    // 若沒有小遊戲，直接視為過關
     window.parent.postMessage({ type: 'GAME_CLEAR', score: 1000 }, '*');
   }
 }
 
-// 接收來自 iframe 裡的小遊戲的回傳訊號，並轉發給外層的 index.html
 window.addEventListener('message', (event) => {
   if (event.data && (event.data.type === 'GAME_CLEAR' || event.data.type === 'GAME_OVER')) {
     window.parent.postMessage(event.data, '*');
   }
 });
 
-// --- 物理阻擋與移動邏輯 (保持原樣) ---
+// ==========================================
+// ★ 物理阻擋與移動邏輯 ★
+// ==========================================
 const solidBlocks = [
   {x: 2000, y: 400, w: 320, h: 450}, {x: 2000, y: 1000, w: 320, h: 750},
   {x: 2050, y: 850, w: 270, h: 10}, {x: 2050, y: 990, w: 270, h: 10},
@@ -348,7 +343,9 @@ function canMoveTo(x, y) {
 }
 
 function updateCamera() {
-  document.getElementById('camera').style.transform = `translate(${document.getElementById('scene').clientWidth/2 - state.x}px, ${document.getElementById('scene').clientHeight/2 - state.y}px)`;
+  const cx = window.innerWidth / 2 - state.x;
+  const cy = window.innerHeight / 2 - state.y;
+  document.getElementById('camera').style.transform = `translate(${cx}px, ${cy}px)`;
 }
 
 function gameLoop() {
@@ -360,7 +357,6 @@ function gameLoop() {
       document.getElementById('player').style.top = state.y + 'px'; 
       updateCamera();
       
-      // 檢查是否接觸目標 NPC
       if (missionStage === 0 && Math.hypot(state.x - task.targetPos.x, state.y - task.targetPos.y) < 100) {
         missionStage = 1;
         showDialog();
@@ -371,24 +367,55 @@ function gameLoop() {
 }
 requestAnimationFrame(gameLoop);
 
-// 搖桿控制
+// ==========================================
+// ★ 完美修復：手機端搖桿捕捉邏輯 ★
+// ==========================================
 let isDragging = false, startT = {x:0, y:0};
-document.getElementById('scene').addEventListener('pointerdown', e => {
+
+// 【修正1】將監聽器綁定在 window 上，確保點擊到無背景的空白處依然能觸發搖桿
+window.addEventListener('pointerdown', e => {
   if(!gameActive) return; 
-  isDragging = true; startT = {x: e.clientX, y: e.clientY};
-  document.getElementById('joystickBase').style.left = startT.x+'px'; 
-  document.getElementById('joystickBase').style.top = startT.y+'px';
-  document.getElementById('joystickBase').style.display = 'block';
+  // 避免誤觸其他按鈕（如跳過劇情按鈕）
+  if(e.target.tagName.toLowerCase() === 'button' || e.target.closest('button')) return;
+  
+  isDragging = true; 
+  startT = {x: e.clientX, y: e.clientY};
+  
+  const jBase = document.getElementById('joystickBase');
+  jBase.style.left = startT.x + 'px'; 
+  jBase.style.top = startT.y + 'px';
+  jBase.style.display = 'block';
+  document.getElementById('joystickKnob').style.transform = `translate(-50%, -50%)`;
 });
+
 window.addEventListener('pointermove', e => {
   if (!isDragging || !gameActive) return;
-  const dx = e.clientX - startT.x, dy = e.clientY - startT.y, dist = Math.hypot(dx, dy);
+  
+  // 【修正2】防止手機瀏覽器預設的拉扯網頁行為，導致被判定為取消觸控(pointercancel)
+  e.preventDefault(); 
+  
+  const dx = e.clientX - startT.x;
+  const dy = e.clientY - startT.y;
+  const dist = Math.hypot(dx, dy);
+  
+  // 【修正3】防止使用者單純點擊不滑動時，dist為0產生 NaN，導致角色標座標壞死
+  if (dist === 0) return; 
+  
   const move = Math.min(dist, 50);
   document.getElementById('joystickKnob').style.transform = `translate(calc(-50% + ${dx/dist*move}px), calc(-50% + ${dy/dist*move}px))`;
+  
   velocity.x = (dx/dist) * speed * Math.min(dist/50, 1);
   velocity.y = (dy/dist) * speed * Math.min(dist/50, 1);
-});
-window.addEventListener('pointerup', () => { isDragging = false; velocity = {x:0, y:0}; document.getElementById('joystickBase').style.display = 'none'; });
+}, { passive: false }); // 必須加上 passive: false 才能使用 preventDefault
+
+// 【修正4】監聽 pointercancel 以應對系統強制中斷觸控的情況
+const endDrag = () => { 
+  isDragging = false; 
+  velocity = {x:0, y:0}; 
+  document.getElementById('joystickBase').style.display = 'none'; 
+};
+window.addEventListener('pointerup', endDrag);
+window.addEventListener('pointercancel', endDrag);
 window.addEventListener('resize', updateCamera);
 </script>
 </body>
