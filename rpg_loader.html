@@ -119,6 +119,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 
 .animation-screen { position: absolute; inset: 0; background: #111; z-index: 500; display: none; flex-direction: column;}
 #animFrame { flex: 1; border: none; width: 100%; height: 100%;}
+/* ★ 小遊戲動畫的專屬中斷按鈕 */
+.btn-quit-anim { position: absolute; top: max(10px, env(safe-area-inset-top)); right: 10px; background: rgba(0,0,0,0.7); color: #fff; border: 1px solid #aaa; padding: 6px 15px; border-radius: 6px; z-index: 501; cursor: pointer; font-weight: bold; backdrop-filter: blur(4px); font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.5);}
+.btn-quit-anim:active { background: rgba(0,0,0,0.9); }
 </style>
 </head>
 <body>
@@ -126,7 +129,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
   
   <div class="story-intro" id="storyIntro">
     <div class="typewriter" id="typewriterText"></div>
-    <button class="btn-start" id="btnStartGame" onclick="startExplore()">出發</button>
+    <button class="btn-start" id="btnStartGame" onclick="startExplore()">開始</button>
   </div>
 
   <button class="btn-fs-toggle" id="btnFsToggle" onclick="toggleFs()">⛶</button>
@@ -134,7 +137,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
   <div class="header" id="uiHeader" style="opacity:0; display:none;">
     <div id="ui-role">玩家</div>
     <div class="mission-text" id="ui-mission">任務：</div>
-    <div class="timer" id="ui-timer">搶救中</div>
+    <button class="btn-cancel" style="padding:4px 10px; border-radius:6px; color:#fff; border:none; font-weight:bold; font-size:12px; cursor:pointer;" onclick="parent.postMessage({type:'CLOSE_IFRAME'}, '*')">✖ 中斷</button>
   </div>
 
   <div class="scene" id="scene">
@@ -198,6 +201,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
   </div>
   
   <div class="animation-screen" id="animScreen">
+    <button class="btn-quit-anim" onclick="parent.postMessage({type:'CLOSE_IFRAME'}, '*')">✖ 中斷任務</button>
     <iframe id="animFrame" src="about:blank"></iframe>
   </div>
 
@@ -208,20 +212,21 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 // 1. 任務與場景資料庫
 // ==========================================
 const RPG_TASKS = {
-"hub_world": {
+  "hub_world": {
     roleName: "急救新星",
     intro: "歡迎來到遙遠的東方醫院！\n\n 戰勝腦中風不靠運氣\n靠的是不斷累積的知識與能力 💪\n\n 出發後，請在大廳尋求醫療團隊指引",
     missionText: "自由探索醫院",
     startPos: { x: 1500, y: -600 }, 
     npcs: [
-      { id: 'npc_continue', name: '主治醫師', color: '#4CAF50', head: '#a5d6a7', body: '#fff', pos: { x: 1750, y: -800 }, icon: '▶️', dialogs: [{name: "主治醫師", text: "準備好進行下一個訓練了嗎？時間就是大腦，我們馬上出發！"}], action: 'ACTION_CONTINUE' },
-      { id: 'npc_review',   name: '護理長',   color: '#ff9800', head: '#ffcc80', body: '#fff', pos: { x: 1250, y: -800 }, icon: '📜', dialogs: [{name: "護理長", text: "溫故知新是很重要的，來看看你已經完成了哪些挑戰吧。"}], action: 'ACTION_REVIEW' },
-      { id: 'npc_guide',    name: '志工',     color: '#9c27b0', head: '#ce93d8', body: '#e1bee7', pos: { x: 1500, y: -750 }, icon: '💬', dialogs: [{name: "志工", text: "歡迎來到遙遠的東方醫院！你可以自由在這裡探索，搭乘上方的電梯可以前往 11G 病房區喔！"}], action: 'NONE' }
+      // ★ 重新佈置位置，三人等距並排在櫃檯正前方
+      { id: 'npc_review',   name: '護理長',   color: '#ff9800', head: '#ffcc80', body: '#fff', pos: { x: 1350, y: -750 }, icon: '📜', dialogs: [{name: "護理長", text: "溫故知新是很重要的，來看看你已經完成了哪些挑戰吧。"}], action: 'ACTION_REVIEW' },
+      { id: 'npc_guide',    name: '志工',     color: '#9c27b0', head: '#ce93d8', body: '#e1bee7', pos: { x: 1500, y: -750 }, icon: '💬', dialogs: [{name: "志工", text: "歡迎來到亞東醫院！你可以自由在這裡探索，搭乘上方的電梯可以前往 11G 病房區喔！"}], action: 'NONE' },
+      { id: 'npc_continue', name: '主治醫師', color: '#4CAF50', head: '#a5d6a7', body: '#fff', pos: { x: 1650, y: -750 }, icon: '▶️', dialogs: [{name: "主治醫師", text: "準備好進行下一個訓練了嗎？時間就是大腦，我們馬上出發！"}], action: 'ACTION_CONTINUE' }
     ]
   },
   "beg_id_0": {
     roleName: "實習醫生",
-    intro: "半夢半醒中，你發現你居然一開局就中風了... \n\n想起你的好朋友是這裡的實習醫師...\n\n你用盡腦力發出心電感應，希望好朋友能來找到你...",
+    intro: "半夢半醒中，你發現你居然一開局就中風...\n你的好朋友剛好是這家醫院的實習醫師...\n你用盡腦力發出心電感應，希望好朋友能來找到你...",
     missionText: "前往 11G06 病房尋找中風的好友",
     startPos: { x: 2125, y: 1900 }, 
     npcs: [
@@ -247,11 +252,18 @@ const RPG_TASKS = {
   }
 };
 
-// 讀取 URL 參數，支援 fs 全螢幕狀態同步
+// 讀取 URL 參數，支援 fs 全螢幕狀態同步與 first 首抽判定
 const urlParams = new URLSearchParams(window.location.search);
 const taskId = urlParams.get('taskId') || 'hub_world';
 const task = RPG_TASKS[taskId] || RPG_TASKS["hub_world"];
 let isFsMode = urlParams.get('fs') === '1';
+let isFirstTask = urlParams.get('first') === '1';
+
+// ★ 修復：如果是第一次玩，動態修改主治醫師的台詞
+if (taskId === 'hub_world' && isFirstTask) {
+    let docNpc = task.npcs.find(n => n.id === 'npc_continue');
+    if(docNpc) docNpc.dialogs[0].text = "歡迎來到腦脈先鋒的行列！我是主治醫師。守護大腦的旅程即將開始，準備好接受第一項訓練了嗎？";
+}
 
 let state = { x: task.startPos.x, y: task.startPos.y };
 let velocity = { x: 0, y: 0 };
@@ -302,10 +314,12 @@ function typeWriter() {
 }
 
 window.onload = () => {
-  // 如果載入時已經是全螢幕模式，直接修改按鈕圖示
-  if (isFsMode) document.getElementById('btnFsToggle').innerHTML = "🗗";
-  
+  // 修復：一載入就先將玩家放在畫面中心，解決一開始隱形的 Bug
+  document.getElementById('player').style.left = state.x + 'px'; 
+  document.getElementById('player').style.top = state.y + 'px'; 
   updateCamera();
+
+  if (isFsMode) document.getElementById('btnFsToggle').innerHTML = "🗗";
   setTimeout(typeWriter, 600); 
 };
 
@@ -332,14 +346,12 @@ function toggleFs() {
   isFsMode = !isFsMode;
   const btn = document.getElementById('btnFsToggle');
   btn.innerHTML = isFsMode ? "🗗" : "⛶";
-  
-  // 發送訊號給外層 index.html
   window.parent.postMessage({type: 'TOGGLE_FULLSCREEN', isFullscreen: isFsMode}, '*');
   handleEnd();
 }
 
 // ==========================================
-// ★ 防死鎖對話邏輯 (加入離開按鈕)
+// ★ 防死鎖對話邏輯 (加入離開按鈕智能判斷)
 // ==========================================
 function startNpcDialog(npc) {
   currentNpc = npc;
@@ -358,15 +370,22 @@ function showDialog() {
   document.getElementById('dialogName').style.color = (d.name === task.roleName) ? '#4CAF50' : currentNpc.color;
   document.getElementById('dialogText').innerText = d.text;
 
-  // 若為最後一句，文字顯示改變
+  // ★ 智能判斷按鈕顯示
   if (currentDialogIndex === currentNpc.dialogs.length - 1) {
-    document.getElementById('btnNextDialog').innerText = currentNpc.action === 'NONE' ? '結束對話' : '確認前往';
+    if (currentNpc.action === 'NONE') {
+      document.getElementById('btnCancelDialog').style.display = 'none'; // 純說明 NPC 隱藏離開按鈕
+      document.getElementById('btnNextDialog').innerText = '結束對話';
+    } else {
+      document.getElementById('btnCancelDialog').style.display = 'block';
+      document.getElementById('btnNextDialog').innerText = '確認前往';
+    }
   } else {
+    document.getElementById('btnCancelDialog').style.display = 'block';
     document.getElementById('btnNextDialog').innerText = '繼續';
   }
 }
 
-// ★ 防卡死退後機制：退後 40px，確保能重複觸發
+// 防卡死退後機制：退後 40px，確保能重複觸發
 function stepBackFromNpc() {
   if (currentNpc) {
     const dx = state.x - currentNpc.pos.x;
@@ -375,7 +394,6 @@ function stepBackFromNpc() {
     let newX = state.x + (dx / dist) * 40;
     let newY = state.y + (dy / dist) * 40;
     
-    // 檢查退後的位置會不會撞到牆壁，如果會，只改變 Y 軸退後
     if (canMoveTo(newX, newY)) {
       state.x = newX; state.y = newY;
     } else {
@@ -385,15 +403,13 @@ function stepBackFromNpc() {
   }
 }
 
-// 點擊「離開」：中斷對話、退後並恢復任務狀態
 document.getElementById('btnCancelDialog').onclick = () => {
   document.getElementById('dialogBox').style.display = 'none';
   stepBackFromNpc();
-  missionStage = 0; // 重置狀態
+  missionStage = 0; 
   setTimeout(() => { gameActive = true; currentNpc = null; }, 300);
 };
 
-// 點擊「繼續」
 document.getElementById('btnNextDialog').onclick = () => {
   currentDialogIndex++;
   if (currentDialogIndex < currentNpc.dialogs.length) {
@@ -447,7 +463,6 @@ const solidBlocks = [
   {x: 1730, y: 1420, w: 10, h: 170}, {x: 950, y: 1590, w: 810, h: 160},
   {x: 400, y: 1850, w: 1310, h: 350},
   {x: 1710, y: 2150, w: 790, h: 50}
-  // 注意：已移除 {x: 2000, y: 1850, w: 500, h: 150} 以允許玩家走入電梯區
 ];
 
 function canMoveTo(x, y) {
@@ -476,10 +491,14 @@ function gameLoop() {
     if (velocity.x || velocity.y) {
       if (canMoveTo(state.x + velocity.x, state.y)) state.x += velocity.x;
       if (canMoveTo(state.x, state.y + velocity.y)) state.y += velocity.y;
-      document.getElementById('player').style.left = state.x + 'px'; 
-      document.getElementById('player').style.top = state.y + 'px'; 
-      updateCamera();
-      
+    }
+    
+    // ★ 隨時繪製座標，確保不隱形
+    document.getElementById('player').style.left = state.x + 'px'; 
+    document.getElementById('player').style.top = state.y + 'px'; 
+    updateCamera();
+    
+    if (velocity.x || velocity.y) {
       // 電梯傳送
       if (state.y < -1160 && state.x > 1400 && state.x < 1600) {
         state.x = 2125; state.y = 1900; updateCamera();
