@@ -41,7 +41,8 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .avatar-wrap { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--theme-primary); background: #000; overflow: hidden; position: relative; cursor: pointer;}
 .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
 .player-text-wrap { display: flex; flex-direction: column; justify-content: center; gap: 2px; }
-.player-name { font-size: 11px; font-weight: bold; color: #fff; }
+.player-name { font-size: 11px; font-weight: bold; color: #fff; cursor: pointer; padding: 2px 4px; border-radius: 4px; transition: background 0.2s;} /* 新增滑鼠樣式 */
+.player-name:active { background: rgba(255,255,255,0.1); }
 .level-badge { display:none; }
 .resources { display: flex; flex-direction: row; align-items: center; gap: 4px; flex-shrink: 0; }
 .res-item { display: flex; align-items: center; gap: 4px; font-weight: 900; font-size: 11px; background: rgba(0,0,0,0.6); padding: 4px 6px; border-radius: 99px; border: 1px solid var(--theme-dim); box-shadow: 0 2px 5px rgba(0,0,0,0.5); white-space: nowrap; }
@@ -152,18 +153,29 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 5000; padding: 15px;}
 .modal-content { background: var(--theme-panel); border: 1px solid var(--theme-primary); border-radius: 12px; width: 100%; max-width: 320px; padding: 20px; position: relative; text-align: center; max-height: 90vh; overflow-y:auto; }
 .close-btn { position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: #aaa; font-size: 18px; cursor:pointer;}
+
+/* 設定頁面專用 Toggle */
+.setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
+.switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background-color: #444; transition: .4s; border-radius: 34px; }
+.slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: var(--theme-primary); }
+input:checked + .slider:before { transform: translateX(18px); }
 </style>
 </head>
 <body class="mode-beginner">
 <div class="app">
   <header id="mainHeader">
     <div class="player-info">
-      <div class="avatar-wrap" onclick="document.getElementById('profileModal').style.display='flex'"><img id="hudAvatar" src="https://i.pravatar.cc/150?img=11"></div>
+      <div class="avatar-wrap" onclick="document.getElementById('profileModal').style.display='flex'">
+        <img id="hudAvatar" src="https://i.pravatar.cc/150?img=11">
+      </div>
       <div class="player-text-wrap">
-        <div class="player-name" id="uiPlayerName">急救新星</div>
+        <div class="player-name" id="uiPlayerName" onclick="openSettings()">急救新星</div>
       </div>
     </div>
-<div class="resources">
+    <div class="resources">
       <div class="res-item" id="hudCasesWrap" style="display:none;">
         <span class="icon">👤</span> 
         <span style="color:#aaa; font-weight:normal;">救治數</span>
@@ -198,7 +210,7 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
             <span id="detailAttempts"></span>
           </div>
           
-<div id="rescuePanel" style="display:none; flex-direction:column; gap:8px; margin-top:8px; flex-shrink:0; background:rgba(0,0,0,0.3); padding:12px; border-radius:8px; border:1px solid var(--theme-dim);">
+          <div id="rescuePanel" style="display:none; flex-direction:column; gap:8px; margin-top:8px; flex-shrink:0; background:rgba(0,0,0,0.3); padding:12px; border-radius:8px; border:1px solid var(--theme-dim);">
             <div style="font-size:13px; color:#ff5252; text-align:center; font-weight:bold; letter-spacing:1px;">⚠️ 挑戰次數已用盡</div>
             <div style="font-size:12px; color:#ccc; text-align:center; margin-bottom:4px;">
               選擇以下方式恢復 <span style="color:var(--theme-primary); font-weight:bold;">3 次</span> 機會：
@@ -337,6 +349,29 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
   <iframe id="gameFrame" style="flex:1; border:none; width:100%; height:100%; background:#111;"></iframe>
 </div>
 
+<div class="modal-overlay" id="settingsModal" style="z-index:99999;">
+  <div class="modal-content" style="border-color: var(--theme-primary); padding:20px; max-width: 300px;">
+    <button class="close-btn" onclick="document.getElementById('settingsModal').style.display='none'">✖</button>
+    <h3 style="color:var(--theme-primary); margin: 0 0 20px 0; font-size: 18px;">偏好設定</h3>
+    
+    <div class="setting-row">
+      <span style="color:#fff; font-size:14px;">初階劇情引導模式</span>
+      <label class="switch">
+        <input type="checkbox" id="settingStoryMode" checked onchange="updateStorySetting()">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <p style="font-size:11px; color:#aaa; text-align:left; line-height:1.4; margin-top:-10px;">開啟後，初階版任務將優先進入亞東醫院角色扮演地圖。關閉則直接進入內容。</p>
+    
+    <div class="setting-row" style="opacity:0.4;">
+      <span style="color:#fff; font-size:14px;">背景音樂 (預留)</span>
+      <label class="switch"><input type="checkbox" disabled><span class="slider"></span></label>
+    </div>
+
+    <button class="btn" style="background:var(--theme-primary); color:var(--btn-text); text-shadow:var(--btn-shadow); margin-top:15px; border:none;" onclick="document.getElementById('settingsModal').style.display='none'">確定</button>
+  </div>
+</div>
+
 <div class="modal-overlay" id="customMsgModal" style="z-index:99999;">
   <div class="modal-content" style="border-color: var(--theme-primary); padding:20px; max-width: 300px;">
     <h3 id="customMsgTitle" style="color:var(--theme-primary); margin: 0 0 12px 0; font-size: 18px;">系統提示</h3>
@@ -416,11 +451,23 @@ let activeRoleId = null;
 
 let playerState = { 
   hasSetup: false, name: "", avatar: "https://i.pravatar.cc/150?img=11", mode: "beginner", coins: 38219, 
+  storyMode: true, // 【新增】預設開啟劇情模式
   completedCasesBeg: new Map(), completedCasesAdv: new Map(),
   taskScoresBeg: new Map(), taskScoresAdv: new Map(),
   scaleRecords: [], strokeCard: null, 
   unlockedPuzzles: [], boughtPuzzles: 0
 };
+
+// 【新增】設定相關函式
+function openSettings() {
+  id('settingStoryMode').checked = playerState.storyMode;
+  id('settingsModal').style.display = 'flex';
+}
+
+function updateStorySetting() {
+  playerState.storyMode = id('settingStoryMode').checked;
+  saveGameData();
+}
 
 const ROLES_DATA_BEG = [
   { id: 'beg_id', name: '中風補習班', subtitle: '一定要知道的', icon: '🧠', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 什麼是腦中風 ?', '2. 認識中風團隊人員', '3. 中風常見檢查項目', '4. 中風常見治療項目', '5. 完成您專屬的中風名片'] },
@@ -463,7 +510,7 @@ const scaleQuestions = [
 let currentQIndex = 0; let currentAnswers = {}; let trendChartInstance = null;
 
 // ===============================================
-// ★ 圖鑑與拼圖邏輯 (已修復重複區段)
+// ★ 圖鑑與拼圖邏輯
 // ===============================================
 function switchCaseTab(tab, btnEl) {
   Array.from(id('caseDexTabs').children).forEach(t => t.classList.remove('active')); 
@@ -517,11 +564,9 @@ function renderCaseDex() {
     actionWrap.innerHTML = `<button class="btn" style="margin:0; width:auto; padding: 10px 20px; font-size:14px; background:linear-gradient(180deg,#d4af37,#8b7322); color:#000; text-shadow:none; border-color:#d4af37;" onclick="buyPuzzleChance()">💰 5000 幣解鎖拼圖</button>`;
   }
 
-// 4. 渲染已解鎖的拼圖畫廊
   const gallery = id('puzzleGallery');
   gallery.innerHTML = '';
   
-  // ★ 核心修改：複製一份解鎖清單，並強制依照數字大小 (小到大) 進行排序
   const sortedPuzzles = [...playerState.unlockedPuzzles].sort((a, b) => a - b);
   
   sortedPuzzles.forEach(pid => {
@@ -560,7 +605,6 @@ function startRandomPuzzle() {
   window.currentChallengePuzzleId = randomId;
   
   id('gameTitle').textContent = `🧩 解鎖新拼圖 #${randomId}`; 
-  // ★ 加上 &isReplay=false (代表是第一次挑戰，不給看預覽)
   id('gameFrame').src = `game_jigsaw.html?imgId=${randomId}&isReplay=false`; 
   id('gameOverlay').style.display = 'flex';
 }
@@ -568,7 +612,6 @@ function startRandomPuzzle() {
 function replayPuzzle(pid) {
   window.currentChallengePuzzleId = null; 
   id('gameTitle').textContent = `🧩 欣賞拼圖 #${pid}`; 
-  // ★ 加上 &isReplay=true (代表是從圖鑑點進來的，先秀預覽)
   id('gameFrame').src = `game_jigsaw.html?imgId=${pid}&isReplay=true`; 
   id('gameOverlay').style.display = 'flex';
 }
@@ -583,6 +626,7 @@ const SAVE_KEY = 'BrainPioneer_SaveData_v46';
 function saveGameData() {
   const dataToSave = {
     hasSetup: playerState.hasSetup, name: playerState.name, avatar: playerState.avatar, mode: playerState.mode, coins: playerState.coins, 
+    storyMode: playerState.storyMode, // 【新增】儲存劇情設定
     completedCasesBeg: Array.from(playerState.completedCasesBeg.entries()), completedCasesAdv: Array.from(playerState.completedCasesAdv.entries()),
     taskScoresBeg: Array.from(playerState.taskScoresBeg.entries()), taskScoresAdv: Array.from(playerState.taskScoresAdv.entries()),
     scaleRecords: playerState.scaleRecords, strokeCard: playerState.strokeCard,
@@ -603,6 +647,7 @@ function loadGameData() {
       if(parsed.avatar) playerState.avatar = parsed.avatar;
       if(parsed.mode) playerState.mode = parsed.mode;
       if(parsed.coins !== undefined) playerState.coins = parsed.coins;
+      if(parsed.storyMode !== undefined) playerState.storyMode = parsed.storyMode; // 【新增】載入劇情設定
       if(parsed.strokeCard) playerState.strokeCard = parsed.strokeCard;
       if(parsed.scaleRecords) playerState.scaleRecords = parsed.scaleRecords;
       if(parsed.unlockedPuzzles) playerState.unlockedPuzzles = parsed.unlockedPuzzles;
@@ -771,6 +816,7 @@ function openRoleDetail(roleId) {
   showScreen('scrRoleDetail'); 
 }
 
+// ★【核心修改】加入 RPG 模板載入判斷邏輯
 function playTask(taskIndex) {
   const role = getActiveRoles().find(r => r.id === activeRoleId);
   if (role.dailyAttempts <= 0) { customAlert("今日機會已用盡！請觀看衛教或使用健康幣購買。", null, "⚠️ 挑戰受限"); return; }
@@ -778,26 +824,38 @@ function playTask(taskIndex) {
   const gameId = `${role.id}_${taskIndex}`;
   const gameUrl = GAME_URLS[gameId];
 
-  if (gameUrl) {
+  // 判斷是否為「初階版」且玩家開啟了「劇情模式」
+  if (playerState.mode === 'beginner' && playerState.storyMode) {
     role.dailyAttempts--; saveGameData(); updateHUD(); openRoleDetail(activeRoleId);
     currentGameInfo = { id: gameId, role: role, taskIndex: taskIndex };
-    if(id('gameTitle')) id('gameTitle').textContent = `${role.name} - ${role.subTasks[taskIndex].substring(3)}`;
-    if(id('gameFrame')) id('gameFrame').src = gameUrl;
+    
+    if(id('gameTitle')) id('gameTitle').textContent = `劇情任務：${role.subTasks[taskIndex].substring(3)}`;
+    if(id('gameFrame')) id('gameFrame').src = `rpg_loader.html?taskId=${gameId}`;
     if(id('gameOverlay')) id('gameOverlay').style.display = 'flex';
   } else {
-    role.dailyAttempts--;
-    customConfirm(`尚未綁定遊戲檔案，進入模擬演練：\n【${role.subTasks[taskIndex]}】\n\n按下「確定」代表順利過關！`, 
-      () => {
-        currentGameInfo = { id: gameId, role: role, taskIndex: taskIndex };
-        handleGameClear(1000); 
-      },
-      () => {
-        customAlert(`扣除 1 次挑戰機會，請再接再厲！`, () => {
-          saveGameData(); updateHUD(); openRoleDetail(activeRoleId);
-        }, "❌ 任務失敗");
-      },
-      "系統模擬演練"
-    );
+    // 進階版，或是關閉了劇情模式的初階版
+    if (gameUrl) {
+      role.dailyAttempts--; saveGameData(); updateHUD(); openRoleDetail(activeRoleId);
+      currentGameInfo = { id: gameId, role: role, taskIndex: taskIndex };
+      
+      if(id('gameTitle')) id('gameTitle').textContent = `${role.name} - ${role.subTasks[taskIndex].substring(3)}`;
+      if(id('gameFrame')) id('gameFrame').src = gameUrl;
+      if(id('gameOverlay')) id('gameOverlay').style.display = 'flex';
+    } else {
+      role.dailyAttempts--;
+      customConfirm(`尚未綁定遊戲檔案，進入模擬演練：\n【${role.subTasks[taskIndex]}】\n\n按下「確定」代表順利過關！`, 
+        () => {
+          currentGameInfo = { id: gameId, role: role, taskIndex: taskIndex };
+          handleGameClear(1000); 
+        },
+        () => {
+          customAlert(`扣除 1 次挑戰機會，請再接再厲！`, () => {
+            saveGameData(); updateHUD(); openRoleDetail(activeRoleId);
+          }, "❌ 任務失敗");
+        },
+        "系統模擬演練"
+      );
+    }
   }
 }
 
