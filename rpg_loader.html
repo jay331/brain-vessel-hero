@@ -16,16 +16,7 @@
 html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:"PingFang TC","Noto Sans TC",sans-serif;color:var(--text)}
 .app{position:relative;width:100%;height:100%;overflow:hidden;}
 
-/* ★ 修正：將上方標題列的字體與高度縮小，適合手機觀看 */
-.header { 
-  position: absolute; top: 0; width: 100%; 
-  height: calc(45px + var(--safe-top)); 
-  background: linear-gradient(to bottom, #111, #333); 
-  padding-top: var(--safe-top); display: flex; align-items: center; 
-  justify-content: space-between; padding: 0 12px; font-weight: 900; 
-  font-size: 14px; color: #fff; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
-  transition: opacity 0.5s;
-}
+.header { position: absolute; top: 0; width: 100%; height: calc(45px + var(--safe-top)); background: linear-gradient(to bottom, #111, #333); padding-top: var(--safe-top); display: flex; align-items: center; justify-content: space-between; padding: 0 12px; font-weight: 900; font-size: 14px; color: #fff; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: opacity 0.5s;}
 .mission-text { color: #ffca28; flex: 1; text-align: center; }
 .timer { color: #4CAF50; font-size: 13px; background: rgba(0,0,0,0.5); padding: 4px 10px; border-radius: 5px; letter-spacing: 1px;}
 .btn-cancel { padding: 4px 10px; border-radius: 6px; color: #fff; border: none; font-weight: bold; font-size: 11px; cursor: pointer; background: #78909c; }
@@ -101,8 +92,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 .joystick-knob { position: absolute; width: 60px; height: 60px; background: var(--gold); border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%);}
 
 /* 開場黑幕與打字機 */
-.story-intro { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.98) 80%); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 40px 30px 60px 30px; color: white; text-align: left; transition: opacity 0.8s ease-out;}
-.typewriter { font-size: 20px; line-height: 1.8; margin-bottom: 20px; min-height: 100px; font-weight: bold; text-shadow: 0 2px 5px rgba(0,0,0,0.8);}
+.story-intro { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.98) 80%); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 20px 20px 40px 20px; color: white; text-align: left; transition: opacity 0.8s ease-out;}
+/* ★ 修復：縮小手機版字體，讓畫面更清爽 */
+.typewriter { font-size: 15px; line-height: 1.6; margin-bottom: 15px; min-height: 80px; font-weight: bold; text-shadow: 0 2px 5px rgba(0,0,0,0.8);}
 .btn-start { padding: 14px 40px; font-size: 18px; background: rgba(33, 150, 243, 0.9); color: white; border: 2px solid #64b5f6; border-radius: 30px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(4px); transition: transform 0.2s, background 0.2s; opacity: 0; transform: translateY(20px);}
 .btn-start.show { opacity: 1; transform: translateY(0); }
 .btn-start:active { transform: scale(0.95); background: #1976d2; }
@@ -233,7 +225,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 const RPG_TASKS = {
   "hub_world": {
     roleName: "急救新星",
-    intro: "歡迎來到遙遠的東方醫院！\n\n戰勝腦中風不靠運氣\n靠的是不斷累積的知識與能力 💪\n\n出發吧！前往大廳尋求指引",
+    intro: "歡迎來到遙遠的東方醫院！\n\n戰勝腦中風不靠運氣\n靠的是不斷累積知識與能力 💪\n\n出發吧！前往大廳尋求指引",
     missionText: "自由探索醫院",
     startPos: { x: 1500, y: -600 }, 
     npcs: [
@@ -328,9 +320,8 @@ function typeWriter() {
   }
 }
 
-// ★ 修復：加入相機偏移，讓主角不會被上方的任務標題列擋住
 function updateCamera() {
-  const yOffset = (missionStage >= 0) ? 50 : 0; 
+  const yOffset = (missionStage >= 0 && taskId !== 'hub_world') ? 50 : 0; 
   const cx = window.innerWidth / 2 - state.x;
   const cy = window.innerHeight / 2 + yOffset - state.y;
   document.getElementById('camera').style.transform = `translate(${cx}px, ${cy}px)`;
@@ -361,7 +352,7 @@ function startExplore() {
     
     missionStage = 0;
     gameActive = true;
-    updateCamera(); // 觸發視角往下移
+    updateCamera(); // 觸發視角偏移
   }, 500);
 }
 
