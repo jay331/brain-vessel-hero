@@ -1,939 +1,127 @@
 <!DOCTYPE html>
-
 <html lang="zh-Hant">
-
 <head>
-
 <meta charset="UTF-8" />
-
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-
-<title>腦脈先鋒｜心電感應救援任務</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>認識腦中風</title>
 <style>
-
-:root{  
-
-  --bg: #d9e1e8; --text: #37474f;  
-
-  --safe-top: max(8px, env(safe-area-inset-top));  
-
-  --c-floor-out: #f0f4f8; --c-floor-core: #b2dfdb; 
-
-  --c-room: #d2b48c; --c-wall: #546e7a; 
-
-  --c-desk: #81d4fa; --gold: #ffb300;
-
-}
-
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:none;}
-
-html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:"PingFang TC","Noto Sans TC",sans-serif;color:var(--text)}
-
-.app{position:relative;width:100%;height:100%;overflow:hidden;}
-
-
-
-/* 頂部 UI */
-
-.header { position: absolute; top: 0; width: 100%; height: calc(60px + var(--safe-top)); background: linear-gradient(to bottom, #111, #333); padding-top: var(--safe-top); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; font-weight: 900; font-size: 18px; color: #fff; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: opacity 0.5s;}
-
-.mission-text { color: #ffca28; flex: 1; text-align: center; }
-
-.timer { color: #4CAF50; font-size: 20px; background: rgba(0,0,0,0.5); padding: 5px 15px; border-radius: 5px; letter-spacing: 2px;}
-
-
-
-.scene{position:absolute;inset:0;top:0;overflow:hidden;} 
-
-/* 加快鏡頭切換速度，讓視角跳轉更俐落 */
-
-.camera { position: absolute; left: 0; top: 0; width: 100%; height: 100%; transition: transform 0.05s ease-out; }
-
-.game-world { position: absolute; left: 0; top: 0; width: 3000px; height: 2600px; }
-
-
-
-/* 地板 */
-
-.corridor-main { position: absolute; left: 350px; top: 200px; width: 2200px; height: 1800px; background: var(--c-floor-out); clip-path: polygon(0 1800px, 2200px 1800px, 2200px 0); }
-
-.workspace-core { position: absolute; left: 1000px; top: 800px; width: 850px; height: 600px; background: var(--c-floor-core); clip-path: polygon(0px 600px, 500px 100px, 850px 100px, 850px 600px); z-index: 1; border-radius: 20px; }
-
-
-
-/* 護理站 */
-
-.desk-island { position: absolute; background: var(--c-desk); border-radius: 10px; z-index: 3; box-shadow: 2px 5px 10px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; color: #01579b; font-weight: 900; border: 3px solid #4fc3f7; }
-
-.desk-front { left: 1800px; top: 1140px; width: 50px; height: 250px; writing-mode: vertical-lr; }
-
-.desk-back  { left: 1150px; top: 1250px; width: 450px; height: 50px; transform-origin: left top; transform: rotate(-43deg); }
-
-
-
-/* 房間通用 */
-
-.room-block { position: absolute; background: #e0e0e0; border: 6px solid var(--c-wall); border-radius: 8px; font-weight: 900; color: #455a64; font-size: 15px; display: flex; align-items: center; justify-content: center; z-index: 2;}
-
-
-
-/* 半開門效果 */
-
-.has-door::after { content: ''; position: absolute; bottom: -6px; left: 20px; width: 45px; height: 8px; background: #8d6e63; border-radius: 2px; transform-origin: left center; transform: rotate(-45deg); z-index: 5;}
-
-.door-right::after { left: -6px; bottom: 20px; width: 8px; height: 45px; transform-origin: center top; transform: rotate(45deg); }
-
-.door-top::after { top: -6px; bottom: auto; transform: rotate(45deg); }
-
-
-
-/* 房間座標 */
-
-.room-discuss  { left: 1590px; top: 825px; width: 270px; height: 130px; } 
-
-.room-soiled   { left: 1750px; top: 950px; width: 110px; height: 65px; } 
-
-.room-headnurse{ left: 1650px; top: 950px; width: 105px; height: 150px; } 
-
-.room-pantry   { left: 1750px; top: 1010px; width: 110px; height: 60px; } 
-
-.room-office   { left: 1000px; top: 1425px; width: 80px; height: 170px; } 
-
-.room-prep     { left: 1070px; top: 1425px; width: 270px; height: 170px; } 
-
-.room-treatment{ left: 1330px; top: 1425px; width: 410px; height: 170px; background: #fff9c4; border-color:#fbc02d; } 
-
-.room-supply   { left: 950px; top: 1590px; width: 160px; height: 160px; }
-
-.room-toilet   { left: 1100px; top: 1590px; width: 120px; height: 160px; font-size: 14px; }
-
-.room-oncall1  { left: 1210px; top: 1590px; width: 100px; height: 160px; }
-
-.room-oncall2  { left: 1300px; top: 1590px; width: 100px; height: 160px; }
-
-.room-treatment2  { left: 1390px; top: 1590px; width: 250px; height: 160px; }
-
-.room-talkroom { left: 1630px; top: 1590px; width: 130px; height: 160px; }
-
-
-
-/* 底部區域 */
-
-.room-stair-l { left: 500px; top: 1850px; width: 150px; height: 350px; background: #b0bec5; }
-
-.room-elec    { left: 640px; top: 1850px; width: 200px; height: 350px; }
-
-.room-ac      { left: 830px; top: 1850px; width: 250px; height: 350px; }
-
-.room-sun     { left: 1060px; top: 1850px; width: 300px; height: 350px; background: #fff9c4; color: #f57f17; } 
-
-.room-dress   { left: 1350px; top: 1850px; width: 220px; height: 350px; background: #f8bbd0; } 
-
-.room-stair-c { left: 1560px; top: 1850px; width: 150px; height: 350px; background: #b0bec5; }
-
-.room-elev-v  { left: 2000px; top: 1850px; width: 250px; height: 150px; background: #cfd8dc; border: 6px solid #546e7a; } 
-
-.room-elev-b  { left: 2250px; top: 1850px; width: 250px; height: 150px; background: #cfd8dc; border: 6px solid #546e7a; } 
-
-
-
-/* 玻璃大門 */
-
-.ward-entrance { position: absolute; left: 1710px; top: 1745px; width: 290px; height: 12px; background: rgba(135,206,235,0.4); z-index: 10; border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 0 15px rgba(129,212,250,0.8); backdrop-filter: blur(4px);}
-
-.ward-entrance::after { content: '管制區'; position: absolute; top: -30px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: #81d4fa; padding: 4px 10px; border-radius: 6px; font-size: 14px;}
-
-
-
-/* 病房 */
-
-.ward-right { position: absolute; left: 2000px; top: 400px; width: 320px; height: 1350px; display: flex; flex-direction: column; background: var(--c-room); border: 8px solid var(--c-wall); z-index: 2;}
-
-.room-rv { flex: 1; border-bottom: 4px solid rgba(0,0,0,0.1); padding-left: 20px; font-weight: 900; color: #5d4037; display: flex; align-items: center; position: relative;}
-
-/* 畫出病床的樣子 */
-
-.room-rv::after { content: ''; position: absolute; right: 20px; top: 20px; bottom: 20px; width: 70px; background: #fff; border: 2px solid #ccc; border-radius: 5px; box-shadow: -2px 2px 5px rgba(0,0,0,0.1);}
-
-.room-rv::before { content: ''; position: absolute; right: 25px; top: 35px; width: 60px; height: 30px; background: #e0f2f1; border-radius: 5px; z-index: 1;}
-
-
-
-.ward-top { position: absolute; left: 1750px; top: 180px; width: 250px; height: 200px; background: var(--c-room); border: 8px solid var(--c-wall); border-radius: 100px 0 0 0; z-index: 2; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; font-weight: 900; color: #5d4037;}
-
-.ward-diag { position: absolute; left: 450px; top: 1750px; width: 2050px; height: 320px; transform-origin: left top; transform: rotate(-43deg) translateY(-100%); display: flex; background: var(--c-room); border-top: 8px solid var(--c-wall); border-bottom: 8px solid var(--c-wall); z-index: 2;}
-
-.room-d { flex: 1; border-right: 4px solid rgba(0,0,0,0.1); position: relative; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 20px; font-weight: 900; color: #5d4037; }
-
-
-
-/* 角色 */
-
-.character{position:absolute;width:50px;height:70px;transform:translate(-50%,-100%);z-index:15; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3)); transition: opacity 0.5s;}
-
-.head{position:absolute;left:50%;top:10px;transform:translateX(-50%);width:34px;height:34px;border-radius:50%;background:#ffccbc; border: 2px solid #333;}
-
-.body{position:absolute;left:50%;top:40px;transform:translateX(-50%);width:30px;height:25px;border-radius:10px 10px 5px 5px;background:#fff; border: 2px solid #333;}
-
-.name{position:absolute;left:50%;top:-20px;transform:translateX(-50%);padding:3px 8px;border-radius:999px;background:#37474f;font-size:12px;color:white;white-space:nowrap;font-weight:bold;}
-
-
-
-/* 躺在病床上的病患 (自己) */
-
-.patient-self { position: absolute; right: 30px; top: 60px; width: 50px; height: 80px; z-index: 10; display: flex; flex-direction: column; align-items: center; transform: rotate(90deg);}
-
-.patient-self .head { background: #e57373; top: 0;}
-
-.patient-self .body { background: #bbdefb; top: 30px; height: 50px;}
-
-
-
-/* 搖桿 */
-
-.joystick-base { position: absolute; width: 140px; height: 140px; background: rgba(255,255,255,0.3); border: 3px solid rgba(255,255,255,0.6); border-radius: 50%; display: none; z-index: 50; transform: translate(-50%, -50%);}
-
-.joystick-knob { position: absolute; width: 60px; height: 60px; background: var(--gold); border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%);}
-
-
-
-/* 🌟 開場劇情遮罩 (改為底部漸層黑，透出病床畫面) */
-
-.story-intro { 
-
-  position: absolute; inset: 0; 
-
-  background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.85) 80%); 
-
-  z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; 
-
-  padding: 40px 30px 60px 30px; color: white; text-align: left; transition: opacity 0.8s ease-out;
-
-}
-
-.typewriter { font-size: 22px; line-height: 1.8; margin-bottom: 30px; min-height: 120px; font-weight: bold; text-shadow: 0 2px 5px rgba(0,0,0,0.8);}
-
-.btn-start { padding: 15px 40px; font-size: 20px; background: #2196F3; color: white; border: none; border-radius: 30px; cursor: pointer; opacity: 0; transform: translateY(20px); transition: all 0.5s; font-weight: bold; box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);}
-
-.btn-start.show { opacity: 1; transform: translateY(0); }
-
-
-
-/* 🌟 對話框 */
-
-.dialog-box { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 600px; background: rgba(255,255,255,0.95); border: 4px solid #4CAF50; border-radius: 15px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 200; display: none; flex-direction: column;}
-
-.dialog-name { font-size: 18px; font-weight: 900; color: #4CAF50; margin-bottom: 8px;}
-
-.dialog-text { font-size: 18px; color: #333; line-height: 1.6;}
-
-.btn-next-dialog { margin-top: 15px; align-self: flex-end; padding: 8px 20px; background: #4CAF50; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer;}
-
-
-
-/* 🌟 動畫 iframe 容器 */
-
-.animation-screen { position: absolute; inset: 0; background: #eef6ff; z-index: 500; display: none; flex-direction: column;}
-
-.animation-header { height: 50px; background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); font-weight: bold; color: #375571;}
-
-.btn-close-anim { background: #ef4d5a; color: white; border: none; padding: 6px 15px; border-radius: 20px; cursor: pointer; font-weight: bold;}
-
-#animFrame { flex: 1; border: none; width: 100%; height: 100%;}
-
+:root{--bg:#eef6ff;--card:#fff;--ink:#18344f;--muted:#607d98;--line:#dfeaf7;--blue:#4b8cff;--red:#ef4d5a;--pink:#ff9ec1;--skin:#ffd8bb;--hair:#2b3550;--shirt:#7aaeff;--pant:#48628d;--darkred:#8e101b;--shadow:0 16px 36px rgba(34,84,140,.12)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent} html,body{margin:0;padding:0;height:100%;}
+body{font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;background:linear-gradient(180deg,#eef7ff,#f9fcff);color:var(--ink);padding:14px; overflow-y:auto;}
+.app{max-width:1160px;margin:auto}.card{background:rgba(255,255,255,.98);border:1px solid #e2edf8;border-radius:28px;overflow:hidden;box-shadow:var(--shadow)}
+.head{padding:20px 22px 12px;background:linear-gradient(180deg,#fff,#f8fbff);border-bottom:1px solid #edf4fb} h1{margin:0;font-size:clamp(28px,4vw,40px)}
+.sub{margin:8px 0 0;color:var(--muted);line-height:1.8}.timeline{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.mark{padding:7px 11px;border-radius:999px;background:#edf5ff;color:#406797;font-size:13px;font-weight:900;opacity:.4}.mark.active{opacity:1;background:#dfeeff}
+.body{padding:16px}.film{background:linear-gradient(180deg,#fbfdff,#f5f9ff);border:1px solid #e4eef8;border-radius:26px;padding:16px}.stage{position:relative;min-height:640px;background:linear-gradient(180deg,#fafdff,#f4f9ff);border-radius:24px;border:1px solid #e6effa;overflow:hidden}.sky{position:absolute;inset:0;background:radial-gradient(circle at 50% 15%,#fff 0%,#f7fbff 30%,#eef6ff 78%,#edf5ff 100%)}.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(155,192,233,.06) 1px, transparent 1px),linear-gradient(90deg, rgba(155,192,233,.06) 1px, transparent 1px);background-size:32px 32px;opacity:.55}
+.caption{margin-top:14px;background:#f8fbff;border:1px solid #e5effb;border-radius:18px;padding:16px 18px;font-size:19px;line-height:1.9;color:#375571;min-height:102px}.caption b{color:#1d4b84}
+.controls{display:flex;justify-content:center;gap:12px;margin-top:14px;flex-wrap:wrap} button{border:none;border-radius:14px;padding:13px 18px;font-size:17px;font-weight:900;cursor:pointer}.prev{background:#e8f1fd;color:#315a8e}.next{background:linear-gradient(180deg,var(--blue),#3577f0);color:#fff}.ghost{background:#eef5ff;color:#315b90}.finish{background:linear-gradient(180deg, #4CAF50, #2E7D32); color:white;}
+.fadeIn{animation:fadeIn .45s ease both}.fadeUp{animation:fadeUp .45s ease both}.zoomIn{animation:zoomIn .55s ease both}.d1{animation-delay:.12s}.d2{animation-delay:.24s}.d3{animation-delay:.36s}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}@keyframes zoomIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}@keyframes bloodFlow{from{left:-92px}to{left:46%}}@keyframes fullFlow{from{left:-92px}to{left:100%}}@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}@keyframes leakPulse{0%{box-shadow:0 0 0 0 rgba(239,77,90,.34)}100%{box-shadow:0 0 0 18px rgba(239,77,90,0)}}@keyframes floatUp{0%{transform:translateY(0) scale(.9);opacity:.95}70%{opacity:1}100%{transform:translateY(-28px) scale(1);opacity:0}}@keyframes tearOpen{0%{transform:translateX(-50%) scaleY(0)}60%{transform:translateX(-50%) scaleY(1.2)}100%{transform:translateX(-50%) scaleY(1)}}
+.personScene,.symptomScene,.brainScene,.bloodScene,.splitScene,.infoScene,.askScene{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:28px}
+.person{position:relative;width:250px;height:450px;filter:drop-shadow(0 20px 30px rgba(38,82,131,.16))}.ground{position:absolute;left:50%;bottom:36px;width:240px;height:34px;background:radial-gradient(ellipse at center, rgba(57,95,141,.25) 0%, rgba(57,95,141,0) 72%);transform:translateX(-50%)}.headShape{position:absolute;left:76px;top:18px;width:100px;height:108px;background:var(--skin);border-radius:48% 48% 44% 44% / 42% 42% 56% 56%}.hair{position:absolute;left:72px;top:8px;width:110px;height:62px;background:var(--hair);border-radius:56px 56px 26px 26px}.eye{position:absolute;top:68px;width:10px;height:10px;background:#17314f;border-radius:50%}.eye.l{left:106px}.eye.r{left:138px}.mouth{position:absolute;left:112px;top:95px;width:28px;height:8px;background:#b96274;border-radius:0 0 12px 12px}.neck{position:absolute;left:110px;top:114px;width:28px;height:24px;background:#f6c8a8;border-radius:10px}.bodyShape{position:absolute;left:72px;top:132px;width:108px;height:132px;background:linear-gradient(180deg,#8dbdff,var(--shirt));border-radius:28px}.arm{position:absolute;top:144px;width:28px;height:120px;background:#f6c8a8;border-radius:18px}.arm.l{left:42px;transform:rotate(8deg)}.arm.r{left:178px;transform:rotate(-8deg)}.leg{position:absolute;top:262px;width:30px;height:124px;background:var(--pant);border-radius:18px}.leg.l{left:90px}.leg.r{left:128px}.foot{position:absolute;bottom:-5px;width:42px;height:15px;background:#2c3f60;border-radius:16px}.leg.l .foot{left:-6px}.leg.r .foot{left:-6px}.brainGlow{position:absolute;left:98px;top:34px;width:60px;height:46px;border-radius:40px;background:rgba(255,157,192,.22);filter:blur(10px);animation:pulse 1.8s infinite}.brainTag{position:absolute;left:95px;top:38px;width:58px;height:42px}.brainBlob{position:absolute;inset:0;background:var(--pink);border-radius:36px 34px 30px 30px / 26px 26px 22px 22px;box-shadow:inset 0 -4px 0 rgba(255,255,255,.18)}.brainBlob:before,.brainBlob:after{content:"";position:absolute;top:4px;width:22px;height:28px;border-radius:50%;background:#ffb0cb}.brainBlob:before{left:6px}.brainBlob:after{right:6px}.focusCircle{position:absolute;left:50%;top:46%;width:100px;height:100px;border-radius:50%;border:4px solid rgba(75,140,255,.36);transform:translate(-50%,-50%);box-shadow:0 0 0 18px rgba(75,140,255,.08)}
+.brainCard{display:flex;flex-direction:column;align-items:center;gap:18px}.brainLarge{position:relative;width:300px;height:210px;filter:drop-shadow(0 16px 24px rgba(47,89,138,.10))}.brainShell{position:absolute;left:50%;top:50%;width:266px;height:176px;transform:translate(-50%,-50%);background:#ff9fc0;border-radius:46% 46% 44% 44% / 56% 56% 40% 40%;box-shadow:inset 0 -10px 0 rgba(255,255,255,.18)}.brainL{position:absolute;top:28px;width:104px;height:128px;background:#ffb2cc;border-radius:50%}.brainL.left{left:34px}.brainL.right{right:34px}.brainStem{position:absolute;left:50%;bottom:10px;width:34px;height:34px;transform:translateX(-50%);background:#f48bb0;border-radius:16px 16px 18px 18px}.brainMid{position:absolute;left:50%;top:30px;width:8px;height:118px;transform:translateX(-50%);background:#f089ae;border-radius:10px}.fold{position:absolute;background:#f387ad;border-radius:24px;opacity:.92}.fold.f1{left:86px;top:48px;width:10px;height:86px}.fold.f2{left:122px;top:36px;width:10px;height:108px}.fold.f3{left:158px;top:48px;width:10px;height:86px}.fold.f4{left:194px;top:54px;width:10px;height:70px}.brainLabel{font-size:28px;font-weight:1000;color:#29558c}
+.supplyWrap{display:flex;flex-direction:column;align-items:center;gap:24px;width:100%}.brainTop{position:relative;width:300px;height:190px}.arrowDown{font-size:44px;color:#4a87dc;line-height:1}.supplyTube,.vesselBig{position:relative;width:min(720px,94%);height:92px;background:#ffd8dc;border-radius:44px;overflow:hidden;box-shadow:inset 0 -10px 0 rgba(255,255,255,.18),0 14px 24px rgba(56,96,144,.08)}.vesselBig{width:100%;max-width:400px;height:86px}.tubeOuter{position:absolute;inset:0;border-radius:44px;background:linear-gradient(180deg,#ffeaec,#ffd8dc)}.tubeInner{position:absolute;left:8px;right:8px;top:14px;bottom:14px;border-radius:30px;background:#ffd0d4;box-shadow:inset 0 -6px 0 rgba(255,255,255,.16)}.flowBlob{position:absolute;top:16px;left:-92px;width:54px;height:54px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ffbcc2 0%,#ff8c96 42%,var(--red) 82%);animation:bloodFlow 2s linear infinite;z-index:2}.flowBlob.f2{animation-delay:1s}.flowBlob.f3{animation:fullFlow 2s linear infinite 1.3s}.miniExplain{font-size:20px;color:#3a5c7c;font-weight:800;text-align:center}
+.splitWrap{display:grid;grid-template-columns:1fr 1fr;gap:18px;width:100%}.half{background:#fff;border:1px solid #e7effa;border-radius:24px;padding:18px;min-height:340px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;box-shadow:0 14px 26px rgba(51,93,144,.06)}.halfTitle{font-size:22px;font-weight:1000;color:#29558c}.halfText{font-size:19px;line-height:1.8;text-align:center;color:#3d5f7f;min-height:56px}.halfName{font-size:26px;font-weight:1000;color:#244f88;min-height:38px}.plug{position:absolute;left:50%;top:50%;width:54px;height:54px;background:var(--darkred);border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 0 12px rgba(142,16,27,.12);z-index:6}.rupture{position:absolute;left:50%;top:-6px;width:14px;height:14px;background:var(--red);border-radius:50%;transform:translateX(-50%);z-index:7}.vesselCrack{position:absolute;left:50%;top:-2px;width:0;height:0;border-left:2px solid #b30018;border-right:2px solid #b30018;border-bottom:10px solid transparent;transform:translateX(-50%) scaleY(0);transform-origin:top;animation:tearOpen .6s ease forwards;z-index:6}.spill1,.spill2,.spill3{position:absolute;background:radial-gradient(circle at 40% 40%,#ffb3ba 0%,#ff7a86 40%,rgba(239,77,90,.35) 75%);border-radius:50%;z-index:7}.spill1{left:48%;top:-28px;width:20px;height:20px;animation:floatUp 1.8s ease-out infinite}.spill2{left:56%;top:-42px;width:24px;height:24px;animation:floatUp 2s ease-out infinite .4s}.spill3{left:44%;top:-52px;width:18px;height:18px;animation:floatUp 2.2s ease-out infinite .8s}.noFlow{position:absolute;right:0;top:0;width:45%;height:100%;background:#ffd8dc;z-index:4}.noFlow.dim{background:linear-gradient(180deg,rgba(160,160,160,.16),rgba(120,120,120,.28));z-index:5}.brainInjury{position:absolute;right:36px;top:54px;width:84px;height:64px;border-radius:50%;opacity:.78}.brainInjury.gray{background:radial-gradient(circle,#aab3bf 0%,rgba(170,179,191,.72) 42%,rgba(170,179,191,0) 76%)}.brainInjury.red{background:radial-gradient(circle,#ff7b87 0%,rgba(255,123,135,.62) 42%,rgba(255,123,135,0) 76%)}
+.symptomScene{flex-direction:column;gap:22px}.symptomBubbles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:min(840px,100%)}.bubble{background:#fff;border:1px solid #e7f0fb;border-radius:18px;padding:16px;text-align:center;font-weight:1000;color:#284f82;box-shadow:0 12px 22px rgba(54,96,148,.08)}.centerLine{font-size:23px;font-weight:1000;color:#29558c;text-align:center;line-height:1.8}
+.infoWrap{display:grid;grid-template-columns:1fr 1fr;gap:18px;width:100%}.infoCard{background:#fff;border:1px solid #e7effa;border-radius:24px;padding:20px;box-shadow:0 14px 26px rgba(51,93,144,.06)}.infoCard h3{margin:0 0 12px;font-size:28px;color:#255089}.infoCard p{margin:0;font-size:19px;line-height:1.9;color:#3b5b79}.infoPill{display:inline-block;margin-top:12px;background:#eef5ff;color:#315b91;padding:8px 12px;border-radius:999px;font-weight:1000}
+.askWrap{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:18px;max-width:860px}.askTitle{font-size:42px;font-weight:1000;color:#24508a;line-height:1.25}.askTag{font-size:24px;font-weight:1000;background:#eef5ff;color:#315b91;padding:14px 18px;border-radius:18px}.askText{font-size:20px;line-height:1.9;color:#395775}.alertBox{background:#fff7f8;border:1px solid #ffd9de;color:#a33b49;padding:14px 16px;border-radius:18px;font-size:18px;font-weight:900}
+@media (max-width:900px){.stage{min-height:720px}.splitWrap,.infoWrap,.symptomBubbles{grid-template-columns:1fr}.askTitle{font-size:32px}}
+@media (max-width:680px){body{padding:10px}.head{padding:18px 16px 12px}.body{padding:10px}.film{padding:10px}.stage{min-height:680px}.controls{flex-direction:column}button{width:100%}.caption{font-size:17px}.brainLabel,.halfName{font-size:24px}}
 </style>
-
 </head>
-
 <body>
-
 <div class="app">
-
-  
-
-  <div class="story-intro" id="storyIntro">
-
-    <div class="typewriter" id="typewriterText"></div>
-
-    <button class="btn-start" id="btnStartGame">發送心電感應，呼叫醫生！</button>
-
-  </div>
-
-
-
-  <div class="header" id="uiHeader" style="opacity:0;">
-
-    <div id="ui-role">實習醫生</div>
-
-    <div class="mission-text" id="ui-mission">任務：前往 11G06 病房尋找中風的好友</div>
-
-    <div class="timer" id="ui-timer">搶救中</div>
-
-  </div>
-
-  
-
-  <div class="scene" id="scene">
-
-    <div class="joystick-base" id="joystickBase"><div class="joystick-knob" id="joystickKnob"></div></div>
-
-    
-
-    <div class="camera" id="camera">
-
-      <div class="game-world" id="gameWorld">
-
-        <div class="corridor-main"></div>
-
-        <div class="workspace-core"></div>
-
-        
-
-        <div class="room-block room-discuss">討論室</div>
-
-        <div class="room-block room-soiled">污物室</div>
-
-        <div class="room-block room-headnurse">護理長</div>
-
-        <div class="room-block room-pantry">茶水間</div>
-
-        <div class="room-block room-office">辦公室</div>
-
-        <div class="room-block room-prep">準備室</div>
-
-        <div class="room-block room-treatment has-door door-top">治療室</div>
-
-        <div class="room-block room-supply">備物區</div>
-
-        <div class="room-block room-toilet">廁所</div>
-
-        <div class="room-block room-oncall1">值班 A</div>
-
-        <div class="room-block room-treatment2">治療室2</div>
-
-        <div class="room-block room-oncall2">值班 B</div>
-
-        <div class="room-block room-talkroom">衛教室</div>
-
-
-
-        <div class="ward-entrance"></div>
-
-
-
-        <div class="room-block room-stair-l">逃生梯</div>
-
-        <div class="room-block room-elec">配電室</div>
-
-        <div class="room-block room-ac">空調室</div>
-
-        <div class="room-block room-sun">日光室</div>
-
-        <div class="room-block room-dress">護士更衣室</div>
-
-        <div class="room-block room-stair-c">逃生梯</div>
-
-        <div class="room-block room-elev-v">訪客電梯</div>
-
-        <div class="room-block room-elev-b">病床電梯</div>
-
-
-
-        <div class="desk-island desk-front">前櫃台</div>
-
-        <div class="desk-island desk-back">後護理站</div>
-
-
-
-        <div class="ward-diag">
-
-          <div class="room-d">11G23</div><div class="room-d">11G22</div><div class="room-d">11G21</div><div class="room-d">11G20</div><div class="room-d">11G19</div><div class="room-d">11G18</div><div class="room-d">11G17</div><div class="room-d">11G16</div><div class="room-d">11G15</div><div class="room-d">11G14</div><div class="room-d">11G13</div><div class="room-d">11G12</div>
-
-        </div>
-
-        <div class="ward-top"><div>11G10</div><div style="margin-top: 30px;">11G11</div></div>
-
-        
-
-        <div class="ward-right">
-
-          <div class="room-rv">11G09</div><div class="room-rv">11G08</div><div class="room-rv">11G07</div>
-
-          <div class="room-rv has-door door-right">11G06
-
-            <div class="patient-self" id="patientSelf"><div class="head"></div><div class="body"></div></div>
-
-          </div> 
-
-          <div class="room-rv">11G05</div><div class="room-rv">11G04</div><div class="room-rv">11G03</div><div class="room-rv">11G02</div><div class="room-rv">11G01</div>
-
-        </div>
-
-
-
-        <div class="character player" id="player" style="left:1880px;top:2050px;opacity:0;">
-
-          <div class="name" id="playerName">實習醫生</div><div class="head"></div><div class="body"></div>
-
-        </div>
-
+  <section class="card">
+    <div class="head">
+      <h1>認識腦中風</h1>
+      <div class="timeline">
+        <div class="mark active" id="m1">1</div><div class="mark" id="m2">2</div><div class="mark" id="m3">3</div><div class="mark" id="m4">4</div><div class="mark" id="m5">5</div><div class="mark" id="m6">6</div><div class="mark" id="m7">7</div><div class="mark" id="m8">8</div><div class="mark" id="m9">9</div><div class="mark" id="m10">10</div><div class="mark" id="m11">11</div>
       </div>
-
     </div>
-
-    
-
-    <div class="dialog-box" id="dialogBox">
-
-      <div class="dialog-name" id="dialogName">我</div>
-
-      <div class="dialog-text" id="dialogText"></div>
-
-      <button class="btn-next-dialog" id="btnNextDialog">繼續</button>
-
+    <div class="body">
+      <div class="film">
+        <div class="stage">
+          <div class="sky"></div><div class="grid"></div>
+          <div id="sceneRoot"></div>
+        </div>
+        <div class="caption" id="caption"></div>
+        <div class="controls">
+          <button class="prev" id="prevBtn">前一幕</button>
+          <button class="next" id="nextBtn">後一幕</button>
+          <button class="ghost" id="resetBtn">重新開始</button>
+        </div>
+      </div>
     </div>
-
-  </div>
-
-  
-
-  <div class="animation-screen" id="animScreen">
-
-    <div class="animation-header">
-
-      醫學平板 - 認識腦中風
-
-      <button class="btn-close-anim" onclick="closeAnimation()">關閉平板</button>
-
-    </div>
-
-    <iframe id="animFrame" src="about:blank"></iframe>
-
-  </div>
-
-
-
+  </section>
 </div>
 
-
-
-<script id="animationHTML" type="text/html">
-
-<!DOCTYPE html>
-
-<html lang="zh-Hant">
-
-<head>
-
-<meta charset="UTF-8" />
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-
-<style>
-
-:root{--bg:#eef6ff;--card:#fff;--ink:#18344f;--muted:#607d98;--line:#dfeaf7;--blue:#4b8cff;--red:#ef4d5a;--pink:#ff9ec1;--skin:#ffd8bb;--hair:#2b3550;--shirt:#7aaeff;--pant:#48628d;--darkred:#8e101b;--shadow:0 16px 36px rgba(34,84,140,.12)}
-
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent} html,body{margin:0;padding:0;height:100%;}
-
-body{font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;background:linear-gradient(180deg,#eef7ff,#f9fcff);color:var(--ink);padding:14px; overflow-y:auto;}
-
-.app{max-width:1160px;margin:auto}.card{background:rgba(255,255,255,.98);border:1px solid #e2edf8;border-radius:28px;overflow:hidden;box-shadow:var(--shadow)}
-
-.head{padding:20px 22px 12px;background:linear-gradient(180deg,#fff,#f8fbff);border-bottom:1px solid #edf4fb} h1{margin:0;font-size:clamp(28px,4vw,40px)}
-
-.sub{margin:8px 0 0;color:var(--muted);line-height:1.8}.timeline{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.mark{padding:7px 11px;border-radius:999px;background:#edf5ff;color:#406797;font-size:13px;font-weight:900;opacity:.4}.mark.active{opacity:1;background:#dfeeff}
-
-.body{padding:16px}.film{background:linear-gradient(180deg,#fbfdff,#f5f9ff);border:1px solid #e4eef8;border-radius:26px;padding:16px}.stage{position:relative;min-height:640px;background:linear-gradient(180deg,#fafdff,#f4f9ff);border-radius:24px;border:1px solid #e6effa;overflow:hidden}.sky{position:absolute;inset:0;background:radial-gradient(circle at 50% 15%,#fff 0%,#f7fbff 30%,#eef6ff 78%,#edf5ff 100%)}.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(155,192,233,.06) 1px, transparent 1px),linear-gradient(90deg, rgba(155,192,233,.06) 1px, transparent 1px);background-size:32px 32px;opacity:.55}
-
-.caption{margin-top:14px;background:#f8fbff;border:1px solid #e5effb;border-radius:18px;padding:16px 18px;font-size:19px;line-height:1.9;color:#375571;min-height:102px}.caption b{color:#1d4b84}
-
-.controls{display:flex;justify-content:center;gap:12px;margin-top:14px;flex-wrap:wrap} button{border:none;border-radius:14px;padding:13px 18px;font-size:17px;font-weight:900;cursor:pointer}.prev{background:#e8f1fd;color:#315a8e}.next{background:linear-gradient(180deg,var(--blue),#3577f0);color:#fff}.ghost{background:#eef5ff;color:#315b90}
-
-.fadeIn{animation:fadeIn .45s ease both}.fadeUp{animation:fadeUp .45s ease both}.zoomIn{animation:zoomIn .55s ease both}.d1{animation-delay:.12s}.d2{animation-delay:.24s}.d3{animation-delay:.36s}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}@keyframes zoomIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}@keyframes bloodFlow{from{left:-92px}to{left:46%}}@keyframes fullFlow{from{left:-92px}to{left:100%}}@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}@keyframes leakPulse{0%{box-shadow:0 0 0 0 rgba(239,77,90,.34)}100%{box-shadow:0 0 0 18px rgba(239,77,90,0)}}@keyframes floatUp{0%{transform:translateY(0) scale(.9);opacity:.95}70%{opacity:1}100%{transform:translateY(-28px) scale(1);opacity:0}}@keyframes tearOpen{0%{transform:translateX(-50%) scaleY(0)}60%{transform:translateX(-50%) scaleY(1.2)}100%{transform:translateX(-50%) scaleY(1)}}
-
-.personScene,.symptomScene,.brainScene,.bloodScene,.splitScene,.infoScene,.askScene{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:28px}
-
-.person{position:relative;width:250px;height:450px;filter:drop-shadow(0 20px 30px rgba(38,82,131,.16))}.ground{position:absolute;left:50%;bottom:36px;width:240px;height:34px;background:radial-gradient(ellipse at center, rgba(57,95,141,.25) 0%, rgba(57,95,141,0) 72%);transform:translateX(-50%)}.headShape{position:absolute;left:76px;top:18px;width:100px;height:108px;background:var(--skin);border-radius:48% 48% 44% 44% / 42% 42% 56% 56%}.hair{position:absolute;left:72px;top:8px;width:110px;height:62px;background:var(--hair);border-radius:56px 56px 26px 26px}.eye{position:absolute;top:68px;width:10px;height:10px;background:#17314f;border-radius:50%}.eye.l{left:106px}.eye.r{left:138px}.mouth{position:absolute;left:112px;top:95px;width:28px;height:8px;background:#b96274;border-radius:0 0 12px 12px}.neck{position:absolute;left:110px;top:114px;width:28px;height:24px;background:#f6c8a8;border-radius:10px}.bodyShape{position:absolute;left:72px;top:132px;width:108px;height:132px;background:linear-gradient(180deg,#8dbdff,var(--shirt));border-radius:28px}.arm{position:absolute;top:144px;width:28px;height:120px;background:#f6c8a8;border-radius:18px}.arm.l{left:42px;transform:rotate(8deg)}.arm.r{left:178px;transform:rotate(-8deg)}.leg{position:absolute;top:262px;width:30px;height:124px;background:var(--pant);border-radius:18px}.leg.l{left:90px}.leg.r{left:128px}.foot{position:absolute;bottom:-5px;width:42px;height:15px;background:#2c3f60;border-radius:16px}.leg.l .foot{left:-6px}.leg.r .foot{left:-6px}.brainGlow{position:absolute;left:98px;top:34px;width:60px;height:46px;border-radius:40px;background:rgba(255,157,192,.22);filter:blur(10px);animation:pulse 1.8s infinite}.brainTag{position:absolute;left:95px;top:38px;width:58px;height:42px}.brainBlob{position:absolute;inset:0;background:var(--pink);border-radius:36px 34px 30px 30px / 26px 26px 22px 22px;box-shadow:inset 0 -4px 0 rgba(255,255,255,.18)}.brainBlob:before,.brainBlob:after{content:"";position:absolute;top:4px;width:22px;height:28px;border-radius:50%;background:#ffb0cb}.brainBlob:before{left:6px}.brainBlob:after{right:6px}.focusCircle{position:absolute;left:50%;top:46%;width:100px;height:100px;border-radius:50%;border:4px solid rgba(75,140,255,.36);transform:translate(-50%,-50%);box-shadow:0 0 0 18px rgba(75,140,255,.08)}
-
-.brainCard{display:flex;flex-direction:column;align-items:center;gap:18px}.brainLarge{position:relative;width:300px;height:210px;filter:drop-shadow(0 16px 24px rgba(47,89,138,.10))}.brainShell{position:absolute;left:50%;top:50%;width:266px;height:176px;transform:translate(-50%,-50%);background:#ff9fc0;border-radius:46% 46% 44% 44% / 56% 56% 40% 40%;box-shadow:inset 0 -10px 0 rgba(255,255,255,.18)}.brainL{position:absolute;top:28px;width:104px;height:128px;background:#ffb2cc;border-radius:50%}.brainL.left{left:34px}.brainL.right{right:34px}.brainStem{position:absolute;left:50%;bottom:10px;width:34px;height:34px;transform:translateX(-50%);background:#f48bb0;border-radius:16px 16px 18px 18px}.brainMid{position:absolute;left:50%;top:30px;width:8px;height:118px;transform:translateX(-50%);background:#f089ae;border-radius:10px}.fold{position:absolute;background:#f387ad;border-radius:24px;opacity:.92}.fold.f1{left:86px;top:48px;width:10px;height:86px}.fold.f2{left:122px;top:36px;width:10px;height:108px}.fold.f3{left:158px;top:48px;width:10px;height:86px}.fold.f4{left:194px;top:54px;width:10px;height:70px}.brainLabel{font-size:28px;font-weight:1000;color:#29558c}
-
-.supplyWrap{display:flex;flex-direction:column;align-items:center;gap:24px;width:100%}.brainTop{position:relative;width:300px;height:190px}.arrowDown{font-size:44px;color:#4a87dc;line-height:1}.supplyTube,.vesselBig{position:relative;width:min(720px,94%);height:92px;background:#ffd8dc;border-radius:44px;overflow:hidden;box-shadow:inset 0 -10px 0 rgba(255,255,255,.18),0 14px 24px rgba(56,96,144,.08)}.vesselBig{width:100%;max-width:400px;height:86px}.tubeOuter{position:absolute;inset:0;border-radius:44px;background:linear-gradient(180deg,#ffeaec,#ffd8dc)}.tubeInner{position:absolute;left:8px;right:8px;top:14px;bottom:14px;border-radius:30px;background:#ffd0d4;box-shadow:inset 0 -6px 0 rgba(255,255,255,.16)}.flowBlob{position:absolute;top:16px;left:-92px;width:54px;height:54px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ffbcc2 0%,#ff8c96 42%,var(--red) 82%);animation:bloodFlow 2s linear infinite;z-index:2}.flowBlob.f2{animation-delay:1s}.flowBlob.f3{animation:fullFlow 2s linear infinite 1.3s}.miniExplain{font-size:20px;color:#3a5c7c;font-weight:800;text-align:center}
-
-.splitWrap{display:grid;grid-template-columns:1fr 1fr;gap:18px;width:100%}.half{background:#fff;border:1px solid #e7effa;border-radius:24px;padding:18px;min-height:340px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;box-shadow:0 14px 26px rgba(51,93,144,.06)}.halfTitle{font-size:22px;font-weight:1000;color:#29558c}.halfText{font-size:19px;line-height:1.8;text-align:center;color:#3d5f7f;min-height:56px}.halfName{font-size:26px;font-weight:1000;color:#244f88;min-height:38px}.plug{position:absolute;left:50%;top:50%;width:54px;height:54px;background:var(--darkred);border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 0 12px rgba(142,16,27,.12);z-index:6}.rupture{position:absolute;left:50%;top:-6px;width:14px;height:14px;background:var(--red);border-radius:50%;transform:translateX(-50%);z-index:7}.vesselCrack{position:absolute;left:50%;top:-2px;width:0;height:0;border-left:2px solid #b30018;border-right:2px solid #b30018;border-bottom:10px solid transparent;transform:translateX(-50%) scaleY(0);transform-origin:top;animation:tearOpen .6s ease forwards;z-index:6}.spill1,.spill2,.spill3{position:absolute;background:radial-gradient(circle at 40% 40%,#ffb3ba 0%,#ff7a86 40%,rgba(239,77,90,.35) 75%);border-radius:50%;z-index:7}.spill1{left:48%;top:-28px;width:20px;height:20px;animation:floatUp 1.8s ease-out infinite}.spill2{left:56%;top:-42px;width:24px;height:24px;animation:floatUp 2s ease-out infinite .4s}.spill3{left:44%;top:-52px;width:18px;height:18px;animation:floatUp 2.2s ease-out infinite .8s}.noFlow{position:absolute;right:0;top:0;width:45%;height:100%;background:#ffd8dc;z-index:4}.noFlow.dim{background:linear-gradient(180deg,rgba(160,160,160,.16),rgba(120,120,120,.28));z-index:5}.brainInjury{position:absolute;right:36px;top:54px;width:84px;height:64px;border-radius:50%;opacity:.78}.brainInjury.gray{background:radial-gradient(circle,#aab3bf 0%,rgba(170,179,191,.72) 42%,rgba(170,179,191,0) 76%)}.brainInjury.red{background:radial-gradient(circle,#ff7b87 0%,rgba(255,123,135,.62) 42%,rgba(255,123,135,0) 76%)}
-
-.symptomScene{flex-direction:column;gap:22px}.symptomBubbles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:min(840px,100%)}.bubble{background:#fff;border:1px solid #e7f0fb;border-radius:18px;padding:16px;text-align:center;font-weight:1000;color:#284f82;box-shadow:0 12px 22px rgba(54,96,148,.08)}.centerLine{font-size:23px;font-weight:1000;color:#29558c;text-align:center;line-height:1.8}
-
-.infoWrap{display:grid;grid-template-columns:1fr 1fr;gap:18px;width:100%}.infoCard{background:#fff;border:1px solid #e7effa;border-radius:24px;padding:20px;box-shadow:0 14px 26px rgba(51,93,144,.06)}.infoCard h3{margin:0 0 12px;font-size:28px;color:#255089}.infoCard p{margin:0;font-size:19px;line-height:1.9;color:#3b5b79}.infoPill{display:inline-block;margin-top:12px;background:#eef5ff;color:#315b91;padding:8px 12px;border-radius:999px;font-weight:1000}
-
-.askWrap{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:18px;max-width:860px}.askTitle{font-size:42px;font-weight:1000;color:#24508a;line-height:1.25}.askTag{font-size:24px;font-weight:1000;background:#eef5ff;color:#315b91;padding:14px 18px;border-radius:18px}.askText{font-size:20px;line-height:1.9;color:#395775}.alertBox{background:#fff7f8;border:1px solid #ffd9de;color:#a33b49;padding:14px 16px;border-radius:18px;font-size:18px;font-weight:900}
-
-@media (max-width:900px){.stage{min-height:720px}.splitWrap,.infoWrap,.symptomBubbles{grid-template-columns:1fr}.askTitle{font-size:32px}}
-
-@media (max-width:680px){body{padding:10px}.head{padding:18px 16px 12px}.body{padding:10px}.film{padding:10px}.stage{min-height:680px}.controls{flex-direction:column}button{width:100%}.caption{font-size:17px}.brainLabel,.halfName{font-size:24px}}
-
-</style>
-
-</head>
-
-<body>
-
-<div class="app"><section class="card"><div class="head"><h1>認識腦中風</h1><div class="timeline"><div class="mark active" id="m1">1</div><div class="mark" id="m2">2</div><div class="mark" id="m3">3</div><div class="mark" id="m4">4</div><div class="mark" id="m5">5</div><div class="mark" id="m6">6</div><div class="mark" id="m7">7</div><div class="mark" id="m8">8</div><div class="mark" id="m9">9</div><div class="mark" id="m10">10</div><div class="mark" id="m11">11</div></div></div><div class="body"><div class="film"><div class="stage"><div class="sky"></div><div class="grid"></div><div id="sceneRoot"></div></div><div class="caption" id="caption"></div><div class="controls"><button class="prev" id="prevBtn">前一幕</button><button class="next" id="nextBtn">後一幕</button><button class="ghost" id="resetBtn">重新開始</button></div></div></div></section></div>
-
 <script>
-
-let step=1,maxStep=11,sceneRoot=document.getElementById('sceneRoot'),caption=document.getElementById('caption'),prevBtn=document.getElementById('prevBtn'),nextBtn=document.getElementById('nextBtn'),resetBtn=document.getElementById('resetBtn');
+let step=1, maxStep=11, sceneRoot=document.getElementById('sceneRoot'), caption=document.getElementById('caption'), prevBtn=document.getElementById('prevBtn'), nextBtn=document.getElementById('nextBtn'), resetBtn=document.getElementById('resetBtn');
 
 const captions={1:'先看到一個人。中風是發生在人身上的疾病。',2:'把焦點放到大腦。大腦需要血液供應。',3:'血管把血流送到大腦。',4:'血管阻塞後，後段沒有血流。',5:'這種情況叫做<b>缺血性腦中風</b>。',6:'另一種情況是血管破裂，血球從管壁破口往外跑。',7:'這叫做<b>出血性腦中風</b>。',8:'中風常見第一個症狀。',9:'再出現第二個症狀。',10:'再出現第三個症狀，並整理兩種類型。',11:'出現這些症狀，請盡快就醫，由醫師判斷。'};
 
 const marks=()=>{for(let i=1;i<=maxStep;i++)document.getElementById('m'+i).classList.toggle('active',i===step)};
-
 const person=(brain=false)=>`<div class="ground fadeIn"></div><div class="person zoomIn"><div class="hair"></div><div class="headShape"></div><div class="eye l"></div><div class="eye r"></div><div class="mouth"></div><div class="neck"></div><div class="bodyShape"></div><div class="arm l"></div><div class="arm r"></div><div class="leg l"><div class="foot"></div></div><div class="leg r"><div class="foot"></div></div>${brain?'<div class="brainGlow"></div><div class="brainTag"><div class="brainBlob"></div></div><div class="focusCircle fadeIn"></div>':''}</div>`;
-
 const brain=()=>`<div class="brainCard zoomIn"><div class="brainLarge"><div class="brainShell"></div><div class="brainL left"></div><div class="brainL right"></div><div class="brainStem"></div><div class="brainMid"></div><div class="fold f1"></div><div class="fold f2"></div><div class="fold f3"></div><div class="fold f4"></div></div><div class="brainLabel fadeUp">大腦需要穩定血流</div></div>`;
-
 const supply=()=>`<div class="supplyWrap zoomIn"><div class="brainTop"><div class="brainLarge" style="transform:scale(.9);transform-origin:center top;"><div class="brainShell"></div><div class="brainL left"></div><div class="brainL right"></div><div class="brainStem"></div><div class="brainMid"></div><div class="fold f1"></div><div class="fold f2"></div><div class="fold f3"></div><div class="fold f4"></div></div></div><div class="arrowDown fadeIn">↓</div><div class="supplyTube fadeUp"><div class="tubeOuter"></div><div class="tubeInner"></div><div class="flowBlob"></div><div class="flowBlob f2"></div><div class="flowBlob f3"></div></div><div class="miniExplain fadeUp d1">血流把氧氣和養分送到大腦</div></div>`;
-
 const vesselBase=(type='normal')=>{
-
   const common=`<div class="tubeOuter"></div><div class="tubeInner"></div>`;
-
   if(type==='ischemia') return `${common}<div class="flowBlob"></div><div class="flowBlob f2"></div><div class="plug"></div><div class="noFlow"></div><div class="noFlow dim"></div>`;
-
   if(type==='hemorrhage') return `${common}<div class="flowBlob"></div><div class="vesselCrack"></div><div class="rupture"></div><div class="spill1"></div><div class="spill2"></div><div class="spill3"></div><div class="noFlow" style="width:40%"></div><div class="noFlow dim" style="width:40%"></div>`;
-
   return `${common}<div class="flowBlob"></div><div class="flowBlob f2"></div>`;
-
 };
-
 const splitProgress=(mode='ischemiaBase')=>`<div class="splitWrap"><div class="half"><div class="halfTitle">左邊：血流阻塞</div><div class="vesselBig">${vesselBase('ischemia')}</div><div class="brainInjury gray"></div><div class="halfName" id="leftName" style="opacity:${mode!=='ischemiaBase'?'1':'0'};transition:.25s">缺血性腦中風</div><div class="halfText" id="leftText">${mode==='ischemiaBase'?'血管被堵住後，後面的血流就完全過不去了。':'血管阻塞，後段血流停止。'}</div></div><div class="half" id="rightHalf" style="opacity:${mode==='hemorrhageBase'||mode==='hemorrhageNamed'?'1':'.22'};transition:.25s"><div class="halfTitle" id="rightTitle">${mode==='hemorrhageBase'||mode==='hemorrhageNamed'?'右邊：血管破裂':'右邊：預留給出血型'}</div><div class="vesselBig" id="rightVessel" style="overflow:visible">${mode==='hemorrhageBase'||mode==='hemorrhageNamed'?vesselBase('hemorrhage'):vesselBase('normal')}</div><div class="brainInjury red" id="rightInjury" style="opacity:${mode==='hemorrhageBase'||mode==='hemorrhageNamed'?'.82':'0'};transition:.25s"></div><div class="halfName" id="rightName" style="opacity:${mode==='hemorrhageNamed'?'1':'0'};transition:.25s">出血性腦中風</div><div class="halfText" id="rightText">${mode==='hemorrhageBase'||mode==='hemorrhageNamed'?'血管壁破裂，血球從破口往外流。':''}</div></div></div>`;
-
 function setSplitProgress(mode){
-
   const existing=sceneRoot.querySelector('.splitWrap');
-
   if(!existing){ sceneRoot.innerHTML=`<div class="splitScene">${splitProgress(mode)}</div>`; return; }
-
   sceneRoot.querySelector('#leftName').style.opacity=(mode!=='ischemiaBase')?'1':'0';
-
   sceneRoot.querySelector('#leftText').textContent=mode==='ischemiaBase'?'血管被堵住後，後面的血流就完全過不去了。':'血管阻塞，後段血流停止。';
-
   const rightHalf=sceneRoot.querySelector('#rightHalf');
-
   rightHalf.style.opacity=(mode==='hemorrhageBase'||mode==='hemorrhageNamed')?'1':'.22';
-
   sceneRoot.querySelector('#rightTitle').textContent=(mode==='hemorrhageBase'||mode==='hemorrhageNamed')?'右邊：血管破裂':'右邊：預留給出血型';
-
   sceneRoot.querySelector('#rightVessel').innerHTML=(mode==='hemorrhageBase'||mode==='hemorrhageNamed')?vesselBase('hemorrhage'):vesselBase('normal');
-
   sceneRoot.querySelector('#rightInjury').style.opacity=(mode==='hemorrhageBase'||mode==='hemorrhageNamed')?'.82':'0';
-
   sceneRoot.querySelector('#rightName').style.opacity=(mode==='hemorrhageNamed')?'1':'0';
-
   sceneRoot.querySelector('#rightText').textContent=(mode==='hemorrhageBase'||mode==='hemorrhageNamed')?'血管壁破裂，血球從破口往外流。':'';
-
 }
-
 const symptom=(n)=>`<div class="symptomScene">${person(true)}<div class="centerLine">中風常見症狀</div><div class="symptomBubbles">${n>=1?'<div class="bubble">😕 臉歪一邊</div>':''}${n>=2?'<div class="bubble">💪 手腳無力</div>':''}${n>=3?'<div class="bubble">🗣️ 說話困難</div>':''}</div></div>`;
-
 const info=()=>`<div class="infoWrap"><div class="infoCard zoomIn"><h3>⛔ 缺血性腦中風</h3><p>重點是<b>血管阻塞</b>。血流過不去，大腦後面的區域就會缺血。</p><div class="infoPill">關鍵字：阻塞</div></div><div class="infoCard zoomIn d1"><h3>💥 出血性腦中風</h3><p>重點是<b>血管破裂出血</b>。血流到血管外面，也會傷害大腦。</p><div class="infoPill">關鍵字：破裂</div></div></div>`;
-
 const ask=()=>`<div class="askWrap zoomIn"><div class="askTitle">出現中風症狀</div><div class="askTag">請盡快就醫</div><div class="askText">真正是哪一型，需要醫師與檢查判斷。</div><div class="alertBox">不要自己猜，先就醫。</div></div>`;
 
-function render(){marks();caption.innerHTML=captions[step];prevBtn.disabled=step===1;prevBtn.style.opacity=step===1?'.45':'1';nextBtn.textContent=step===maxStep?'回到第一幕':'後一幕';const splitModes={4:'ischemiaBase',5:'ischemiaNamed',6:'hemorrhageBase',7:'hemorrhageNamed'};if(splitModes[step]){setSplitProgress(splitModes[step]);return;}sceneRoot.innerHTML=step===1?`<div class="personScene">${person(false)}</div>`:step===2?`<div class="brainScene">${brain()}</div>`:step===3?`<div class="bloodScene">${supply()}</div>`:step===8?symptom(1):step===9?symptom(2):step===10?`<div class="infoScene">${info()}</div>`:`<div class="askScene">${ask()}</div>`;if(step===10){setTimeout(()=>{sceneRoot.innerHTML=`<div class="infoScene">${info()}</div>`;},0)} }
-
-prevBtn.onclick=()=>{if(step>1){step--;render();}};nextBtn.onclick=()=>{step=step>=maxStep?1:step+1; if(step===10&&sceneRoot.querySelector('.symptomScene')){sceneRoot.innerHTML=symptom(3); caption.innerHTML=captions[10]; marks(); return;} render();};resetBtn.onclick=()=>{step=1;render();};render();
-
-</script>
-
-</body>
-
-</html>
-
-</script>
-
-
-
-<script>
-
-const player = document.getElementById('player');
-
-const camera = document.getElementById('camera');
-
-const scene = document.getElementById('scene');
-
-const joystickBase = document.getElementById('joystickBase');
-
-const joystickKnob = document.getElementById('joystickKnob');
-
-
-
-// 遊戲狀態
-
-let state = { x: 1880, y: 2050 };
-
-let velocity = { x: 0, y: 0 };
-
-const speed = 5; 
-
-
-
-// 任務邏輯
-
-let missionStage = -1; // -1: 開場劇情, 0: 找病患, 1: 對話中, 2: 播動畫
-
-let gameActive = false; // 劇情時不能動
-
-const posPatient = { x: 2150, y: 920 }; 
-
-
-
-// UI 元素
-
-const storyIntro = document.getElementById('storyIntro');
-
-const typewriterText = document.getElementById('typewriterText');
-
-const btnStartGame = document.getElementById('btnStartGame');
-
-const uiHeader = document.getElementById('uiHeader');
-
-const dialogBox = document.getElementById('dialogBox');
-
-const dialogName = document.getElementById('dialogName');
-
-const dialogText = document.getElementById('dialogText');
-
-const btnNextDialog = document.getElementById('btnNextDialog');
-
-const animScreen = document.getElementById('animScreen');
-
-
-
-// --- 開場打字機特效 ---
-
-const introString = "半夢半醒中，你發現你躺在 11G06 的病床上...\n隱約聽到你是因為腦中風住院...\n你平時對腦中風並不了解，但有個好朋友是實習醫師。\n\n你用盡力氣發出心電感應，希望他能來找到你...";
-
-let typeIndex = 0;
-
-function typeWriter() {
-
-  if (typeIndex < introString.length) {
-
-    if (introString.charAt(typeIndex) === '\n') {
-
-      typewriterText.innerHTML += '<br>';
-
-    } else {
-
-      typewriterText.innerHTML += introString.charAt(typeIndex);
-
-    }
-
-    typeIndex++;
-
-    setTimeout(typeWriter, 50);
-
+function render(){
+  marks();
+  caption.innerHTML=captions[step];
+  prevBtn.disabled=step===1;
+  prevBtn.style.opacity=step===1?'.45':'1';
+  
+  // ★ 修改這裡：在最後一步改變按鈕狀態，並綁定通關事件
+  if (step === maxStep) {
+    nextBtn.textContent = '✅ 完成學習並領取獎勵';
+    nextBtn.className = 'next finish';
+    nextBtn.onclick = () => {
+      // 傳送通關訊號給外層 iframe (RPG_loader)
+      window.parent.postMessage({ type: 'GAME_CLEAR', score: 1000 }, '*');
+    };
   } else {
-
-    btnStartGame.classList.add('show');
-
+    nextBtn.textContent = '後一幕 ➔';
+    nextBtn.className = 'next';
+    nextBtn.onclick = () => {
+      step = step >= maxStep ? 1 : step + 1; 
+      if(step===10 && sceneRoot.querySelector('.symptomScene')){
+        sceneRoot.innerHTML=symptom(3); caption.innerHTML=captions[10]; marks(); return;
+      } 
+      render();
+    };
   }
 
+  const splitModes={4:'ischemiaBase',5:'ischemiaNamed',6:'hemorrhageBase',7:'hemorrhageNamed'};
+  if(splitModes[step]){setSplitProgress(splitModes[step]);return;}
+  
+  sceneRoot.innerHTML=step===1?`<div class="personScene">${person(false)}</div>`:step===2?`<div class="brainScene">${brain()}</div>`:step===3?`<div class="bloodScene">${supply()}</div>`:step===8?symptom(1):step===9?symptom(2):step===10?`<div class="infoScene">${info()}</div>`:`<div class="askScene">${ask()}</div>`;
+  if(step===10){setTimeout(()=>{sceneRoot.innerHTML=`<div class="infoScene">${info()}</div>`;},0)} 
 }
 
-
-
-// 畫面載入後，先把攝影機定位到病床上 (第一人稱視角)
-
-window.onload = () => {
-
-  state.x = posPatient.x - 50; 
-
-  state.y = posPatient.y;
-
-  updateCamera();
-
-  setTimeout(typeWriter, 1500); 
-
-};
-
-
-
-// 點擊開始遊戲
-
-btnStartGame.onclick = () => {
-
-  storyIntro.style.opacity = '0';
-
-  setTimeout(() => {
-
-    storyIntro.style.display = 'none';
-
-    // 視角切換回醫生，顯示 UI
-
-    state.x = 1880;
-
-    state.y = 2050;
-
-    updateCamera();
-
-    player.style.opacity = '1';
-
-    uiHeader.style.opacity = '1';
-
-    gameActive = true;
-
-    missionStage = 0;
-
-  }, 800);
-
-};
-
-
-
-// 物理阻擋塊 
-
-const solidBlocks = [
-
-  {x: 2000, y: 400, w: 320, h: 450}, 
-
-  {x: 2000, y: 1000, w: 320, h: 750},
-
-  {x: 2050, y: 850, w: 270, h: 10},  
-
-  {x: 2050, y: 990, w: 270, h: 10},  
-
-  {x: 2310, y: 850, w: 10, h: 150},  
-
-  {x: 1750, y: 180, w: 250, h: 200},  
-
-  {x: 1590, y: 825, w: 270, h: 245},  
-
-  {x: 1800, y: 1140, w: 50, h: 250},  
-
-  {x: 950, y: 1420, w: 380, h: 175}, 
-
-  {x: 1330, y: 1420, w: 10, h: 10},  
-
-  {x: 1420, y: 1420, w: 320, h: 10}, 
-
-  {x: 1330, y: 1585, w: 410, h: 10}, 
-
-  {x: 1730, y: 1420, w: 10, h: 170}, 
-
-  {x: 950, y: 1590, w: 810, h: 160},  
-
-  {x: 400, y: 1850, w: 1310, h: 350}, 
-
-  {x: 2000, y: 1850, w: 500, h: 150}, 
-
-  {x: 1710, y: 2150, w: 790, h: 50}   
-
-];
-
-
-
-function canMoveTo(x, y) {
-
-  const r = 20; 
-
-  if (x < 350 || x > 2500 || y < 150 || y > 2200) return false;
-
-  let diagLine = x + y;
-
-  let distAlong = (x - y + 1300) * 0.707;
-
-  if (distAlong > 0 && distAlong < 2200) { if (diagLine < 2200 + r && diagLine > 1850 - r) return false; }
-
-  if (x > 1200 - r && x < 1400 + r && Math.abs(y - (-0.93*x + 2365)) < 40) return false;
-
-  for (let b of solidBlocks) { if (x+r > b.x && x-r < b.x+b.w && y+r > b.y && y-r < b.y+b.h) return false; }
-
-  return true;
-
-}
-
-
-
-function getDist(x1, y1, x2, y2) { return Math.hypot(x1 - x2, y1 - y2); }
-
-
-
-function updateCamera() {
-
-  camera.style.transform = `translate(${scene.clientWidth/2 - state.x}px, ${scene.clientHeight/2 - state.y}px)`;
-
-}
-
-
-
-// --- 對話邏輯 ---
-
-const dialogs = [
-
-  { name: "我 (病患)", text: "你終於來了！我好像中風了，可是我根本不知道那是什麼..." },
-
-  { name: "實習醫生", text: "別怕！我用最新的「醫學動畫平板」解釋給你聽，一看就懂！" }
-
-];
-
-let currentDialogIndex = 0;
-
-
-
-function showDialog() {
-
-  gameActive = false; 
-
-  velocity = {x:0, y:0};
-
-  dialogBox.style.display = 'flex';
-
-  dialogName.innerText = dialogs[currentDialogIndex].name;
-
-  dialogName.style.color = currentDialogIndex === 0 ? '#e57373' : '#4CAF50';
-
-  dialogText.innerText = dialogs[currentDialogIndex].text;
-
-}
-
-
-
-btnNextDialog.onclick = () => {
-
-  currentDialogIndex++;
-
-  if (currentDialogIndex < dialogs.length) {
-
-    showDialog();
-
-  } else {
-
-    // 對話結束，播放動畫
-
-    dialogBox.style.display = 'none';
-
-    playAnimation();
-
-  }
-
-};
-
-
-
-function playAnimation() {
-
-  missionStage = 2;
-
-  animScreen.style.display = 'flex';
-
-  const iframeDoc = document.getElementById('animFrame').contentWindow.document;
-
-  const animHTML = document.getElementById('animationHTML').innerHTML;
-
-  iframeDoc.open();
-
-  iframeDoc.write(animHTML);
-
-  iframeDoc.close();
-
-}
-
-
-
-function closeAnimation() {
-
-  animScreen.style.display = 'none';
-
-  gameActive = true;
-
-  document.getElementById('ui-mission').innerText = "任務完成！你已了解腦中風的知識。";
-
-  document.getElementById('ui-mission').style.color = "#4CAF50";
-
-}
-
-
-
-// 遊戲主迴圈
-
-function gameLoop() {
-
-  if (gameActive) {
-
-    if (velocity.x || velocity.y) {
-
-      if (canMoveTo(state.x + velocity.x, state.y)) state.x += velocity.x;
-
-      if (canMoveTo(state.x, state.y + velocity.y)) state.y += velocity.y;
-
-      player.style.left = state.x + 'px'; player.style.top = state.y + 'px'; 
-
-      updateCamera();
-
-      
-
-      // 檢查是否找到病患
-
-      if (missionStage === 0 && getDist(state.x, state.y, posPatient.x, posPatient.y) < 100) {
-
-        missionStage = 1;
-
-        showDialog();
-
-      }
-
-    }
-
-  }
-
-  requestAnimationFrame(gameLoop);
-
-}
-
-requestAnimationFrame(gameLoop);
-
-
-
-// 搖桿控制
-
-let isDragging = false, startT = {x:0, y:0};
-
-scene.addEventListener('pointerdown', e => {
-
-  if(!gameActive) return; 
-
-  isDragging = true; startT = {x: e.clientX, y: e.clientY};
-
-  joystickBase.style.left = startT.x+'px'; joystickBase.style.top = startT.y+'px';
-
-  joystickBase.style.display = 'block';
-
-});
-
-window.addEventListener('pointermove', e => {
-
-  if (!isDragging || !gameActive) return;
-
-  const dx = e.clientX - startT.x, dy = e.clientY - startT.y, dist = Math.hypot(dx, dy);
-
-  const move = Math.min(dist, 50);
-
-  joystickKnob.style.transform = `translate(calc(-50% + ${dx/dist*move}px), calc(-50% + ${dy/dist*move}px))`;
-
-  velocity.x = (dx/dist) * speed * Math.min(dist/50, 1);
-
-  velocity.y = (dy/dist) * speed * Math.min(dist/50, 1);
-
-});
-
-window.addEventListener('pointerup', () => { isDragging = false; velocity = {x:0, y:0}; joystickBase.style.display = 'none'; });
-
-window.addEventListener('resize', updateCamera);
-
+prevBtn.onclick=()=>{if(step>1){step--;render();}};
+resetBtn.onclick=()=>{step=1;render();};
+render();
 </script>
-
 </body>
-
 </html>
