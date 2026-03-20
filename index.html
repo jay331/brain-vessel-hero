@@ -56,9 +56,12 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 
 /* ===== 主畫面 ===== */
 #scrHome { padding: 6px 8px 75px 8px; justify-content: center; overflow: hidden; display: flex; flex-direction: column; gap: 6px; } 
-.linear-standby { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center; background: rgba(0,0,0,0.4); border-radius: 12px; border: 1px solid var(--theme-dim); padding: 20px; box-shadow: inset 0 0 30px rgba(0,0,0,0.5); margin-bottom: 10px; }
-.linear-standby h2 { color: var(--theme-primary); font-size: 24px; margin: 0 0 10px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
-.linear-standby p { color: #ccc; font-size: 14px; margin: 0 0 25px 0; line-height: 1.6; }
+
+/* 主線待機容器 (固定高度防壓縮) */
+.linear-standby { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; min-height: 150px; text-align: center; background: rgba(0,0,0,0.4); border-radius: 12px; border: 1px solid var(--theme-dim); padding: 15px; box-shadow: inset 0 0 30px rgba(0,0,0,0.5); margin-bottom: 10px; }
+.linear-standby h2 { color: var(--theme-primary); font-size: 22px; margin: 0 0 8px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+.linear-standby p { color: #ccc; font-size: 13px; margin: 0 0 15px 0; line-height: 1.6; }
+
 .role-list { display: flex; flex-direction: column; gap: 6px; margin: 0; flex: 5; overflow-y:auto;}
 .role-card { display: flex; align-items: center; gap: 10px; padding: 0 12px; background: var(--theme-grad); border: 1px solid var(--theme-dim); border-radius: 8px; position: relative; cursor: pointer; flex: 1; min-height:60px;} 
 .role-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--theme-primary); border-radius: 8px 0 0 8px; }
@@ -172,6 +175,7 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
     <div class="stage">
       
       <section class="screen show" id="scrHome">
+        
         <div id="linearStoryContainer" class="linear-standby" style="display:none;">
           <h2>主線任務進行中</h2>
           <p id="linearStoryText">目前進度：第 1 關 / 共 25 關</p>
@@ -373,7 +377,7 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
 // 基礎系統宣告
 // ===============================================
 const id = (el) => document.getElementById(el);
-const SAVE_KEY = 'BrainPioneer_SaveData_v8.9'; 
+const SAVE_KEY = 'BrainPioneer_SaveData_v8.9.1'; 
 const TOTAL_BEG_TASKS = 25;
 const GAME_URLS = { 'beg_id_0': 'game_strokeis.html', 'beg_id_1': 'game_name.html', 'role_emt_0': 'game_race_lev1.html', 'role_dr_0': 'game_shoot_lev1.html' };
 
@@ -460,14 +464,12 @@ function setHomeView(isMap) {
     id('segMap').classList.add('active');
     id('segList').classList.remove('active');
     id('roleListContainer').style.display = 'none';
-    id('linearStoryContainer').style.display = 'none';
     id('homeMapContainer').style.display = 'block';
     if (!id('homeMapFrame').src.includes('hub_world')) id('homeMapFrame').src = getLobbyUrl();
   } else {
     id('segList').classList.add('active');
     id('segMap').classList.remove('active');
     id('homeMapContainer').style.display = 'none';
-    id('linearStoryContainer').style.display = 'none';
     id('roleListContainer').style.display = 'flex';
   }
 }
@@ -482,8 +484,7 @@ function showScreen(screenId) {
       id('mainHeader').style.display = 'flex'; 
       id('mainNav').style.display = 'flex'; 
     }
-  } 
-  else { 
+  } else { 
     id('mainHeader').style.display = 'none'; 
     id('mainNav').style.display = 'none'; 
     target.classList.add('full-view'); 
@@ -609,23 +610,17 @@ window.addEventListener('message', (event) => {
       if (event.data.type === 'GAME_CLEAR') {
         handleGameClear(event.data.score || 1000);
       } else {
-        if (playerState.storyMode) {
-            id('homeMapFrame').src = getLobbyUrl();
-            showScreen('scrHome'); 
-        }
+        updateModeUI(); // 確保重新整理介面狀態
         customAlert('扣除 1 次挑戰機會，請再接再厲！', () => {
           currentGameInfo = null; 
-          if(!playerState.storyMode) openRoleDetail(activeRoleId);
+          if(!playerState.storyMode && playerState.storyProgression >= TOTAL_BEG_TASKS) openRoleDetail(activeRoleId);
         }, "❌ 任務失敗");
       }
     }
     else if (event.data.type === 'CLOSE_IFRAME') {
       closeGameIframe();
       exitFullscreenUI(); 
-      if (playerState.storyMode) {
-          id('homeMapFrame').src = getLobbyUrl();
-          showScreen('scrHome'); 
-      }
+      updateModeUI(); // 確保重新整理介面狀態
     }
     else if (event.data.type === 'PUZZLE_CLEAR') {
       const pid = event.data.puzzleId;
@@ -690,18 +685,16 @@ function updateModeUI() {
   id('bossTitleText').textContent = isBeg ? '🛡️ 中風題庫演練' : '🚨 中風個案救治';
   
   id('uiStoryToggleWrap').style.display = 'flex';
-  id('mainNav').style.display = 'flex'; // ★ 保證切換模式時導覽列顯示
+  id('mainNav').style.display = 'flex'; 
   
   if (isBeg && playerState.storyProgression < TOTAL_BEG_TASKS) {
-      id('roleListContainer').style.display = 'none';
-      id('homeMapContainer').style.display = 'none';
       id('linearStoryContainer').style.display = 'flex';
       id('linearStoryText').textContent = `目前進度：第 ${playerState.storyProgression + 1} 關 / 共 ${TOTAL_BEG_TASKS} 關`;
   } else {
       id('linearStoryContainer').style.display = 'none';
-      setHomeView(playerState.storyMode);
   }
   
+  setHomeView(playerState.storyMode);
   updateHUD();
   renderHomeRoles();
   showScreen('scrHome');
@@ -891,13 +884,13 @@ function handleGameClear(score) {
       if (playerState.replayProgression < TOTAL_BEG_TASKS) {
           customConfirm(`得分：${score} 分\n\n回顧任務順利完成！要接著複習下一關嗎？`, 
               () => { playTaskFlat(playerState.replayProgression); }, 
-              () => { id('homeMapFrame').src = getLobbyUrl(); playerState.isReplaying = false; }, 
+              () => { updateModeUI(); playerState.isReplaying = false; }, 
               "✅ 任務回顧", "繼續下一關", "先休息"
           );
       } else {
           playerState.replayProgression = 0;
           playerState.isReplaying = false;
-          customAlert("太厲害了！你已經重新回顧了所有初階任務！", () => { id('homeMapFrame').src = getLobbyUrl(); }, "🎉 回顧完成");
+          customAlert("太厲害了！你已經重新回顧了所有初階任務！", () => { updateModeUI(); }, "🎉 回顧完成");
       }
   } 
   else if (playerState.mode === 'beginner' && playerState.storyProgression < TOTAL_BEG_TASKS) {
@@ -920,17 +913,55 @@ function handleGameClear(score) {
   else {
       customAlert(`得分：${score} 分\n獲得 50 健康幣！\n\n✨ 成功解鎖健康卡`, () => {
         openCardModal(tabMode, info.role.id, info.taskIndex);
-        if (playerState.storyMode) {
-          id('homeMapFrame').src = getLobbyUrl();
-        } else {
-          openRoleDetail(activeRoleId);
-        }
+        updateModeUI();
       }, "🎉 任務成功！", "觀看健康卡");
   }
   
   currentGameInfo = null;
 }
 
+function readEduCard() { 
+  customAlert('中風的「黃金搶救時間」非常短暫，發現症狀請務必立刻撥打 119，切勿自行開車送醫！\n\n🎉 複習完成！已為您恢復 3 次挑戰機會！', () => {
+    getActiveRoles().find(r=>r.id===activeRoleId).dailyAttempts += 3; 
+    saveGameData(); openRoleDetail(activeRoleId); 
+  }, "📖 每日衛教小知識");
+}
+
+function buyAttempt() { 
+  if(playerState.coins >= 500){ 
+    playerState.coins -= 500; 
+    getActiveRoles().find(r=>r.id===activeRoleId).dailyAttempts += 3; 
+    saveGameData(); updateHUD(); openRoleDetail(activeRoleId); 
+    customAlert('已為您恢復 3 次挑戰機會！', null, "💰 購買成功！");
+  } else { customAlert('您的存款只有 ' + playerState.coins + ' 幣。', null, "❌ 健康幣不足！"); } 
+}
+
+function openBossPrep() { 
+  if(playerState.explorationTasksCompleted < 5) {
+      return customAlert('需在大廳向醫師接取並完成 5 項探索任務以解鎖！', null, '🔒 尚未解鎖');
+  }
+  let possibleCombos = []; let maxIndices = getActiveRoles().map(role => Math.min(role.currentTask - 1, 5));
+  function generate(currentIndex, currentCombo) {
+    if (currentIndex === 5) { possibleCombos.push(currentCombo); return; }
+    for (let i = 1; i <= maxIndices[currentIndex]; i++) { generate(currentIndex + 1, currentCombo + i.toString()); }
+  }
+  generate(0, "");
+  const completed = getActiveCompletedCases();
+  let newCombos = possibleCombos.filter(c => !completed.has(c));
+  let selectedComboStr = newCombos.length > 0 ? newCombos[Math.floor(Math.random() * newCombos.length)] : possibleCombos[Math.floor(Math.random() * possibleCombos.length)];
+  
+  customConfirm(`即將執行連續 5 項任務的綜合演練...\n本次目標編號：#C-${selectedComboStr}\n\n按「確定」模擬順利過關！`, 
+    () => {
+      if (Math.floor(800 + Math.random() * 200) > (completed.get(selectedComboStr) || 0)) completed.set(selectedComboStr, Math.floor(800 + Math.random() * 200));
+      playerState.coins += 500; saveGameData(); updateHUD(); customAlert(`獲得 500 健康幣！`, null, `🏆 完美救援！`);
+    },
+    () => { customAlert(`演練中斷。`, null, `🚨 系統提示`); }, "🚨 系統警報 🚨"
+  );
+}
+
+// ===============================================
+// ★ 圖鑑與卡匣
+// ===============================================
 function renderCaseDex() {
   const cases = getActiveCompletedCases();
   const caseCount = cases.size;
