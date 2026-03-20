@@ -57,8 +57,8 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 /* ===== 主畫面 ===== */
 #scrHome { padding: 6px 8px 75px 8px; justify-content: flex-start; overflow: hidden; display: flex; flex-direction: column; gap: 6px; } 
 
-/* 主線待機容器 (固定高度防壓縮) */
-.linear-standby { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; min-height: 150px; text-align: center; background: rgba(0,0,0,0.4); border-radius: 12px; border: 1px solid var(--theme-dim); padding: 15px; box-shadow: inset 0 0 30px rgba(0,0,0,0.5); margin-bottom: 10px; }
+/* 主線待機容器 */
+.linear-standby { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center; background: rgba(0,0,0,0.4); border-radius: 12px; border: 1px solid var(--theme-dim); padding: 15px; box-shadow: inset 0 0 30px rgba(0,0,0,0.5); margin-bottom: 10px; }
 .linear-standby h2 { color: var(--theme-primary); font-size: 22px; margin: 0 0 8px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
 .linear-standby p { color: #ccc; font-size: 13px; margin: 0 0 15px 0; line-height: 1.6; }
 
@@ -188,13 +188,13 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
           <button class="btn" style="background:var(--theme-primary); color:var(--btn-text); font-size:16px; padding:12px; box-shadow:0 4px 15px rgba(0,0,0,0.5);" onclick="restartBeginnerStory()">🔄 重新開始體驗</button>
         </div>
 
-        <div class="role-list" id="roleListContainer" style="display: none;"></div>
-        
-        <div id="homeMapContainer" style="display: none; flex: 5; border-radius: 8px; overflow: hidden; border: 1px solid var(--theme-dim); position: relative; transition: all 0.3s; margin-top: 10px;">
+        <div id="homeMapContainer" style="display: none; flex: 1; border-radius: 8px; overflow: hidden; border: 1px solid var(--theme-dim); position: relative; transition: all 0.3s; margin-bottom: 10px;">
           <iframe id="homeMapFrame" style="position:absolute; inset:0; width:100%; height:100%; border:none; background:#000;"></iframe>
         </div>
 
-        <div class="boss-banner locked" id="bossBanner" onclick="openBossPrep()" style="display:flex; margin-top:10px; margin-bottom:10px;">
+        <div class="role-list" id="roleListContainer" style="display: none;"></div>
+        
+        <div class="boss-banner locked" id="bossBanner" onclick="openBossPrep()" style="display:flex; margin-bottom:10px;">
           <h3 id="bossTitleText">🛡️ 居家演練 - 綜合情境驗收</h3>
           <p id="bossStatusText">需完成探索任務以解鎖</p>
         </div>
@@ -322,11 +322,11 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
         <div class="mode-toggle-sq" onclick="toggleMode()">
           <div class="icon">❖</div><span id="navModeText" style="font-size:10px;">初階版</span>
         </div>
-        <div class="nav-item" id="navExplore" onclick="launchExplore()">
-          <div class="icon">🏥</div><span style="font-size:10px;">醫院探索</span>
-        </div>
         <div class="nav-item" id="navLeaderboard" onclick="navBtn4Action()">
           <div class="icon" id="navLbIcon">📇</div><span style="font-size:10px;" id="navLbText">名片</span>
+        </div>
+        <div class="nav-item" id="navExplore" onclick="launchExplore()">
+          <div class="icon">🏥</div><span style="font-size:10px;">醫院探索</span>
         </div>
       </nav>
 
@@ -344,7 +344,7 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
 
 <div id="mapOverlay" style="display:none; position:fixed; inset:0; background:#000; z-index:5000; flex-direction:column;">
   <div style="padding:10px; background:#111; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #333;">
-    <span style="color:#4fc3f7; font-size:15px; font-weight:bold;">🏥 醫院探索模式</span>
+    <span id="mapOverlayTitle" style="color:#4fc3f7; font-size:15px; font-weight:bold;">🏥 醫院探索模式</span>
     <button class="btn" style="width:auto; padding:6px 12px; font-size:12px; background:rgba(255,255,255,0.1); border:1px solid #555;" onclick="closeExplore()">✖ 離開</button>
   </div>
   <iframe id="mapFrame" style="flex:1; border:none; width:100%; height:100%;"></iframe>
@@ -392,7 +392,7 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
 // 基礎系統宣告
 // ===============================================
 const id = (el) => document.getElementById(el);
-const SAVE_KEY = 'BrainPioneer_SaveData_v9.4'; 
+const SAVE_KEY = 'BrainPioneer_SaveData_v9.5'; 
 const TOTAL_BEG_TASKS = 25;
 const GAME_URLS = { 'beg_id_0': 'game_strokeis.html', 'beg_id_1': 'game_name.html', 'role_emt_0': 'game_race_lev1.html', 'role_dr_0': 'game_shoot_lev1.html' };
 
@@ -423,7 +423,7 @@ const scaleQuestions = [
     { val: 1, icon: '👕', text: '沒有困難' }, { val: 2, icon: '🙂', text: '有一點困難' }, { val: 3, icon: '😐', text: '中度困難' }, { val: 4, icon: '😟', text: '嚴重困難' }, { val: 5, icon: '🆘', text: '無法自理' }
   ]},
   { id: 'eq3', title: '4/7 日常活動', type: 'choice', options: [
-    { val: 1, icon: '💼', text: '沒有困难' }, { val: 2, icon: '🙂', text: '有一點困難' }, { val: 3, icon: '😐', text: '中度困難' }, { val: 4, icon: '😟', text: '严重困难' }, { val: 5, icon: '🚫', text: '無法進行' }
+    { val: 1, icon: '💼', text: '没有困难' }, { val: 2, icon: '🙂', text: '有一點困難' }, { val: 3, icon: '😐', text: '中度困难' }, { val: 4, icon: '😟', text: '严重困难' }, { val: 5, icon: '🚫', text: '無法進行' }
   ]},
   { id: 'eq4', title: '5/7 疼痛/不舒服', type: 'choice', options: [
     { val: 1, icon: '🟢', text: '沒有疼痛' }, { val: 2, icon: '🟡', text: '有一點' }, { val: 3, icon: '🟠', text: '中度' }, { val: 4, icon: '🔴', text: '嚴重' }, { val: 5, icon: '🔥', text: '極度疼痛' }
@@ -480,7 +480,7 @@ function setHomeView(isMap) {
   id('roleListContainer').style.display = 'none';
   id('homeMapContainer').style.display = 'none';
   
-  // ★ 無論地圖或清單，Boss Banner 都永遠固定在首頁的最下方
+  // ★ Boss Banner 永遠在首頁顯示 (不論地圖或清單)
   id('bossBanner').style.display = 'flex'; 
   
   if (isMap && playerState.mode === 'beginner') {
@@ -488,16 +488,11 @@ function setHomeView(isMap) {
     id('segList').classList.remove('active');
     
     if (playerState.storyProgression < TOTAL_BEG_TASKS) {
-       // 未破關：地圖模式顯示主線面板 (不預載地圖框，等按下才開始)
        id('linearStoryContainer').style.display = 'flex';
     } else {
-       // 已破關：顯示重新體驗面板 + 預設載入地圖框
        id('restartStoryContainer').style.display = 'flex';
-       id('homeMapContainer').style.display = 'block';
-       if (!id('homeMapFrame').src.includes('hub_world')) id('homeMapFrame').src = getLobbyUrl();
     }
   } else {
-    // 清單模式 (或進階版)
     if(playerState.mode === 'beginner'){
         id('segList').classList.add('active');
         id('segMap').classList.remove('active');
@@ -556,7 +551,7 @@ function renderHomeRoles() {
     let progressText = "";
     let actionBtn = "";
     
-    // 初階清單：計算玩家自由點選完成的任務數
+    // ★ 初階清單：計算玩家自由點選完成的任務數
     if (playerState.mode === 'beginner') {
        let doneCount = 0;
        for(let i=0; i<role.totalTasks; i++) {
@@ -593,7 +588,7 @@ function openRoleDetail(roleId) {
   for(let i=0; i<role.totalTasks; i++) {
     let statusClass = 'locked', icon = '🔒', action = '';
     
-    // 初階清單：所有任務皆可自由點擊
+    // ★ 初階清單：所有任務皆可自由點擊
     if (playerState.mode === 'beginner') {
        const isDone = playerState.taskScoresBeg.has(`${role.id}_${i}`);
        statusClass = isDone ? 'completed' : 'active';
@@ -624,6 +619,8 @@ function closeAllIframes() {
     id('gameFrame').src = ''; 
     id('mapOverlay').style.display = 'none'; 
     id('mapFrame').src = ''; 
+    id('homeMapContainer').style.display = 'none';
+    id('homeMapFrame').src = '';
 }
 
 function closeExplore() {
@@ -642,7 +639,6 @@ window.addEventListener('message', (event) => {
       customConfirm(`醫師交派了新任務：\n「${t}」\n\n(系統擴充中，直接模擬完成！)`, () => {
           playerState.explorationTasksCompleted++;
           if (playerState.explorationTasksCompleted >= 5) {
-              id('bossBanner').classList.remove('locked');
               customAlert("已累積完成 5 項探索任務！\n【綜合情境驗收】已解鎖！", null, "🚨 BOSS 任務解鎖");
           } else {
               customAlert(`完成探索！獲得 50 幣。\n目前累積任務：${playerState.explorationTasksCompleted}/5`, null, "🏆 任務完成");
@@ -721,9 +717,6 @@ function updateModeUI() {
   id('navCaseText').textContent = isBeg ? '演練圖鑑' : '個案圖鑑';
   id('navLbText').textContent = isBeg ? '中風名片' : '排行榜';
   
-  // ★ 醫院探索按鈕：不管破沒破關，永遠存在下方導覽列
-  id('navExplore').style.display = 'flex';
-
   if (isBeg) {
     id('uiStoryToggleWrap').style.display = 'flex';
     if (playerState.storyProgression >= TOTAL_BEG_TASKS && playerState.storyMode) {
@@ -788,12 +781,12 @@ function restartBeginnerStory() {
 }
 
 function launchExplore() {
-    // 檢查是否已通關 25 關
     if (playerState.mode === 'beginner' && playerState.storyProgression < TOTAL_BEG_TASKS) {
         customAlert("請先完成初階版的 25 個引導任務，才能解鎖醫院探索模式喔！", null, "🔒 尚未解鎖");
         return;
     }
-    // 開啟專屬的全螢幕探索大廳 (含退出鈕)
+    // 開啟專屬的全螢幕探索大廳 (含頂部退出鈕標題)
+    id('mapOverlayTitle').textContent = '🏥 醫院探索模式';
     id('mapOverlay').style.display = 'flex';
     id('mapFrame').src = `rpg_loader.html?taskId=hub_world`;
 }
@@ -862,23 +855,23 @@ function playTaskFlat(index) {
   // 標記這是主線推進，只有主線完成才會加 storyProgression
   currentGameInfo = { role: flatTask.role, taskIndex: flatTask.taskIndex, id: flatTask.gameId, isLinear: true };
   
+  // 隱藏不必要的面板，只留下主線視窗與 Boss Banner
   id('linearStoryContainer').style.display = 'none';
+  id('roleListContainer').style.display = 'none';
   id('homeMapContainer').style.display = 'block';
   
-  // ★ 主線任務初始維持視窗模式，不強制全螢幕
+  // ★ 初始維持視窗模式，不強制全螢幕
   id('homeMapContainer').classList.remove('fullscreen-map'); 
   id('mainHeader').style.display = 'flex';
+  id('mainNav').style.display = 'flex';
   isGlobalFs = false;
   
-  let url = `rpg_loader.html?taskId=${flatTask.gameId}`;
-  id('homeMapFrame').src = url;
+  id('homeMapFrame').src = `rpg_loader.html?taskId=${flatTask.gameId}`;
 }
 
 function playTask(taskIndex) {
   const role = getActiveRoles().find(r => r.id === activeRoleId);
   if (role.dailyAttempts <= 0) {
-    exitFullscreenUI();
-    openRoleDetail(activeRoleId);
     customAlert("今日挑戰機會已用盡！\n請透過觀看衛教或使用健康幣來恢復次數。", null, "⚠️ 體力不足");
     return;
   }
@@ -887,15 +880,17 @@ function playTask(taskIndex) {
   // ★ 從清單進入的任務，都不算主線
   currentGameInfo = { role: role, taskIndex: taskIndex, id: gameId, isLinear: false };
   
-  const gameUrl = GAME_URLS[gameId];
+  let gameUrl = GAME_URLS[gameId];
   if (gameUrl) {
     id('gameFrame').src = gameUrl;
     id('gameTitle').textContent = role.subTasks[taskIndex].substring(3);
+    id('gameOverlay').style.display = 'flex';
   } else {
-    customAlert("此為模擬演練...", () => handleGameClear(1000));
-    return;
+    // 預設 RPG 任務
+    id('mapOverlayTitle').textContent = `🎯 ${role.subTasks[taskIndex].substring(3)}`;
+    id('mapOverlay').style.display = 'flex';
+    id('mapFrame').src = `rpg_loader.html?taskId=${gameId}`;
   }
-  id('gameOverlay').style.display = 'flex';
 
   role.dailyAttempts--; 
   saveGameData(); 
@@ -961,7 +956,6 @@ function handleGameClear(score) {
           }, "🎉 訓練結業");
       }
   } 
-  // 清單模式 或 進階版 的通關處理
   else {
       customAlert(`得分：${score} 分\n獲得 50 健康幣！\n\n✨ 成功解鎖健康卡`, () => {
         openCardModal(tabMode, info.role.id, info.taskIndex);
