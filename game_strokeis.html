@@ -15,12 +15,11 @@ body {
   background: linear-gradient(180deg, #eef7ff, #f9fcff); 
   color: var(--ink); 
   overflow-y: auto; 
-  -webkit-overflow-scrolling: touch; /* 讓手機滾動更滑順 */
+  -webkit-overflow-scrolling: touch;
 }
 .app { 
-  max-width: 1160px; 
-  margin: auto; 
-  padding: 14px 14px 100px 14px; /* ★ 底部保留 100px 空間，防止被瀏覽器介面擋住 */
+  max-width: 1160px; margin: auto; 
+  padding: 14px 14px 100px 14px; /* 底部保留 100px 空間防擋 */
   min-height: 100%;
 }
 
@@ -112,6 +111,10 @@ function render(){
     nextBtn.textContent = '✅ 完成學習並領取獎勵';
     nextBtn.className = 'next finish';
     nextBtn.onclick = () => {
+      // ★ 加上防止連點的視覺回饋
+      nextBtn.textContent = '處理中...';
+      nextBtn.style.opacity = '0.7';
+      nextBtn.style.pointerEvents = 'none';
       window.parent.postMessage({ type: 'GAME_CLEAR', score: 1000 }, '*');
     };
   } else {
