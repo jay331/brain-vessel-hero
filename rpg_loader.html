@@ -18,7 +18,6 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 
 .header { position: absolute; top: 0; width: 100%; height: calc(45px + var(--safe-top)); background: linear-gradient(to bottom, #111, #333); padding-top: var(--safe-top); display: flex; align-items: center; justify-content: space-between; padding: 0 12px; font-weight: 900; font-size: 14px; color: #fff; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: opacity 0.5s;}
 .mission-text { color: #ffca28; flex: 1; text-align: center; }
-.timer { color: #4CAF50; font-size: 13px; background: rgba(0,0,0,0.5); padding: 4px 10px; border-radius: 5px; letter-spacing: 1px;}
 .btn-cancel { padding: 4px 10px; border-radius: 6px; color: #fff; border: none; font-weight: bold; font-size: 11px; cursor: pointer; background: #78909c; }
 
 .scene{position:absolute;inset:0;top:0;overflow:hidden;} 
@@ -92,10 +91,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 .joystick-knob { position: absolute; width: 60px; height: 60px; background: var(--gold); border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%);}
 
 /* 開場黑幕與打字機 */
-.story-intro { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.98) 80%); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 20px 20px 40px 20px; color: white; text-align: left; transition: opacity 0.8s ease-out;}
-/* ★ 修復：縮小手機版字體，讓畫面更清爽 */
-.typewriter { font-size: 15px; line-height: 1.6; margin-bottom: 15px; min-height: 80px; font-weight: bold; text-shadow: 0 2px 5px rgba(0,0,0,0.8);}
-.btn-start { padding: 14px 40px; font-size: 18px; background: rgba(33, 150, 243, 0.9); color: white; border: 2px solid #64b5f6; border-radius: 30px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(4px); transition: transform 0.2s, background 0.2s; opacity: 0; transform: translateY(20px);}
+.story-intro { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.98) 80%); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; color: white; text-align: center; transition: opacity 0.8s ease-out;}
+.typewriter { font-size: 16px; line-height: 1.8; margin-bottom: 25px; min-height: 80px; font-weight: bold; text-shadow: 0 2px 5px rgba(0,0,0,0.8);}
+.btn-start { padding: 14px 50px; font-size: 18px; background: rgba(33, 150, 243, 0.9); color: white; border: 2px solid #64b5f6; border-radius: 30px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(4px); transition: transform 0.2s, background 0.2s; opacity: 0; transform: translateY(20px);}
 .btn-start.show { opacity: 1; transform: translateY(0); }
 .btn-start:active { transform: scale(0.95); background: #1976d2; }
 
@@ -130,8 +128,6 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 
 .animation-screen { position: absolute; inset: 0; background: #111; z-index: 500; display: none; flex-direction: column;}
 #animFrame { flex: 1; border: none; width: 100%; height: 100%;}
-.btn-quit-anim { position: absolute; top: max(10px, env(safe-area-inset-top)); right: 10px; background: rgba(0,0,0,0.7); color: #fff; border: 1px solid #aaa; padding: 6px 15px; border-radius: 6px; z-index: 501; cursor: pointer; font-weight: bold; backdrop-filter: blur(4px); font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.5);}
-.btn-quit-anim:active { background: rgba(0,0,0,0.9); }
 </style>
 </head>
 <body>
@@ -139,7 +135,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
   
   <div class="story-intro" id="storyIntro">
     <div class="typewriter" id="typewriterText"></div>
-    <button class="btn-start" id="btnStartGame" onclick="startExplore()">出發</button>
+    <button class="btn-start" id="btnStartGame" onclick="startExplore()">開始</button>
   </div>
 
   <button class="btn-fs-toggle" id="btnFsToggle" onclick="toggleFs()">⛶</button>
@@ -212,7 +208,6 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
   </div>
   
   <div class="animation-screen" id="animScreen">
-    <button class="btn-quit-anim" onclick="parent.postMessage({type:'CLOSE_IFRAME'}, '*')">✖ 中斷任務</button>
     <iframe id="animFrame" src="about:blank"></iframe>
   </div>
 
@@ -225,13 +220,13 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 const RPG_TASKS = {
   "hub_world": {
     roleName: "急救新星",
-    intro: "歡迎來到遙遠的東方醫院！\n\n戰勝腦中風不靠運氣\n靠的是不斷累積的知識與能力 💪\n\n出發吧！前往大廳尋求指引",
+    intro: "恭喜完成初階訓練！🎉\n\n大門已為你敞開，現在你可以自由探索這座醫院，並向團隊接取進階任務喔！",
     missionText: "自由探索醫院",
     startPos: { x: 1500, y: -600 }, 
     npcs: [
-      { id: 'npc_review',   name: '護理長',   color: '#ff9800', head: '#ffcc80', body: '#fff', pos: { x: 1350, y: -750 }, icon: '📜', dialogs: [{name: "護理長", text: "溫故知新是很重要的，來看看你已經完成了哪些挑戰吧。"}], action: 'ACTION_REVIEW' },
-      { id: 'npc_guide',    name: '志工',     color: '#9c27b0', head: '#ce93d8', body: '#e1bee7', pos: { x: 1500, y: -750 }, icon: '💬', dialogs: [{name: "志工", text: "歡迎來到亞東醫院！你可以自由在這裡探索，搭乘上方的電梯可以前往 11G 病房區喔！"}], action: 'NONE' },
-      { id: 'npc_continue', name: '主治醫師', color: '#4CAF50', head: '#a5d6a7', body: '#fff', pos: { x: 1650, y: -750 }, icon: '▶️', dialogs: [{name: "主治醫師", text: "準備好進行下一個訓練了嗎？時間就是大腦，我們馬上出發！"}], action: 'ACTION_CONTINUE' }
+      { id: 'npc_review',   name: '護理長',   color: '#ff9800', head: '#ffcc80', body: '#fff', pos: { x: 1350, y: -750 }, icon: '📜', dialogs: [{name: "護理長", text: "要重溫之前的訓練回憶嗎？隨時為你準備好。"}], action: 'ACTION_REVIEW' },
+      { id: 'npc_guide',    name: '志工',     color: '#9c27b0', head: '#ce93d8', body: '#e1bee7', pos: { x: 1500, y: -750 }, icon: '💬', dialogs: [{name: "志工", text: "自由探索模式已解鎖！你可以到處逛逛，也可以搭電梯去 11 樓找找看有沒有什麼驚喜！"}], action: 'NONE' },
+      { id: 'npc_continue', name: '主治醫師', color: '#4CAF50', head: '#a5d6a7', body: '#fff', pos: { x: 1650, y: -750 }, icon: '▶️', dialogs: [{name: "主治醫師", text: "大腦的救援從未停止。準備好接取今天的醫院探索任務了嗎？"}], action: 'ACTION_CONTINUE' }
     ]
   },
   "beg_id_0": {
@@ -264,13 +259,23 @@ const RPG_TASKS = {
 
 const urlParams = new URLSearchParams(window.location.search);
 const taskId = urlParams.get('taskId') || 'hub_world';
-const task = RPG_TASKS[taskId] || RPG_TASKS["hub_world"];
 let isFsMode = urlParams.get('fs') === '1';
-let isFirstTask = urlParams.get('first') === '1';
 
-if (taskId === 'hub_world' && isFirstTask) {
-    let docNpc = task.npcs.find(n => n.id === 'npc_continue');
-    if(docNpc) docNpc.dialogs[0].text = "歡迎來到腦脈先鋒的行列！我是主治醫師。守護大腦的旅程即將開始，準備好接受第一項訓練了嗎？";
+// 如果任務不存在於資料庫 (尚未實作的 2~25 關)，建立一個動態模擬資料
+let task = RPG_TASKS[taskId];
+if (!task) {
+  task = {
+    roleName: "實習醫生",
+    intro: `這是模擬關卡的測試任務！\n\n系統建置中，請前往指定地點與人員對話以完成挑戰。`,
+    missionText: "尋找指定人員",
+    startPos: { x: 2125, y: 1900 },
+    npcs: [
+      { id: 'nurse', name: '護理師', color: '#ff9800', head: '#ffcc80', body: '#fff', pos: { x: 1350, y: 1280 }, icon: '🎯', dialogs: [
+        { name: "護理師", text: "太棒了，你找到了我！這關的實作還在開發中，我們直接當作你過關了吧！" }
+      ], action: 'PLAY_ANIMATION' }
+    ],
+    gameUrl: "" // 空字串代表直接發送 GAME_CLEAR
+  };
 }
 
 let state = { x: task.startPos.x, y: task.startPos.y };
@@ -280,7 +285,7 @@ let missionStage = -1;
 let gameActive = false; 
 let currentNpc = null;
 
-document.getElementById('btnStartGame').innerText = (taskId === 'hub_world') ? "出發" : "任務開始";
+document.getElementById('btnStartGame').innerText = (taskId === 'hub_world') ? "出發探索" : "任務開始";
 document.getElementById('playerName').innerText = task.roleName;
 document.getElementById('ui-role').innerText = task.roleName;
 document.getElementById('ui-mission').innerText = "任務：" + task.missionText;
