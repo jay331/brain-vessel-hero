@@ -40,24 +40,24 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .wrap { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0; }
 .stage { position: relative; width: 100%; height: 100%; overflow: hidden; display: flex; flex-direction: column; background: radial-gradient(circle at 50% 30%, var(--theme-bg), rgba(0,0,0,0.95)), linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.98)), url('https://images.unsplash.com/photo-1551076805-e1869033e561?q=80&w=800&auto=format&fit=crop') center/cover no-repeat; }
 @media (min-width: 481px) { .wrap { padding: 20px; background: #111; } .stage { max-width: 414px; max-height: 896px; border-radius: 16px; border: 2px solid var(--theme-dim); box-shadow: 0 0 30px var(--theme-bg); } }
-.screen { position: absolute; inset: 0; display: none; flex-direction: column; z-index: 10; padding: 10px; overflow-y: auto; padding-bottom: 80px; }
+.screen { position: absolute; inset: 0; display: none; flex-direction: column; z-index: 10; padding: 10px; padding-bottom: 75px; overflow-y: auto; }
 .screen.show { display: flex; }
 .screen.full-view { padding-top: 10px; padding-bottom: 10px; z-index: 200; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); }
 .fullscreen-map { position: fixed !important; inset: 0 !important; z-index: 4000 !important; border-radius: 0 !important; border: none !important; }
 
 /* ===== 元件 ===== */
-.panel { background: var(--theme-panel); border: 1px solid var(--theme-dim); border-radius: 10px; padding: 12px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; flex: 1;}
+.panel { background: var(--theme-panel); border: 1px solid var(--theme-dim); border-radius: 10px; padding: 12px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; flex: 1; min-height: 0;}
 .panel h2 { color: var(--theme-primary); margin: 0 0 10px 0; font-size: 16px; text-align: center; border-bottom: 1px dashed var(--theme-dim); padding-bottom: 6px; flex-shrink: 0;}
 .btn { padding: 12px; border-radius: 6px; font-weight: 900; font-size: 15px; text-align: center; background: linear-gradient(180deg, #444, #222); color: #fff; border: 1px solid #666; width: 100%; cursor:pointer; flex-shrink: 0;}
 .btn:active { transform: scale(0.95); }
-.btn-back { background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.6)); border: 1px solid var(--theme-dim); color: #fff; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 10px rgba(0,0,0,0.5); border-radius: 8px; transition: all 0.2s; }
+.btn-back { background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.6)); border: 1px solid var(--theme-dim); color: #fff; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 10px rgba(0,0,0,0.5); border-radius: 8px; transition: all 0.2s; flex-shrink: 0; }
 .btn-back:active { transform: scale(0.97); background: rgba(0,0,0,0.8); }
 .btn-rescue { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border: none; color: #004d26; font-weight: 900; text-shadow: 0 1px 1px rgba(255,255,255,0.4); padding: 12px; font-size: 13px; border-radius: 8px; box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4), inset 0 -3px 0 rgba(0,0,0,0.15); transition: all 0.2s; margin-bottom: 4px;}
 
 /* ===== 主畫面 ===== */
-#scrHome { padding: 6px 8px 75px 8px; justify-content: flex-start; overflow: hidden; display: flex; flex-direction: column; gap: 6px; } 
+#scrHome { justify-content: flex-start; } 
 
-/* 主線待機容器 */
+/* ★ 主線待機容器 (改為 flex:1 填滿剩餘高度，避免按鈕跳動) */
 .linear-standby { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center; background: rgba(0,0,0,0.4); border-radius: 12px; border: 1px solid var(--theme-dim); padding: 15px; box-shadow: inset 0 0 30px rgba(0,0,0,0.5); margin-bottom: 10px; }
 .linear-standby h2 { color: var(--theme-primary); font-size: 22px; margin: 0 0 8px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
 .linear-standby p { color: #ccc; font-size: 13px; margin: 0 0 15px 0; line-height: 1.6; }
@@ -132,7 +132,7 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
 .mode-toggle-sq:active { background: #000; transform: scale(0.95); }
 .mode-toggle-sq .icon { font-size: 20px; margin-bottom: 2px; text-shadow: none;}
 
-/* 彈出視窗 - Z-index: 50000 確保在最上層 */
+/* 彈出視窗 */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 50000; padding: 15px;}
 .modal-content { background: var(--theme-panel); border: 1px solid var(--theme-primary); border-radius: 12px; width: 100%; max-width: 320px; padding: 20px; position: relative; text-align: center; max-height: 90vh; overflow-y:auto; }
 .close-btn { position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: #aaa; font-size: 18px; cursor:pointer;}
@@ -322,11 +322,11 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
         <div class="mode-toggle-sq" onclick="toggleMode()">
           <div class="icon">❖</div><span id="navModeText" style="font-size:10px;">初階版</span>
         </div>
-        <div class="nav-item" id="navLeaderboard" onclick="navBtn4Action()">
-          <div class="icon" id="navLbIcon">📇</div><span style="font-size:10px;" id="navLbText">名片</span>
-        </div>
         <div class="nav-item" id="navExplore" onclick="launchExplore()">
           <div class="icon">🏥</div><span style="font-size:10px;">醫院探索</span>
+        </div>
+        <div class="nav-item" id="navLeaderboard" onclick="navBtn4Action()">
+          <div class="icon" id="navLbIcon">📇</div><span style="font-size:10px;" id="navLbText">名片</span>
         </div>
       </nav>
 
@@ -392,7 +392,7 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
 // 基礎系統宣告
 // ===============================================
 const id = (el) => document.getElementById(el);
-const SAVE_KEY = 'BrainPioneer_SaveData_v9.5'; 
+const SAVE_KEY = 'BrainPioneer_SaveData_v9.6'; 
 const TOTAL_BEG_TASKS = 25;
 const GAME_URLS = { 'beg_id_0': 'game_strokeis.html', 'beg_id_1': 'game_name.html', 'role_emt_0': 'game_race_lev1.html', 'role_dr_0': 'game_shoot_lev1.html' };
 
@@ -461,7 +461,6 @@ function getFlatTask(index) {
 function getLobbyUrl() {
   let isFirst = playerState.storyProgression === 0 ? 1 : 0;
   let url = `rpg_loader.html?taskId=hub_world&first=${isFirst}`;
-  if (isGlobalFs) url += '&fs=1';
   return url;
 }
 
@@ -480,7 +479,7 @@ function setHomeView(isMap) {
   id('roleListContainer').style.display = 'none';
   id('homeMapContainer').style.display = 'none';
   
-  // ★ Boss Banner 永遠在首頁顯示 (不論地圖或清單)
+  // ★ 無論地圖或清單，Boss Banner 都永遠固定在首頁的最下方
   id('bossBanner').style.display = 'flex'; 
   
   if (isMap && playerState.mode === 'beginner') {
@@ -488,9 +487,13 @@ function setHomeView(isMap) {
     id('segList').classList.remove('active');
     
     if (playerState.storyProgression < TOTAL_BEG_TASKS) {
+       // 未破關：顯示主線待機面板，並且用 block 和 flex: 1 撐滿高度
        id('linearStoryContainer').style.display = 'flex';
     } else {
+       // 已破關：顯示重新體驗面板 + 視窗版地圖
        id('restartStoryContainer').style.display = 'flex';
+       id('homeMapContainer').style.display = 'block';
+       if (!id('homeMapFrame').src.includes('hub_world')) id('homeMapFrame').src = getLobbyUrl();
     }
   } else {
     if(playerState.mode === 'beginner'){
@@ -520,10 +523,10 @@ function showScreen(screenId) {
 
 function exitFullscreenUI() {
   isGlobalFs = false;
-  const mapWrap = id('homeMapContainer');
-  if(mapWrap) mapWrap.classList.remove('fullscreen-map');
   id('mainHeader').style.display = 'flex'; 
   id('mainNav').style.display = 'flex';
+  id('homeMapContainer').classList.remove('fullscreen-map');
+  updateModeUI(); 
 }
 
 function toggleMode() { 
@@ -619,8 +622,6 @@ function closeAllIframes() {
     id('gameFrame').src = ''; 
     id('mapOverlay').style.display = 'none'; 
     id('mapFrame').src = ''; 
-    id('homeMapContainer').style.display = 'none';
-    id('homeMapFrame').src = '';
 }
 
 function closeExplore() {
@@ -665,7 +666,7 @@ window.addEventListener('message', (event) => {
       isGlobalFs = event.data.isFullscreen;
       const mapWrap = id('homeMapContainer');
       if (isGlobalFs) {
-        mapWrap.classList.add('fullscreen-map');
+        if(mapWrap) mapWrap.classList.add('fullscreen-map');
         id('mainHeader').style.display = 'none'; 
         id('mainNav').style.display = 'none';    
       } else {
@@ -785,7 +786,7 @@ function launchExplore() {
         customAlert("請先完成初階版的 25 個引導任務，才能解鎖醫院探索模式喔！", null, "🔒 尚未解鎖");
         return;
     }
-    // 開啟專屬的全螢幕探索大廳 (含頂部退出鈕標題)
+    // 開啟專屬的全螢幕探索大廳 (含退出鈕標題)
     id('mapOverlayTitle').textContent = '🏥 醫院探索模式';
     id('mapOverlay').style.display = 'flex';
     id('mapFrame').src = `rpg_loader.html?taskId=hub_world`;
@@ -855,12 +856,12 @@ function playTaskFlat(index) {
   // 標記這是主線推進，只有主線完成才會加 storyProgression
   currentGameInfo = { role: flatTask.role, taskIndex: flatTask.taskIndex, id: flatTask.gameId, isLinear: true };
   
-  // 隱藏不必要的面板，只留下主線視窗與 Boss Banner
   id('linearStoryContainer').style.display = 'none';
   id('roleListContainer').style.display = 'none';
-  id('homeMapContainer').style.display = 'block';
+  id('bossBanner').style.display = 'none';
   
-  // ★ 初始維持視窗模式，不強制全螢幕
+  // 顯示視窗版地圖框，並保持導覽列
+  id('homeMapContainer').style.display = 'block';
   id('homeMapContainer').classList.remove('fullscreen-map'); 
   id('mainHeader').style.display = 'flex';
   id('mainNav').style.display = 'flex';
@@ -872,6 +873,8 @@ function playTaskFlat(index) {
 function playTask(taskIndex) {
   const role = getActiveRoles().find(r => r.id === activeRoleId);
   if (role.dailyAttempts <= 0) {
+    exitFullscreenUI();
+    openRoleDetail(activeRoleId);
     customAlert("今日挑戰機會已用盡！\n請透過觀看衛教或使用健康幣來恢復次數。", null, "⚠️ 體力不足");
     return;
   }
@@ -880,14 +883,14 @@ function playTask(taskIndex) {
   // ★ 從清單進入的任務，都不算主線
   currentGameInfo = { role: role, taskIndex: taskIndex, id: gameId, isLinear: false };
   
-  let gameUrl = GAME_URLS[gameId];
+  const gameUrl = GAME_URLS[gameId];
   if (gameUrl) {
     id('gameFrame').src = gameUrl;
     id('gameTitle').textContent = role.subTasks[taskIndex].substring(3);
     id('gameOverlay').style.display = 'flex';
   } else {
-    // 預設 RPG 任務
-    id('mapOverlayTitle').textContent = `🎯 ${role.subTasks[taskIndex].substring(3)}`;
+    // 沒有綁定 HTML 的關卡，進入 RPG 引擎全螢幕
+    id('mapOverlayTitle').textContent = `🎯 模擬演練：${role.subTasks[taskIndex].substring(3)}`;
     id('mapOverlay').style.display = 'flex';
     id('mapFrame').src = `rpg_loader.html?taskId=${gameId}`;
   }
@@ -956,6 +959,7 @@ function handleGameClear(score) {
           }, "🎉 訓練結業");
       }
   } 
+  // 清單模式 或 進階版 的通關處理
   else {
       customAlert(`得分：${score} 分\n獲得 50 健康幣！\n\n✨ 成功解鎖健康卡`, () => {
         openCardModal(tabMode, info.role.id, info.taskIndex);
