@@ -10,10 +10,9 @@
 /* ===== 動態主題變數 ===== */
 body.mode-advanced {--theme-primary: #d4af37; --theme-dim: #8b7322; --theme-bg: rgba(212, 175, 55, 0.1); --theme-panel: rgba(26, 22, 18, 0.85); --theme-grad: linear-gradient(90deg, rgba(42,36,30,0.95), rgba(26,22,18,0.9)); --btn-text: #000; --btn-shadow: none;}
 body.mode-beginner {--theme-primary: #64b5f6; --theme-dim: #1976d2; --theme-bg: rgba(25, 118, 210, 0.1); --theme-panel: rgba(10, 15, 25, 0.9); --theme-grad: linear-gradient(90deg, rgba(33, 150, 243, 0.15), rgba(25, 118, 210, 0.25)); --btn-text: #fff; --btn-shadow: 1px 1px 2px rgba(0,0,0,0.8);}
-
 :root { --good: #3dff8e; --text-main: #f4ecd8; --text-muted: #a99d82; --accent-red: #d32f2f; }
 
-/* ★ 修正：只在 body 下 fixed，避免 html fixed 導致畫面破圖黑屏 */
+/* ★ 鎖死畫布，防彈級導覽列固定 */
 html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
 body { margin: 0; padding: 0; width: 100%; height: 100%; position: fixed; top: 0; left: 0; bottom: 0; right: 0; background: #000; color: var(--text-main); font-family: "PingFang TC", sans-serif; overflow: hidden; }
 * { box-sizing: border-box; }
@@ -147,7 +146,6 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
       <div class="player-text-wrap">
         <div style="display:flex; align-items:center; gap:4px;">
           <div class="player-name" id="uiPlayerName" onclick="openSettings()">急救新星</div>
-          
           <div id="uiStoryToggleWrap" class="segment-ctrl">
             <div class="segment-btn active" id="segMap" onclick="setHomeView(true)">地圖</div>
             <div class="segment-btn" id="segList" onclick="setHomeView(false)">清單</div>
@@ -174,7 +172,6 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
     <div class="stage">
       
       <section class="screen show" id="scrHome">
-        
         <div id="linearStoryContainer" class="linear-standby" style="display:none;">
           <h2>主線任務進行中</h2>
           <p id="linearStoryText">目前進度：第 1 關 / 共 25 關</p>
@@ -372,6 +369,9 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
 <div class="modal-overlay" id="cardDetailModal"><div class="modal-content"><button class="close-btn" onclick="document.getElementById('cardDetailModal').style.display='none'">✖</button><div id="modalIcon" style="font-size:40px; margin-bottom:8px;"></div><h3 id="modalTitle" style="color:var(--theme-primary); margin:0 0 8px 0; font-size:16px;"></h3><div id="modalCategory" style="font-size:11px; color:var(--text-muted); margin-bottom:12px;"></div><p id="modalDesc" style="color:#fff; font-size:13px; line-height:1.5; text-align:left; background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; border:1px solid #444; margin:0;"></p></div></div>
 
 <script>
+// ===============================================
+// 基礎系統宣告
+// ===============================================
 const id = (el) => document.getElementById(el);
 const SAVE_KEY = 'BrainPioneer_SaveData_v8.9'; 
 const TOTAL_BEG_TASKS = 25;
@@ -428,9 +428,6 @@ let currentGameInfo = null;
 let activeRoleId = null;
 let currentQIndex = 0; let currentAnswers = {}; let trendChartInstance = null;
 
-// ===============================================
-// 基礎 Helper
-// ===============================================
 function getFlatTask(index) {
   let count = 0;
   for (let role of ROLES_DATA_BEG) {
@@ -485,7 +482,8 @@ function showScreen(screenId) {
       id('mainHeader').style.display = 'flex'; 
       id('mainNav').style.display = 'flex'; 
     }
-  } else { 
+  } 
+  else { 
     id('mainHeader').style.display = 'none'; 
     id('mainNav').style.display = 'none'; 
     target.classList.add('full-view'); 
@@ -643,7 +641,7 @@ window.addEventListener('message', (event) => {
 });
 
 // ===============================================
-// ★ 資料處理與流程
+// ★ 資料處理與任務流程
 // ===============================================
 function openReviewModal() {
   const container = id('reviewTaskList');
@@ -654,13 +652,19 @@ function openReviewModal() {
   roles.forEach(role => {
     let completedCount = Math.min(role.currentTask - 1, role.totalTasks);
     if (role.currentTask > role.totalTasks) completedCount = role.totalTasks; 
+
     for(let i = 0; i < completedCount; i++) {
       hasCompleted = true;
-      container.innerHTML += `<button class="btn" style="margin-bottom:8px; text-align:left; background:rgba(0,0,0,0.6); border-color:#ff9800; font-size:13px;" onclick="startReviewTask('${role.id}', ${i})">✔️ ${role.name} - ${role.subTasks[i].substring(3)}</button>`;
+      container.innerHTML += `
+        <button class="btn" style="margin-bottom:8px; text-align:left; background:rgba(0,0,0,0.6); border-color:#ff9800; font-size:13px;" onclick="startReviewTask('${role.id}', ${i})">
+          ✔️ ${role.name} - ${role.subTasks[i].substring(3)}
+        </button>`;
     }
   });
 
-  if(!hasCompleted) container.innerHTML = '<p style="color:#aaa; text-align:center;">您目前尚無已通關的任務可供回顧，請先前往「繼續任務」破關喔！</p>';
+  if(!hasCompleted) {
+    container.innerHTML = '<p style="color:#aaa; text-align:center;">您目前尚無已通關的任務可供回顧，請先前往「繼續任務」破關喔！</p>';
+  }
   id('reviewModal').style.display = 'flex';
 }
 
@@ -686,7 +690,7 @@ function updateModeUI() {
   id('bossTitleText').textContent = isBeg ? '🛡️ 中風題庫演練' : '🚨 中風個案救治';
   
   id('uiStoryToggleWrap').style.display = 'flex';
-  id('mainNav').style.display = 'flex'; 
+  id('mainNav').style.display = 'flex'; // ★ 保證切換模式時導覽列顯示
   
   if (isBeg && playerState.storyProgression < TOTAL_BEG_TASKS) {
       id('roleListContainer').style.display = 'none';
@@ -836,6 +840,7 @@ function playTask(taskIndex) {
         id('mainHeader').style.display = 'flex';
     }
     id('homeMapFrame').src = url;
+    
     id('roleListContainer').style.display = 'none';
     id('homeMapContainer').style.display = 'block';
   } else {
@@ -917,7 +922,6 @@ function handleGameClear(score) {
         openCardModal(tabMode, info.role.id, info.taskIndex);
         if (playerState.storyMode) {
           id('homeMapFrame').src = getLobbyUrl();
-          showScreen('scrHome');
         } else {
           openRoleDetail(activeRoleId);
         }
@@ -927,48 +931,6 @@ function handleGameClear(score) {
   currentGameInfo = null;
 }
 
-function readEduCard() { 
-  customAlert('中風的「黃金搶救時間」非常短暫，發現症狀請務必立刻撥打 119，切勿自行開車送醫！\n\n🎉 複習完成！已為您恢復 3 次挑戰機會！', () => {
-    getActiveRoles().find(r=>r.id===activeRoleId).dailyAttempts += 3; 
-    saveGameData(); openRoleDetail(activeRoleId); 
-  }, "📖 每日衛教小知識");
-}
-
-function buyAttempt() { 
-  if(playerState.coins >= 500){ 
-    playerState.coins -= 500; 
-    getActiveRoles().find(r=>r.id===activeRoleId).dailyAttempts += 3; 
-    saveGameData(); updateHUD(); openRoleDetail(activeRoleId); 
-    customAlert('已為您恢復 3 次挑戰機會！', null, "💰 購買成功！");
-  } else { customAlert('您的存款只有 ' + playerState.coins + ' 幣。', null, "❌ 健康幣不足！"); } 
-}
-
-function openBossPrep() { 
-  if(playerState.explorationTasksCompleted < 5) {
-      return customAlert('需在大廳向醫師接取並完成 5 項探索任務以解鎖！', null, '🔒 尚未解鎖');
-  }
-  let possibleCombos = []; let maxIndices = getActiveRoles().map(role => Math.min(role.currentTask - 1, 5));
-  function generate(currentIndex, currentCombo) {
-    if (currentIndex === 5) { possibleCombos.push(currentCombo); return; }
-    for (let i = 1; i <= maxIndices[currentIndex]; i++) { generate(currentIndex + 1, currentCombo + i.toString()); }
-  }
-  generate(0, "");
-  const completed = getActiveCompletedCases();
-  let newCombos = possibleCombos.filter(c => !completed.has(c));
-  let selectedComboStr = newCombos.length > 0 ? newCombos[Math.floor(Math.random() * newCombos.length)] : possibleCombos[Math.floor(Math.random() * possibleCombos.length)];
-  
-  customConfirm(`即將執行連續 5 項任務的綜合演練...\n本次目標編號：#C-${selectedComboStr}\n\n按「確定」模擬順利過關！`, 
-    () => {
-      if (Math.floor(800 + Math.random() * 200) > (completed.get(selectedComboStr) || 0)) completed.set(selectedComboStr, Math.floor(800 + Math.random() * 200));
-      playerState.coins += 500; saveGameData(); updateHUD(); customAlert(`獲得 500 健康幣！`, null, `🏆 完美救援！`);
-    },
-    () => { customAlert(`演練中斷。`, null, `🚨 系統提示`); }, "🚨 系統警報 🚨"
-  );
-}
-
-// ===============================================
-// ★ 圖鑑與卡匣
-// ===============================================
 function renderCaseDex() {
   const cases = getActiveCompletedCases();
   const caseCount = cases.size;
