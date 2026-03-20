@@ -128,6 +128,8 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 
 .animation-screen { position: absolute; inset: 0; background: #111; z-index: 500; display: none; flex-direction: column;}
 #animFrame { flex: 1; border: none; width: 100%; height: 100%;}
+.btn-quit-anim { position: absolute; top: max(10px, env(safe-area-inset-top)); right: 10px; background: rgba(0,0,0,0.7); color: #fff; border: 1px solid #aaa; padding: 6px 15px; border-radius: 6px; z-index: 501; cursor: pointer; font-weight: bold; backdrop-filter: blur(4px); font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.5);}
+.btn-quit-anim:active { background: rgba(0,0,0,0.9); }
 </style>
 </head>
 <body>
@@ -208,6 +210,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
   </div>
   
   <div class="animation-screen" id="animScreen">
+    <button class="btn-quit-anim" onclick="parent.postMessage({type:'CLOSE_IFRAME'}, '*')">✖ 中斷任務</button>
     <iframe id="animFrame" src="about:blank"></iframe>
   </div>
 
@@ -260,8 +263,9 @@ const RPG_TASKS = {
 const urlParams = new URLSearchParams(window.location.search);
 const taskId = urlParams.get('taskId') || 'hub_world';
 let isFsMode = urlParams.get('fs') === '1';
+let isFirstTask = urlParams.get('first') === '1';
 
-// 如果任務不存在於資料庫 (尚未實作的 2~25 關)，建立一個動態模擬資料
+// 動態建立預設測試關卡資料
 let task = RPG_TASKS[taskId];
 if (!task) {
   task = {
@@ -278,6 +282,14 @@ if (!task) {
   };
 }
 
+if (taskId === 'hub_world' && isFirstTask) {
+    let docNpc = task.npcs.find(n => n.id === 'npc_continue');
+    if(docNpc) docNpc.dialogs[0].text = "歡迎來到腦脈先鋒的行列！我是主治醫師。守護大腦的旅程即將開始，準備好接受第一項訓練了嗎？";
+    
+    // 如果是第一次玩，簡介文字也稍微修改
+    task.intro = "歡迎來到遙遠的東方醫院！\n\n戰勝腦中風不靠運氣\n靠的是不斷累積的知識與能力 💪\n\n出發吧！前往大廳尋找主治醫師的指引";
+}
+
 let state = { x: task.startPos.x, y: task.startPos.y };
 let velocity = { x: 0, y: 0 };
 const speed = 5; 
@@ -285,6 +297,7 @@ let missionStage = -1;
 let gameActive = false; 
 let currentNpc = null;
 
+// UI 動態綁定
 document.getElementById('btnStartGame').innerText = (taskId === 'hub_world') ? "出發探索" : "任務開始";
 document.getElementById('playerName').innerText = task.roleName;
 document.getElementById('ui-role').innerText = task.roleName;
@@ -343,6 +356,14 @@ window.onload = () => {
 
 function startExplore() {
   document.getElementById('storyIntro').style.opacity = '0';
+  
+  // ★ 任務開始時的自動全螢幕機制
+  if (taskId !== 'hub_world' && !isFsMode) {
+    isFsMode = true;
+    document.getElementById('btnFsToggle').innerHTML = "🗗";
+    window.parent.postMessage({type: 'TOGGLE_FULLSCREEN', isFullscreen: true}, '*');
+  }
+
   setTimeout(() => {
     document.getElementById('storyIntro').style.display = 'none';
     document.getElementById('player').style.opacity = '1';
@@ -469,12 +490,6 @@ function finishNpcDialog() {
     setTimeout(() => { gameActive = true; currentNpc = null; }, 300);
   }
 }
-
-window.addEventListener('message', (event) => {
-  if (event.data && (event.data.type === 'GAME_CLEAR' || event.data.type === 'GAME_OVER')) {
-    window.parent.postMessage(event.data, '*');
-  }
-});
 
 // ==========================================
 // ★ 物理阻擋與電梯傳送邏輯 ★
