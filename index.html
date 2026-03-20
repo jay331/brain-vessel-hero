@@ -1050,9 +1050,25 @@ function renderCaseDex() {
   gallery.innerHTML = '';
   for (let i = 1; i <= 50; i++) {
     const isUnl = (playerState.unlockedPuzzles || []).includes(i);
-    gallery.innerHTML += `<div class="card-item ${isUnl ? '' : 'locked'}"><div class="card-icon">${isUnl ? '🖼️' : '🔒'}</div><div class="card-title">拼圖 ${i}</div></div>`;
+    
+    if (isUnl) {
+      // 已解鎖：顯示圖片，並綁定 replayPuzzle 點擊事件
+      gallery.innerHTML += `
+        <div class="card-item" style="aspect-ratio: 1/1; padding: 0; overflow: hidden; position: relative; cursor: pointer;" onclick="replayPuzzle(${i})">
+          <img src="assets/puzzle_${i}.png" style="width:100%; height:100%; object-fit:cover; opacity: 0.8; transition: opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8" onerror="this.src='https://via.placeholder.com/150/222/4fc3f7?text=Puzzle+${i}'">
+          <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.7); color:#fff; font-size:11px; font-weight:bold; padding:4px 0;">#${i}</div>
+        </div>
+      `;
+    } else {
+      // 未解鎖：維持鎖頭樣式
+      gallery.innerHTML += `
+        <div class="card-item locked">
+          <div class="card-icon">🔒</div>
+          <div class="card-title">拼圖 ${i}</div>
+        </div>
+      `;
+    }
   }
-}
 
 function switchCaseTab(tab, btnEl) {
   Array.from(id('caseDexTabs').children).forEach(t => t.classList.remove('active')); btnEl.classList.add('active');
@@ -1071,6 +1087,7 @@ function buyPuzzle() {
   }
 }
 
+// 修改：原本直接解鎖，現在改為打開拼圖遊戲 iframe
 function unlockRandomPuzzle() {
   const unlocked = playerState.unlockedPuzzles || [];
   const availableIds = [];
@@ -1078,9 +1095,22 @@ function unlockRandomPuzzle() {
   if (availableIds.length === 0) return customAlert('您已收集滿所有拼圖！');
   
   const newId = availableIds[Math.floor(Math.random() * availableIds.length)];
-  playerState.unlockedPuzzles.push(newId);
-  saveGameData(); renderCaseDex();
-  customAlert(`恭喜獲得第 #${newId} 號拼圖！`, null, '🧩 抽獎成功');
+  
+  // 紀錄目前正在挑戰的拼圖 ID
+  window.currentChallengePuzzleId = newId;
+  
+  // 開啟遊戲畫面
+  id('gameTitle').textContent = `🧩 解鎖新拼圖 #${newId}`; 
+  id('gameFrame').src = `game_jigsaw.html?imgId=${newId}&isReplay=false`; 
+  id('gameOverlay').style.display = 'flex';
+}
+
+// 新增：重玩已解鎖的拼圖
+function replayPuzzle(pid) {
+  window.currentChallengePuzzleId = null; // 重玩不給獎勵
+  id('gameTitle').textContent = `🧩 欣賞拼圖 #${pid}`; 
+  id('gameFrame').src = `game_jigsaw.html?imgId=${pid}&isReplay=true`; 
+  id('gameOverlay').style.display = 'flex';
 }
 
 function renderDexCards(tab, btnEl) {
