@@ -348,7 +348,22 @@ function updateCamera() {
 window.onload = () => {
   document.getElementById('player').style.left = state.x + 'px'; 
   document.getElementById('player').style.top = state.y + 'px'; 
-  updateCamera();
+
+  // 判斷是否為特定的任務，將開場鏡頭移到病患位置
+  if (taskId === 'beg_id_0' && task.npcs) {
+    const targetNpc = task.npcs.find(n => n.id === 'patient');
+    if (targetNpc) {
+      // 獨立計算目標 NPC 的視角並套用
+      const cx = window.innerWidth / 2 - targetNpc.pos.x;
+      const cy = window.innerHeight / 2 - targetNpc.pos.y;
+      document.getElementById('camera').style.transform = `translate(${cx}px, ${cy}px)`;
+    } else {
+      updateCamera();
+    }
+  } else {
+    // 其他任務維持原本對準玩家的邏輯
+    updateCamera();
+  }
 
   if (isFsMode) document.getElementById('btnFsToggle').innerHTML = "🗗";
   setTimeout(typeWriter, 600); 
