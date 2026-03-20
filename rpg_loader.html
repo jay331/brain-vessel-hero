@@ -107,7 +107,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 }
 .btn-fs-toggle:active { background: rgba(0,0,0,0.5); }
 
-/* 返回大廳按鈕 */
+/* 返回大廳按鈕 (地圖探索模式專用) */
 .btn-return-lobby {
   position: absolute; top: max(10px, env(safe-area-inset-top)); left: 10px;
   background: rgba(255,255,255,0.85); color: #1976d2; border: 2px solid #64b5f6;
@@ -116,7 +116,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 }
 .btn-return-lobby:active { background: #e3f2fd; transform: scale(0.95); }
 
-/* 對話框樣式 */
+/* 對話框樣式 (含離開按鈕) */
 .dialog-box { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 600px; background: rgba(255,255,255,0.95); border: 4px solid #4CAF50; border-radius: 15px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 200; display: none; flex-direction: column;}
 .dialog-name { font-size: 18px; font-weight: 900; color: #4CAF50; margin-bottom: 8px;}
 .dialog-text { font-size: 18px; color: #333; line-height: 1.6;}
@@ -265,6 +265,7 @@ const taskId = urlParams.get('taskId') || 'hub_world';
 let isFsMode = urlParams.get('fs') === '1';
 let isFirstTask = urlParams.get('first') === '1';
 
+// 動態建立預設測試關卡資料
 let task = RPG_TASKS[taskId];
 if (!task) {
   task = {
@@ -277,13 +278,15 @@ if (!task) {
         { name: "護理師", text: "太棒了，你找到了我！這關的實作還在開發中，我們直接當作你過關了吧！" }
       ], action: 'PLAY_ANIMATION' }
     ],
-    gameUrl: "" 
+    gameUrl: "" // 空字串代表直接發送 GAME_CLEAR
   };
 }
 
 if (taskId === 'hub_world' && isFirstTask) {
     let docNpc = task.npcs.find(n => n.id === 'npc_continue');
     if(docNpc) docNpc.dialogs[0].text = "歡迎來到腦脈先鋒的行列！我是主治醫師。守護大腦的旅程即將開始，準備好接受第一項訓練了嗎？";
+    
+    // 如果是第一次玩，簡介文字也稍微修改
     task.intro = "歡迎來到遙遠的東方醫院！\n\n戰勝腦中風不靠運氣\n靠的是不斷累積的知識與能力 💪\n\n出發吧！前往大廳尋找主治醫師的指引";
 }
 
@@ -294,6 +297,7 @@ let missionStage = -1;
 let gameActive = false; 
 let currentNpc = null;
 
+// UI 動態綁定
 document.getElementById('btnStartGame').innerText = (taskId === 'hub_world') ? "出發探索" : "任務開始";
 document.getElementById('playerName').innerText = task.roleName;
 document.getElementById('ui-role').innerText = task.roleName;
@@ -306,8 +310,14 @@ if (task.npcs) {
     npcDiv.className = 'target-npc';
     npcDiv.style.left = n.pos.x + 'px';
     npcDiv.style.top = n.pos.y + 'px';
+    
     let indicatorHtml = n.icon ? `<div class="npc-indicator">${n.icon}</div>` : '';
-    npcDiv.innerHTML = `${indicatorHtml}<div class="name" style="background:${n.color || '#37474f'}">${n.name}</div><div class="head" style="background:${n.head || '#e57373'}"></div><div class="body" style="background:${n.body || '#bbdefb'}"></div>`;
+    npcDiv.innerHTML = `
+      ${indicatorHtml}
+      <div class="name" style="background:${n.color || '#37474f'}">${n.name}</div>
+      <div class="head" style="background:${n.head || '#e57373'}"></div>
+      <div class="body" style="background:${n.body || '#bbdefb'}"></div>
+    `;
     npcContainer.appendChild(npcDiv);
   });
 }
@@ -347,6 +357,7 @@ window.onload = () => {
 function startExplore() {
   document.getElementById('storyIntro').style.opacity = '0';
   
+  // ★ 任務開始時的自動全螢幕機制
   if (taskId !== 'hub_world' && !isFsMode) {
     isFsMode = true;
     document.getElementById('btnFsToggle').innerHTML = "🗗";
@@ -367,7 +378,7 @@ function startExplore() {
     
     missionStage = 0;
     gameActive = true;
-    updateCamera();
+    updateCamera(); // 觸發視角偏移
   }, 500);
 }
 
@@ -392,10 +403,15 @@ function returnToLobby() {
 // ==========================================
 // ★ 防死鎖對話邏輯 
 // ==========================================
-function startNpcDialog(npc) { currentNpc = npc; currentDialogIndex = 0; showDialog(); }
+function startNpcDialog(npc) {
+  currentNpc = npc;
+  currentDialogIndex = 0;
+  showDialog();
+}
 
 function showDialog() {
-  gameActive = false; velocity = {x:0, y:0};
+  gameActive = false; 
+  velocity = {x:0, y:0};
   document.getElementById('joystickBase').style.display = 'none';
   document.getElementById('dialogBox').style.display = 'flex';
   
@@ -425,7 +441,12 @@ function stepBackFromNpc() {
     const dist = Math.hypot(dx, dy) || 1;
     let newX = state.x + (dx / dist) * 40;
     let newY = state.y + (dy / dist) * 40;
-    if (canMoveTo(newX, newY)) { state.x = newX; state.y = newY; } else { state.y += 40; }
+    
+    if (canMoveTo(newX, newY)) {
+      state.x = newX; state.y = newY;
+    } else {
+      state.y += 40;
+    }
     updateCamera();
   }
 }
@@ -470,23 +491,19 @@ function finishNpcDialog() {
   }
 }
 
-// ★ 修復：確保動畫畫面能確實關閉並轉發過關訊號
-window.addEventListener('message', (event) => {
-  if (event.data && (event.data.type === 'GAME_CLEAR' || event.data.type === 'GAME_OVER')) {
-    document.getElementById('animScreen').style.display = 'none';
-    document.getElementById('animFrame').src = 'about:blank';
-    window.parent.postMessage(event.data, '*');
-  }
-});
-
 // ==========================================
-// ★ 物理阻擋與電梯傳送邏輯
+// ★ 物理阻擋與電梯傳送邏輯 ★
 // ==========================================
 const solidBlocks = [
-  {x: 2000, y: 400, w: 320, h: 450}, {x: 2000, y: 1000, w: 320, h: 750}, {x: 2050, y: 850, w: 270, h: 10}, {x: 2050, y: 990, w: 270, h: 10},
-  {x: 2310, y: 850, w: 10, h: 150}, {x: 1750, y: 180, w: 250, h: 200}, {x: 1590, y: 825, w: 270, h: 245}, {x: 1800, y: 1140, w: 50, h: 250},
-  {x: 950, y: 1420, w: 380, h: 175}, {x: 1330, y: 1420, w: 10, h: 10}, {x: 1420, y: 1420, w: 320, h: 10}, {x: 1330, y: 1585, w: 410, h: 10},
-  {x: 1730, y: 1420, w: 10, h: 170}, {x: 950, y: 1590, w: 810, h: 160}, {x: 400, y: 1850, w: 1310, h: 350}, {x: 1710, y: 2150, w: 790, h: 50}
+  {x: 2000, y: 400, w: 320, h: 450}, {x: 2000, y: 1000, w: 320, h: 750},
+  {x: 2050, y: 850, w: 270, h: 10}, {x: 2050, y: 990, w: 270, h: 10},
+  {x: 2310, y: 850, w: 10, h: 150}, {x: 1750, y: 180, w: 250, h: 200},
+  {x: 1590, y: 825, w: 270, h: 245}, {x: 1800, y: 1140, w: 50, h: 250},
+  {x: 950, y: 1420, w: 380, h: 175}, {x: 1330, y: 1420, w: 10, h: 10},
+  {x: 1420, y: 1420, w: 320, h: 10}, {x: 1330, y: 1585, w: 410, h: 10},
+  {x: 1730, y: 1420, w: 10, h: 170}, {x: 950, y: 1590, w: 810, h: 160},
+  {x: 400, y: 1850, w: 1310, h: 350},
+  {x: 1710, y: 2150, w: 790, h: 50}
 ];
 
 function canMoveTo(x, y) {
@@ -516,8 +533,12 @@ function gameLoop() {
     updateCamera();
     
     if (velocity.x || velocity.y) {
-      if (state.y < -1160 && state.x > 1400 && state.x < 1600) { state.x = 2125; state.y = 1900; updateCamera(); }
-      else if (state.y > 1960 && state.x > 2000 && state.x < 2250) { state.x = 1500; state.y = -1150; updateCamera(); }
+      if (state.y < -1160 && state.x > 1400 && state.x < 1600) {
+        state.x = 2125; state.y = 1900; updateCamera();
+      }
+      else if (state.y > 1960 && state.x > 2000 && state.x < 2250) {
+        state.x = 1500; state.y = -1150; updateCamera();
+      }
 
       if (missionStage === 0 && task.npcs) {
         for (let n of task.npcs) {
@@ -538,16 +559,19 @@ requestAnimationFrame(gameLoop);
 // 搖桿控制 
 // ==========================================
 let isDragging = false, startT = {x:0, y:0};
+
 const handleStart = (e) => {
   if (!gameActive) return;
   if(e.target.tagName.toLowerCase() === 'button' || e.target.closest('button')) return;
   let clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
   let clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
   isDragging = true; startT = {x: clientX, y: clientY};
+  
   const jBase = document.getElementById('joystickBase');
   jBase.style.left = startT.x + 'px'; jBase.style.top = startT.y + 'px'; jBase.style.display = 'block';
   document.getElementById('joystickKnob').style.transform = `translate(-50%, -50%)`;
 };
+
 const handleMove = (e) => {
   if (!isDragging || !gameActive) return;
   e.preventDefault(); 
@@ -555,16 +579,23 @@ const handleMove = (e) => {
   let clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
   const dx = clientX - startT.x, dy = clientY - startT.y, dist = Math.hypot(dx, dy);
   if (dist === 0) return;
+
   const move = Math.min(dist, 50);
   document.getElementById('joystickKnob').style.transform = `translate(calc(-50% + ${dx/dist*move}px), calc(-50% + ${dy/dist*move}px))`;
   velocity.x = (dx/dist) * speed * Math.min(dist/50, 1);
   velocity.y = (dy/dist) * speed * Math.min(dist/50, 1);
 };
+
 const handleEnd = () => { isDragging = false; velocity = {x:0, y:0}; document.getElementById('joystickBase').style.display = 'none'; };
 
 const sceneObj = document.getElementById('scene');
-sceneObj.addEventListener('mousedown', handleStart); window.addEventListener('mousemove', handleMove, { passive: false }); window.addEventListener('mouseup', handleEnd);
-sceneObj.addEventListener('touchstart', handleStart, { passive: false }); window.addEventListener('touchmove', handleMove, { passive: false }); window.addEventListener('touchend', handleEnd); window.addEventListener('touchcancel', handleEnd);
+sceneObj.addEventListener('mousedown', handleStart);
+window.addEventListener('mousemove', handleMove, { passive: false });
+window.addEventListener('mouseup', handleEnd);
+sceneObj.addEventListener('touchstart', handleStart, { passive: false });
+window.addEventListener('touchmove', handleMove, { passive: false });
+window.addEventListener('touchend', handleEnd);
+window.addEventListener('touchcancel', handleEnd);
 window.addEventListener('resize', updateCamera);
 </script>
 </body>
