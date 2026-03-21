@@ -572,7 +572,22 @@ function finishNpcDialog() {
     stepBackFromNpc();
     missionStage = 0; 
     setTimeout(() => { gameActive = true; currentNpc = null; }, 800);
+  } 
+  else if (currentNpc.action === 'PLAY_ANIMATION') {
+    missionStage = 2; 
+    if (task.gameUrl) {
+      document.getElementById('animScreen').style.display = 'flex';
+      document.getElementById('animFrame').src = task.gameUrl;
+    } else {
+      window.parent.postMessage({ type: 'GAME_CLEAR', score: 1000 }, '*');
+    }
+  } 
+  else {
+    stepBackFromNpc();
+    missionStage = 0; 
+    setTimeout(() => { gameActive = true; currentNpc = null; }, 300);
   }
+}
 
 // ★ 電梯控制功能
 function showElevatorMenu() {
