@@ -390,9 +390,28 @@ function returnToLobby() {
   if (taskId !== 'hub_world') {
     window.parent.postMessage({type:'CLOSE_IFRAME'}, '*');
   } else {
+    // 1. 強制關閉可能卡住的 UI (電梯、對話框)
+    document.getElementById('elevatorModal').style.display = 'none';
+    document.getElementById('dialogBox').style.display = 'none';
+    
+    // 2. 停止所有移動狀態
+    velocity = {x:0, y:0};
+    isDragging = false;
+    document.getElementById('joystickBase').style.display = 'none';
+    
+    // 3. 設定一樓大廳的目標座標
     state.x = 1500;
-    state.y = -600;
+    state.y = -600; 
+    
+    // 4. ★ 關鍵修復：強制立刻把小人的 DOM 元素搬到目標位置
+    document.getElementById('player').style.left = state.x + 'px'; 
+    document.getElementById('player').style.top = state.y + 'px'; 
+    
+    // 5. 更新攝影機並重啟遊戲引擎
     updateCamera();
+    gameActive = true;
+    currentNpc = null;
+    missionStage = 0;
   }
 }
 
