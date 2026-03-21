@@ -339,7 +339,18 @@ window.onload = () => {
   }
 
   if (isFsMode) document.getElementById('btnFsToggle').innerHTML = "🗗";
-  setTimeout(typeWriter, 600); 
+
+  // ★ 修改處 1：判斷是否為初次進入，若不是，直接跳過開場打字機
+  if (taskId === 'hub_world' && !isFirstTask) {
+    document.getElementById('storyIntro').style.display = 'none';
+    document.getElementById('player').style.opacity = '1';
+    document.getElementById('btnFsToggle').style.display = 'flex';
+    document.getElementById('btnReturnLobby').style.display = 'block';
+    missionStage = 0;
+    gameActive = true;
+  } else {
+    setTimeout(typeWriter, 600); 
+  }
 
   if (window.parent !== window) {
     window.parent.postMessage({ type: 'MAP_READY' }, '*');
@@ -555,11 +566,6 @@ function goToFloor(f) {
     
     setTimeout(()=> { gameActive = true; }, 300);
 }
-
-// ==========================================
-// ★ 物理阻擋邏輯 (支援擴建區域與多樓層) ★
-// ==========================================
-// 原本的細部障礙物 (只保留 11F 和 1F 櫃台)
 // ==========================================
 // ★ 物理阻擋邏輯 (支援擴建區域與多樓層) ★
 // ==========================================
@@ -583,7 +589,7 @@ function canMoveTo(x, y) {
   const r = 20; 
   let isWalkable = false;
 
-  // ★ 關鍵修復：定義所有的安全行走區域，並針對「通道」增加覆蓋墊片，消除空氣牆
+  // ★ 這裡定義了所有合法的「踩踏區」，包含 2F-14F 的新座標
   const walkableZones = [
     // 1F 主空間與房間
     {x: 1000, y: -1200, w: 1000, h: 800}, // 1F 大廳
@@ -592,13 +598,13 @@ function canMoveTo(x, y) {
     {x: 2050, y: -1000, w: 400, h: 400},  // 1F 門診藥局
     {x: 2500, y: -1100, w: 500, h: 600},  // 1F 急診室
 
-    // 1F 連結通道 (刻意放大範圍，確保 20px 的碰撞半徑可以順利通過)
+    // 1F 連結通道
     {x: 1450, y: -450, w: 100, h: 150},   // 大廳->休息室通道
     {x: 900, y: -850, w: 150, h: 100},    // 便利商店->大廳通道
     {x: 1950, y: -850, w: 150, h: 100},   // 大廳->藥局通道
     {x: 2400, y: -850, w: 150, h: 100},   // 藥局->急診室通道
 
-    // 2F ~ 14F 獨立樓層區塊
+    // 2F ~ 14F 獨立樓層區塊 (取消了原本的 X 座標小於 2500 限制)
     {x: 3500, y: -1200, w: 800, h: 600},  // 2F
     {x: 4500, y: -1200, w: 800, h: 600},  // 3F
     {x: 3500, y: -400, w: 800, h: 600},   // 4F
@@ -607,14 +613,14 @@ function canMoveTo(x, y) {
     {x: 4500, y: 400, w: 800, h: 600}     // 14F
   ];
 
-  // 判斷是否在一般矩形安全區域內
+  // 1. 判斷是否在一般矩形安全區域內
   for (let z of walkableZones) {
     if (x > z.x + r && x < z.x + z.w - r && y > z.y + r && y < z.y + z.h - r) {
       isWalkable = true; break;
     }
   }
 
-  // 11F 特殊梯形與斜角邏輯
+  // 2. 11F 特殊梯形與斜角邏輯
   if (!isWalkable) {
     if (x > 350+r && x < 2500-r && y > 150+r && y < 2200-r) {
       let diagLine = x + y; let distAlong = (x - y + 1300) * 0.707;
@@ -624,9 +630,10 @@ function canMoveTo(x, y) {
     }
   }
 
-  if (!isWalkable) return false; // 不在任何安全區域，直接禁止移動
+  // 3. 不在任何安全區域，直接禁止移動
+  if (!isWalkable) return false; 
 
-  // 再判斷是否撞到區域內的實體障礙物
+  // 4. 再判斷是否撞到區域內的實體障礙物
   if (x > 1200 - r && x < 1400 + r && Math.abs(y - (-0.93*x + 2365)) < 40) return false; // 11F 護理站斜角牆
   for (let b of solidBlocks) { 
     if (x+r > b.x && x-r < b.x+b.w && y+r > b.y && y-r < b.y+b.h) return false; 
@@ -635,7 +642,9 @@ function canMoveTo(x, y) {
   return true;
 }
 
-// 樓層電梯傳送陣座標 (用來偵測踩踏)
+// ==========================================
+// ★ 樓層電梯傳送陣座標 (用來偵測踩踏)
+// ==========================================
 const elevatorZones = [
    {x: 1500, y: -1150}, // 1F
    {x: 2125, y: 1975},  // 11F
