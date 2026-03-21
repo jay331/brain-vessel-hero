@@ -218,47 +218,15 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 
 <script src="js/tasks-main.js"></script>
 
+<script src="js/tasks-main.js"></script>
+
 <script>
 // ==========================================
 // 1. 載入任務與場景資料庫
 // ==========================================
-// 將外部載入的 MAIN_TASKS 賦值給引擎使用的 RPG_TASKS
-// 未來如果有 EVENT_TASKS，只要改成 Object.assign({}, MAIN_TASKS, EVENT_TASKS) 即可無縫融合
 const RPG_TASKS = Object.assign({}, MAIN_TASKS);
 
 const urlParams = new URLSearchParams(window.location.search);
-const taskId = urlParams.get('taskId') || 'hub_world';
-let isFsMode = urlParams.get('fs') === '1';
-let isFirstTask = urlParams.get('first') === '1';
-
-// 動態建立預設測試關卡資料
-let task = RPG_TASKS[taskId];
-if (!task) {
-  task = {
-    roleName: "實習醫生",
-    intro: `這是模擬關卡的測試任務！\n\n系統建置中，請前往指定地點與人員對話以完成挑戰。`,
-    missionText: "尋找指定人員",
-    startPos: { x: 2125, y: 1900 },
-    npcs: [
-      { id: 'nurse', name: '護理師', color: '#ff9800', head: '#ffcc80', body: '#fff', pos: { x: 1350, y: 1280 }, icon: '🎯', dialogs: [
-        { name: "護理師", text: "太棒了，你找到了我！這關的實作還在開發中，我們直接當作你過關了吧！" }
-      ], action: 'PLAY_ANIMATION' }
-    ],
-    gameUrl: "" // 空字串代表直接發送 GAME_CLEAR
-  };
-}
-
-if (taskId === 'hub_world' && isFirstTask) {
-    let docNpc = task.npcs.find(n => n.id === 'npc_continue');
-    if(docNpc) docNpc.dialogs[0].text = "歡迎來到腦脈先鋒的行列！我是主治醫師。守護大腦的旅程即將開始，準備好接受第一項訓練了嗎？";
-    
-    // 如果是第一次玩，簡介文字也稍微修改
-    task.intro = "歡迎來到遙遠的東方醫院！\n\n戰勝腦中風不靠運氣\n靠的是不斷累積的知識與能力 💪\n\n出發吧！前往大廳尋找主治醫師的指引";
-}
-
-let state = { x: task.startPos.x, y: task.startPos.y };
-let velocity = { x: 0, y: 0 };
-// ... (保留下方所有原有的遊戲邏輯、移動、對話、搖桿等程式碼) ...
 const taskId = urlParams.get('taskId') || 'hub_world';
 let isFsMode = urlParams.get('fs') === '1';
 let isFirstTask = urlParams.get('first') === '1';
