@@ -423,14 +423,15 @@ const id = (el) => document.getElementById(el);
 const SAVE_KEY = 'BrainPioneer_SaveData_v9.6'; 
 
 let playerState = { 
-  hasSetup: false, name: "", avatar: "https://i.pravatar.cc/150?img=11", mode: "beginner", coins: 38219, 
+  hasSetup: false, name: "", avatar: "https://i.pravatar.cc/150?img=11", mode: "beginner", 
+  coins: 0, // ★ (1) 初始健康幣改為 0
   storyMode: false, storyProgression: 0, replayProgression: 0, isReplaying: false, explorationTasksCompleted: 0, 
   completedCasesBeg: new Map(), completedCasesAdv: new Map(),
-  taskScoresBeg: new Map(), taskScoresAdv: new Map(),clothes: '#fff', 
+  taskScoresBeg: new Map(), taskScoresAdv: new Map(), clothes: '#fff', 
   ownedClothes: ['#fff'],
   scaleRecords: [], strokeCard: null, unlockedPuzzles: [], boughtPuzzles: 0,
-  // ★ 新增：用來存放抽到但還沒拼完的拼圖
-  pendingPuzzles: [] 
+  pendingPuzzles: [], foundItems: [], 
+  completedExplores: [], usedFreecellTickets: 0 // ★ 新增：追蹤已完成的探索與接龍票券
 };
 
 let isGlobalFs = false; 
@@ -483,13 +484,22 @@ else if (event.data.type === 'ACTION_CONTINUE') {
                   if (event.source) event.source.postMessage({ type: 'SYNC_PLAYER_DATA', payload: { foundItems: playerState.foundItems } }, '*');
               }, "🏆 尋寶任務完成！");
           }
-      } else {
-          // 一般隨機任務
+} else {
+          // ★ (4) 探索任務：首次完成給 300 幣，重複給 0 幣
+          if (!playerState.completedExplores) playerState.completedExplores = [];
           const randTasks = ["4F 物理治療師籌辦說明會，去 14F 拿海報吧！", "11G 病房缺藥了，去 1F 門診藥局幫忙領急件！", "請到大廳協助引導新病患，熟悉 FAST 口訣！"];
           const t = randTasks[Math.floor(Math.random()*randTasks.length)];
-          customAlert(`主治醫師：\n「這裡有件事需要你幫忙：\n\n${t}」\n\n(一般探索，模擬完成！)`, () => {
+          const isRepeat = playerState.completedExplores.includes(t);
+          
+          customAlert(`主治醫師：\n「這裡有件事需要你幫忙：\n\n${t}」\n\n(一般探索，點擊模擬完成！)`, () => {
               playerState.explorationTasksCompleted++;
-              playerState.coins += 300; // 配合你的新經濟設定
+              if (!isRepeat) {
+                  playerState.coins += 300;
+                  playerState.completedExplores.push(t);
+                  customAlert("完成新探索任務！獲得 300 健康幣！", null, "🏆 任務完成");
+              } else {
+                  customAlert("這項任務你已經很熟練了！(重複任務無獎勵)", null, "🏆 複習完成");
+              }
               saveGameData(); updateHUD();
           }, "👨‍⚕️ 醫師的委託");
       }
@@ -690,17 +700,23 @@ function toggleMode() {
 function updateHUD() { 
   id('uiCoins').textContent = playerState.coins.toLocaleString(); 
   
-  const isUnlocked = playerState.mode === 'beginner' ? playerState.explorationTasksCompleted >= 5 : getActiveRoles().every(r => r.currentTask > 1);
+  // ★ (5)(6) 解鎖條件：每個類別皆至少通關一次
+  const isUnlocked = playerState.mode === 'beginner' 
+      ? ROLES_DATA_BEG.every(r => r.currentTask > 1) 
+      : ROLES_DATA_ADV.every(r => r.currentTask > 1);
+      
   const banner = id('bossBanner');
   if(banner) {
-    // ★ 根據模式變更 BOSS 按鈕標題
     if(id('bossTitleText')) id('bossTitleText').innerHTML = playerState.mode === 'beginner' ? '🛡️ 中風知識演練 - 綜合情境驗收' : '🛡️ 中風個案演練 - 綜合情境驗收';
     
-    if (isUnlocked) { banner.classList.remove('locked'); if(id('bossStatusText')) id('bossStatusText').textContent = '🟢 已解鎖 (點擊進入演練)'; } 
-    else { banner.classList.add('locked'); if(id('bossStatusText')) id('bossStatusText').textContent = playerState.mode === 'beginner' ? `需完成 5 次探索任務 (目前 ${playerState.explorationTasksCompleted || 0}/5)` : `需五位角色皆通關一項任務以解鎖`; }
+    if (isUnlocked) { 
+        banner.classList.remove('locked'); 
+        if(id('bossStatusText')) id('bossStatusText').textContent = '🟢 已解鎖 (點擊進入演練)'; 
+    } else { 
+        banner.classList.add('locked'); 
+        if(id('bossStatusText')) id('bossStatusText').textContent = '需五大類別皆通關至少一項任務以解鎖'; 
+    }
   }
-  
-  // ★ 剛剛就是不小心把下面這兩行刪掉了！
   renderHomeRoles();
 }
 
@@ -877,14 +893,13 @@ function saveGameData() {
     hasSetup: playerState.hasSetup, name: playerState.name, avatar: playerState.avatar, mode: playerState.mode, coins: playerState.coins, 
     storyMode: playerState.storyMode, storyProgression: playerState.storyProgression, replayProgression: playerState.replayProgression,
     explorationTasksCompleted: playerState.explorationTasksCompleted,
-    clothes: playerState.clothes,
-    ownedClothes: playerState.ownedClothes,
+    clothes: playerState.clothes, ownedClothes: playerState.ownedClothes,
     completedCasesBeg: Array.from(playerState.completedCasesBeg.entries()), completedCasesAdv: Array.from(playerState.completedCasesAdv.entries()),
     taskScoresBeg: Array.from(playerState.taskScoresBeg.entries()), taskScoresAdv: Array.from(playerState.taskScoresAdv.entries()),
     scaleRecords: playerState.scaleRecords, strokeCard: playerState.strokeCard,
     unlockedPuzzles: playerState.unlockedPuzzles, boughtPuzzles: playerState.boughtPuzzles,
-    // ★ 新增存檔欄位
-    pendingPuzzles: playerState.pendingPuzzles,
+    pendingPuzzles: playerState.pendingPuzzles, foundItems: playerState.foundItems, 
+    completedExplores: playerState.completedExplores, usedFreecellTickets: playerState.usedFreecellTickets, // ★ 儲存
     roleProgressBeg: ROLES_DATA_BEG.map(r => ({ id: r.id, currentTask: r.currentTask, dailyAttempts: r.dailyAttempts })),
     roleProgressAdv: ROLES_DATA_ADV.map(r => ({ id: r.id, currentTask: r.currentTask, dailyAttempts: r.dailyAttempts }))
   };
@@ -911,9 +926,10 @@ function loadGameData() {
       if(parsed.scaleRecords) playerState.scaleRecords = parsed.scaleRecords;
       if(parsed.unlockedPuzzles) playerState.unlockedPuzzles = parsed.unlockedPuzzles;
       if(parsed.boughtPuzzles) playerState.boughtPuzzles = parsed.boughtPuzzles;
-      
-      // ★ 讀取待完成的拼圖
       if(parsed.pendingPuzzles) playerState.pendingPuzzles = parsed.pendingPuzzles;
+      if(parsed.foundItems) playerState.foundItems = parsed.foundItems;
+      if(parsed.completedExplores) playerState.completedExplores = parsed.completedExplores; // ★ 讀取
+      if(parsed.usedFreecellTickets) playerState.usedFreecellTickets = parsed.usedFreecellTickets; // ★ 讀取
       
       if(parsed.completedCasesBeg) playerState.completedCasesBeg = new Map(parsed.completedCasesBeg);
       if(parsed.completedCasesAdv) playerState.completedCasesAdv = new Map(parsed.completedCasesAdv);
@@ -927,7 +943,6 @@ function loadGameData() {
   } catch(e) {}
   return false;
 }
-
 function handleAvatarUpload(event) {
   const file = event.target.files[0];
   if (file) { const reader = new FileReader(); reader.onload = function(e) { id('previewAvatar').src = e.target.result; }; reader.readAsDataURL(file); }
@@ -1009,14 +1024,21 @@ function closeCustomMsg() { id('customMsgModal').style.display = 'none'; }
 
 function handleGameClear(score) {
   const info = currentGameInfo; if(!info) return;
-  (playerState.mode === 'beginner' ? playerState.taskScoresBeg : playerState.taskScoresAdv).set(info.id, score); 
-  playerState.coins += 50;
+  
+  // ★ (4) 判斷是否為首次通關 (不發放複習獎勵)
+  const targetMap = playerState.mode === 'beginner' ? playerState.taskScoresBeg : playerState.taskScoresAdv;
+  const isFirstClear = !targetMap.has(info.id);
+  
+  if (isFirstClear) {
+      playerState.coins += (playerState.mode === 'beginner' ? 100 : 150);
+  }
+  targetMap.set(info.id, score); 
+  
   if (info.role.currentTask === info.taskIndex + 1) info.role.currentTask++;
   
   const tabMode = playerState.mode === 'beginner' ? 'beg' : 'adv';
   saveGameData(); updateHUD(); 
 
-  // 回顧模式
   if (playerState.isReplaying) {
       playerState.replayProgression++;
       if (playerState.replayProgression < TOTAL_BEG_TASKS) {
@@ -1026,37 +1048,27 @@ function handleGameClear(score) {
               "✅ 任務回顧", "繼續下一關", "先休息"
           );
       } else {
-          playerState.replayProgression = 0;
-          playerState.isReplaying = false;
+          playerState.replayProgression = 0; playerState.isReplaying = false;
           customAlert("太厲害了！你已經重新回顧了所有初階任務！", () => { updateModeUI(); }, "🎉 回顧完成");
       }
   } 
-  // ★ 只有「初階版」且是「主線任務 (info.isLinear)」時，才推進進度
   else if (playerState.mode === 'beginner' && info.isLinear && playerState.storyProgression < TOTAL_BEG_TASKS) {
-      playerState.storyProgression++;
-      saveGameData();
-      
+      playerState.storyProgression++; saveGameData();
       if (playerState.storyProgression < TOTAL_BEG_TASKS) {
           const nextTask = getFlatTask(playerState.storyProgression);
-          customConfirm(`得分：${score} 分\n獲得 50 健康幣！\n✨ 成功解鎖健康卡\n\n是否立即進入下一關：${nextTask.role.subTasks[nextTask.taskIndex].substring(3)}？`, 
+          customConfirm(`得分：${score} 分\n${isFirstClear ? '獲得 100 健康幣！\n' : ''}✨ 成功解鎖健康卡\n\n是否立即進入下一關：${nextTask.role.subTasks[nextTask.taskIndex].substring(3)}？`, 
               () => { playTaskFlat(playerState.storyProgression); }, 
               () => { updateModeUI(); openCardModal(tabMode, info.role.id, info.taskIndex); }, 
               "🎉 任務成功", "進入下一關", "先休息"
           );
       } else {
-          customAlert("恭喜你完成所有初階訓練！現在為您開啟「醫院自由探索模式」！", () => {
-              updateModeUI();
-          }, "🎉 訓練結業");
+          customAlert("恭喜你完成所有初階訓練！現在為您開啟「醫院自由探索模式」！", () => { updateModeUI(); }, "🎉 訓練結業");
       }
-  } 
-  // 清單模式 或 進階版 的通關處理
-  else {
-      customAlert(`得分：${score} 分\n獲得 50 健康幣！\n\n✨ 成功解鎖健康卡`, () => {
-        openCardModal(tabMode, info.role.id, info.taskIndex);
-        updateModeUI();
+  } else {
+      customAlert(`得分：${score} 分\n${isFirstClear ? (playerState.mode === 'beginner' ? '獲得 100 健康幣！\n' : '獲得 150 健康幣！\n') : '(複習任務無硬幣獎勵)\n'}✨ 成功解鎖健康卡`, () => {
+        openCardModal(tabMode, info.role.id, info.taskIndex); updateModeUI();
       }, "🎉 任務成功！", "觀看健康卡");
   }
-  
   currentGameInfo = null;
 }
 
@@ -1077,30 +1089,40 @@ function buyAttempt() {
 }
 
 function openBossPrep() { 
-  if (playerState.mode === 'beginner') {
-     if(playerState.explorationTasksCompleted < 5) {
-        return customAlert('需在醫院探索模式中，向醫師接取並完成 5 項任務以解鎖！', null, '🔒 尚未解鎖');
-     }
-  } else {
-     if(!getActiveRoles().every(r => r.currentTask > 1)) {
-        return customAlert('需五位角色皆通關一項任務以解鎖！', null, '🔒 尚未解鎖');
-     }
+  // ★ (5)(6) 解鎖條件檢查
+  const roles = getActiveRoles();
+  if (!roles.every(r => r.currentTask > 1)) {
+      return customAlert('需在目前的模式中，將「五位角色」皆通關至少一項任務以解鎖！', null, '🔒 尚未解鎖');
   }
   
-  let possibleCombos = []; let maxIndices = getActiveRoles().map(role => Math.min(role.currentTask - 1, 5));
+  let possibleCombos = []; let maxIndices = roles.map(role => Math.min(role.currentTask - 1, 5));
   function generate(currentIndex, currentCombo) {
     if (currentIndex === 5) { possibleCombos.push(currentCombo); return; }
     for (let i = 1; i <= maxIndices[currentIndex]; i++) { generate(currentIndex + 1, currentCombo + i.toString()); }
   }
   generate(0, "");
+  
   const completed = getActiveCompletedCases();
   let newCombos = possibleCombos.filter(c => !completed.has(c));
   let selectedComboStr = newCombos.length > 0 ? newCombos[Math.floor(Math.random() * newCombos.length)] : possibleCombos[Math.floor(Math.random() * possibleCombos.length)];
   
+  // ★ (4) 演練獎勵計算 (重複組合不發獎勵)
+  const isFirstClear = !completed.has(selectedComboStr);
+  const rewardCoins = playerState.mode === 'beginner' ? 300 : 500;
+  const drillName = playerState.mode === 'beginner' ? '知識演練' : '個案演練';
+  
   customConfirm(`即將執行連續 5 項任務的綜合演練...\n本次目標編號：#C-${selectedComboStr}\n\n按「確定」模擬順利過關！`, 
     () => {
-      if (Math.floor(800 + Math.random() * 200) > (completed.get(selectedComboStr) || 0)) completed.set(selectedComboStr, Math.floor(800 + Math.random() * 200));
-      playerState.coins += 500; saveGameData(); updateHUD(); customAlert(`獲得 500 健康幣！`, null, `🏆 完美救援！`);
+      if (Math.floor(800 + Math.random() * 200) > (completed.get(selectedComboStr) || 0)) {
+          completed.set(selectedComboStr, Math.floor(800 + Math.random() * 200));
+      }
+      if (isFirstClear) {
+          playerState.coins += rewardCoins; saveGameData(); updateHUD(); 
+          customAlert(`完成全新的${drillName}組合！\n獲得 ${rewardCoins} 健康幣！`, null, `🏆 完美救援！`);
+      } else {
+          saveGameData(); updateHUD(); 
+          customAlert(`完成${drillName}！\n(重複的演練組合無健康幣獎勵)`, null, `🏆 複習完成！`);
+      }
     },
     () => { customAlert(`演練中斷。`, null, `🚨 系統提示`); }, "🚨 系統警報 🚨"
   );
@@ -1109,78 +1131,52 @@ function openBossPrep() {
 // ===============================================
 // ★ 圖鑑與卡匣
 // ===============================================
+// ★ (2) 票券計算系統 (每完成任 5 個不重複任務/演練得 1 張票券)
+function getAvailableTickets() {
+  const totalUniqueTasks = playerState.taskScoresBeg.size + playerState.taskScoresAdv.size;
+  const totalUniqueCases = playerState.completedCasesBeg.size + playerState.completedCasesAdv.size;
+  const earned = Math.floor((totalUniqueTasks + totalUniqueCases) / 5) + (playerState.boughtPuzzles || 0);
+  const unlocked = (playerState.unlockedPuzzles || []).length;
+  const pending = (playerState.pendingPuzzles || []).length;
+  const usedFreecell = playerState.usedFreecellTickets || 0;
+  return Math.max(0, earned - unlocked - pending - usedFreecell);
+}
+
 function renderCaseDex() {
   const cases = getActiveCompletedCases();
   const caseCount = cases.size;
-  // ★ 可抽總次數：成就獲得次數 + 購買次數
-  const earnedPuzzles = Math.floor(caseCount / 5) + (playerState.boughtPuzzles || 0);
   
+  const avail = getAvailableTickets(); // ★ 套用共用票券
   const unlockedCount = (playerState.unlockedPuzzles || []).length;
-  const pendingCount = (playerState.pendingPuzzles || []).length;
-  
-  // ★ 剩餘可抽次數 = 總次數 - 已經解鎖的 - 還在背包沒拼完的
-  const avail = Math.max(0, earnedPuzzles - unlockedCount - pendingCount);
   
   id('uiPuzzleAvail').textContent = avail;
   id('uiPuzzleCollected').textContent = unlockedCount;
-  
-  const bossName = playerState.mode === 'beginner' ? '中風知識演練' : '中風個案演練';
-  id('puzzleHintText').innerText = `💡 每完成 5 次「${bossName}」可獲 1 次拼圖機會`;
+  id('puzzleHintText').innerText = `💡 每完成 5 次不重複的「任務或演練」可獲 1 張通用票券\n(可用於抽拼圖或玩新接龍)`;
   
   if (avail > 0) id('btnDrawPuzzle').style.display = 'inline-block';
   else id('btnDrawPuzzle').style.display = 'none';
 
   const listContainer = id('caseDexList');
   listContainer.innerHTML = '';
-  if (caseCount === 0) {
-    listContainer.innerHTML = '<p style="text-align:center; color:#aaa; margin-top:20px;">尚未累積救治個案。</p>';
-  } else {
-    cases.forEach((score, cid) => {
-      listContainer.innerHTML += `<div class="case-dex-item"><span class="case-dex-id">#C-${cid}</span><span class="case-score-badge">分數: ${score}</span></div>`;
-    });
-  }
+  if (caseCount === 0) listContainer.innerHTML = '<p style="text-align:center; color:#aaa; margin-top:20px;">尚未累積演練紀錄。</p>';
+  else cases.forEach((score, cid) => { listContainer.innerHTML += `<div class="case-dex-item"><span class="case-dex-id">#C-${cid}</span><span class="case-score-badge">分數: ${score}</span></div>`; });
 
-  const gallery = id('puzzleGallery');
-  gallery.innerHTML = '';
-  
-  let unlockedArr = playerState.unlockedPuzzles || [];
-  let pendingArr = playerState.pendingPuzzles || [];
-  
-  // ★ 將已解鎖與待完成的拼圖混在一起，並依照編號排序
+  const gallery = id('puzzleGallery'); gallery.innerHTML = '';
+  let unlockedArr = playerState.unlockedPuzzles || []; let pendingArr = playerState.pendingPuzzles || [];
   let displayItems = [];
   unlockedArr.forEach(id => displayItems.push({id: id, status: 'unlocked'}));
   pendingArr.forEach(id => displayItems.push({id: id, status: 'pending'}));
   displayItems.sort((a, b) => a.id - b.id);
   
-  if (displayItems.length === 0) {
-     gallery.innerHTML = '<div style="grid-column: 1 / -1; text-align:center; color:#aaa; margin-top:20px;">尚未收集到任何拼圖，快去參加演練吧！</div>';
-  } else {
-     displayItems.forEach(item => {
-        if (item.status === 'unlocked') {
-          // 已解鎖：顯示完整圖片
-          gallery.innerHTML += `
-            <div class="card-item" style="aspect-ratio: 1/1; padding: 0; overflow: hidden; position: relative; cursor: pointer;" onclick="replayPuzzle(${item.id})">
-              <img src="assets/puzzle_${item.id}.png" style="width:100%; height:100%; object-fit:cover; opacity: 0.8; transition: opacity 0.2s;" 
-                   onmouseover="this.style.opacity=1" 
-                   onmouseout="this.style.opacity=0.8" 
-                   onerror="this.onerror=null; this.style.display='none'; this.parentElement.style.background='linear-gradient(135deg, #37474f, #263238)'; this.parentElement.innerHTML+='<div style=\\\'position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); font-size:30px; opacity:0.3;\\\'>🧩</div>';">
-              <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.7); color:#fff; font-size:11px; font-weight:bold; padding:4px 0; z-index:10;">#${item.id}</div>
-            </div>
-          `;
-        } else {
-          // 待完成 (pending)：顯示神秘禮物盒
-          gallery.innerHTML += `
-            <div class="card-item" style="aspect-ratio: 1/1; padding: 0; overflow: hidden; position: relative; cursor: pointer; background: linear-gradient(135deg, #5d4037, #3e2723); border-color: #ffb300;" onclick="playPendingPuzzle(${item.id})">
-              <div style="font-size:30px; margin-bottom:5px;">🎁</div>
-              <div style="font-size:11px; font-weight:bold; color:#ffb300; text-shadow:1px 1px 2px #000;">點擊挑戰</div>
-              <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(189,122,0,0.8); color:#fff; font-size:11px; font-weight:bold; padding:4px 0; z-index:10;">待拼湊 #${item.id}</div>
-            </div>
-          `;
-        }
-     });
-  }
+  if (displayItems.length === 0) gallery.innerHTML = '<div style="grid-column: 1 / -1; text-align:center; color:#aaa; margin-top:20px;">尚未收集到任何拼圖，快去破關累積票券吧！</div>';
+  else displayItems.forEach(item => {
+    if (item.status === 'unlocked') {
+      gallery.innerHTML += `<div class="card-item" style="aspect-ratio: 1/1; padding: 0; overflow: hidden; position: relative; cursor: pointer;" onclick="replayPuzzle(${item.id})"><img src="assets/puzzle_${item.id}.png" style="width:100%; height:100%; object-fit:cover; opacity: 0.8; transition: opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8" onerror="this.onerror=null; this.style.display='none'; this.parentElement.style.background='linear-gradient(135deg, #37474f, #263238)'; this.parentElement.innerHTML+='<div style=\\\'position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); font-size:30px; opacity:0.3;\\\'>🧩</div>';"><div style="position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.7); color:#fff; font-size:11px; font-weight:bold; padding:4px 0; z-index:10;">#${item.id}</div></div>`;
+    } else {
+      gallery.innerHTML += `<div class="card-item" style="aspect-ratio: 1/1; padding: 0; overflow: hidden; position: relative; cursor: pointer; background: linear-gradient(135deg, #5d4037, #3e2723); border-color: #ffb300;" onclick="playPendingPuzzle(${item.id})"><div style="font-size:30px; margin-bottom:5px;">🎁</div><div style="font-size:11px; font-weight:bold; color:#ffb300; text-shadow:1px 1px 2px #000;">點擊挑戰</div><div style="position:absolute; bottom:0; left:0; right:0; background:rgba(189,122,0,0.8); color:#fff; font-size:11px; font-weight:bold; padding:4px 0; z-index:10;">待拼湊 #${item.id}</div></div>`;
+    }
+  });
 }
-
 function switchCaseTab(tab, btnEl) {
   Array.from(id('caseDexTabs').children).forEach(t => t.classList.remove('active')); btnEl.classList.add('active');
   id('caseDexList').style.display = tab === 'list' ? 'block' : 'none';
@@ -1203,26 +1199,19 @@ function buyPuzzle() {
 }
 
 function triggerGacha() {
+  const avail = getAvailableTickets();
+  if (avail <= 0) return customAlert("您的票券不足！", null, "❌ 無法抽取");
+  
   const unlocked = playerState.unlockedPuzzles || [];
   const pending = playerState.pendingPuzzles || [];
   const availableIds = [];
-  
-  // ★ 總共 20 張拼圖，若還沒解鎖也還沒在背包裡，才可以抽
-  for (let i = 1; i <= 20; i++) { 
-      if (!unlocked.includes(i) && !pending.includes(i)) availableIds.push(i); 
-  }
-  
+  for (let i = 1; i <= 20; i++) { if (!unlocked.includes(i) && !pending.includes(i)) availableIds.push(i); }
   if (availableIds.length === 0) return customAlert('太神了！您已抽滿所有拼圖！');
   
   const newId = availableIds[Math.floor(Math.random() * availableIds.length)];
-  
-  // ★ 防作弊機制：立即將抽中的 ID 放入待挑戰背包 (pendingPuzzles)，並扣除次數
   if(!playerState.pendingPuzzles) playerState.pendingPuzzles = [];
   playerState.pendingPuzzles.push(newId);
-  saveGameData();
-  updateHUD();
-  
-  showGachaAnimation(newId, availableIds);
+  saveGameData(); updateHUD(); showGachaAnimation(newId, availableIds);
 }
 
 function showGachaAnimation(newId, availableIds) {
@@ -1328,12 +1317,16 @@ function tryLaunchFreeCell() {
   if (isBegMaster && isAdvMaster) {
     if(id('gameTitle')) id('gameTitle').textContent = '🃏 腦脈新接龍'; if(id('gameFrame')) id('gameFrame').src = 'game_freecell.html'; if(id('gameOverlay')) id('gameOverlay').style.display = 'flex';
   } else {
-    customConfirm("健康卡共52張，全解鎖前，每次遊玩需花費 300 健康幣，確定要挑戰嗎？", () => {
-      if (playerState.coins >= 300) {
-        playerState.coins -= 300; saveGameData(); updateHUD();
-        if(id('gameTitle')) id('gameTitle').textContent = '🃏 腦脈新接龍'; if(id('gameFrame')) id('gameFrame').src = 'game_freecell.html'; if(id('gameOverlay')) id('gameOverlay').style.display = 'flex';
-      } else { customAlert("您的存款只有 " + playerState.coins + " 幣。", null, "❌ 健康幣不足！"); }
-    }, null, "🔒 尚未集滿所有健康卡！");
+    const avail = getAvailableTickets();
+    if (avail > 0) {
+        customConfirm(`挑戰接龍將扣除 1 張通用票券（目前剩餘：${avail} 張）。\n確定要挑戰嗎？`, () => {
+            playerState.usedFreecellTickets = (playerState.usedFreecellTickets || 0) + 1;
+            saveGameData(); updateHUD(); renderCaseDex();
+            if(id('gameTitle')) id('gameTitle').textContent = '🃏 腦脈新接龍'; if(id('gameFrame')) id('gameFrame').src = 'game_freecell.html'; if(id('gameOverlay')) id('gameOverlay').style.display = 'flex';
+        }, null, "🃏 消耗票券");
+    } else {
+        customConfirm("票券不足！每完成 5 項任務或演練可獲得 1 張票券，或可花費 5000 健康幣購買票券。確定要購買嗎？", () => { buyPuzzle(); }, null, "🎟️ 票券不足");
+    }
   }
 }
 
