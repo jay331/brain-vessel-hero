@@ -241,21 +241,20 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
       
 <section class="screen" id="scrCaseDex">
         <div class="panel" style="display: flex; flex-direction: column;">
-          <h2 id="caseDexTitle">個案與拼圖收藏</h2>
           
           <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; border: 1px solid var(--theme-dim); margin-bottom: 12px; text-align: center; flex-shrink: 0;">
             
             <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px;">
               <div style="font-size: 14px; color: #ccc;">
-                待解鎖拼圖：<span id="uiPuzzleAvail" style="color:var(--good); font-weight:bold; font-size:18px; margin: 0 2px;">0</span> 張 
+                可領取拼圖：<span id="uiPuzzleAvail" style="color:var(--good); font-weight:bold; font-size:18px; margin: 0 2px;">0</span> 張 
               </div>
-              <button id="btnDrawPuzzle" class="btn btn-rescue" style="padding:4px 12px; font-size:13px; width:auto; margin:0; display:none;" onclick="unlockRandomPuzzle()">🧩 抽拼圖</button>
+              <button id="btnDrawPuzzle" class="btn btn-rescue" style="padding:4px 12px; font-size:13px; width:auto; margin:0; display:none;" onclick="triggerGacha()">🧩 拼圖抽抽樂</button>
             </div>
             
-            <div style="font-size: 11px; color: var(--theme-primary); margin-bottom: 10px;">💡 每救治 5 名個案可獲 1 次拼圖機會</div>
+            <div id="puzzleHintText" style="font-size: 11px; color: var(--theme-primary); margin-bottom: 10px;">💡 每完成 5 次演練可獲 1 次拼圖機會</div>
             
             <div style="display:flex; justify-content:center;">
-              <button class="btn btn-secondary" style="padding:6px 12px; font-size:12px; width:auto; border:1px solid #ff9800; color:#ff9800; background:rgba(0,0,0,0.5);" onclick="buyPuzzle()">💰 或是 5000 幣兌換</button>
+              <button class="btn btn-secondary" style="padding:6px 12px; font-size:12px; width:auto; border:1px solid #ff9800; color:#ff9800; background:rgba(0,0,0,0.5);" onclick="confirmBuyPuzzle()">💰 或是 5000 幣兌換</button>
             </div>
 
           </div>
@@ -328,8 +327,8 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
         <div class="nav-item" id="navPokedex" onclick="showScreen('scrPokedex'); renderDexCards(playerState.mode === 'beginner' ? 'beg' : 'adv', document.getElementById('pokedexTabs').children[playerState.mode === 'beginner' ? 0 : 1]);">
           <div class="icon">🗂️</div><span style="font-size:10px;">健康卡匣</span>
         </div>
-        <div class="nav-item" id="navCaseDex" onclick="showScreen('scrCaseDex'); renderCaseDex();">
-          <div class="icon">📁</div><span style="font-size:10px;" id="navCaseText">圖鑑</span>
+<div class="nav-item" id="navCaseDex" onclick="showScreen('scrCaseDex'); renderCaseDex();">
+          <div class="icon">📁</div><span style="font-size:10px;">拼圖收藏</span>
         </div>
         <div class="mode-toggle-sq" onclick="toggleMode()">
           <div class="icon">❖</div><span id="navModeText" style="font-size:10px;">初階版</span>
@@ -631,13 +630,14 @@ function updateHUD() {
   id('uiCoins').textContent = playerState.coins.toLocaleString(); 
   
   const isUnlocked = playerState.mode === 'beginner' ? playerState.explorationTasksCompleted >= 5 : getActiveRoles().every(r => r.currentTask > 1);
-  const banner = id('bossBanner');
+const banner = id('bossBanner');
   if(banner) {
+    // ★ 根據模式變更 BOSS 按鈕標題
+    if(id('bossTitleText')) id('bossTitleText').innerHTML = playerState.mode === 'beginner' ? '🛡️ 中風知識演練 - 綜合情境驗收' : '🛡️ 中風個案演練 - 綜合情境驗收';
+    
     if (isUnlocked) { banner.classList.remove('locked'); if(id('bossStatusText')) id('bossStatusText').textContent = '🟢 已解鎖 (點擊進入演練)'; } 
     else { banner.classList.add('locked'); if(id('bossStatusText')) id('bossStatusText').textContent = playerState.mode === 'beginner' ? `需完成 5 次探索任務 (目前 ${playerState.explorationTasksCompleted || 0}/5)` : `需五位角色皆通關一項任務以解鎖`; }
   }
-  renderHomeRoles();
-}
 
 function renderHomeRoles() {
   const container = id('roleListContainer'); if(!container) return;
@@ -731,7 +731,6 @@ function updateModeUI() {
   id('hudAvatar').src = playerState.avatar;
   
   id('navModeText').textContent = isBeg ? '初階版' : '進階版';
-  id('navCaseText').textContent = isBeg ? '演練圖鑑' : '個案圖鑑';
   id('navLbText').textContent = isBeg ? '中風名片' : '排行榜';
   
   if (isBeg) {
@@ -1054,9 +1053,13 @@ function renderCaseDex() {
   const avail = Math.max(0, earnedPuzzles - unlockedCount);
   
   id('uiPuzzleAvail').textContent = avail;
-  id('uiPuzzleCollected').textContent = unlockedCount; // 這個 ID 現在對應的是頁籤裡的數字
+  id('uiPuzzleCollected').textContent = unlockedCount;
   
-  // ★ 控制「抽拼圖」按鈕的顯示或隱藏
+  // ★ 動態更新提示文字
+  const bossName = playerState.mode === 'beginner' ? '中風知識演練' : '中風個案演練';
+  id('puzzleHintText').innerText = `💡 每完成 5 次「${bossName}」可獲 1 次拼圖機會`;
+  
+  // ★ 控制抽拼圖按鈕的顯示與隱藏
   if (avail > 0) {
     id('btnDrawPuzzle').style.display = 'inline-block';
   } else {
@@ -1077,10 +1080,10 @@ function renderCaseDex() {
   gallery.innerHTML = '';
   
   let unlockedArr = playerState.unlockedPuzzles || [];
-  unlockedArr.sort((a, b) => a - b); // 依照拼圖編號從小到大排序
+  unlockedArr.sort((a, b) => a - b); // 依照編號排序
   
   if (unlockedArr.length === 0) {
-     gallery.innerHTML = '<div style="grid-column: 1 / -1; text-align:center; color:#aaa; margin-top:20px;">尚未收集到任何拼圖，快去救治病患吧！</div>';
+     gallery.innerHTML = '<div style="grid-column: 1 / -1; text-align:center; color:#aaa; margin-top:20px;">尚未收集到任何拼圖，快去參加演練吧！</div>';
   } else {
      unlockedArr.forEach(pid => {
         gallery.innerHTML += `
@@ -1095,7 +1098,6 @@ function renderCaseDex() {
      });
   }
 }
-  
 
 function switchCaseTab(tab, btnEl) {
   Array.from(id('caseDexTabs').children).forEach(t => t.classList.remove('active')); btnEl.classList.add('active');
@@ -1103,32 +1105,100 @@ function switchCaseTab(tab, btnEl) {
   id('puzzleGallery').style.display = tab === 'gallery' ? 'grid' : 'none';
 }
 
+function confirmBuyPuzzle() {
+  customConfirm("確定要花費 5000 健康幣，兌換 1 次拼圖抽抽樂機會嗎？", () => {
+      buyPuzzle();
+  });
+}
+
 function buyPuzzle() {
   if (playerState.coins >= 5000) {
     playerState.coins -= 5000;
     playerState.boughtPuzzles = (playerState.boughtPuzzles || 0) + 1;
     saveGameData(); updateHUD(); renderCaseDex();
-    customAlert('成功用 5000 健康幣兌換 1 次抽拼圖機會！', null, '💰 兌換成功');
+    customAlert('成功兌換 1 次抽拼圖機會！請點擊「拼圖抽抽樂」來試試手氣！', null, '💰 兌換成功');
   } else {
     customAlert(`健康幣不足！(目前: ${playerState.coins})`, null, '❌ 兌換失敗');
   }
 }
 
-// 修改：原本直接解鎖，現在改為打開拼圖遊戲 iframe
-function unlockRandomPuzzle() {
+function triggerGacha() {
   const unlocked = playerState.unlockedPuzzles || [];
   const availableIds = [];
   for (let i = 1; i <= 20; i++) { if (!unlocked.includes(i)) availableIds.push(i); }
-  if (availableIds.length === 0) return customAlert('您已收集滿所有拼圖！');
+  if (availableIds.length === 0) return customAlert('太神了！您已收集滿所有拼圖！');
   
   const newId = availableIds[Math.floor(Math.random() * availableIds.length)];
   
-  // 紀錄目前正在挑戰的拼圖 ID
-  window.currentChallengePuzzleId = newId;
+  // ★ 防作弊機制：按下按鈕瞬間立即將拼圖加入存檔並扣除機會，中斷也無法反悔！
+  playerState.unlockedPuzzles.push(newId);
+  playerState.coins += 200; // 首次解鎖直接給予 200 幣獎勵
+  saveGameData();
+  updateHUD();
   
-  // 開啟遊戲畫面
-  id('gameTitle').textContent = `🧩 解鎖新拼圖 #${newId}`; 
-  id('gameFrame').src = `game_jigsaw.html?imgId=${newId}&isReplay=false`; 
+  showGachaAnimation(newId, availableIds);
+}
+
+function showGachaAnimation(newId, availableIds) {
+  const overlay = document.createElement('div');
+  overlay.style.position = 'fixed'; overlay.style.inset = '0';
+  overlay.style.background = 'rgba(0,0,0,0.95)'; overlay.style.zIndex = '99999';
+  overlay.style.display = 'flex'; overlay.style.flexDirection = 'column';
+  overlay.style.alignItems = 'center'; overlay.style.justifyContent = 'center'; overlay.style.color = '#fff';
+  
+  overlay.innerHTML = `
+      <h2 id="gachaTitle" style="color:var(--theme-primary); margin-bottom: 20px; text-shadow: 0 0 10px var(--theme-primary);">🎉 拼圖抽取中...</h2>
+      <div id="gachaCard" style="width: 160px; height: 160px; background: #222; border: 4px dashed #555; border-radius: 12px; display:flex; align-items:center; justify-content:center; font-size: 50px; transition: all 0.3s ease; overflow:hidden; position:relative;">
+          <span id="gachaText" style="font-weight:900; color:#fff;">❓</span>
+      </div>
+  `;
+  document.body.appendChild(overlay);
+
+  let ticks = 0; const maxTicks = 20;
+  let rollInterval = setInterval(() => {
+      ticks++;
+      // 模擬跳號
+      const randomId = availableIds[Math.floor(Math.random() * availableIds.length)] || Math.ceil(Math.random()*20);
+      document.getElementById('gachaText').innerText = `#${randomId}`;
+      document.getElementById('gachaCard').style.transform = `scale(${1 + (ticks%2)*0.1})`;
+      
+      if (ticks > maxTicks) {
+          clearInterval(rollInterval);
+          const card = document.getElementById('gachaCard');
+          card.innerHTML = `<img src="assets/puzzle_${newId}.png" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\\\'text-align:center;\\\'>🧩<br><span style=\\\'font-size:24px; font-weight:bold;\\\">#${newId}</span></div>'">`;
+          card.style.border = '4px solid var(--good)';
+          card.style.boxShadow = '0 0 50px var(--good)';
+          card.style.transform = 'scale(1.2)';
+          
+          document.getElementById('gachaTitle').innerText = '✨ 恭喜獲得新拼圖！ ✨';
+          
+          setTimeout(() => {
+              const btnWrap = document.createElement('div');
+              btnWrap.style.marginTop = '50px'; btnWrap.style.display = 'flex'; btnWrap.style.gap = '15px';
+              btnWrap.innerHTML = `
+                  <button class="btn" style="background:#555; width:auto; padding:12px 24px;" id="btnGachaClose">收下拼圖</button>
+                  <button class="btn btn-rescue" style="width:auto; padding:12px 24px;" id="btnGachaPlay">🧩 立即拼圖</button>
+              `;
+              overlay.appendChild(btnWrap);
+              
+              document.getElementById('btnGachaClose').onclick = () => {
+                  document.body.removeChild(overlay);
+                  customAlert('成功解鎖拼圖，並獲得 200 健康幣獎勵！', () => { renderCaseDex(); }, '🎉 收集成功');
+              };
+              document.getElementById('btnGachaPlay').onclick = () => {
+                  document.body.removeChild(overlay);
+                  renderCaseDex();
+                  replayPuzzle(newId); // 直接打開遊戲
+              };
+          }, 800);
+      }
+  }, 80);
+}
+
+function replayPuzzle(pid) {
+  window.currentChallengePuzzleId = null; // 重玩模式，不再次給獎勵
+  id('gameTitle').textContent = `🧩 欣賞拼圖 #${pid}`; 
+  id('gameFrame').src = `game_jigsaw.html?imgId=${pid}&isReplay=true`; 
   id('gameOverlay').style.display = 'flex';
 }
 
