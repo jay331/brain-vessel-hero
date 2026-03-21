@@ -415,7 +415,8 @@ let playerState = {
   hasSetup: false, name: "", avatar: "https://i.pravatar.cc/150?img=11", mode: "beginner", coins: 38219, 
   storyMode: false, storyProgression: 0, replayProgression: 0, isReplaying: false, explorationTasksCompleted: 0, 
   completedCasesBeg: new Map(), completedCasesAdv: new Map(),
-  taskScoresBeg: new Map(), taskScoresAdv: new Map(),
+  taskScoresBeg: new Map(), taskScoresAdv: new Map(),clothes: '#fff', 
+  ownedClothes: ['#fff'],
   scaleRecords: [], strokeCard: null, unlockedPuzzles: [], boughtPuzzles: 0
 };
 
@@ -436,7 +437,8 @@ window.addEventListener('message', (event) => {
         name: playerState.name,
         mode: playerState.mode,
         storyProgression: playerState.storyProgression,
-        explorationTasksCompleted: playerState.explorationTasksCompleted
+        explorationTasksCompleted: playerState.explorationTasksCompleted,
+        clothes: playerState.clothes || '#fff' // 👈 注意！這裡要補上衣服顏色，過地圖才不會掉色
       };
       
       // 確保回傳給發送請求的那個 iframe
@@ -514,9 +516,18 @@ window.addEventListener('message', (event) => {
         setTimeout(() => { customAlert(`成功解鎖第 #${pid} 號拼圖，並獲得 200 健康幣！`, null, "🎉 拼圖收藏成功"); }, 500);
       }
     }
+    
+    // 👇👇👇 將商店和更衣櫃放在這裡 👇👇👇
+    else if (event.data.type === 'ACTION_STORE') {
+      openStoreUI();
+    }
+    else if (event.data.type === 'ACTION_WARDROBE') {
+      openWardrobeUI();
+    }
+    // 👆👆👆 ---------------------- 👆👆👆
+
   }
 });
-
 
 function getFlatTask(index) {
   let count = 0;
@@ -1240,6 +1251,92 @@ function navScaleAction() {
   showScreen('scrStrokeScale');
   if (playerState.scaleRecords.length === 0) { switchScaleTab('form'); } else { switchScaleTab('list'); }
 }
+
+// ===============================================
+// ★ 服裝系統 (商店與衣櫃)
+// ===============================================
+const CLOTHES_DB = [
+  { id: 'c_white', color: '#fff', name: '實習白袍', price: 0 },
+  { id: 'c_blue', color: '#64b5f6', name: '刷手服(藍)', price: 1000 },
+  { id: 'c_green', color: '#81c784', name: '外科綠', price: 1500 },
+  { id: 'c_red', color: '#e57373', name: '急救紅', price: 3000 },
+  { id: 'c_gold', color: '#ffd54f', name: '院長金袍', price: 8000 },
+  { id: 'c_black', color: '#424242', name: '暗黑特勤', price: 15000 }
+];
+
+function openStoreUI() {
+  let html = '';
+  const owned = playerState.ownedClothes || ['#fff'];
+  
+  CLOTHES_DB.forEach(c => {
+    const isOwned = owned.includes(c.color);
+    const btnHtml = isOwned 
+      ? `<button class="btn" style="width:auto; background:#555; pointer-events:none; padding:8px 12px; font-size:12px;">已擁有</button>` 
+      : `<button class="btn btn-rescue" style="width:auto; padding:8px 12px; font-size:12px;" onclick="buyClothes('${c.color}', ${c.price})">💰 ${c.price}</button>`;
+    
+    html += `<div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.5); padding:12px; border-radius:8px; border:1px solid var(--theme-dim);">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="width:28px; height:28px; background:${c.color}; border:2px solid #fff; border-radius:6px; box-shadow:inset 0 0 5px rgba(0,0,0,0.3);"></div>
+        <span style="color:#fff; font-weight:bold; font-size:14px;">${c.name}</span>
+      </div>
+      ${btnHtml}
+    </div>`;
+  });
+  
+  document.getElementById('storeList').innerHTML = html;
+  document.getElementById('storeModal').style.display = 'flex';
+}
+
+function buyClothes(color, price) {
+  if (playerState.coins >= price) {
+    playerState.coins -= price;
+    if (!playerState.ownedClothes) playerState.ownedClothes = ['#fff'];
+    playerState.ownedClothes.push(color);
+    saveGameData();
+    updateHUD();
+    openStoreUI(); // 刷新商店畫面
+    customAlert('購買成功！請前往【休息室】的更衣櫃進行換裝！', null, '🛍️ 交易成功');
+  } else {
+    customAlert(`健康幣不足！還差 ${price - playerState.coins} 幣。再去多救治病患吧！`, null, '❌ 餘額不足');
+  }
+}
+
+function openWardrobeUI() {
+  let html = '';
+  const owned = playerState.ownedClothes || ['#fff'];
+  
+  CLOTHES_DB.forEach(c => {
+    if (owned.includes(c.color)) {
+      const isEquipped = (playerState.clothes || '#fff') === c.color;
+      const eqStyle = isEquipped ? 'border-color:var(--good); box-shadow:0 0 15px rgba(61,255,142,0.4); background:rgba(61,255,142,0.1);' : 'border-color:#555;';
+      const eqText = isEquipped ? '<span style="color:var(--good); font-size:10px; margin-top:4px;">裝備中</span>' : '';
+      
+      html += `<div style="width:90px; padding:12px; background:rgba(0,0,0,0.5); border:2px solid transparent; ${eqStyle} border-radius:8px; cursor:pointer; display:flex; flex-direction:column; align-items:center; transition:transform 0.2s;" onclick="equipClothes('${c.color}')">
+        <div style="width:40px; height:40px; background:${c.color}; border:3px solid #fff; border-radius:8px; box-shadow:inset -3px -3px 5px rgba(0,0,0,0.2), 0 4px 8px rgba(0,0,0,0.5); margin-bottom:8px;"></div>
+        <span style="font-size:12px; font-weight:bold; color:#fff;">${c.name}</span>
+        ${eqText}
+      </div>`;
+    }
+  });
+  
+  document.getElementById('wardrobeList').innerHTML = html;
+  document.getElementById('wardrobeModal').style.display = 'flex';
+}
+
+function equipClothes(color) {
+  playerState.clothes = color;
+  saveGameData();
+  openWardrobeUI(); // 刷新衣櫃畫面
+  
+  // ★ 將新的衣服顏色同步給正在運行的地圖引擎
+  const payload = { name: playerState.name, clothes: playerState.clothes };
+  if(document.getElementById('homeMapFrame').contentWindow) {
+      document.getElementById('homeMapFrame').contentWindow.postMessage({ type: 'SYNC_PLAYER_DATA', payload }, '*');
+  }
+  if(document.getElementById('mapFrame').contentWindow) {
+      document.getElementById('mapFrame').contentWindow.postMessage({ type: 'SYNC_PLAYER_DATA', payload }, '*');
+  }
+}  
 
 window.onload = () => {
   if (loadGameData() && playerState.hasSetup) {
