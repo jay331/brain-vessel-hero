@@ -451,10 +451,10 @@ window.addEventListener('message', (event) => {
         mode: playerState.mode,
         storyProgression: playerState.storyProgression,
         explorationTasksCompleted: playerState.explorationTasksCompleted,
-        clothes: playerState.clothes || '#fff' // 👈 注意！這裡要補上衣服顏色，過地圖才不會掉色
+        clothes: playerState.clothes || '#fff',
+        foundItems: playerState.foundItems || null // ★ 新增這行：把背包進度傳給地圖
       };
       
-      // 確保回傳給發送請求的那個 iframe
       if (event.source) {
         event.source.postMessage({ type: 'SYNC_PLAYER_DATA', payload: payload }, '*');
       }
@@ -463,12 +463,20 @@ window.addEventListener('message', (event) => {
 
 else if (event.data.type === 'ACTION_CONTINUE') {
       // 初始化背包
-      if (!playerState.foundItems) playerState.foundItems = [];
+      if (!playerState.foundItems) {
+          playerState.foundItems = [];
+          saveGameData();
+      }
+
+      // ★ 任務被觸發了！立刻同步給地圖，讓隱藏的物品浮現出來！
+      if (event.source) {
+          event.source.postMessage({ type: 'SYNC_PLAYER_DATA', payload: { foundItems: playerState.foundItems } }, '*');
+      }
 
       // 1. 尋寶任務還沒解完時
       if (playerState.foundItems.length < 3) {
           customAlert("主治醫師：\n「神經內科的學弟太粗心了，查房完把『神內三寶』忘在醫院各處了。你能幫我找回【筆燈】、【扣診錘】和【音叉】嗎？\n\n💡 提示：它們可能掉在 1F 急診、11F 病房、或 6F 教學室。」", null, "👨‍⚕️ 尋找神內三寶");
-      } 
+      }
       // 2. 剛好找齊 3 樣，準備領獎
       else if (playerState.foundItems.length === 3 && !playerState.foundItems.includes('DONE')) {
           customAlert("主治醫師：\n「太感謝你了！這三樣可是神經學理學檢查不可或缺的工具。這 200 健康幣是你應得的獎勵！」", () => {
