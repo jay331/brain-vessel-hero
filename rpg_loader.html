@@ -29,7 +29,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 .camera { position: absolute; left: 0; top: 0; width: 100%; height: 100%; transition: transform 0.05s ease-out; }
 
 /* ★ 擴大地圖世界邊界，容納所有的樓層 */
-.game-world { position: absolute; left: 0; top: 0; width: 6000px; height: 3500px; }
+.game-world { position: absolute; left: 0; top: 0; width: 40000px; height: 3500px; }
 
 
 /* 虛擬搖桿 */
@@ -561,15 +561,15 @@ function closeElevator() {
 
 function goToFloor(f) {
     document.getElementById('elevatorModal').style.display = 'none';
-    let target = {x: 1500, y: -1150}; // 預設 1F
-    if(f===14) target = {x: 4900, y: 460};
+    let target = {x: 1850, y: -1150}; // ★ 預設 1F (右上方電梯口)
+    if(f===14) target = {x: 35400, y: -1140};
     if(f===11) target = {x: 2125, y: 1975}; // 11F
-    if(f===6)  target = {x: 3900, y: 460};
-    if(f===5)  target = {x: 4900, y: -340};
-    if(f===4)  target = {x: 3900, y: -340};
-    if(f===3)  target = {x: 4900, y: -1140};
-    if(f===2)  target = {x: 3900, y: -1140};
-    if(f===1)  target = {x: 1500, y: -1150}; 
+    if(f===6)  target = {x: 30400, y: -1140};
+    if(f===5)  target = {x: 25400, y: -1140};
+    if(f===4)  target = {x: 20400, y: -1140};
+    if(f===3)  target = {x: 15400, y: -1140};
+    if(f===2)  target = {x: 10400, y: -1140};
+    if(f===1)  target = {x: 1850, y: -1150}; 
     
     // ★ 關鍵修復：將玩家傳送到電梯前方 80px 的位置，避免馬上又踩到傳送點卡死
     state.x = target.x;
@@ -578,6 +578,7 @@ function goToFloor(f) {
     
     setTimeout(()=> { gameActive = true; }, 300);
 }
+    
 
 // ==========================================
 // ★ 物理阻擋邏輯 (支援擴建區域與多樓層) ★
