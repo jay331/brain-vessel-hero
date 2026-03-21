@@ -509,7 +509,12 @@ document.getElementById('btnNextDialog').onclick = () => {
 };
 
 function finishNpcDialog() {
-  if (currentNpc.action === 'ACTION_CONTINUE' || currentNpc.action === 'ACTION_REVIEW') {
+  // ★ 關鍵修復：把 ACTION_STORE 和 ACTION_WARDROBE 也加進允許發送給主系統的名單中！
+  if (currentNpc.action === 'ACTION_CONTINUE' || 
+      currentNpc.action === 'ACTION_REVIEW' || 
+      currentNpc.action === 'ACTION_STORE' || 
+      currentNpc.action === 'ACTION_WARDROBE') {
+      
     window.parent.postMessage({type: currentNpc.action}, '*');
     stepBackFromNpc();
     missionStage = 0; 
