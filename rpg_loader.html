@@ -658,25 +658,32 @@ const elevatorZones = [
 
 function gameLoop() {
   if (gameActive) {
+    // 1. 處理移動
     if (velocity.x || velocity.y) {
       if (canMoveTo(state.x + velocity.x, state.y)) state.x += velocity.x;
       if (canMoveTo(state.x, state.y + velocity.y)) state.y += velocity.y;
     }
     
+    // 2. 更新畫面
     document.getElementById('player').style.left = state.x + 'px'; 
     document.getElementById('player').style.top = state.y + 'px'; 
     updateCamera();
     
+    // 3. 處理互動邏輯 (電梯與 NPC)
     if (velocity.x || velocity.y) {
+      let touchedElevator = false;
+      
       // 偵測是否踩到電梯
       for(let z of elevatorZones) {
          if (Math.hypot(state.x - z.x, state.y - z.y) < 50) {
             showElevatorMenu();
-            return; // 暫停移動，等待選擇
+            touchedElevator = true;
+            break; // ★ 關鍵修復：用 break 跳出迴圈，絕對不能用 return 殺死引擎
          }
       }
 
-      if (missionStage === 0 && task.npcs) {
+      // 如果沒踩到電梯，才繼續偵測是否撞到 NPC
+      if (!touchedElevator && missionStage === 0 && task.npcs) {
         for (let n of task.npcs) {
           if (Math.hypot(state.x - n.pos.x, state.y - n.pos.y) < 70) {
             missionStage = 1;
@@ -687,9 +694,10 @@ function gameLoop() {
       }
     }
   }
+  
+  // ★ 無論發生什麼事，都必須確保呼叫下一次心跳！
   requestAnimationFrame(gameLoop);
 }
-requestAnimationFrame(gameLoop);
 
 // ==========================================
 // 搖桿控制 
