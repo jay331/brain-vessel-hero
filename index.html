@@ -461,34 +461,63 @@ window.addEventListener('message', (event) => {
     }
     // --------------------------------------------------------
 
-    else if (event.data.type === 'ACTION_CONTINUE') {
-      const randTasks = ["到11G 病房找到在護理站的護理長", "在醫院蒐集3個科別衛教單張", "協助病患測量血壓", "請到大廳協助引導新病患"];
-      const t = randTasks[Math.floor(Math.random()*randTasks.length)];
-      customConfirm(`醫師交派了新任務：\n「${t}」\n\n(系統擴充中，直接模擬完成！)`, () => {
-          playerState.explorationTasksCompleted++;
-          if (playerState.explorationTasksCompleted >= 5) {
-              customAlert("已累積完成 5 項探索任務！\n【綜合情境驗收】已解鎖！", null, "🚨 BOSS 任務解鎖");
-          } else {
-              customAlert(`完成探索！獲得 50 幣。\n目前累積任務：${playerState.explorationTasksCompleted}/5`, null, "🏆 任務完成");
+else if (event.data.type === 'ACTION_CONTINUE') {
+      // 初始化背包
+      if (!playerState.foundItems) playerState.foundItems = [];
+
+      // 1. 尋寶任務還沒解完時
+      if (playerState.foundItems.length < 3) {
+          customAlert("主治醫師：\n「神經內科的學弟太粗心了，查房完把『神內三寶』忘在醫院各處了。你能幫我找回【筆燈】、【扣診錘】和【音叉】嗎？\n\n💡 提示：它們可能掉在 1F 急診、11F 病房、或 6F 教學室。」", null, "👨‍⚕️ 尋找神內三寶");
+      } 
+      // 2. 剛好找齊 3 樣，準備領獎
+      else if (playerState.foundItems.length === 3 && !playerState.foundItems.includes('DONE')) {
+          customAlert("主治醫師：\n「太感謝你了！這三樣可是神經學理學檢查不可或缺的工具。這 200 健康幣是你應得的獎勵！」", () => {
+              playerState.coins += 200;
+              playerState.foundItems.push('DONE'); // 標記已領過獎
+              playerState.explorationTasksCompleted++;
+              saveGameData();
+              updateHUD();
+          }, "🏆 尋寶任務完成！");
+      } 
+      // 3. 尋寶解完後，隨機派發其他任務 (包含任務三 rTMS)
+      else {
+          const randTasks = [
+            "4F 的物理治療師正在籌辦「rTMS 經顱磁刺激」說明會，去 14F 衛教影片室幫他拿海報吧！", 
+            "11G 病房的抗血小板藥物沒了，請去 1F 門診藥局幫忙領急件！", 
+            "請到大廳協助引導新病患，熟悉 FAST 口訣！"
+          ];
+          const t = randTasks[Math.floor(Math.random()*randTasks.length)];
+          customAlert(`主治醫師：\n「醫院目前一切平安，不過這裡有件事需要你幫忙：\n\n${t}」\n\n(一般探索擴充中，點擊模擬完成！)`, () => {
+              playerState.explorationTasksCompleted++;
               playerState.coins += 50;
-          }
-          saveGameData(); updateHUD();
-      }, null, "👨‍⚕️ 醫師的委託", "模擬完成", "稍後再解");
-    } 
-    else if (event.data.type === 'ACTION_REVIEW') {
-      if (playerState.replayProgression > 0 && playerState.replayProgression < TOTAL_BEG_TASKS) {
-        customConfirm("您有尚未完成的回顧進度，要接續進度，還是從頭開始？",
-            () => { playerState.isReplaying = true; closeAllIframes(); playTaskFlat(playerState.replayProgression); },
-            () => { playerState.replayProgression = 0; playerState.isReplaying = true; closeAllIframes(); playTaskFlat(0); },
-            "📜 回顧任務", "接續進度", "從頭開始"
-        );
-      } else {
-        playerState.replayProgression = 0;
-        playerState.isReplaying = true;
-        closeAllIframes();
-        playTaskFlat(0);
+              saveGameData(); updateHUD();
+          }, "👨‍⚕️ 醫師的委託");
       }
     } 
+    
+    // ★ 新增：接收地圖傳來的撿取寶物訊號
+    else if (event.data.type && event.data.type.startsWith('ACTION_FIND_')) {
+      if (!playerState.foundItems) playerState.foundItems = [];
+      let itemName = "";
+      if (event.data.type === 'ACTION_FIND_PENLIGHT') itemName = "筆燈";
+      if (event.data.type === 'ACTION_FIND_HAMMER') itemName = "扣診錘";
+      if (event.data.type === 'ACTION_FIND_FORK') itemName = "音叉";
+
+      // 已經交任務領完獎了
+      if (playerState.foundItems.includes('DONE')) {
+          customAlert(`這把【${itemName}】已經交給醫師了喔，不用再拿了！`, null, "🎒 提示");
+      } 
+      // 成功撿到新寶物
+      else if (!playerState.foundItems.includes(itemName)) {
+          playerState.foundItems.push(itemName);
+          saveGameData();
+          customAlert(`你找到了【${itemName}】！\n\n目前進度：${playerState.foundItems.length}/3\n請繼續尋找，或回大廳交給主治醫師。`, null, "🎒 尋獲物品");
+      } 
+      // 已經在背包裡了
+      else {
+          customAlert(`這個【${itemName}】你已經拿過了喔！快去其他樓層找找其他的吧！`, null, "🎒 提示");
+      }
+    }
     else if (event.data.type === 'TOGGLE_FULLSCREEN') {
       isGlobalFs = event.data.isFullscreen;
       const mapWrap = id('homeMapContainer');
