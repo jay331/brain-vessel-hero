@@ -110,7 +110,6 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
     
     <div class="camera" id="camera">
       <div class="game-world" id="gameWorld">
-        
         <div class="lobby-main">
           <div style="position:absolute; left:10%; right:10%; top:20%; bottom:20%; border:2px solid rgba(0,0,0,0.05); border-radius:20px;"></div>
         </div>
@@ -174,41 +173,42 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 
 <script src="js/tasks-main.js"></script>
 
-<script src="js/tasks-main.js"></script>
-
 <script>
 // ==========================================
-// 1. 載入任務與場景資料庫
+// 1. 載入任務與防護機制
 // ==========================================
-const RPG_TASKS = Object.assign({}, MAIN_TASKS);
+let RPG_TASKS = {};
+if (typeof MAIN_TASKS !== 'undefined') {
+    RPG_TASKS = Object.assign({}, MAIN_TASKS);
+} else {
+    console.error("無法載入任務資料庫，可能是 js/tasks-main.js 檔案遺失或有語法錯誤。");
+}
 
 const urlParams = new URLSearchParams(window.location.search);
 const taskId = urlParams.get('taskId') || 'hub_world';
 let isFsMode = urlParams.get('fs') === '1';
 let isFirstTask = urlParams.get('first') === '1';
 
-// 動態建立預設測試關卡資料
+// ★ 防死當機制：如果找不到外部資料，自動載入這個測試用關卡
 let task = RPG_TASKS[taskId];
 if (!task) {
   task = {
-    roleName: "實習醫生",
-    intro: `這是模擬關卡的測試任務！\n\n系統建置中，請前往指定地點與人員對話以完成挑戰。`,
-    missionText: "尋找指定人員",
+    roleName: "系統管理員",
+    intro: `【系統警告】\n\n無法讀取外部任務資料（${taskId}）！\n請確認您的 js/tasks-main.js 是否有上傳到 GitHub，並且沒有拼寫錯誤。\n\n目前載入的是備用安全場景。`,
+    missionText: "尋找並修復外部 JS 檔案",
     startPos: { x: 2125, y: 1900 },
     npcs: [
-      { id: 'nurse', name: '護理師', color: '#ff9800', head: '#ffcc80', body: '#fff', pos: { x: 1350, y: 1280 }, icon: '🎯', dialogs: [
-        { name: "護理師", text: "太棒了，你找到了我！這關的實作還在開發中，我們直接當作你過關了吧！" }
-      ], action: 'PLAY_ANIMATION' }
+      { id: 'nurse', name: '工程師', color: '#ff9800', head: '#ffcc80', body: '#fff', pos: { x: 1350, y: 1280 }, icon: '⚠️', dialogs: [
+        { name: "工程師", text: "嗨！看到我代表你的 js/tasks-main.js 沒有被瀏覽器正確讀取到喔！去檢查一下 GitHub 吧！" }
+      ], action: 'NONE' }
     ],
-    gameUrl: "" // 空字串代表直接發送 GAME_CLEAR
+    gameUrl: "" 
   };
 }
 
-if (taskId === 'hub_world' && isFirstTask) {
+if (taskId === 'hub_world' && isFirstTask && task.npcs) {
     let docNpc = task.npcs.find(n => n.id === 'npc_continue');
     if(docNpc) docNpc.dialogs[0].text = "歡迎來到腦脈先鋒的行列！我是主治醫師。守護大腦的旅程即將開始，準備好接受第一項訓練了嗎？";
-    
-    // 如果是第一次玩，簡介文字也稍微修改
     task.intro = "歡迎來到遙遠的東方醫院！\n\n戰勝腦中風不靠運氣\n靠的是不斷累積的知識與能力 💪\n\n出發吧！前往大廳尋找主治醫師的指引";
 }
 
@@ -245,11 +245,25 @@ if (task.npcs) {
 }
 
 // ==========================================
+// ★ 接收來自父層主系統的資料同步 (階段四功能)
+// ==========================================
+window.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SYNC_PLAYER_DATA') {
+    const pData = event.data.payload;
+    if (pData.name) {
+      document.getElementById('playerName').innerText = pData.name;
+      document.getElementById('ui-role').innerText = pData.name;
+    }
+  }
+});
+
+
+// ==========================================
 // ★ 視角與開場邏輯
 // ==========================================
 let typeIndex = 0;
 function typeWriter() {
-  const introStr = task.intro;
+  const introStr = task.intro || "任務準備中...";
   if (typeIndex < introStr.length) {
     let char = introStr.charAt(typeIndex);
     document.getElementById('typewriterText').innerHTML += (char === '\n') ? '<br>' : char;
@@ -271,28 +285,6 @@ window.onload = () => {
   document.getElementById('player').style.left = state.x + 'px'; 
   document.getElementById('player').style.top = state.y + 'px'; 
 
-  // 判斷是否為特定的任務，將開場鏡頭移到病患位置
-  if (taskId === 'beg_id_0' && task.npcs) {
-    const targetNpc = task.npcs.find(n => n.id === 'patient');
-    if (targetNpc) {
-      // 獨立計算目標 NPC 的視角並套用
-      const cx = window.innerWidth / 2 - targetNpc.pos.x;
-      const cy = window.innerHeight / 2 - targetNpc.pos.y;
-      document.getElementById('camera').style.transform = `translate(${cx}px, ${cy}px)`;
-    } else {
-      updateCamera();
-    }
-  } else {
-    // 其他任務維持原本對準玩家的邏輯
-    updateCamera();
-  }
-
-  if (isFsMode) document.getElementById('btnFsToggle').innerHTML = "🗗";
-  setTimeout(typeWriter, 600); 
-window.onload = () => {
-  document.getElementById('player').style.left = state.x + 'px'; 
-  document.getElementById('player').style.top = state.y + 'px'; 
-
   if (taskId === 'beg_id_0' && task.npcs) {
     const targetNpc = task.npcs.find(n => n.id === 'patient');
     if (targetNpc) {
@@ -309,34 +301,15 @@ window.onload = () => {
   if (isFsMode) document.getElementById('btnFsToggle').innerHTML = "🗗";
   setTimeout(typeWriter, 600); 
 
-  // --- 👇 新增這段：向父層請求玩家資料 ---
+  // ★ 通知父層 (index.html) 地圖已準備好，請傳送玩家暱稱過來！
   if (window.parent !== window) {
     window.parent.postMessage({ type: 'MAP_READY' }, '*');
   }
-  // ------------------------------------
 };
-
-// ==========================================
-// ★ 接收來自父層主系統的資料同步
-// ==========================================
-window.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SYNC_PLAYER_DATA') {
-    const pData = event.data.payload;
-    
-    // 1. 更新小人頭頂的名稱為玩家真實暱稱
-    if (pData.name) {
-      document.getElementById('playerName').innerText = pData.name;
-    }
-    
-    // (未來擴充預留) 2. 根據 pData.storyProgression 決定是否隱藏或變更 NPC 對話
-    console.log("地圖引擎已成功接收玩家資料：", pData);
-  }
-});
 
 function startExplore() {
   document.getElementById('storyIntro').style.opacity = '0';
   
-  // ★ 任務開始時的自動全螢幕機制（僅在非大廳模式時觸發）
   if (taskId !== 'hub_world' && !isFsMode) {
     isFsMode = true;
     document.getElementById('btnFsToggle').innerHTML = "🗗";
@@ -347,17 +320,13 @@ function startExplore() {
     document.getElementById('storyIntro').style.display = 'none';
     document.getElementById('player').style.opacity = '1';
     
-    // --- 修改處：判斷模式來決定是否顯示按鈕 ---
     if (taskId === 'hub_world') {
-      // 只有在大廳探索模式才顯示這兩個功能
       document.getElementById('btnFsToggle').style.display = 'flex';
       document.getElementById('btnReturnLobby').style.display = 'block';
     } else {
-      // 執行特定任務（如 beg_id_0）時，確保它們是隱藏的
       document.getElementById('btnFsToggle').style.display = 'none';
       document.getElementById('btnReturnLobby').style.display = 'none';
     }
-    // ---------------------------------------
     
     if (taskId !== 'hub_world') {
       document.getElementById('uiHeader').style.display = 'flex';
@@ -480,7 +449,7 @@ function finishNpcDialog() {
 }
 
 // ==========================================
-// ★ 物理阻擋與電梯傳送邏輯 ★
+// ★ 物理阻擋邏輯 ★
 // ==========================================
 const solidBlocks = [
   {x: 2000, y: 400, w: 320, h: 450}, {x: 2000, y: 1000, w: 320, h: 750},
