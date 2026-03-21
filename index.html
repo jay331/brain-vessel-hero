@@ -261,7 +261,7 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
           </div>
           
           <div class="pokedex-tabs" id="caseDexTabs">
-            <button class="tab-btn active" onclick="switchCaseTab('gallery', this)">拼圖收藏 (<span id="uiPuzzleCollected">0</span>/50)</button>
+            <button class="tab-btn active" onclick="switchCaseTab('gallery', this)">拼圖收藏 (<span id="uiPuzzleCollected">0</span>/20)</button>
             <button class="tab-btn" onclick="switchCaseTab('list', this)">個案紀錄</button>
           </div>
           
@@ -1118,7 +1118,7 @@ function buyPuzzle() {
 function unlockRandomPuzzle() {
   const unlocked = playerState.unlockedPuzzles || [];
   const availableIds = [];
-  for (let i = 1; i <= 50; i++) { if (!unlocked.includes(i)) availableIds.push(i); }
+  for (let i = 1; i <= 20; i++) { if (!unlocked.includes(i)) availableIds.push(i); }
   if (availableIds.length === 0) return customAlert('您已收集滿所有拼圖！');
   
   const newId = availableIds[Math.floor(Math.random() * availableIds.length)];
