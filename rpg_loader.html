@@ -22,13 +22,14 @@
 html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:"PingFang TC","Noto Sans TC",sans-serif;color:var(--text)}
 .app{position:relative;width:100%;height:100%;overflow:hidden;}
 
-/* 頂部資訊欄與地圖基礎框架 */
 .header { position: absolute; top: 0; width: 100%; height: calc(45px + var(--safe-top)); background: linear-gradient(to bottom, #111, #333); padding-top: var(--safe-top); display: flex; align-items: center; justify-content: space-between; padding: 0 12px; font-weight: 900; font-size: 14px; color: #fff; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: opacity 0.5s;}
 .mission-text { color: #ffca28; flex: 1; text-align: center; }
 .btn-cancel { padding: 4px 10px; border-radius: 6px; color: #fff; border: none; font-weight: bold; font-size: 11px; cursor: pointer; background: #78909c; }
 .scene{position:absolute;inset:0;top:0;overflow:hidden;} 
 .camera { position: absolute; left: 0; top: 0; width: 100%; height: 100%; transition: transform 0.05s ease-out; }
-.game-world { position: absolute; left: 0; top: 0; width: 3000px; height: 2600px; }
+
+/* ★ 擴大地圖世界邊界，容納所有的樓層 */
+.game-world { position: absolute; left: 0; top: 0; width: 6000px; height: 3500px; }
 
 /* 玩家角色 */
 .character{position:absolute;width:50px;height:70px;transform:translate(-50%,-100%);z-index:15; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3)); transition: opacity 0.5s;}
@@ -47,31 +48,18 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 .joystick-base { position: absolute; width: 140px; height: 140px; background: rgba(255,255,255,0.3); border: 3px solid rgba(255,255,255,0.6); border-radius: 50%; display: none; z-index: 50; transform: translate(-50%, -50%);}
 .joystick-knob { position: absolute; width: 60px; height: 60px; background: var(--gold); border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%);}
 
-/* 開場黑幕與打字機 UI */
+/* 開場黑幕與 UI */
 .story-intro { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.98) 80%); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; color: white; text-align: center; transition: opacity 0.8s ease-out;}
 .typewriter { font-size: 16px; line-height: 1.8; margin-bottom: 25px; min-height: 80px; font-weight: bold; text-shadow: 0 2px 5px rgba(0,0,0,0.8);}
 .btn-start { padding: 14px 50px; font-size: 18px; background: rgba(33, 150, 243, 0.9); color: white; border: 2px solid #64b5f6; border-radius: 30px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(4px); transition: transform 0.2s, background 0.2s; opacity: 0; transform: translateY(20px);}
 .btn-start.show { opacity: 1; transform: translateY(0); }
 .btn-start:active { transform: scale(0.95); background: #1976d2; }
-
-/* 獨立控制按鈕 */
-.btn-fs-toggle { 
-  position: absolute; top: max(10px, env(safe-area-inset-top)); right: 10px; 
-  background: rgba(0,0,0,0.2); color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.2); 
-  width: 36px; height: 36px; border-radius: 8px; z-index: 101; cursor: pointer; 
-  display: none; align-items: center; justify-content: center; font-size: 20px; 
-  backdrop-filter: blur(2px); transition: all 0.2s;
-}
+.btn-fs-toggle { position: absolute; top: max(10px, env(safe-area-inset-top)); right: 10px; background: rgba(0,0,0,0.2); color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.2); width: 36px; height: 36px; border-radius: 8px; z-index: 101; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 20px; backdrop-filter: blur(2px); transition: all 0.2s;}
 .btn-fs-toggle:active { background: rgba(0,0,0,0.5); }
-.btn-return-lobby {
-  position: absolute; top: max(10px, env(safe-area-inset-top)); left: 10px;
-  background: rgba(255,255,255,0.85); color: #1976d2; border: 2px solid #64b5f6;
-  padding: 6px 12px; border-radius: 8px; z-index: 101; cursor: pointer; font-weight: bold;
-  display: none; box-shadow: 0 2px 10px rgba(0,0,0,0.2); transition: all 0.2s;
-}
+.btn-return-lobby { position: absolute; top: max(10px, env(safe-area-inset-top)); left: 10px; background: rgba(255,255,255,0.85); color: #1976d2; border: 2px solid #64b5f6; padding: 6px 12px; border-radius: 8px; z-index: 101; cursor: pointer; font-weight: bold; display: none; box-shadow: 0 2px 10px rgba(0,0,0,0.2); transition: all 0.2s;}
 .btn-return-lobby:active { background: #e3f2fd; transform: scale(0.95); }
 
-/* 對話框樣式 */
+/* 對話框與動畫畫面 */
 .dialog-box { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 600px; background: rgba(255,255,255,0.95); border: 4px solid #4CAF50; border-radius: 15px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 200; display: none; flex-direction: column;}
 .dialog-name { font-size: 18px; font-weight: 900; color: #4CAF50; margin-bottom: 8px;}
 .dialog-text { font-size: 18px; color: #333; line-height: 1.6;}
@@ -80,12 +68,18 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 .btn-cancel { background: #78909c; }
 .btn-confirm { background: #4CAF50; }
 .btn-dialog:active { transform: scale(0.95); }
-
-/* 小遊戲/動畫播放畫面 */
 .animation-screen { position: absolute; inset: 0; background: #111; z-index: 500; display: none; flex-direction: column;}
 #animFrame { flex: 1; border: none; width: 100%; height: 100%;}
 .btn-quit-anim { position: absolute; top: max(10px, env(safe-area-inset-top)); right: 10px; background: rgba(0,0,0,0.7); color: #fff; border: 1px solid #aaa; padding: 6px 15px; border-radius: 6px; z-index: 501; cursor: pointer; font-weight: bold; backdrop-filter: blur(4px); font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.5);}
 .btn-quit-anim:active { background: rgba(0,0,0,0.9); }
+
+/* ★ 電梯系統 UI UI */
+.elevator-modal { position:absolute; inset:0; background:rgba(0,0,0,0.8); z-index:1000; display:none; flex-direction:column; align-items:center; justify-content:center; backdrop-filter: blur(5px);}
+.elevator-panel { background:#eceff1; padding:20px; border-radius:15px; border:4px solid #546e7a; text-align:center; width: 300px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+.elevator-panel h2 { margin:0 0 15px 0; color:#37474f; font-size: 22px; font-weight: 900;}
+.floor-btn { display:block; width:100%; padding:12px; margin-bottom:8px; background:#81d4fa; border:2px solid #0288d1; border-radius:8px; font-weight:bold; font-size:16px; color:#01579b; cursor:pointer;}
+.floor-btn:active { background:#4fc3f7; transform: scale(0.98);}
+.btn-close-elev { margin-top:15px; background:#e57373; border-color:#c62828; color:#fff;}
 </style>
 </head>
 <body>
@@ -110,12 +104,25 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
     
     <div class="camera" id="camera">
       <div class="game-world" id="gameWorld">
+        
         <div class="lobby-main">
           <div style="position:absolute; left:10%; right:10%; top:20%; bottom:20%; border:2px solid rgba(0,0,0,0.05); border-radius:20px;"></div>
         </div>
         <div class="lobby-desk">大廳服務中心</div>
-        <div class="lobby-elevator">往 11G 病房 ⬆️</div>
+        <div class="lobby-elevator">往 各大樓層 ⬆️</div>
         <div class="teleport-zone" style="left: 1400px; top: -1170px; width: 200px; height: 50px;"></div>
+        
+        <div class="corridor-rest"></div><div class="room-rest">休息室<br>(更換衣服)</div>
+        <div class="corridor-store"></div><div class="room-store">便利商店<br>(外觀購買)</div>
+        <div class="corridor-pharmacy"></div><div class="room-pharmacy">門診藥局</div>
+        <div class="corridor-er"></div><div class="room-er">急診室</div>
+
+        <div class="floor-box" style="left:3500px; top:-1200px;">2F 導管室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
+        <div class="floor-box" style="left:4500px; top:-1200px;">3F 手術室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
+        <div class="floor-box" style="left:3500px; top:-400px;">4F 復健室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
+        <div class="floor-box" style="left:4500px; top:-400px;">5F 神經加護病房<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
+        <div class="floor-box" style="left:3500px; top:400px;">6F 教學室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
+        <div class="floor-box" style="left:4500px; top:400px;">14F 衛教影片室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
 
         <div class="corridor-main"></div><div class="workspace-core"></div>
         <div class="room-block room-discuss">討論室</div><div class="room-block room-soiled">污物室</div>
@@ -132,7 +139,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
         
         <div class="room-elev-v">
           <div style="font-size:18px; font-weight:900;">病床電梯</div>
-          <div style="font-size:12px; color:#ffeb3b; margin-top:5px; background:rgba(0,0,0,0.6); padding:2px 8px; border-radius:4px; z-index:4;">往 1F 大廳 ⬇️</div>
+          <div style="font-size:12px; color:#ffeb3b; margin-top:5px; background:rgba(0,0,0,0.6); padding:2px 8px; border-radius:4px; z-index:4;">往 各大樓層 ⬇️</div>
         </div>
         <div class="teleport-zone" style="left: 2000px; top: 1950px; width: 250px; height: 50px;"></div>
 
@@ -169,6 +176,21 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
     <iframe id="animFrame" src="about:blank"></iframe>
   </div>
 
+  <div class="elevator-modal" id="elevatorModal">
+      <div class="elevator-panel">
+          <h2>🛗 電梯樓層選擇</h2>
+          <button class="floor-btn" onclick="goToFloor(14)">14F 衛教影片室</button>
+          <button class="floor-btn" onclick="goToFloor(11)">11F 11G病房</button>
+          <button class="floor-btn" onclick="goToFloor(6)">6F 教學室</button>
+          <button class="floor-btn" onclick="goToFloor(5)">5F 神經加護病房</button>
+          <button class="floor-btn" onclick="goToFloor(4)">4F 復健室</button>
+          <button class="floor-btn" onclick="goToFloor(3)">3F 手術室</button>
+          <button class="floor-btn" onclick="goToFloor(2)">2F 導管室</button>
+          <button class="floor-btn" onclick="goToFloor(1)">1F 大廳 / 急診</button>
+          <button class="floor-btn btn-close-elev" onclick="closeElevator()">離開電梯</button>
+      </div>
+  </div>
+
 </div>
 
 <script src="js/tasks-main.js"></script>
@@ -189,7 +211,6 @@ const taskId = urlParams.get('taskId') || 'hub_world';
 let isFsMode = urlParams.get('fs') === '1';
 let isFirstTask = urlParams.get('first') === '1';
 
-// ★ 防死當機制：如果找不到外部資料，自動載入這個測試用關卡
 let task = RPG_TASKS[taskId];
 if (!task) {
   task = {
@@ -234,7 +255,7 @@ if (task.npcs) {
     npcDiv.style.top = n.pos.y + 'px';
     
     let indicatorHtml = n.icon ? `<div class="npc-indicator">${n.icon}</div>` : '';
-npcDiv.innerHTML = `
+    npcDiv.innerHTML = `
       ${indicatorHtml}
       <div class="name" id="npc-name-${n.id}" style="background:${n.color || '#37474f'}">${n.name}</div>
       <div class="head" style="background:${n.head || '#e57373'}"></div>
@@ -245,53 +266,33 @@ npcDiv.innerHTML = `
 }
 
 // ==========================================
-// ★ 接收來自父層主系統的資料同步 (階段四功能)
-// ==========================================
-// ==========================================
-// ★ 接收來自父層主系統的資料同步 (階段四功能)
-// ==========================================
-// ==========================================
-// ★ 接收來自父層主系統的資料同步 (階段四功能)
+// ★ 接收來自父層主系統的資料同步
 // ==========================================
 window.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SYNC_PLAYER_DATA') {
     const pData = event.data.payload;
     if (pData.name) {
-      
-      // 1. 預設顯示為主角（玩家的真實暱稱）
       let displayName = pData.name;
-      
-      // 2. 判斷任務是否強制覆蓋操作角色名稱：
       if (task.playAs) {
         displayName = task.playAs;
       } else if (taskId === 'beg_id_0' || taskId === 'beg_id_1') {
-        displayName = task.roleName; // 顯示 "實習醫師"
+        displayName = task.roleName;
       }
-
-      // 3. 更新操作角色的畫面
       document.getElementById('playerName').innerText = displayName;
       document.getElementById('ui-role').innerText = displayName;
       
-      // --- 👇 新增：動態修改特定 NPC 的名字與對話 ---
       if (taskId === 'beg_id_0') {
-        // A. 修改地圖上病人 NPC 頭頂的名字 (加上 "你" 讓玩家知道那是自己)
         const patientNameEl = document.getElementById('npc-name-patient');
-        if (patientNameEl) {
-          patientNameEl.innerText = pData.name + " (你)"; 
-        }
+        if (patientNameEl) patientNameEl.innerText = pData.name + " (你)"; 
         
-        // B. 修改對話框裡面的名字 (把 "我 (病患)" 替換成玩家的真實名字)
         const patientNpc = task.npcs.find(n => n.id === 'patient');
         if (patientNpc) {
           patientNpc.name = pData.name;
           patientNpc.dialogs.forEach(d => {
-            if (d.name === "我 (病患)") {
-              d.name = pData.name;
-            }
+            if (d.name === "我 (病患)") d.name = pData.name;
           });
         }
       }
-      // ---------------------------------------------
     }
   }
 });
@@ -340,7 +341,6 @@ window.onload = () => {
   if (isFsMode) document.getElementById('btnFsToggle').innerHTML = "🗗";
   setTimeout(typeWriter, 600); 
 
-  // ★ 通知父層 (index.html) 地圖已準備好，請傳送玩家暱稱過來！
   if (window.parent !== window) {
     window.parent.postMessage({ type: 'MAP_READY' }, '*');
   }
@@ -397,7 +397,7 @@ function returnToLobby() {
 }
 
 // ==========================================
-// ★ 防死鎖對話邏輯 
+// ★ 互動對話與電梯邏輯
 // ==========================================
 function startNpcDialog(npc) {
   currentNpc = npc;
@@ -487,9 +487,43 @@ function finishNpcDialog() {
   }
 }
 
+// ★ 電梯控制功能
+function showElevatorMenu() {
+    gameActive = false;
+    velocity = {x:0, y:0};
+    document.getElementById('joystickBase').style.display = 'none';
+    document.getElementById('elevatorModal').style.display = 'flex';
+}
+
+function closeElevator() {
+    document.getElementById('elevatorModal').style.display = 'none';
+    state.y += 60; // 往下退一步，離開傳送陣
+    updateCamera();
+    setTimeout(()=> { gameActive = true; }, 300);
+}
+
+function goToFloor(f) {
+    document.getElementById('elevatorModal').style.display = 'none';
+    let target = {x: 1500, y: -1100}; // Default 1F
+    if(f===14) target = {x: 4900, y: 460};
+    if(f===11) target = {x: 2125, y: 1925}; // 11F
+    if(f===6)  target = {x: 3900, y: 460};
+    if(f===5)  target = {x: 4900, y: -340};
+    if(f===4)  target = {x: 3900, y: -340};
+    if(f===3)  target = {x: 4900, y: -1140};
+    if(f===2)  target = {x: 3900, y: -1140};
+    
+    // 傳送玩家 (給予一點下移緩衝避免連續觸發)
+    state.x = target.x;
+    state.y = target.y + 40; 
+    updateCamera();
+    setTimeout(()=> { gameActive = true; }, 300);
+}
+
 // ==========================================
-// ★ 物理阻擋邏輯 ★
+// ★ 物理阻擋邏輯 (支援擴建區域與多樓層) ★
 // ==========================================
+// 原本的細部障礙物 (只保留 11F 和 1F 櫃台)
 const solidBlocks = [
   {x: 2000, y: 400, w: 320, h: 450}, {x: 2000, y: 1000, w: 320, h: 750},
   {x: 2050, y: 850, w: 270, h: 10}, {x: 2050, y: 990, w: 270, h: 10},
@@ -498,24 +532,69 @@ const solidBlocks = [
   {x: 950, y: 1420, w: 380, h: 175}, {x: 1330, y: 1420, w: 10, h: 10},
   {x: 1420, y: 1420, w: 320, h: 10}, {x: 1330, y: 1585, w: 410, h: 10},
   {x: 1730, y: 1420, w: 10, h: 170}, {x: 950, y: 1590, w: 810, h: 160},
-  {x: 400, y: 1850, w: 1310, h: 350},
-  {x: 1710, y: 2150, w: 790, h: 50}
+  {x: 400, y: 1850, w: 1310, h: 350}, {x: 1710, y: 2150, w: 790, h: 50}
 ];
 
 function canMoveTo(x, y) {
   const r = 20; 
-  if (y < 0) {
-    if (x < 1000 + r || x > 2000 - r || y < -1200 + r || y > -400 - r) return false;
-    if (x > 1350 - r && x < 1650 + r && y > -900 - r && y < -800 + r) return false;
-    return true;
+  let isWalkable = false;
+
+  // 定義所有的安全行走區域 (x, y, 寬, 高)
+  const walkableZones = [
+    {x: 1000, y: -1200, w: 1000, h: 800}, // 1F 大廳
+    {x: 1400, y: -400, w: 200, h: 250},   // 1F 休息室與走廊
+    {x: 500, y: -1000, w: 500, h: 400},   // 1F 便利商店
+    {x: 2000, y: -1000, w: 450, h: 400},  // 1F 門診藥局
+    {x: 2450, y: -1100, w: 550, h: 600},  // 1F 急診室
+    {x: 3500, y: -1200, w: 800, h: 600},  // 2F 
+    {x: 4500, y: -1200, w: 800, h: 600},  // 3F 
+    {x: 3500, y: -400, w: 800, h: 600},   // 4F 
+    {x: 4500, y: -400, w: 800, h: 600},   // 5F 
+    {x: 3500, y: 400, w: 800, h: 600},    // 6F 
+    {x: 4500, y: 400, w: 800, h: 600}     // 14F
+  ];
+
+  // 判斷是否在一般矩形區域內
+  for (let z of walkableZones) {
+    if (x > z.x + r && x < z.x + z.w - r && y > z.y + r && y < z.y + z.h - r) {
+      isWalkable = true; break;
+    }
   }
-  if (x < 350 || x > 2500 || y < 150 || y > 2200) return false;
-  let diagLine = x + y; let distAlong = (x - y + 1300) * 0.707;
-  if (distAlong > 0 && distAlong < 2200) { if (diagLine < 2200 + r && diagLine > 1850 - r) return false; }
-  if (x > 1200 - r && x < 1400 + r && Math.abs(y - (-0.93*x + 2365)) < 40) return false;
-  for (let b of solidBlocks) { if (x+r > b.x && x-r < b.x+b.w && y+r > b.y && y-r < b.y+b.h) return false; }
+
+  // 11F 特殊梯形邏輯
+  if (!isWalkable) {
+    if (x > 350+r && x < 2500-r && y > 150+r && y < 2200-r) {
+      let diagLine = x + y; let distAlong = (x - y + 1300) * 0.707;
+      if (!(distAlong > 0 && distAlong < 2200 && diagLine < 2200 + r && diagLine > 1850 - r)) {
+         isWalkable = true;
+      }
+    }
+  }
+
+  if (!isWalkable) return false; // 不在任何安全區域，直接禁止移動
+
+  // 再判斷是否撞到區域內的實體障礙物
+  if (x > 1350 - r && x < 1650 + r && y > -900 - r && y < -800 + r) return false; // 1F 大廳服務台
+  if (x > 1200 - r && x < 1400 + r && Math.abs(y - (-0.93*x + 2365)) < 40) return false; // 11F 護理站斜角
+  
+  for (let b of solidBlocks) { 
+    if (x+r > b.x && x-r < b.x+b.w && y+r > b.y && y-r < b.y+b.h) return false; 
+  }
+  
   return true;
 }
+
+// 樓層電梯傳送陣座標 (用來偵測踩踏)
+const elevatorZones = [
+   {x: 1500, y: -1150}, // 1F
+   {x: 2125, y: 1975},  // 11F
+   {x: 3900, y: -1140}, // 2F
+   {x: 4900, y: -1140}, // 3F
+   {x: 3900, y: -340},  // 4F
+   {x: 4900, y: -340},  // 5F
+   {x: 3900, y: 460},   // 6F
+   {x: 4900, y: 460}    // 14F
+];
 
 function gameLoop() {
   if (gameActive) {
@@ -529,11 +608,12 @@ function gameLoop() {
     updateCamera();
     
     if (velocity.x || velocity.y) {
-      if (state.y < -1160 && state.x > 1400 && state.x < 1600) {
-        state.x = 2125; state.y = 1900; updateCamera();
-      }
-      else if (state.y > 1960 && state.x > 2000 && state.x < 2250) {
-        state.x = 1500; state.y = -1150; updateCamera();
+      // 偵測是否踩到電梯
+      for(let z of elevatorZones) {
+         if (Math.hypot(state.x - z.x, state.y - z.y) < 50) {
+            showElevatorMenu();
+            return; // 暫停移動，等待選擇
+         }
       }
 
       if (missionStage === 0 && task.npcs) {
