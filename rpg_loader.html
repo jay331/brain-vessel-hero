@@ -247,12 +247,29 @@ if (task.npcs) {
 // ==========================================
 // ★ 接收來自父層主系統的資料同步 (階段四功能)
 // ==========================================
+// ==========================================
+// ★ 接收來自父層主系統的資料同步 (階段四功能)
+// ==========================================
 window.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SYNC_PLAYER_DATA') {
     const pData = event.data.payload;
     if (pData.name) {
-      document.getElementById('playerName').innerText = pData.name;
-      document.getElementById('ui-role').innerText = pData.name;
+      
+      // 1. 預設顯示為主角（玩家的真實暱稱）
+      let displayName = pData.name;
+      
+      // 2. 判斷任務是否強制覆蓋角色名稱：
+      // 如果任務資料 (task) 中有特別設定 `playAs`，就優先使用扮演的角色名稱。
+      // 為了讓你現在的進度無縫接軌，前兩關我們先強制指定為 task.roleName
+      if (task.playAs) {
+        displayName = task.playAs;
+      } else if (taskId === 'beg_id_0' || taskId === 'beg_id_1') {
+        displayName = task.roleName; // 顯示 "實習醫師"
+      }
+
+      // 3. 更新畫面
+      document.getElementById('playerName').innerText = displayName;
+      document.getElementById('ui-role').innerText = displayName;
     }
   }
 });
