@@ -64,6 +64,21 @@ const MAIN_TASKS = {
       ], action: 'NONE' }
     ]
   },
+  // ========== 隱藏尋寶任務：神內三寶 ==========
+      // 放在 1F 急診室角落
+      { id: 'item_penlight', name: '遺失的筆燈', color: '#ffeb3b', head: 'transparent', body: 'transparent', pos: { x: 2600, y: -850 }, icon: '🔦', dialogs: [
+        {name: "系統", text: "在病床旁發現了【筆燈】！這是神經學檢查中，用來測試病患「瞳孔光反射」的重要工具。"}
+      ], action: 'ACTION_FIND_PENLIGHT' },
+
+      // 放在 11F 護理站桌上
+      { id: 'item_hammer', name: '遺失的扣診錘', color: '#ff5722', head: 'transparent', body: 'transparent', pos: { x: 1850, y: 1200 }, icon: '🔨', dialogs: [
+        {name: "系統", text: "在護理站發現了【扣診錘】！神內醫師常用它來敲擊肌腱，測試病患的「深層肌腱反射 (DTR)」。"}
+      ], action: 'ACTION_FIND_HAMMER' },
+
+      // 放在 6F 教學室白板前
+      { id: 'item_fork', name: '遺失的音叉', color: '#03a9f4', head: 'transparent', body: 'transparent', pos: { x: 30200, y: -900 }, icon: '🧲', dialogs: [
+        {name: "系統", text: "在教學室發現了【音叉】！神內醫師會用它來測試病患末梢的「震動覺」與神經傳導功能。"}
+      ], action: 'ACTION_FIND_FORK' },
   "beg_id_0": {
     roleName: "實習醫師",
     playAs: "實習醫師",
