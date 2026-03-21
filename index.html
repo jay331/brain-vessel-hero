@@ -630,7 +630,7 @@ function updateHUD() {
   id('uiCoins').textContent = playerState.coins.toLocaleString(); 
   
   const isUnlocked = playerState.mode === 'beginner' ? playerState.explorationTasksCompleted >= 5 : getActiveRoles().every(r => r.currentTask > 1);
-const banner = id('bossBanner');
+  const banner = id('bossBanner');
   if(banner) {
     // ★ 根據模式變更 BOSS 按鈕標題
     if(id('bossTitleText')) id('bossTitleText').innerHTML = playerState.mode === 'beginner' ? '🛡️ 中風知識演練 - 綜合情境驗收' : '🛡️ 中風個案演練 - 綜合情境驗收';
@@ -638,6 +638,10 @@ const banner = id('bossBanner');
     if (isUnlocked) { banner.classList.remove('locked'); if(id('bossStatusText')) id('bossStatusText').textContent = '🟢 已解鎖 (點擊進入演練)'; } 
     else { banner.classList.add('locked'); if(id('bossStatusText')) id('bossStatusText').textContent = playerState.mode === 'beginner' ? `需完成 5 次探索任務 (目前 ${playerState.explorationTasksCompleted || 0}/5)` : `需五位角色皆通關一項任務以解鎖`; }
   }
+  
+  // ★ 剛剛就是不小心把下面這兩行刪掉了！
+  renderHomeRoles();
+}
 
 function renderHomeRoles() {
   const container = id('roleListContainer'); if(!container) return;
