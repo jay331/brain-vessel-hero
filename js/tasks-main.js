@@ -15,22 +15,25 @@ const MAIN_TASKS = {
 
       // ========== 1F 擴建房間 NPC ==========
 
-      // 休息室衣櫃 (做成互動熱點)
-      { id: 'npc_wardrobe', name: '更衣櫃', color: '#5d4037', head: 'transparent', body: 'transparent', pos: { x: 1410, y: -400 }, icon: '🚪', dialogs: [
+// ========== 1F 擴建房間 NPC ==========
+      // 休息室衣櫃 (移到房間左上角，不再擋住正中央通道)
+      { id: 'npc_wardrobe', name: '更衣櫃', color: '#5d4037', head: 'transparent', body: 'transparent', pos: { x: 1380, y: -180 }, icon: '🚪', dialogs: [
         {name: "系統", text: "打開了專屬的員工衣櫃，準備換裝！"}
       ], action: 'ACTION_WARDROBE' },
       
-// 便利商店 (加上 ACTION_STORE)
-      { id: 'npc_store', name: '店長', color: '#4caf50', head: '#a5d6a7', body: '#e8f5e9', pos: { x: 725, y: -800 }, icon: '🏪', dialogs: [
+      // 便利商店 (移到商店正中央偏上)
+      { id: 'npc_store', name: '店長', color: '#4caf50', head: '#a5d6a7', body: '#e8f5e9', pos: { x: 650, y: -800 }, icon: '🏪', dialogs: [
         {name: "店長", text: "歡迎光臨！來挑一件帥氣的職業服裝吧！"}
       ], action: 'ACTION_STORE' },
-      // 門診藥局
-      { id: 'npc_pharmacy', name: '藥師', color: '#03a9f4', head: '#81d4fa', body: '#e1f5fe', pos: { x: 2250, y: -850 }, icon: '💊', dialogs: [
+
+      // 門診藥局 (移到藥局中央)
+      { id: 'npc_pharmacy', name: '藥師', color: '#03a9f4', head: '#81d4fa', body: '#e1f5fe', pos: { x: 2350, y: -800 }, icon: '💊', dialogs: [
         {name: "藥師", text: "領藥請排隊！"},
         {name: "藥師", text: "中風病患一定要按時服藥控制血壓與血糖，千萬不能自己隨便停藥喔！"}
       ], action: 'NONE' },
-      // 急診室
-      { id: 'npc_er', name: '急診醫師', color: '#f44336', head: '#ef9a9a', body: '#ffebee', pos: { x: 2750, y: -850 }, icon: '🚑', dialogs: [
+
+      // 急診室 (移到急診室中央)
+      { id: 'npc_er', name: '急診醫師', color: '#f44336', head: '#ef9a9a', body: '#ffebee', pos: { x: 2950, y: -800 }, icon: '🚑', dialogs: [
         {name: "急診醫師", text: "快！確認病患的 FAST 症狀，趕緊送去做電腦斷層掃描！時間就是大腦！"}
       ], action: 'NONE' },
 
