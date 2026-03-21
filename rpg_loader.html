@@ -159,8 +159,8 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
     </div>
   </div>
   
-  <div class="animation-screen" id="animScreen">
-    <button class="btn-quit-anim" onclick="parent.postMessage({type:'CLOSE_IFRAME'}, '*')">✖ 中斷任務</button>
+<div class="animation-screen" id="animScreen">
+    <button class="btn-quit-anim" onclick="window.postMessage({type:'CLOSE_IFRAME'}, '*')">✖ 中斷任務</button>
     <iframe id="animFrame" src="about:blank"></iframe>
   </div>
 
@@ -259,8 +259,13 @@ if (task.npcs) {
 // ==========================================
 // ★ 接收來自父層主系統的資料同步
 // ==========================================
+// ==========================================
+// ★ 接收來自父層主系統的資料同步，以及轉發小遊戲過關通知
+// ==========================================
 window.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SYNC_PLAYER_DATA') {
+  if (!event.data) return;
+
+  if (event.data.type === 'SYNC_PLAYER_DATA') {
     const pData = event.data.payload;
     
     // 1. 處理玩家名稱與特定任務對話替換
@@ -289,13 +294,31 @@ window.addEventListener('message', (event) => {
       }
     }
 
-    // 2. ★ 新增：接收衣服顏色並立即套用 (如果沒有傳送，預設為白色 #fff)
+    // 2. 接收衣服顏色並立即套用 (如果沒有傳送，預設為白色 #fff)
     if (pData.clothes !== undefined) {
       const playerBody = document.querySelector('.player .body');
       if (playerBody) {
         playerBody.style.background = pData.clothes || '#fff';
       }
     }
+  }
+  
+  // 3. ★ 核心修復：接收內層小遊戲的過關、失敗或中斷訊號，並「轉發」給外層的主系統
+  else if (event.data.type === 'GAME_CLEAR' || event.data.type === 'GAME_OVER' || event.data.type === 'CLOSE_IFRAME') {
+     
+     // A. 隱藏地圖內部的動畫小遊戲視窗
+     document.getElementById('animScreen').style.display = 'none';
+     document.getElementById('animFrame').src = 'about:blank';
+     
+     // B. 讓小人退後一步，離開 NPC，並恢復地圖的虛擬搖桿操控
+     stepBackFromNpc();
+     missionStage = 0; 
+     setTimeout(() => { gameActive = true; currentNpc = null; }, 300);
+
+     // C. 最重要的一步：原封不動將這個過關訊息 (包含獲得的分數) 往上層傳給 index.html
+     if (window.parent !== window) {
+        window.parent.postMessage(event.data, '*');
+     }
   }
 });
 
