@@ -238,19 +238,18 @@ if (task.npcs) {
   task.npcs.forEach(n => {
     let npcDiv = document.createElement('div');
     npcDiv.className = 'target-npc';
+    npcDiv.id = `npc-node-${n.id}`; // ★ 給每個 NPC 與物件一個好抓取的專屬 ID
     npcDiv.style.left = n.pos.x + 'px';
     npcDiv.style.top = n.pos.y + 'px';
     
-    // ★ 判斷：如果是物品 (ID 開頭是 item_)，就脫掉身體跟影子！
     if (n.id.startsWith('item_')) {
-        npcDiv.id = `item-wrap-${n.id}`; // 給個專屬 ID 用來拔掉腳底影子
+        npcDiv.style.display = 'none'; // ★ 預設隱藏，等接到任務才顯示
         npcDiv.innerHTML = `
-          <style>#item-wrap-${n.id}::before { display: none !important; }</style>
+          <style>#npc-node-${n.id}::before { display: none !important; }</style>
           <div class="name" id="npc-name-${n.id}" style="background:${n.color || '#37474f'}; top: -20px;">${n.name}</div>
           <div style="font-size: 38px; margin-top: 15px; filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6)); animation: bounce 1.5s infinite alternate ease-in-out;">${n.icon}</div>
         `;
     } 
-    // ★ 如果是一般人，照常渲染頭跟身體
     else {
         let indicatorHtml = n.icon ? `<div class="npc-indicator">${n.icon}</div>` : '';
         npcDiv.innerHTML = `
@@ -305,12 +304,18 @@ window.addEventListener('message', (event) => {
       }
     }
 
-    // 2. 接收衣服顏色並立即套用 (如果沒有傳送，預設為白色 #fff)
+// 2. 接收衣服顏色並立即套用 (如果沒有傳送，預設為白色 #fff)
     if (pData.clothes !== undefined) {
       const playerBody = document.querySelector('.player .body');
       if (playerBody) {
         playerBody.style.background = pData.clothes || '#fff';
       }
+    }
+    
+    // ★ 3. 新增：接收尋寶任務進度，控制物品顯示
+    if (pData.foundItems !== undefined) {
+       window.playerFoundItems = pData.foundItems;
+       updateItemVisibility();
     }
   }
   
@@ -333,6 +338,30 @@ window.addEventListener('message', (event) => {
   }
 });
 
+   // ★ 新增：根據尋寶進度，更新地圖上的寶物顯示狀態
+window.playerFoundItems = null;
+function updateItemVisibility() {
+    const items = [
+        { id: 'item_penlight', name: '筆燈' },
+        { id: 'item_hammer', name: '扣診錘' },
+        { id: 'item_fork', name: '音叉' }
+    ];
+    
+    // 判斷任務是否啟動 (有進度陣列，且還沒交回給醫師)
+    let isQuestActive = window.playerFoundItems && Array.isArray(window.playerFoundItems) && !window.playerFoundItems.includes('DONE');
+
+    items.forEach(item => {
+        const el = document.getElementById(`npc-node-${item.id}`);
+        if (el) {
+            // 如果任務進行中，且這個物品還沒被找到 -> 顯示出來
+            if (isQuestActive && !window.playerFoundItems.includes(item.name)) {
+                el.style.display = 'block';
+            } else {
+                el.style.display = 'none'; // 撿過或任務沒開始，就隱藏
+            }
+        }
+    });
+}
 
 // ==========================================
 // ★ 視角與開場邏輯
@@ -531,30 +560,19 @@ document.getElementById('btnNextDialog').onclick = () => {
 };
 
 function finishNpcDialog() {
-  // ★ 關鍵修復：把 ACTION_STORE 和 ACTION_WARDROBE 也加進允許發送給主系統的名單中！
-// ★ 未來只要 action 是 ACTION_ 開頭，通通自動放行傳給主系統！
   if (currentNpc.action && currentNpc.action.startsWith('ACTION_')) {
+      
+    // ★ 新增：撿到物品時，立刻在畫面上隱藏它！
+    if (currentNpc.action.startsWith('ACTION_FIND_')) {
+        const node = document.getElementById(`npc-node-${currentNpc.id}`);
+        if(node) node.style.display = 'none';
+    }
       
     window.parent.postMessage({type: currentNpc.action}, '*');
     stepBackFromNpc();
     missionStage = 0; 
     setTimeout(() => { gameActive = true; currentNpc = null; }, 800);
-  } 
-  else if (currentNpc.action === 'PLAY_ANIMATION') {
-    missionStage = 2; 
-    if (task.gameUrl) {
-      document.getElementById('animScreen').style.display = 'flex';
-      document.getElementById('animFrame').src = task.gameUrl;
-    } else {
-      window.parent.postMessage({ type: 'GAME_CLEAR', score: 1000 }, '*');
-    }
-  } 
-  else {
-    stepBackFromNpc();
-    missionStage = 0; 
-    setTimeout(() => { gameActive = true; currentNpc = null; }, 300);
   }
-}
 
 // ★ 電梯控制功能
 function showElevatorMenu() {
