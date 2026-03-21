@@ -463,29 +463,43 @@ window.addEventListener('message', (event) => {
     // --------------------------------------------------------
 
 else if (event.data.type === 'ACTION_CONTINUE') {
-      if (!playerState.foundItems) { playerState.foundItems = []; saveGameData(); }
+      // 初始化背包
+      if (!playerState.foundItems) { 
+          playerState.foundItems = []; 
+          saveGameData(); 
+      }
       
-      // 觸發任務時，立刻同步給地圖更新對話與寶物
-      if (event.source) event.source.postMessage({ type: 'SYNC_PLAYER_DATA', payload: { foundItems: playerState.foundItems } }, '*');
+      // ★ 觸發任務時，立刻同步給地圖，讓它知道現在的進度 (更新對話與寶物顯示)
+      if (event.source) {
+          event.source.postMessage({ type: 'SYNC_PLAYER_DATA', payload: { foundItems: playerState.foundItems } }, '*');
+      }
 
       const foundCount = playerState.foundItems.length;
+      
+      // 判斷尋寶任務是否徹底結束 (包含 'DONE' 標記)
       if (!playerState.foundItems.includes('DONE')) {
           if (foundCount === 0) {
               customAlert("主治醫師：\n「神經內科的學弟太粗心了，查房完把『神內三寶』忘在醫院各處了。你能幫我找回【筆燈】、【扣診錘】和【音叉】嗎？\n\n💡 提示：掉在 1F 急診、11F 病房、或 6F 教學室。」", null, "👨‍⚕️ 尋找神內三寶");
-          } else if (foundCount > 0 && foundCount < 3) {
+          } 
+          else if (foundCount > 0 && foundCount < 3) {
               customAlert(`主治醫師：\n「你目前已經找到 ${foundCount} 樣了！還差一點，加油啊！\n\n💡 提示：去 1F、6F、11F 仔細找找。」`, null, "👨‍⚕️ 任務進行中");
-          } else if (foundCount === 3) {
+          } 
+          else if (foundCount === 3) {
               customAlert("主治醫師：\n「太感謝你了！這三樣可是神經科的法寶。這 300 健康幣是你應得的獎勵！」", () => {
-                  playerState.coins += 300; // 配合你的新經濟設定
-                  playerState.foundItems.push('DONE'); 
+                  playerState.coins += 300; 
+                  playerState.foundItems.push('DONE'); // 標記為徹底結案
                   playerState.explorationTasksCompleted++;
                   saveGameData(); updateHUD();
-                  // ★ 交任務後，發送訊號清空頭頂的寶物
-                  if (event.source) event.source.postMessage({ type: 'SYNC_PLAYER_DATA', payload: { foundItems: playerState.foundItems } }, '*');
+                  
+                  // ★ 交任務後，立刻發送訊號清空頭頂的寶物
+                  if (event.source) {
+                      event.source.postMessage({ type: 'SYNC_PLAYER_DATA', payload: { foundItems: playerState.foundItems } }, '*');
+                  }
               }, "🏆 尋寶任務完成！");
           }
-} else {
-          // ★ (4) 探索任務：首次完成給 300 幣，重複給 0 幣
+      } 
+      // 尋寶任務徹底解完後，才會開始派發後續的其他一般任務
+      else {
           if (!playerState.completedExplores) playerState.completedExplores = [];
           const randTasks = ["4F 物理治療師籌辦說明會，去 14F 拿海報吧！", "11G 病房缺藥了，去 1F 門診藥局幫忙領急件！", "請到大廳協助引導新病患，熟悉 FAST 口訣！"];
           const t = randTasks[Math.floor(Math.random()*randTasks.length)];
@@ -504,6 +518,36 @@ else if (event.data.type === 'ACTION_CONTINUE') {
           }, "👨‍⚕️ 醫師的委託");
       }
     } 
+    
+    // ★ 接收地圖傳來的撿取寶物訊號
+    else if (event.data.type && event.data.type.startsWith('ACTION_FIND_')) {
+      if (!playerState.foundItems) playerState.foundItems = [];
+      let itemName = "";
+      if (event.data.type === 'ACTION_FIND_PENLIGHT') itemName = "筆燈";
+      if (event.data.type === 'ACTION_FIND_HAMMER') itemName = "扣診錘";
+      if (event.data.type === 'ACTION_FIND_FORK') itemName = "音叉";
+
+      // 已經交任務領完獎了
+      if (playerState.foundItems.includes('DONE')) {
+          customAlert(`這把【${itemName}】已經交給醫師了喔！不用再撿了。`, null, "🎒 提示");
+      } 
+      // 成功撿到新寶物
+      else if (!playerState.foundItems.includes(itemName)) {
+          playerState.foundItems.push(itemName);
+          saveGameData();
+          
+          // ★ 關鍵！撿起的瞬間，立刻同步給地圖，讓物品馬上飛到頭頂上！
+          if (event.source) {
+              event.source.postMessage({ type: 'SYNC_PLAYER_DATA', payload: { foundItems: playerState.foundItems } }, '*');
+          }
+          
+          customAlert(`你找到了【${itemName}】！\n\n目前進度：${playerState.foundItems.length}/3\n請繼續尋找，或回大廳交給主治醫師。`, null, "🎒 尋獲物品");
+      } 
+      // 已經在背包裡了
+      else {
+          customAlert(`這個【${itemName}】你已經拿過了喔！快去其他樓層找找其他的吧！`, null, "🎒 提示");
+      }
+    }
     
     // ★ 接收撿取寶物訊號
     else if (event.data.type && event.data.type.startsWith('ACTION_FIND_')) {
