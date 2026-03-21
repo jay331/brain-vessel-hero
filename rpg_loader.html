@@ -4,7 +4,13 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <title>腦脈先鋒｜大廳與地圖引擎</title>
+
+<link rel="stylesheet" href="css/hospital-map.css" />
+
 <style>
+/* =========================================
+   遊戲引擎與 UI 核心樣式 (不隨樓層地圖改變)
+   ========================================= */
 :root{  
   --bg: #d9e1e8; --text: #37474f;  
   --safe-top: max(8px, env(safe-area-inset-top));  
@@ -16,88 +22,39 @@
 html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:"PingFang TC","Noto Sans TC",sans-serif;color:var(--text)}
 .app{position:relative;width:100%;height:100%;overflow:hidden;}
 
+/* 頂部資訊欄與地圖基礎框架 */
 .header { position: absolute; top: 0; width: 100%; height: calc(45px + var(--safe-top)); background: linear-gradient(to bottom, #111, #333); padding-top: var(--safe-top); display: flex; align-items: center; justify-content: space-between; padding: 0 12px; font-weight: 900; font-size: 14px; color: #fff; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: opacity 0.5s;}
 .mission-text { color: #ffca28; flex: 1; text-align: center; }
 .btn-cancel { padding: 4px 10px; border-radius: 6px; color: #fff; border: none; font-weight: bold; font-size: 11px; cursor: pointer; background: #78909c; }
-
 .scene{position:absolute;inset:0;top:0;overflow:hidden;} 
 .camera { position: absolute; left: 0; top: 0; width: 100%; height: 100%; transition: transform 0.05s ease-out; }
 .game-world { position: absolute; left: 0; top: 0; width: 3000px; height: 2600px; }
 
-/* 1F 醫院大廳場景 (Lobby) */
-.lobby-main { position: absolute; left: 1000px; top: -1200px; width: 1000px; height: 800px; background: #eceff1; border: 12px solid #cfd8dc; border-radius: 20px; box-shadow: inset 0 0 50px rgba(0,0,0,0.1); z-index: 1;}
-.lobby-desk { position: absolute; left: 1350px; top: -900px; width: 300px; height: 100px; background: #81d4fa; border-radius: 50px; border: 4px solid #0288d1; z-index: 3; display: flex; align-items: center; justify-content: center; color: #01579b; font-weight: 900; font-size: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);}
-.lobby-elevator { position: absolute; left: 1400px; top: -1210px; width: 200px; height: 40px; background: #37474f; border-radius: 8px 8px 0 0; z-index: 3; display: flex; align-items: center; justify-content: center; color: #00e676; font-weight: bold; font-size: 14px; box-shadow: 0 -5px 15px rgba(0,0,0,0.3);}
-.teleport-zone { position: absolute; background: rgba(0, 230, 118, 0.2); border: 2px dashed #00e676; border-radius: 8px; z-index: 4; animation: pulseTeleport 1.5s infinite alternate; }
-@keyframes pulseTeleport { 0% { opacity: 0.5; } 100% { opacity: 1; box-shadow: 0 0 15px #00e676; } }
-
-/* 11F 醫院主場景建築與房間 */
-.corridor-main { position: absolute; left: 350px; top: 200px; width: 2200px; height: 1800px; background: var(--c-floor-out); clip-path: polygon(0 1800px, 2200px 1800px, 2200px 0); }
-.workspace-core { position: absolute; left: 1000px; top: 800px; width: 850px; height: 600px; background: var(--c-floor-core); clip-path: polygon(0px 600px, 500px 100px, 850px 100px, 850px 600px); z-index: 1; border-radius: 20px; }
-.desk-island { position: absolute; background: var(--c-desk); border-radius: 10px; z-index: 3; box-shadow: 2px 5px 10px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; color: #01579b; font-weight: 900; border: 3px solid #4fc3f7; }
-.desk-front { left: 1800px; top: 1140px; width: 50px; height: 250px; writing-mode: vertical-lr; }
-.desk-back  { left: 1150px; top: 1250px; width: 450px; height: 50px; transform-origin: left top; transform: rotate(-43deg); }
-.room-block { position: absolute; background: #e0e0e0; border: 6px solid var(--c-wall); border-radius: 8px; font-weight: 900; color: #455a64; font-size: 15px; display: flex; align-items: center; justify-content: center; z-index: 2;}
-.has-door::after { content: ''; position: absolute; bottom: -6px; left: 20px; width: 45px; height: 8px; background: #8d6e63; border-radius: 2px; transform-origin: left center; transform: rotate(-45deg); z-index: 5;}
-.door-right::after { left: -6px; bottom: 20px; width: 8px; height: 45px; transform-origin: center top; transform: rotate(45deg); }
-.door-top::after { top: -6px; bottom: auto; transform: rotate(45deg); }
-
-.room-discuss  { left: 1590px; top: 825px; width: 270px; height: 130px; } 
-.room-soiled   { left: 1750px; top: 950px; width: 110px; height: 65px; } 
-.room-headnurse{ left: 1650px; top: 950px; width: 105px; height: 150px; } 
-.room-pantry   { left: 1750px; top: 1010px; width: 110px; height: 60px; } 
-.room-office   { left: 1000px; top: 1425px; width: 80px; height: 170px; } 
-.room-prep     { left: 1070px; top: 1425px; width: 270px; height: 170px; } 
-.room-treatment{ left: 1330px; top: 1425px; width: 410px; height: 170px; background: #fff9c4; border-color:#fbc02d; } 
-.room-supply   { left: 950px; top: 1590px; width: 160px; height: 160px; }
-.room-toilet   { left: 1100px; top: 1590px; width: 120px; height: 160px; font-size: 14px; }
-.room-oncall1  { left: 1210px; top: 1590px; width: 100px; height: 160px; }
-.room-oncall2  { left: 1300px; top: 1590px; width: 100px; height: 160px; }
-.room-treatment2  { left: 1390px; top: 1590px; width: 250px; height: 160px; }
-.room-talkroom { left: 1630px; top: 1590px; width: 130px; height: 160px; }
-.room-stair-l { left: 500px; top: 1850px; width: 150px; height: 350px; background: #b0bec5; }
-.room-elec    { left: 640px; top: 1850px; width: 200px; height: 350px; }
-.room-ac      { left: 830px; top: 1850px; width: 250px; height: 350px; }
-.room-sun     { left: 1060px; top: 1850px; width: 300px; height: 350px; background: #fff9c4; color: #f57f17; } 
-.room-dress   { left: 1350px; top: 1850px; width: 220px; height: 350px; background: #f8bbd0; } 
-.room-stair-c { left: 1560px; top: 1850px; width: 150px; height: 350px; background: #b0bec5; }
-.room-elev-v  { left: 2000px; top: 1850px; width: 250px; height: 150px; background: #cfd8dc; border: 6px solid #546e7a; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#37474f;} 
-.room-elev-b  { left: 2250px; top: 1850px; width: 250px; height: 150px; background: #cfd8dc; border: 6px solid #546e7a; } 
-
-.ward-entrance { position: absolute; left: 1710px; top: 1745px; width: 290px; height: 12px; background: rgba(135,206,235,0.4); z-index: 10; border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 0 15px rgba(129,212,250,0.8); backdrop-filter: blur(4px);}
-.ward-entrance::after { content: '管制區'; position: absolute; top: -30px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: #81d4fa; padding: 4px 10px; border-radius: 6px; font-size: 14px;}
-.ward-right { position: absolute; left: 2000px; top: 400px; width: 320px; height: 1350px; display: flex; flex-direction: column; background: var(--c-room); border: 8px solid var(--c-wall); z-index: 2;}
-.room-rv { flex: 1; border-bottom: 4px solid rgba(0,0,0,0.1); padding-left: 20px; font-weight: 900; color: #5d4037; display: flex; align-items: center; position: relative;}
-.room-rv::after { content: ''; position: absolute; right: 20px; top: 20px; bottom: 20px; width: 70px; background: #fff; border: 2px solid #ccc; border-radius: 5px; box-shadow: -2px 2px 5px rgba(0,0,0,0.1);}
-.room-rv::before { content: ''; position: absolute; right: 25px; top: 35px; width: 60px; height: 30px; background: #e0f2f1; border-radius: 5px; z-index: 1;}
-.ward-top { position: absolute; left: 1750px; top: 180px; width: 250px; height: 200px; background: var(--c-room); border: 8px solid var(--c-wall); border-radius: 100px 0 0 0; z-index: 2; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; font-weight: 900; color: #5d4037;}
-.ward-diag { position: absolute; left: 450px; top: 1750px; width: 2050px; height: 320px; transform-origin: left top; transform: rotate(-43deg) translateY(-100%); display: flex; background: var(--c-room); border-top: 8px solid var(--c-wall); border-bottom: 8px solid var(--c-wall); z-index: 2;}
-.room-d { flex: 1; border-right: 4px solid rgba(0,0,0,0.1); position: relative; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 20px; font-weight: 900; color: #5d4037; }
-
-/* 角色與搖桿 */
+/* 玩家角色 */
 .character{position:absolute;width:50px;height:70px;transform:translate(-50%,-100%);z-index:15; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3)); transition: opacity 0.5s;}
 .head{position:absolute;left:50%;top:10px;transform:translateX(-50%);width:34px;height:34px;border-radius:50%;background:#ffccbc; border: 2px solid #333;}
 .body{position:absolute;left:50%;top:40px;transform:translateX(-50%);width:30px;height:25px;border-radius:10px 10px 5px 5px;background:#fff; border: 2px solid #333;}
 .name{position:absolute;left:50%;top:-20px;transform:translateX(-50%);padding:3px 8px;border-radius:999px;background:#37474f;font-size:12px;color:white;white-space:nowrap;font-weight:bold; z-index:20;}
 
-/* 動態生成的 NPC 樣式 */
+/* NPC 角色與指標 */
 .target-npc { position: absolute; width: 50px; height: 80px; z-index: 10; display: flex; flex-direction: column; align-items: center; transform: translate(-50%, -50%);}
 .target-npc .head { background: #e57373; top: 0;}
 .target-npc .body { background: #bbdefb; top: 30px; height: 50px;}
 .npc-indicator { position: absolute; top: -45px; font-size: 20px; animation: bounce 1s infinite; z-index:20; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5));}
 @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 
+/* 虛擬搖桿 */
 .joystick-base { position: absolute; width: 140px; height: 140px; background: rgba(255,255,255,0.3); border: 3px solid rgba(255,255,255,0.6); border-radius: 50%; display: none; z-index: 50; transform: translate(-50%, -50%);}
 .joystick-knob { position: absolute; width: 60px; height: 60px; background: var(--gold); border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%);}
 
-/* 開場黑幕與打字機 */
+/* 開場黑幕與打字機 UI */
 .story-intro { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.98) 80%); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; color: white; text-align: center; transition: opacity 0.8s ease-out;}
 .typewriter { font-size: 16px; line-height: 1.8; margin-bottom: 25px; min-height: 80px; font-weight: bold; text-shadow: 0 2px 5px rgba(0,0,0,0.8);}
 .btn-start { padding: 14px 50px; font-size: 18px; background: rgba(33, 150, 243, 0.9); color: white; border: 2px solid #64b5f6; border-radius: 30px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(4px); transition: transform 0.2s, background 0.2s; opacity: 0; transform: translateY(20px);}
 .btn-start.show { opacity: 1; transform: translateY(0); }
 .btn-start:active { transform: scale(0.95); background: #1976d2; }
 
-/* 隱形低調的全螢幕切換按鈕 */
+/* 獨立控制按鈕 */
 .btn-fs-toggle { 
   position: absolute; top: max(10px, env(safe-area-inset-top)); right: 10px; 
   background: rgba(0,0,0,0.2); color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.2); 
@@ -106,8 +63,6 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
   backdrop-filter: blur(2px); transition: all 0.2s;
 }
 .btn-fs-toggle:active { background: rgba(0,0,0,0.5); }
-
-/* 返回大廳按鈕 (地圖探索模式專用) */
 .btn-return-lobby {
   position: absolute; top: max(10px, env(safe-area-inset-top)); left: 10px;
   background: rgba(255,255,255,0.85); color: #1976d2; border: 2px solid #64b5f6;
@@ -116,7 +71,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 }
 .btn-return-lobby:active { background: #e3f2fd; transform: scale(0.95); }
 
-/* 對話框樣式 (含離開按鈕) */
+/* 對話框樣式 */
 .dialog-box { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 600px; background: rgba(255,255,255,0.95); border: 4px solid #4CAF50; border-radius: 15px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 200; display: none; flex-direction: column;}
 .dialog-name { font-size: 18px; font-weight: 900; color: #4CAF50; margin-bottom: 8px;}
 .dialog-text { font-size: 18px; color: #333; line-height: 1.6;}
@@ -126,6 +81,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 .btn-confirm { background: #4CAF50; }
 .btn-dialog:active { transform: scale(0.95); }
 
+/* 小遊戲/動畫播放畫面 */
 .animation-screen { position: absolute; inset: 0; background: #111; z-index: 500; display: none; flex-direction: column;}
 #animFrame { flex: 1; border: none; width: 100%; height: 100%;}
 .btn-quit-anim { position: absolute; top: max(10px, env(safe-area-inset-top)); right: 10px; background: rgba(0,0,0,0.7); color: #fff; border: 1px solid #aaa; padding: 6px 15px; border-radius: 6px; z-index: 501; cursor: pointer; font-weight: bold; backdrop-filter: blur(4px); font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.5);}
