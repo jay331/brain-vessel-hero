@@ -289,7 +289,49 @@ window.onload = () => {
 
   if (isFsMode) document.getElementById('btnFsToggle').innerHTML = "🗗";
   setTimeout(typeWriter, 600); 
+window.onload = () => {
+  document.getElementById('player').style.left = state.x + 'px'; 
+  document.getElementById('player').style.top = state.y + 'px'; 
+
+  if (taskId === 'beg_id_0' && task.npcs) {
+    const targetNpc = task.npcs.find(n => n.id === 'patient');
+    if (targetNpc) {
+      const cx = window.innerWidth / 2 - targetNpc.pos.x;
+      const cy = window.innerHeight / 2 - targetNpc.pos.y;
+      document.getElementById('camera').style.transform = `translate(${cx}px, ${cy}px)`;
+    } else {
+      updateCamera();
+    }
+  } else {
+    updateCamera();
+  }
+
+  if (isFsMode) document.getElementById('btnFsToggle').innerHTML = "🗗";
+  setTimeout(typeWriter, 600); 
+
+  // --- 👇 新增這段：向父層請求玩家資料 ---
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'MAP_READY' }, '*');
+  }
+  // ------------------------------------
 };
+
+// ==========================================
+// ★ 接收來自父層主系統的資料同步
+// ==========================================
+window.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SYNC_PLAYER_DATA') {
+    const pData = event.data.payload;
+    
+    // 1. 更新小人頭頂的名稱為玩家真實暱稱
+    if (pData.name) {
+      document.getElementById('playerName').innerText = pData.name;
+    }
+    
+    // (未來擴充預留) 2. 根據 pData.storyProgression 決定是否隱藏或變更 NPC 對話
+    console.log("地圖引擎已成功接收玩家資料：", pData);
+  }
+});
 
 function startExplore() {
   document.getElementById('storyIntro').style.opacity = '0';
