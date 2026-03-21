@@ -803,6 +803,11 @@ function saveGameData() {
     hasSetup: playerState.hasSetup, name: playerState.name, avatar: playerState.avatar, mode: playerState.mode, coins: playerState.coins, 
     storyMode: playerState.storyMode, storyProgression: playerState.storyProgression, replayProgression: playerState.replayProgression,
     explorationTasksCompleted: playerState.explorationTasksCompleted,
+    
+    // 👇 新增這兩行：把衣服和衣櫃存進存檔裡
+    clothes: playerState.clothes,
+    ownedClothes: playerState.ownedClothes,
+
     completedCasesBeg: Array.from(playerState.completedCasesBeg.entries()), completedCasesAdv: Array.from(playerState.completedCasesAdv.entries()),
     taskScoresBeg: Array.from(playerState.taskScoresBeg.entries()), taskScoresAdv: Array.from(playerState.taskScoresAdv.entries()),
     scaleRecords: playerState.scaleRecords, strokeCard: playerState.strokeCard,
@@ -827,6 +832,10 @@ function loadGameData() {
       if(parsed.storyProgression !== undefined) playerState.storyProgression = parsed.storyProgression;
       if(parsed.replayProgression !== undefined) playerState.replayProgression = parsed.replayProgression;
       if(parsed.explorationTasksCompleted !== undefined) playerState.explorationTasksCompleted = parsed.explorationTasksCompleted;
+      
+      // 👇 新增這兩行：讀取衣服與衣櫃資料
+      if(parsed.clothes) playerState.clothes = parsed.clothes;
+      if(parsed.ownedClothes) playerState.ownedClothes = parsed.ownedClothes;
       
       if(parsed.strokeCard) playerState.strokeCard = parsed.strokeCard;
       if(parsed.scaleRecords) playerState.scaleRecords = parsed.scaleRecords;
