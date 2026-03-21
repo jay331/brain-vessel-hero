@@ -118,3 +118,30 @@
 .ward-top { position: absolute; left: 1750px; top: 180px; width: 250px; height: 200px; background: var(--c-room); border: 8px solid var(--c-wall); border-radius: 100px 0 0 0; z-index: 2; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; font-weight: 900; color: #5d4037;}
 .ward-diag { position: absolute; left: 450px; top: 1750px; width: 2050px; height: 320px; transform-origin: left top; transform: rotate(-43deg) translateY(-100%); display: flex; background: var(--c-room); border-top: 8px solid var(--c-wall); border-bottom: 8px solid var(--c-wall); z-index: 2;}
 .room-d { flex: 1; border-right: 4px solid rgba(0,0,0,0.1); position: relative; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 20px; font-weight: 900; color: #5d4037; }
+
+/* 玩家角色 */
+.character{position:absolute;width:50px;height:70px;transform:translate(-50%,-100%);z-index:15; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3)); transition: opacity 0.5s;}
+/* 腳底圓形陰影 */
+.character::before, .target-npc::before { content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); width: 40px; height: 12px; background: rgba(0,0,0,0.3); border-radius: 50%; z-index: -1; animation: shadowBreathe 2s infinite alternate ease-in-out; }
+/* 頭部 (豪華進化版：加入眼睛與閃爍動畫) */
+.head { position: absolute; left: 50%; top: 5px; transform: translateX(-50%); width: 38px; height: 38px; border-radius: 50%; background: #ffccbc; border: 3px solid #37474f; box-shadow: inset -4px -4px 6px rgba(0,0,0,0.15), 0 3px 5px rgba(0,0,0,0.2); z-index: 2; animation: headBreathe 2s infinite alternate ease-in-out; }
+.head::before, .head::after { content: ''; position: absolute; top: 15px; width: 5px; height: 7px; background: #37474f; border-radius: 50%; animation: blinkEye 4s infinite; }
+.head::before { left: 7px; }
+.head::after { right: 7px; }
+/* 身體 */
+.body{position:absolute;left:50%;top:40px;transform:translateX(-50%);width:40px;height:35px;border-radius:15px 15px 6px 6px;background:#fff; border: 3px solid #37474f; box-shadow: inset -5px -5px 10px rgba(0,0,0,0.1); z-index: 1; animation: bodyBreathe 2s infinite alternate ease-in-out;}
+.body::after { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 8px; height: 15px; background: var(--theme-primary, #64b5f6); clip-path: polygon(0 0, 100% 0, 50% 100%);}
+.name{position:absolute;left:50%;top:-25px;transform:translateX(-50%);padding:4px 10px;border-radius:999px;background:#37474f;font-size:12px;color:white;white-space:nowrap;font-weight:bold; z-index:20; box-shadow: 0 4px 8px rgba(0,0,0,0.3);}
+
+/* NPC 角色與指標 */
+.target-npc { position: absolute; width: 60px; height: 80px; z-index: 10; display: flex; flex-direction: column; align-items: center; transform: translate(-50%, -50%); transition: opacity 0.5s;}
+.target-npc .head { background: #e57373; top: 0;}
+.target-npc .body { background: #bbdefb; top: 30px; height: 50px;}
+.npc-indicator { position: absolute; top: -55px; font-size: 22px; animation: bounce 1s infinite; z-index:20; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));}
+
+/* 動畫關鍵影格 */
+@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes headBreathe { from { top: 5px; } to { top: 8px; } }
+@keyframes bodyBreathe { from { height: 35px; } to { height: 32px; top: 43px; } }
+@keyframes shadowBreathe { from { transform: translateX(-50%) scale(1); opacity: 0.3;} to { transform: translateX(-50%) scale(1.1); opacity: 0.2;} }
+@keyframes blinkEye { 0%, 96%, 100% { transform: scaleY(1); opacity: 1; } 98% { transform: scaleY(0.1); opacity: 0.5; } }
