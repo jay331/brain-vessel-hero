@@ -244,17 +244,24 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
           <h2 id="caseDexTitle">個案與拼圖收藏</h2>
           
           <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; border: 1px solid var(--theme-dim); margin-bottom: 12px; text-align: center; flex-shrink: 0;">
-            <div style="font-size: 13px; color: #ccc; margin-bottom: 8px;">
-              待解鎖拼圖：<span id="uiPuzzleAvail" style="color:var(--good); font-weight:bold; font-size:16px; margin: 0 4px;">0</span>張 
-              <span style="font-size:11px;">(收集進度: <span id="uiPuzzleCollected">0</span>/50)</span>
-            </div>
-            <div style="font-size: 11px; color: var(--theme-primary); margin-bottom: 8px;">💡 每救治 5 名個案可獲 1 次拼圖機會</div>
             
-            <div id="puzzleActionWrap" style="display:flex; gap:8px; justify-content:center;"></div>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px;">
+              <div style="font-size: 14px; color: #ccc;">
+                待解鎖拼圖：<span id="uiPuzzleAvail" style="color:var(--good); font-weight:bold; font-size:18px; margin: 0 2px;">0</span> 張 
+              </div>
+              <button id="btnDrawPuzzle" class="btn btn-rescue" style="padding:4px 12px; font-size:13px; width:auto; margin:0; display:none;" onclick="unlockRandomPuzzle()">🧩 抽拼圖</button>
+            </div>
+            
+            <div style="font-size: 11px; color: var(--theme-primary); margin-bottom: 10px;">💡 每救治 5 名個案可獲 1 次拼圖機會</div>
+            
+            <div style="display:flex; justify-content:center;">
+              <button class="btn btn-secondary" style="padding:6px 12px; font-size:12px; width:auto; border:1px solid #ff9800; color:#ff9800; background:rgba(0,0,0,0.5);" onclick="buyPuzzle()">💰 或是 5000 幣兌換</button>
+            </div>
+
           </div>
           
           <div class="pokedex-tabs" id="caseDexTabs">
-            <button class="tab-btn active" onclick="switchCaseTab('gallery', this)">拼圖收藏</button>
+            <button class="tab-btn active" onclick="switchCaseTab('gallery', this)">拼圖收藏 (<span id="uiPuzzleCollected">0</span>/50)</button>
             <button class="tab-btn" onclick="switchCaseTab('list', this)">個案紀錄</button>
           </div>
           
@@ -1047,15 +1054,14 @@ function renderCaseDex() {
   const avail = Math.max(0, earnedPuzzles - unlockedCount);
   
   id('uiPuzzleAvail').textContent = avail;
-  id('uiPuzzleCollected').textContent = unlockedCount;
+  id('uiPuzzleCollected').textContent = unlockedCount; // 這個 ID 現在對應的是頁籤裡的數字
   
-  let actionHtml = '';
+  // ★ 控制「抽拼圖」按鈕的顯示或隱藏
   if (avail > 0) {
-    actionHtml += `<button class="btn btn-rescue" style="padding:6px 12px; font-size:12px; width:auto;" onclick="unlockRandomPuzzle()">🧩 抽拼圖</button>`;
+    id('btnDrawPuzzle').style.display = 'inline-block';
+  } else {
+    id('btnDrawPuzzle').style.display = 'none';
   }
-  // ★ 修改：按鈕文字改為 "或是 5000 幣兌換"
-  actionHtml += `<button class="btn btn-secondary" style="padding:6px 12px; font-size:12px; width:auto; border:1px solid #ff9800; color:#ff9800; background:rgba(0,0,0,0.5);" onclick="buyPuzzle()">💰 或是 5000 幣兌換</button>`;
-  id('puzzleActionWrap').innerHTML = actionHtml;
 
   const listContainer = id('caseDexList');
   listContainer.innerHTML = '';
@@ -1070,11 +1076,9 @@ function renderCaseDex() {
   const gallery = id('puzzleGallery');
   gallery.innerHTML = '';
   
-  // ★ 取得已解鎖的拼圖陣列，並由小到大排序 (依照編號)
   let unlockedArr = playerState.unlockedPuzzles || [];
-  unlockedArr.sort((a, b) => a - b);
+  unlockedArr.sort((a, b) => a - b); // 依照拼圖編號從小到大排序
   
-  // ★ 如果沒有任何拼圖，顯示提示文字；否則只印出已解鎖的拼圖
   if (unlockedArr.length === 0) {
      gallery.innerHTML = '<div style="grid-column: 1 / -1; text-align:center; color:#aaa; margin-top:20px;">尚未收集到任何拼圖，快去救治病患吧！</div>';
   } else {
