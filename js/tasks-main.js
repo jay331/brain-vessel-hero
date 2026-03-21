@@ -14,11 +14,16 @@ const MAIN_TASKS = {
       { id: 'npc_continue', name: '主治醫師', color: '#4CAF50', head: '#a5d6a7', body: '#fff', pos: { x: 1650, y: -750 }, icon: '▶️', dialogs: [{name: "主治醫師", text: "大腦的救援從未停止。準備好接取今天的醫院探索任務了嗎？"}], action: 'ACTION_CONTINUE' },
 
       // ========== 1F 擴建房間 NPC ==========
-      // 便利商店
-      { id: 'npc_store', name: '店長', color: '#4caf50', head: '#a5d6a7', body: '#e8f5e9', pos: { x: 725, y: -850 }, icon: '🏪', dialogs: [
-        {name: "店長", text: "歡迎光臨！這裡之後會進貨很多好看的醫師袍和便服喔。"},
-        {name: "店長", text: "記得多救治病患、多存點健康幣來找我買衣服！"}
-      ], action: 'NONE' },
+
+      // 休息室衣櫃 (做成互動熱點)
+      { id: 'npc_wardrobe', name: '更衣櫃', color: '#5d4037', head: 'transparent', body: 'transparent', pos: { x: 1410, y: -400 }, icon: '🚪', dialogs: [
+        {name: "系統", text: "打開了專屬的員工衣櫃，準備換裝！"}
+      ], action: 'ACTION_WARDROBE' },
+      
+// 便利商店 (加上 ACTION_STORE)
+      { id: 'npc_store', name: '店長', color: '#4caf50', head: '#a5d6a7', body: '#e8f5e9', pos: { x: 725, y: -800 }, icon: '🏪', dialogs: [
+        {name: "店長", text: "歡迎光臨！來挑一件帥氣的職業服裝吧！"}
+      ], action: 'ACTION_STORE' },
       // 門診藥局
       { id: 'npc_pharmacy', name: '藥師', color: '#03a9f4', head: '#81d4fa', body: '#e1f5fe', pos: { x: 2250, y: -850 }, icon: '💊', dialogs: [
         {name: "藥師", text: "領藥請排隊！"},
