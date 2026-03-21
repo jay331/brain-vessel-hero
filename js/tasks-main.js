@@ -35,28 +35,33 @@ const MAIN_TASKS = {
         {name: "急診醫師", text: "快！確認病患的 FAST 症狀，趕緊送去做電腦斷層掃描！時間就是大腦！"}
       ], action: 'NONE' },
 
-      // ========== 各大樓層 NPC ==========
-      // 2F 導管室
+// ========== 各大樓層 NPC (確認是否已更新為遙遠座標) ==========
+      // 2F 導管室 (房間在 10000)
       { id: 'npc_cath', name: '放射師', color: '#9c27b0', head: '#ce93d8', body: '#f3e5f5', pos: { x: 10400, y: -900 }, icon: '☢️', dialogs: [
         {name: "放射師", text: "這裡是導管室，專門執行『動脈內取栓術』。請穿好鉛衣再來！"}
       ], action: 'NONE' },
-      // 3F 手術室
+      
+      // 3F 手術室 (房間在 15000)
       { id: 'npc_or', name: '麻醉師', color: '#009688', head: '#80cbc4', body: '#e0f2f1', pos: { x: 15400, y: -900 }, icon: '💤', dialogs: [
         {name: "麻醉師", text: "手術室準備完畢。出血性中風如果血塊太大，就需要神經外科進來開刀清除。"}
       ], action: 'NONE' },
-      // 4F 復健室
+      
+      // 4F 復健室 (房間在 20000)
       { id: 'npc_pt', name: '物理治療師', color: '#ffeb3b', head: '#fff59d', body: '#fffde7', pos: { x: 20400, y: -900 }, icon: '💪', dialogs: [
         {name: "物理治療師", text: "復健的黃金期是中風後的前六個月！來，跟著我一起做被動關節運動！"}
       ], action: 'NONE' },
-      // 5F 神經加護病房
+      
+      // 5F 神經加護病房 (房間在 25000)
       { id: 'npc_icu', name: 'ICU護理師', color: '#e91e63', head: '#f48fb1', body: '#fce4ec', pos: { x: 25400, y: -900 }, icon: '🫀', dialogs: [
         {name: "ICU護理師", text: "加護病房病患生命徵象不穩，需要嚴密監控腦壓與血壓。請放低音量。"}
       ], action: 'NONE' },
-      // 6F 教學室
+      
+      // 6F 教學室 (房間在 30000)
       { id: 'npc_class', name: '臨床導師', color: '#795548', head: '#bcaaa4', body: '#efebe9', pos: { x: 30400, y: -900 }, icon: '👨‍🏫', dialogs: [
         {name: "臨床導師", text: "醫學知識日新月異，今天的個案討論會，大家都有看過病歷了嗎？"}
       ], action: 'NONE' },
-      // 14F 衛教影片室
+      
+      // 14F 衛教影片室 (房間在 35000)
       { id: 'npc_edu', name: '個管師', color: '#00bcd4', head: '#81d4fa', body: '#e0f7fa', pos: { x: 35400, y: -900 }, icon: '🎬', dialogs: [
         {name: "個管師", text: "這裡有很多衛教影片，家屬有空可以多來看看，學習居家照護技巧。"}
       ], action: 'NONE' },
