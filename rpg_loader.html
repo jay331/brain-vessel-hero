@@ -216,51 +216,49 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 
 </div>
 
+<script src="js/tasks-main.js"></script>
+
 <script>
 // ==========================================
-// 1. 任務與場景資料庫
+// 1. 載入任務與場景資料庫
 // ==========================================
-const RPG_TASKS = {
-  "hub_world": {
-    roleName: "急救新星",
-    intro: "恭喜完成初階訓練！🎉\n\n大門已為你敞開，現在你可以自由探索這座醫院，並向團隊接取進階任務喔！",
-    missionText: "自由探索醫院",
-    startPos: { x: 1500, y: -600 }, 
-    npcs: [
-      { id: 'npc_review',   name: '護理長',   color: '#ff9800', head: '#ffcc80', body: '#fff', pos: { x: 1350, y: -750 }, icon: '📜', dialogs: [{name: "護理長", text: "要重溫之前的訓練回憶嗎？隨時為你準備好。"}], action: 'ACTION_REVIEW' },
-      { id: 'npc_guide',    name: '志工',     color: '#9c27b0', head: '#ce93d8', body: '#e1bee7', pos: { x: 1500, y: -750 }, icon: '💬', dialogs: [{name: "志工", text: "自由探索模式已解鎖！你可以到處逛逛，也可以搭電梯去 11 樓找找看有沒有什麼驚喜！"}], action: 'NONE' },
-      { id: 'npc_continue', name: '主治醫師', color: '#4CAF50', head: '#a5d6a7', body: '#fff', pos: { x: 1650, y: -750 }, icon: '▶️', dialogs: [{name: "主治醫師", text: "大腦的救援從未停止。準備好接取今天的醫院探索任務了嗎？"}], action: 'ACTION_CONTINUE' }
-    ]
-  },
-  "beg_id_0": {
-    roleName: "實習醫師",
-    intro: "就在半夢半醒之間\n你發現你居然一開場就中風了...\n\n躺在 11G 061 的病床上\n想起你的好朋友是這裡的實習醫師\n\n於是你用盡腦力，發出心電感應\n希望好朋友能來找到你...",
-    missionText: "尋找剛中風的好友",
-    startPos: { x: 2125, y: 1900 }, 
-    npcs: [
-      { id: 'patient', name: '病患', color: '#e57373', head: '#e57373', body: '#bbdefb', pos: { x: 2150, y: 920 }, icon: '🎯', dialogs: [
-        { name: "我 (病患)", text: "你真的來了！我好像中風了，可是我根本不知道那是什麼..." },
-        { name: "實習醫師", text: "別怕！我用最新的「醫學動畫平板」解釋給你聽，一看就懂！" }
-      ], action: 'PLAY_ANIMATION' }
-    ],
-    gameUrl: "game_strokeis.html" 
-  },
-  "beg_id_1": {
-    roleName: "實習醫生",
-    intro: "醫生說中風治療需要一整個團隊的協助...\n你決定前往護理站，看看有哪些專業人員在幫忙。",
-    missionText: "前往護理站尋找護理師",
-    startPos: { x: 2150, y: 920 },    
-    npcs: [
-      { id: 'nurse', name: '護理師', color: '#ff9800', head: '#ffcc80', body: '#fff', pos: { x: 1350, y: 1280 }, icon: '🎯', dialogs: [
-        { name: "我 (病患)", text: "請問除了醫生之外，還有誰會幫我評估病情呢？" },
-        { name: "護理師", text: "我們有復健師、營養師組成的一支強大團隊喔！來看看這段介紹吧。" }
-      ], action: 'PLAY_ANIMATION' }
-    ],
-    gameUrl: "game_name.html" 
-  }
-};
+// 將外部載入的 MAIN_TASKS 賦值給引擎使用的 RPG_TASKS
+// 未來如果有 EVENT_TASKS，只要改成 Object.assign({}, MAIN_TASKS, EVENT_TASKS) 即可無縫融合
+const RPG_TASKS = Object.assign({}, MAIN_TASKS);
 
 const urlParams = new URLSearchParams(window.location.search);
+const taskId = urlParams.get('taskId') || 'hub_world';
+let isFsMode = urlParams.get('fs') === '1';
+let isFirstTask = urlParams.get('first') === '1';
+
+// 動態建立預設測試關卡資料
+let task = RPG_TASKS[taskId];
+if (!task) {
+  task = {
+    roleName: "實習醫生",
+    intro: `這是模擬關卡的測試任務！\n\n系統建置中，請前往指定地點與人員對話以完成挑戰。`,
+    missionText: "尋找指定人員",
+    startPos: { x: 2125, y: 1900 },
+    npcs: [
+      { id: 'nurse', name: '護理師', color: '#ff9800', head: '#ffcc80', body: '#fff', pos: { x: 1350, y: 1280 }, icon: '🎯', dialogs: [
+        { name: "護理師", text: "太棒了，你找到了我！這關的實作還在開發中，我們直接當作你過關了吧！" }
+      ], action: 'PLAY_ANIMATION' }
+    ],
+    gameUrl: "" // 空字串代表直接發送 GAME_CLEAR
+  };
+}
+
+if (taskId === 'hub_world' && isFirstTask) {
+    let docNpc = task.npcs.find(n => n.id === 'npc_continue');
+    if(docNpc) docNpc.dialogs[0].text = "歡迎來到腦脈先鋒的行列！我是主治醫師。守護大腦的旅程即將開始，準備好接受第一項訓練了嗎？";
+    
+    // 如果是第一次玩，簡介文字也稍微修改
+    task.intro = "歡迎來到遙遠的東方醫院！\n\n戰勝腦中風不靠運氣\n靠的是不斷累積的知識與能力 💪\n\n出發吧！前往大廳尋找主治醫師的指引";
+}
+
+let state = { x: task.startPos.x, y: task.startPos.y };
+let velocity = { x: 0, y: 0 };
+// ... (保留下方所有原有的遊戲邏輯、移動、對話、搖桿等程式碼) ...
 const taskId = urlParams.get('taskId') || 'hub_world';
 let isFsMode = urlParams.get('fs') === '1';
 let isFirstTask = urlParams.get('first') === '1';
