@@ -600,6 +600,30 @@ function closeExplore() {
 // ===============================================
 window.addEventListener('message', (event) => {
   if (event.data) {
+    // ===============================================
+// ★ 全域事件監聽 (接收 iframe 訊息)
+// ===============================================
+window.addEventListener('message', (event) => {
+  if (event.data) {
+    
+    // --- 👇 新增這段：當收到地圖準備好的通知，把玩家資料送過去 ---
+    if (event.data.type === 'MAP_READY') {
+      const payload = {
+        name: playerState.name,
+        mode: playerState.mode,
+        storyProgression: playerState.storyProgression,
+        explorationTasksCompleted: playerState.explorationTasksCompleted
+      };
+      // 確保回傳給發送請求的那一個 iframe
+      if (event.source) {
+        event.source.postMessage({ type: 'SYNC_PLAYER_DATA', payload: payload }, '*');
+      }
+    }
+    // --------------------------------------------------------
+
+    else if (event.data.type === 'ACTION_CONTINUE') {
+      const randTasks = ["到11G 病房找到在護理站的護理長", "在醫院蒐集3個科別衛教單張", "協助病患測量血壓", "請到大廳協助引導新病患"];
+// ... 後面維持原本的程式碼 ...
     if (event.data.type === 'ACTION_CONTINUE') {
       const randTasks = ["到11G 病房找到在護理站的護理長", "在醫院蒐集3個科別衛教單張", "協助病患測量血壓", "請到大廳協助引導新病患"];
       const t = randTasks[Math.floor(Math.random()*randTasks.length)];
