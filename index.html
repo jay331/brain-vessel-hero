@@ -869,7 +869,9 @@ function playTaskFlat(index) {
   // 標記這是主線推進，只有主線完成才會加 storyProgression
   currentGameInfo = { role: flatTask.role, taskIndex: flatTask.taskIndex, id: flatTask.gameId, isLinear: true };
   
+  // ★ 關鍵修復：確保所有不相關的面板都被隱藏
   id('linearStoryContainer').style.display = 'none';
+  id('restartStoryContainer').style.display = 'none'; // 👈 補上這一行，把結業面板藏起來
   id('roleListContainer').style.display = 'none';
   id('bossBanner').style.display = 'none';
   
