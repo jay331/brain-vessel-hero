@@ -241,13 +241,25 @@ if (task.npcs) {
     npcDiv.style.left = n.pos.x + 'px';
     npcDiv.style.top = n.pos.y + 'px';
     
-    let indicatorHtml = n.icon ? `<div class="npc-indicator">${n.icon}</div>` : '';
-    npcDiv.innerHTML = `
-      ${indicatorHtml}
-      <div class="name" id="npc-name-${n.id}" style="background:${n.color || '#37474f'}">${n.name}</div>
-      <div class="head" style="background:${n.head || '#e57373'}"></div>
-      <div class="body" style="background:${n.body || '#bbdefb'}"></div>
-    `;
+    // ★ 判斷：如果是物品 (ID 開頭是 item_)，就脫掉身體跟影子！
+    if (n.id.startsWith('item_')) {
+        npcDiv.id = `item-wrap-${n.id}`; // 給個專屬 ID 用來拔掉腳底影子
+        npcDiv.innerHTML = `
+          <style>#item-wrap-${n.id}::before { display: none !important; }</style>
+          <div class="name" id="npc-name-${n.id}" style="background:${n.color || '#37474f'}; top: -20px;">${n.name}</div>
+          <div style="font-size: 38px; margin-top: 15px; filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6)); animation: bounce 1.5s infinite alternate ease-in-out;">${n.icon}</div>
+        `;
+    } 
+    // ★ 如果是一般人，照常渲染頭跟身體
+    else {
+        let indicatorHtml = n.icon ? `<div class="npc-indicator">${n.icon}</div>` : '';
+        npcDiv.innerHTML = `
+          ${indicatorHtml}
+          <div class="name" id="npc-name-${n.id}" style="background:${n.color || '#37474f'}">${n.name}</div>
+          <div class="head" style="background:${n.head || '#e57373'}"></div>
+          <div class="body" style="background:${n.body || '#bbdefb'}"></div>
+        `;
+    }
     npcContainer.appendChild(npcDiv);
   });
 }
