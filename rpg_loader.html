@@ -23,6 +23,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 .app{position:relative;width:100%;height:100%;overflow:hidden;}
 
 /* 頭部 (豪華進化版：加入眼睛與閃爍動畫) */
+/* 頭部 (豪華進化版：加入眼睛與閃爍動畫) */
 .head {
   position: absolute; left: 50%; top: 5px; transform: translateX(-50%);
   width: 38px; height: 38px; border-radius: 50%; background: #ffccbc; 
@@ -30,28 +31,17 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
   z-index: 2; animation: headBreathe 2s infinite alternate ease-in-out;
 }
 
-/* 眼睛通用樣式 (使用偽元素) */
+/* ★ 修改：讓眼睛分開一點 (left:7px / right:7px) */
 .head::before, .head::after {
-  content: ''; position: absolute;
-  top: 15px; /* 眼睛高度 */
-  width: 5px; height: 7px; /* 眼睛大小 */
-  background: #37474f; /* 眼睛顏色，與輪廓一致 */
-  border-radius: 50%; /* 橢圓形眼睛 */
-  /* 加入閃爍動畫：每 4 秒閃爍一次，無限循環 */
-  animation: blinkEye 4s infinite; 
+  content: ''; position: absolute; top: 15px; width: 5px; height: 7px; 
+  background: #37474f; border-radius: 50%; animation: blinkEye 4s infinite; 
 }
+.head::before { left: 7px; }
+.head::after { right: 7px; }
 
-/* 左眼位置 */
-.head::before { left: 10px; }
+@keyframes blinkEye { 0%, 96%, 100% { transform: scaleY(1); opacity: 1; } 98% { transform: scaleY(0.1); opacity: 0.5; } }
 
-/* 右眼位置 */
-.head::after { right: 10px; }
 
-/* 新增：眼睛閃爍動畫關鍵影格 */
-@keyframes blinkEye {
-  0%, 96%, 100% { transform: scaleY(1); opacity: 1; } /* 睜眼狀態 */
-  98% { transform: scaleY(0.1); opacity: 0.5; } /* 閉眼瞬間 */
-}
    .mission-text { color: #ffca28; flex: 1; text-align: center; }
 .btn-cancel { padding: 4px 10px; border-radius: 6px; color: #fff; border: none; font-weight: bold; font-size: 11px; cursor: pointer; background: #78909c; }
 .scene{position:absolute;inset:0;top:0;overflow:hidden;} 
@@ -624,22 +614,20 @@ function canMoveTo(x, y) {
   let isWalkable = false;
 
   // ★ 定義所有的安全行走區域，並針對「通道」增加覆蓋墊片，消除空氣牆
+// ★ 這裡定義了所有合法的「踩踏區」，包含加寬的通道與新座標
   const walkableZones = [
     // 1F 主空間與房間
-{x: 1000, y: -1200, w: 1000, h: 800}, // 1F 大廳
-    {x: 1300, y: -450, w: 400, h: 300},   // 1F 休息室 (已變大)
-    {x: 500, y: -1000, w: 450, h: 400},   // 1F 便利商店
-    {x: 2050, y: -1000, w: 400, h: 400},  // 1F 門診藥局
-    {x: 2500, y: -1100, w: 500, h: 600},  // 1F 急診室
+    {x: 1000, y: -1200, w: 1000, h: 800}, // 1F 大廳
+    {x: 1300, y: -250,  w: 400,  h: 300}, // 1F 休息室 (位移與縮小邊界適應新位置)
+    {x: 450,  y: -1000, w: 400,  h: 400}, // 1F 便利商店
+    {x: 2150, y: -1000, w: 400,  h: 400}, // 1F 門診藥局
+    {x: 2700, y: -1100, w: 500,  h: 600}, // 1F 急診室
 
-    // 1F 連結通道
-    {x: 1450, y: -500, w: 100, h: 100},   // 大廳->休息室通道
-
-    // 1F 連結通道 (刻意放大範圍，確保 20px 的碰撞半徑可以順利通過)
-    {x: 1450, y: -450, w: 100, h: 150},   // 大廳->休息室通道
-    {x: 900, y: -850, w: 150, h: 100},    // 便利商店->大廳通道
-    {x: 1950, y: -850, w: 150, h: 100},   // 大廳->藥局通道
-    {x: 2400, y: -850, w: 150, h: 100},   // 藥局->急診室通道
+    // 1F 連結通道 (刻意放大範圍，確保 20px 的碰撞半徑可以完美通過)
+    {x: 1425, y: -450, w: 150, h: 250},   // 大廳 <-> 休息室通道
+    {x: 800,  y: -950, w: 250, h: 200},   // 便利商店 <-> 大廳通道
+    {x: 1950, y: -950, w: 250, h: 200},   // 大廳 <-> 藥局通道
+    {x: 2500, y: -950, w: 250, h: 200},   // 藥局 <-> 急診室通道
 
     // 2F ~ 14F 獨立樓層區塊
     {x: 3500, y: -1200, w: 800, h: 600},  // 2F
