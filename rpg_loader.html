@@ -22,27 +22,8 @@
 html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:"PingFang TC","Noto Sans TC",sans-serif;color:var(--text)}
 .app{position:relative;width:100%;height:100%;overflow:hidden;}
 
-/* 頭部 (豪華進化版：加入眼睛與閃爍動畫) */
-/* 頭部 (豪華進化版：加入眼睛與閃爍動畫) */
-.head {
-  position: absolute; left: 50%; top: 5px; transform: translateX(-50%);
-  width: 38px; height: 38px; border-radius: 50%; background: #ffccbc; 
-  border: 3px solid #37474f; box-shadow: inset -4px -4px 6px rgba(0,0,0,0.15), 0 3px 5px rgba(0,0,0,0.2); 
-  z-index: 2; animation: headBreathe 2s infinite alternate ease-in-out;
-}
 
-/* ★ 修改：讓眼睛分開一點 (left:7px / right:7px) */
-.head::before, .head::after {
-  content: ''; position: absolute; top: 15px; width: 5px; height: 7px; 
-  background: #37474f; border-radius: 50%; animation: blinkEye 4s infinite; 
-}
-.head::before { left: 7px; }
-.head::after { right: 7px; }
-
-@keyframes blinkEye { 0%, 96%, 100% { transform: scaleY(1); opacity: 1; } 98% { transform: scaleY(0.1); opacity: 0.5; } }
-
-
-   .mission-text { color: #ffca28; flex: 1; text-align: center; }
+.mission-text { color: #ffca28; flex: 1; text-align: center; }
 .btn-cancel { padding: 4px 10px; border-radius: 6px; color: #fff; border: none; font-weight: bold; font-size: 11px; cursor: pointer; background: #78909c; }
 .scene{position:absolute;inset:0;top:0;overflow:hidden;} 
 .camera { position: absolute; left: 0; top: 0; width: 100%; height: 100%; transition: transform 0.05s ease-out; }
