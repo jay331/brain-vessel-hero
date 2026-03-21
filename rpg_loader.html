@@ -372,7 +372,7 @@ window.onload = () => {
 function startExplore() {
   document.getElementById('storyIntro').style.opacity = '0';
   
-  // ★ 任務開始時的自動全螢幕機制
+  // ★ 任務開始時的自動全螢幕機制（僅在非大廳模式時觸發）
   if (taskId !== 'hub_world' && !isFsMode) {
     isFsMode = true;
     document.getElementById('btnFsToggle').innerHTML = "🗗";
@@ -383,8 +383,17 @@ function startExplore() {
     document.getElementById('storyIntro').style.display = 'none';
     document.getElementById('player').style.opacity = '1';
     
-    document.getElementById('btnFsToggle').style.display = 'flex';
-    document.getElementById('btnReturnLobby').style.display = 'block';
+    // --- 修改處：判斷模式來決定是否顯示按鈕 ---
+    if (taskId === 'hub_world') {
+      // 只有在大廳探索模式才顯示這兩個功能
+      document.getElementById('btnFsToggle').style.display = 'flex';
+      document.getElementById('btnReturnLobby').style.display = 'block';
+    } else {
+      // 執行特定任務（如 beg_id_0）時，確保它們是隱藏的
+      document.getElementById('btnFsToggle').style.display = 'none';
+      document.getElementById('btnReturnLobby').style.display = 'none';
+    }
+    // ---------------------------------------
     
     if (taskId !== 'hub_world') {
       document.getElementById('uiHeader').style.display = 'flex';
@@ -393,7 +402,7 @@ function startExplore() {
     
     missionStage = 0;
     gameActive = true;
-    updateCamera(); // 觸發視角偏移
+    updateCamera(); 
   }, 500);
 }
 
