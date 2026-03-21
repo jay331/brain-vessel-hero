@@ -396,8 +396,6 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
 const id = (el) => document.getElementById(el);
 const SAVE_KEY = 'BrainPioneer_SaveData_v9.6'; 
 
-// (注意：TOTAL_BEG_TASKS, GAME_URLS, ROLES_DATA_BEG, ROLES_DATA_ADV, scaleQuestions 已經全部移到 js/db_main.js 中了！)
-
 let playerState = { 
   hasSetup: false, name: "", avatar: "https://i.pravatar.cc/150?img=11", mode: "beginner", coins: 38219, 
   storyMode: false, storyProgression: 0, replayProgression: 0, isReplaying: false, explorationTasksCompleted: 0, 
@@ -411,7 +409,99 @@ let currentGameInfo = null;
 let activeRoleId = null;
 let currentQIndex = 0; let currentAnswers = {}; let trendChartInstance = null;
 
-// ... (以下保留你原本的 getFlatTask() 及所有遊戲功能邏輯) ...
+// ===============================================
+// ★ 全域事件監聽 (接收 iframe 訊息)
+// ===============================================
+window.addEventListener('message', (event) => {
+  if (event.data) {
+    
+    // --- 階段四核心：當收到地圖引擎準備好的通知，把玩家資料同步過去 ---
+    if (event.data.type === 'MAP_READY') {
+      const payload = {
+        name: playerState.name,
+        mode: playerState.mode,
+        storyProgression: playerState.storyProgression,
+        explorationTasksCompleted: playerState.explorationTasksCompleted
+      };
+      
+      // 確保回傳給發送請求的那個 iframe
+      if (event.source) {
+        event.source.postMessage({ type: 'SYNC_PLAYER_DATA', payload: payload }, '*');
+      }
+    }
+    // --------------------------------------------------------
+
+    else if (event.data.type === 'ACTION_CONTINUE') {
+      const randTasks = ["到11G 病房找到在護理站的護理長", "在醫院蒐集3個科別衛教單張", "協助病患測量血壓", "請到大廳協助引導新病患"];
+      const t = randTasks[Math.floor(Math.random()*randTasks.length)];
+      customConfirm(`醫師交派了新任務：\n「${t}」\n\n(系統擴充中，直接模擬完成！)`, () => {
+          playerState.explorationTasksCompleted++;
+          if (playerState.explorationTasksCompleted >= 5) {
+              customAlert("已累積完成 5 項探索任務！\n【綜合情境驗收】已解鎖！", null, "🚨 BOSS 任務解鎖");
+          } else {
+              customAlert(`完成探索！獲得 50 幣。\n目前累積任務：${playerState.explorationTasksCompleted}/5`, null, "🏆 任務完成");
+              playerState.coins += 50;
+          }
+          saveGameData(); updateHUD();
+      }, null, "👨‍⚕️ 醫師的委託", "模擬完成", "稍後再解");
+    } 
+    else if (event.data.type === 'ACTION_REVIEW') {
+      if (playerState.replayProgression > 0 && playerState.replayProgression < TOTAL_BEG_TASKS) {
+        customConfirm("您有尚未完成的回顧進度，要接續進度，還是從頭開始？",
+            () => { playerState.isReplaying = true; closeAllIframes(); playTaskFlat(playerState.replayProgression); },
+            () => { playerState.replayProgression = 0; playerState.isReplaying = true; closeAllIframes(); playTaskFlat(0); },
+            "📜 回顧任務", "接續進度", "從頭開始"
+        );
+      } else {
+        playerState.replayProgression = 0;
+        playerState.isReplaying = true;
+        closeAllIframes();
+        playTaskFlat(0);
+      }
+    } 
+    else if (event.data.type === 'TOGGLE_FULLSCREEN') {
+      isGlobalFs = event.data.isFullscreen;
+      const mapWrap = id('homeMapContainer');
+      if (isGlobalFs) {
+        if(mapWrap) mapWrap.classList.add('fullscreen-map');
+        id('mainHeader').style.display = 'none'; 
+        id('mainNav').style.display = 'none';    
+      } else {
+        exitFullscreenUI();
+      }
+    }
+    else if (event.data.type === 'GAME_CLEAR' || event.data.type === 'GAME_OVER') {
+      closeAllIframes();
+      exitFullscreenUI(); 
+      
+      if (event.data.type === 'GAME_CLEAR') {
+        handleGameClear(event.data.score || 1000);
+      } else {
+        updateModeUI();
+        customAlert('扣除 1 次挑戰機會，請再接再厲！', () => {
+          currentGameInfo = null; 
+          if(playerState.mode === 'advanced') openRoleDetail(activeRoleId);
+        }, "❌ 任務失敗");
+      }
+    }
+    else if (event.data.type === 'CLOSE_IFRAME') {
+      closeAllIframes();
+      exitFullscreenUI(); 
+      updateModeUI(); 
+    }
+    else if (event.data.type === 'PUZZLE_CLEAR') {
+      const pid = event.data.puzzleId;
+      if (!playerState.unlockedPuzzles) playerState.unlockedPuzzles = [];
+      if (window.currentChallengePuzzleId === pid && !playerState.unlockedPuzzles.includes(pid)) {
+        playerState.unlockedPuzzles.push(pid); 
+        playerState.coins += 200; 
+        saveGameData(); updateHUD(); renderCaseDex(); 
+        setTimeout(() => { customAlert(`成功解鎖第 #${pid} 號拼圖，並獲得 200 健康幣！`, null, "🎉 拼圖收藏成功"); }, 500);
+      }
+    }
+  }
+});
+
 
 function getFlatTask(index) {
   let count = 0;
@@ -594,106 +684,6 @@ function closeExplore() {
     closeAllIframes();
     updateModeUI();
 }
-
-// ===============================================
-// ★ 全域事件監聽 (接收 iframe 訊息)
-// ===============================================
-window.addEventListener('message', (event) => {
-  if (event.data) {
-    // ===============================================
-// ★ 全域事件監聽 (接收 iframe 訊息)
-// ===============================================
-window.addEventListener('message', (event) => {
-  if (event.data) {
-    
-    // --- 👇 新增這段：當收到地圖準備好的通知，把玩家資料送過去 ---
-    if (event.data.type === 'MAP_READY') {
-      const payload = {
-        name: playerState.name,
-        mode: playerState.mode,
-        storyProgression: playerState.storyProgression,
-        explorationTasksCompleted: playerState.explorationTasksCompleted
-      };
-      // 確保回傳給發送請求的那一個 iframe
-      if (event.source) {
-        event.source.postMessage({ type: 'SYNC_PLAYER_DATA', payload: payload }, '*');
-      }
-    }
-    // --------------------------------------------------------
-
-    else if (event.data.type === 'ACTION_CONTINUE') {
-      const randTasks = ["到11G 病房找到在護理站的護理長", "在醫院蒐集3個科別衛教單張", "協助病患測量血壓", "請到大廳協助引導新病患"];
-// ... 後面維持原本的程式碼 ...
-    if (event.data.type === 'ACTION_CONTINUE') {
-      const randTasks = ["到11G 病房找到在護理站的護理長", "在醫院蒐集3個科別衛教單張", "協助病患測量血壓", "請到大廳協助引導新病患"];
-      const t = randTasks[Math.floor(Math.random()*randTasks.length)];
-      customConfirm(`醫師交派了新任務：\n「${t}」\n\n(系統擴充中，直接模擬完成！)`, () => {
-          playerState.explorationTasksCompleted++;
-          if (playerState.explorationTasksCompleted >= 5) {
-              customAlert("已累積完成 5 項探索任務！\n【綜合情境驗收】已解鎖！", null, "🚨 BOSS 任務解鎖");
-          } else {
-              customAlert(`完成探索！獲得 50 幣。\n目前累積任務：${playerState.explorationTasksCompleted}/5`, null, "🏆 任務完成");
-              playerState.coins += 50;
-          }
-          saveGameData(); updateHUD();
-      }, null, "👨‍⚕️ 醫師的委託", "模擬完成", "稍後再解");
-    } 
-    else if (event.data.type === 'ACTION_REVIEW') {
-      if (playerState.replayProgression > 0 && playerState.replayProgression < TOTAL_BEG_TASKS) {
-        customConfirm("您有尚未完成的回顧進度，要接續進度，還是從頭開始？",
-            () => { playerState.isReplaying = true; closeAllIframes(); playTaskFlat(playerState.replayProgression); },
-            () => { playerState.replayProgression = 0; playerState.isReplaying = true; closeAllIframes(); playTaskFlat(0); },
-            "📜 回顧任務", "接續進度", "從頭開始"
-        );
-      } else {
-        playerState.replayProgression = 0;
-        playerState.isReplaying = true;
-        closeAllIframes();
-        playTaskFlat(0);
-      }
-    } 
-    else if (event.data.type === 'TOGGLE_FULLSCREEN') {
-      isGlobalFs = event.data.isFullscreen;
-      const mapWrap = id('homeMapContainer');
-      if (isGlobalFs) {
-        if(mapWrap) mapWrap.classList.add('fullscreen-map');
-        id('mainHeader').style.display = 'none'; 
-        id('mainNav').style.display = 'none';    
-      } else {
-        exitFullscreenUI();
-      }
-    }
-    else if (event.data.type === 'GAME_CLEAR' || event.data.type === 'GAME_OVER') {
-      closeAllIframes();
-      exitFullscreenUI(); 
-      
-      if (event.data.type === 'GAME_CLEAR') {
-        handleGameClear(event.data.score || 1000);
-      } else {
-        updateModeUI();
-        customAlert('扣除 1 次挑戰機會，請再接再厲！', () => {
-          currentGameInfo = null; 
-          if(playerState.mode === 'advanced') openRoleDetail(activeRoleId);
-        }, "❌ 任務失敗");
-      }
-    }
-    else if (event.data.type === 'CLOSE_IFRAME') {
-      closeAllIframes();
-      exitFullscreenUI(); 
-      updateModeUI(); 
-    }
-    else if (event.data.type === 'PUZZLE_CLEAR') {
-      const pid = event.data.puzzleId;
-      if (!playerState.unlockedPuzzles) playerState.unlockedPuzzles = [];
-      if (window.currentChallengePuzzleId === pid && !playerState.unlockedPuzzles.includes(pid)) {
-        playerState.unlockedPuzzles.push(pid); 
-        playerState.coins += 200; 
-        saveGameData(); updateHUD(); renderCaseDex(); 
-        setTimeout(() => { customAlert(`成功解鎖第 #${pid} 號拼圖，並獲得 200 健康幣！`, null, "🎉 拼圖收藏成功"); }, 500);
-      }
-    }
-  }
-});
 
 // ===============================================
 // ★ 模式切換與儲存機制
@@ -1245,4 +1235,4 @@ window.onload = () => {
 };
 </script>
 </body>
-</html>
+</html>"
