@@ -521,10 +521,8 @@ document.getElementById('btnNextDialog').onclick = () => {
 
 function finishNpcDialog() {
   // ★ 關鍵修復：把 ACTION_STORE 和 ACTION_WARDROBE 也加進允許發送給主系統的名單中！
-  if (currentNpc.action === 'ACTION_CONTINUE' || 
-      currentNpc.action === 'ACTION_REVIEW' || 
-      currentNpc.action === 'ACTION_STORE' || 
-      currentNpc.action === 'ACTION_WARDROBE') {
+// ★ 未來只要 action 是 ACTION_ 開頭，通通自動放行傳給主系統！
+  if (currentNpc.action && currentNpc.action.startsWith('ACTION_')) {
       
     window.parent.postMessage({type: currentNpc.action}, '*');
     stepBackFromNpc();
