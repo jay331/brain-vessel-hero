@@ -22,8 +22,37 @@
 html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:"PingFang TC","Noto Sans TC",sans-serif;color:var(--text)}
 .app{position:relative;width:100%;height:100%;overflow:hidden;}
 
-.header { position: absolute; top: 0; width: 100%; height: calc(45px + var(--safe-top)); background: linear-gradient(to bottom, #111, #333); padding-top: var(--safe-top); display: flex; align-items: center; justify-content: space-between; padding: 0 12px; font-weight: 900; font-size: 14px; color: #fff; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: opacity 0.5s;}
-.mission-text { color: #ffca28; flex: 1; text-align: center; }
+/* 頭部 (豪華進化版：加入眼睛與閃爍動畫) */
+.head {
+  position: absolute; left: 50%; top: 5px; transform: translateX(-50%);
+  width: 38px; height: 38px; border-radius: 50%; background: #ffccbc; 
+  border: 3px solid #37474f; box-shadow: inset -4px -4px 6px rgba(0,0,0,0.15), 0 3px 5px rgba(0,0,0,0.2); 
+  z-index: 2; animation: headBreathe 2s infinite alternate ease-in-out;
+}
+
+/* 眼睛通用樣式 (使用偽元素) */
+.head::before, .head::after {
+  content: ''; position: absolute;
+  top: 15px; /* 眼睛高度 */
+  width: 5px; height: 7px; /* 眼睛大小 */
+  background: #37474f; /* 眼睛顏色，與輪廓一致 */
+  border-radius: 50%; /* 橢圓形眼睛 */
+  /* 加入閃爍動畫：每 4 秒閃爍一次，無限循環 */
+  animation: blinkEye 4s infinite; 
+}
+
+/* 左眼位置 */
+.head::before { left: 10px; }
+
+/* 右眼位置 */
+.head::after { right: 10px; }
+
+/* 新增：眼睛閃爍動畫關鍵影格 */
+@keyframes blinkEye {
+  0%, 96%, 100% { transform: scaleY(1); opacity: 1; } /* 睜眼狀態 */
+  98% { transform: scaleY(0.1); opacity: 0.5; } /* 閉眼瞬間 */
+}
+   .mission-text { color: #ffca28; flex: 1; text-align: center; }
 .btn-cancel { padding: 4px 10px; border-radius: 6px; color: #fff; border: none; font-weight: bold; font-size: 11px; cursor: pointer; background: #78909c; }
 .scene{position:absolute;inset:0;top:0;overflow:hidden;} 
 .camera { position: absolute; left: 0; top: 0; width: 100%; height: 100%; transition: transform 0.05s ease-out; }
