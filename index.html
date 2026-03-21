@@ -574,8 +574,6 @@ function setHomeView(isMap) {
     } else {
        // 已破關：顯示重新體驗面板 + 視窗版地圖
        id('restartStoryContainer').style.display = 'flex';
-       id('homeMapContainer').style.display = 'block';
-       if (!id('homeMapFrame').src.includes('hub_world')) id('homeMapFrame').src = getLobbyUrl();
     }
   } else {
     if(playerState.mode === 'beginner'){
