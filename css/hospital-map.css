@@ -7,10 +7,33 @@
 .lobby-main { position: absolute; left: 1000px; top: -1200px; width: 1000px; height: 800px; background: #eceff1; border: 12px solid #cfd8dc; border-radius: 20px; box-shadow: inset 0 0 50px rgba(0,0,0,0.1); z-index: 1;}
 .lobby-desk { position: absolute; left: 1350px; top: -900px; width: 300px; height: 100px; background: #81d4fa; border-radius: 50px; border: 4px solid #0288d1; z-index: 3; display: flex; align-items: center; justify-content: center; color: #01579b; font-weight: 900; font-size: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);}
 .lobby-elevator { position: absolute; left: 1400px; top: -1210px; width: 200px; height: 40px; background: #37474f; border-radius: 8px 8px 0 0; z-index: 3; display: flex; align-items: center; justify-content: center; color: #00e676; font-weight: bold; font-size: 14px; box-shadow: 0 -5px 15px rgba(0,0,0,0.3);}
+
+/* --- 1F 新增擴建區域 --- */
+/* 正前方 (南)：休息室 */
+.room-rest { position: absolute; left: 1400px; top: -350px; width: 200px; height: 200px; background: #d7ccc8; border: 8px solid #8d6e63; border-radius: 12px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:20px; color:#5d4037; z-index:2; text-align:center;}
+.corridor-rest { position: absolute; left: 1450px; top: -400px; width: 100px; height: 50px; background: #eceff1; border-left: 8px solid #cfd8dc; border-right: 8px solid #cfd8dc; z-index:1;}
+
+/* 左方 (西)：便利商店 */
+.room-store { position: absolute; left: 500px; top: -1000px; width: 450px; height: 400px; background: #c8e6c9; border: 8px solid #81c784; border-radius: 12px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:28px; color:#2e7d32; z-index:2; text-align:center;}
+.corridor-store { position: absolute; left: 950px; top: -850px; width: 50px; height: 100px; background: #eceff1; border-top: 8px solid #cfd8dc; border-bottom: 8px solid #cfd8dc; z-index:1;}
+
+/* 右方 (東)：門診藥局 */
+.room-pharmacy { position: absolute; left: 2050px; top: -1000px; width: 400px; height: 400px; background: #ffecb3; border: 8px solid #4fc3f7; border-radius: 12px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:28px; color:#0277bd; z-index:2;}
+.corridor-pharmacy { position: absolute; left: 2000px; top: -850px; width: 50px; height: 100px; background: #eceff1; border-top: 8px solid #cfd8dc; border-bottom: 8px solid #cfd8dc; z-index:1;}
+
+/* 更右方：急診室 */
+.room-er { position: absolute; left: 2500px; top: -1100px; width: 500px; height: 600px; background: #ffcdd2; border: 8px solid #e57373; border-radius: 12px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:32px; color:#c62828; z-index:2;}
+.corridor-er { position: absolute; left: 2450px; top: -850px; width: 50px; height: 100px; background: #eceff1; border-top: 8px solid #cfd8dc; border-bottom: 8px solid #cfd8dc; z-index:1;}
+
+/* --- 高樓層通用模組 --- */
+.floor-box { position: absolute; width: 800px; height: 600px; background: #f0f4f8; border: 12px solid #b0bec5; border-radius: 20px; display:flex; align-items:center; justify-content:center; font-size: 40px; font-weight: 900; color: #78909c; z-index:1; box-shadow: inset 0 0 50px rgba(0,0,0,0.05);}
+.floor-elevator { position: absolute; left: 350px; top: 0; width: 100px; height: 40px; background: #cfd8dc; border: 6px solid #546e7a; border-top:none; border-radius: 0 0 8px 8px; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:14px; color:#37474f;}
+
+/* 通用傳送陣 */
 .teleport-zone { position: absolute; background: rgba(0, 230, 118, 0.2); border: 2px dashed #00e676; border-radius: 8px; z-index: 4; animation: pulseTeleport 1.5s infinite alternate; }
 @keyframes pulseTeleport { 0% { opacity: 0.5; } 100% { opacity: 1; box-shadow: 0 0 15px #00e676; } }
 
-/* 11F 醫院主場景建築與房間 */
+/* 11F 醫院主場景建築與房間 (原汁原味保留) */
 .corridor-main { position: absolute; left: 350px; top: 200px; width: 2200px; height: 1800px; background: var(--c-floor-out); clip-path: polygon(0 1800px, 2200px 1800px, 2200px 0); }
 .workspace-core { position: absolute; left: 1000px; top: 800px; width: 850px; height: 600px; background: var(--c-floor-core); clip-path: polygon(0px 600px, 500px 100px, 850px 100px, 850px 600px); z-index: 1; border-radius: 20px; }
 .desk-island { position: absolute; background: var(--c-desk); border-radius: 10px; z-index: 3; box-shadow: 2px 5px 10px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; color: #01579b; font-weight: 900; border: 3px solid #4fc3f7; }
@@ -42,7 +65,6 @@
 .room-stair-c { left: 1560px; top: 1850px; width: 150px; height: 350px; background: #b0bec5; }
 .room-elev-v  { left: 2000px; top: 1850px; width: 250px; height: 150px; background: #cfd8dc; border: 6px solid #546e7a; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#37474f;} 
 .room-elev-b  { left: 2250px; top: 1850px; width: 250px; height: 150px; background: #cfd8dc; border: 6px solid #546e7a; } 
-
 .ward-entrance { position: absolute; left: 1710px; top: 1745px; width: 290px; height: 12px; background: rgba(135,206,235,0.4); z-index: 10; border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 0 15px rgba(129,212,250,0.8); backdrop-filter: blur(4px);}
 .ward-entrance::after { content: '管制區'; position: absolute; top: -30px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: #81d4fa; padding: 4px 10px; border-radius: 6px; font-size: 14px;}
 .ward-right { position: absolute; left: 2000px; top: 400px; width: 320px; height: 1350px; display: flex; flex-direction: column; background: var(--c-room); border: 8px solid var(--c-wall); z-index: 2;}
