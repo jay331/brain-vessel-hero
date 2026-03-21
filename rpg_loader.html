@@ -244,14 +244,14 @@ if (task.npcs) {
     npcDiv.style.left = n.pos.x + 'px';
     npcDiv.style.top = n.pos.y + 'px';
     
-    if (n.id.startsWith('item_')) {
-        npcDiv.style.display = 'none'; // ★ 預設隱藏，等接到任務才顯示
+if (n.id.startsWith('item_')) {
+        npcDiv.style.display = 'none'; 
         npcDiv.innerHTML = `
           <style>#npc-node-${n.id}::before { display: none !important; }</style>
-          <div class="name" id="npc-name-${n.id}" style="background:${n.color || '#37474f'}; top: -20px;">${n.name}</div>
+          <div class="name" id="npc-name-${n.id}" style="background:${n.color || '#37474f'}; top: -50px; z-index: 10;">${n.name}</div>
           <div style="font-size: 38px; margin-top: 15px; filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6)); animation: bounce 1.5s infinite alternate ease-in-out;">${n.icon}</div>
         `;
-    } 
+    }
     else {
         let indicatorHtml = n.icon ? `<div class="npc-indicator">${n.icon}</div>` : '';
         npcDiv.innerHTML = `
