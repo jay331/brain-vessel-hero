@@ -58,23 +58,73 @@
 /* 新增：裝飾品樣式 */
 .lobby-plant { position: absolute; width: 50px; height: 50px; background: radial-gradient(circle, #4caf50, #1b5e20); border-radius: 50%; border: 5px solid #8d6e63; z-index: 3; box-shadow: 0 10px 15px rgba(0,0,0,0.4); }
 .lobby-sofa { position: absolute; width: 120px; height: 60px; background: #ffb74d; border-radius: 15px; border: 4px solid #f57c00; border-bottom: 10px solid #e65100; z-index: 2; box-shadow: 0 10px 15px rgba(0,0,0,0.2); }
-/* --- 1F 新增擴建區域 --- */
-/* 正前方 (南)：休息室 */
-.room-rest { position: absolute; left: 1400px; top: -350px; width: 200px; height: 200px; background: #d7ccc8; border: 8px solid #8d6e63; border-radius: 12px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:20px; color:#5d4037; z-index:2; text-align:center;}
-.corridor-rest { position: absolute; left: 1450px; top: -400px; width: 100px; height: 50px; background: #eceff1; border-left: 8px solid #cfd8dc; border-right: 8px solid #cfd8dc; z-index:1;}
+/* --- 1F 新增擴建區域 (高級裝潢版) --- */
 
-/* 左方 (西)：便利商店 */
-.room-store { position: absolute; left: 500px; top: -1000px; width: 450px; height: 400px; background: #c8e6c9; border: 8px solid #81c784; border-radius: 12px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:28px; color:#2e7d32; z-index:2; text-align:center;}
+/* 正前方 (南)：休息室 (擴大並加入木紋地板與衣櫃) */
+.room-rest { 
+  position: absolute; left: 1300px; top: -450px; width: 400px; height: 300px; 
+  background: repeating-linear-gradient(0deg, #d7ccc8, #d7ccc8 20px, #bcaaa4 20px, #bcaaa4 22px); 
+  border: 16px solid #8d6e63; border-radius: 12px; z-index:2; 
+  box-shadow: inset 0 0 50px rgba(0,0,0,0.4); overflow: hidden;
+}
+/* 衣櫃實體 (偽元素裝飾) */
+.room-rest::before { 
+  content: '員工衣櫃 🚪'; position: absolute; top: 0; left: 40px; width: 140px; height: 70px; 
+  background: linear-gradient(to right, #5d4037, #4e342e); color: #d7ccc8; 
+  display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;
+  border-radius: 0 0 8px 8px; border: 4px solid #3e2723; border-top: none;
+  box-shadow: 0 15px 25px rgba(0,0,0,0.6); 
+}
+.corridor-rest { position: absolute; left: 1450px; top: -500px; width: 100px; height: 50px; background: #eceff1; border-left: 8px solid #cfd8dc; border-right: 8px solid #cfd8dc; z-index:1;}
+
+/* 左方 (西)：便利商店 (雙色磁磚與發光貨架) */
+.room-store { 
+  position: absolute; left: 500px; top: -1000px; width: 450px; height: 400px; 
+  background: repeating-conic-gradient(#e8f5e9 0 25%, #c8e6c9 0 50%); background-size: 40px 40px; 
+  border: 16px solid #81c784; border-radius: 12px; z-index:2; 
+  box-shadow: inset 0 0 60px rgba(0,0,0,0.3);
+}
+/* 商店貨架 (偽元素裝飾) */
+.room-store::before { 
+  content: ''; position: absolute; top: 30px; left: 30px; width: 80px; height: 220px; 
+  background: linear-gradient(90deg, #a5d6a7, #81c784); border: 4px solid #388e3c; border-radius: 6px;
+  box-shadow: 220px 0 0 #a5d6a7, 220px 0 0 4px #388e3c, 0 10px 15px rgba(0,0,0,0.3);
+}
 .corridor-store { position: absolute; left: 950px; top: -850px; width: 50px; height: 100px; background: #eceff1; border-top: 8px solid #cfd8dc; border-bottom: 8px solid #cfd8dc; z-index:1;}
 
-/* 右方 (東)：門診藥局 */
-.room-pharmacy { position: absolute; left: 2050px; top: -1000px; width: 400px; height: 400px; background: #ffecb3; border: 8px solid #4fc3f7; border-radius: 12px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:28px; color:#0277bd; z-index:2;}
+/* 右方 (東)：門診藥局 (溫暖黃光與取藥櫃台) */
+.room-pharmacy { 
+  position: absolute; left: 2050px; top: -1000px; width: 400px; height: 400px; 
+  background: #fff8e1; border: 16px solid #4fc3f7; border-radius: 12px; z-index:2; 
+  box-shadow: inset 0 0 50px rgba(0,0,0,0.15);
+}
+/* 取藥櫃台 */
+.room-pharmacy::before { 
+  content: '取藥櫃台'; position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); 
+  width: 300px; height: 50px; background: linear-gradient(180deg, #0288d1, #0277bd); 
+  color: white; display: flex; align-items: center; justify-content: center; 
+  font-weight: 900; font-size: 20px; border-radius: 25px; border: 4px solid #01579b;
+  box-shadow: 0 15px 25px rgba(0,0,0,0.3);
+}
 .corridor-pharmacy { position: absolute; left: 2000px; top: -850px; width: 50px; height: 100px; background: #eceff1; border-top: 8px solid #cfd8dc; border-bottom: 8px solid #cfd8dc; z-index:1;}
 
-/* 更右方：急診室 */
-.room-er { position: absolute; left: 2500px; top: -1100px; width: 500px; height: 600px; background: #ffcdd2; border: 8px solid #e57373; border-radius: 12px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:32px; color:#c62828; z-index:2;}
+/* 更右方：急診室 (警戒紅十字墊與病床) */
+.room-er { 
+  position: absolute; left: 2500px; top: -1100px; width: 500px; height: 600px; 
+  background: radial-gradient(circle, #ffebee, #ffcdd2); border: 16px solid #e57373; border-radius: 12px; z-index:2; 
+  box-shadow: inset 0 0 80px rgba(0,0,0,0.2);
+}
+/* 地板巨大紅十字與病床 */
+.room-er::before { 
+  content: '✚'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+  font-size: 200px; color: rgba(229, 115, 115, 0.15); pointer-events: none;
+}
+.room-er::after { 
+  content: ''; position: absolute; top: 80px; right: 80px; width: 80px; height: 150px; 
+  background: #fff; border: 6px solid #b0bec5; border-radius: 8px; 
+  box-shadow: -15px 15px 20px rgba(0,0,0,0.2), 0 200px 0 #fff, 0 200px 0 6px #b0bec5; 
+}
 .corridor-er { position: absolute; left: 2450px; top: -850px; width: 50px; height: 100px; background: #eceff1; border-top: 8px solid #cfd8dc; border-bottom: 8px solid #cfd8dc; z-index:1;}
-
 /* --- 高樓層通用模組 --- */
 .floor-box { position: absolute; width: 800px; height: 600px; background: #f0f4f8; border: 12px solid #b0bec5; border-radius: 20px; display:flex; align-items:center; justify-content:center; font-size: 40px; font-weight: 900; color: #78909c; z-index:1; box-shadow: inset 0 0 50px rgba(0,0,0,0.05);}
 .floor-elevator { position: absolute; left: 350px; top: 0; width: 100px; height: 40px; background: #cfd8dc; border: 6px solid #546e7a; border-top:none; border-radius: 0 0 8px 8px; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:14px; color:#37474f;}
