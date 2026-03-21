@@ -105,13 +105,12 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
         <div class="corridor-pharmacy"></div><div class="room-pharmacy">門診藥局</div>
         <div class="corridor-er"></div><div class="room-er">急診室</div>
 
-        <div class="floor-box" style="left:3500px; top:-1200px;">2F 導管室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
-        <div class="floor-box" style="left:4500px; top:-1200px;">3F 手術室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
-        <div class="floor-box" style="left:3500px; top:-400px;">4F 復健室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
-        <div class="floor-box" style="left:4500px; top:-400px;">5F 神經加護病房<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
-        <div class="floor-box" style="left:3500px; top:400px;">6F 教學室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
-        <div class="floor-box" style="left:4500px; top:400px;">14F 衛教影片室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
-
+       <div class="floor-box" style="left:10000px; top:-1200px;">2F 導管室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
+        <div class="floor-box" style="left:15000px; top:-1200px;">3F 手術室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
+        <div class="floor-box" style="left:20000px; top:-1200px;">4F 復健室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
+        <div class="floor-box" style="left:25000px; top:-1200px;">5F 神經加護病房<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
+        <div class="floor-box" style="left:30000px; top:-1200px;">6F 教學室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
+        <div class="floor-box" style="left:35000px; top:-1200px;">14F 衛教影片室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
         <div class="corridor-main"></div><div class="workspace-core"></div>
         <div class="room-block room-discuss">討論室</div><div class="room-block room-soiled">污物室</div>
         <div class="room-block room-headnurse">護理長</div><div class="room-block room-pantry">茶水間</div>
@@ -619,13 +618,13 @@ function canMoveTo(x, y) {
     {x: 1950, y: -950, w: 250, h: 200},   // 大廳 <-> 藥局通道
     {x: 2500, y: -950, w: 250, h: 200},   // 藥局 <-> 急診室通道
 
-    // 2F ~ 14F 獨立樓層區塊
-    {x: 3500, y: -1200, w: 800, h: 600},  // 2F
-    {x: 4500, y: -1200, w: 800, h: 600},  // 3F
-    {x: 3500, y: -400, w: 800, h: 600},   // 4F
-    {x: 4500, y: -400, w: 800, h: 600},   // 5F
-    {x: 3500, y: 400, w: 800, h: 600},    // 6F
-    {x: 4500, y: 400, w: 800, h: 600}     // 14F
+// ★ 2F ~ 14F 獨立遙遠樓層 (更新為遙遠座標)
+    {x: 10000, y: -1200, w: 800, h: 600},  // 2F
+    {x: 15000, y: -1200, w: 800, h: 600},  // 3F
+    {x: 20000, y: -1200, w: 800, h: 600},  // 4F
+    {x: 25000, y: -1200, w: 800, h: 600},  // 5F
+    {x: 30000, y: -1200, w: 800, h: 600},  // 6F
+    {x: 35000, y: -1200, w: 800, h: 600}   // 14F
   ];
 
   // 1. 判斷是否在一般矩形安全區域內
@@ -660,15 +659,18 @@ function canMoveTo(x, y) {
 // ==========================================
 // ★ 樓層電梯傳送陣座標 (用來偵測踩踏)
 // ==========================================
+// ==========================================
+// ★ 樓層電梯傳送陣座標 (用來偵測踩踏)
+// ==========================================
 const elevatorZones = [
-   {x: 1500, y: -1150}, // 1F
-   {x: 2125, y: 1975},  // 11F
-   {x: 3900, y: -1140}, // 2F
-   {x: 4900, y: -1140}, // 3F
-   {x: 3900, y: -340},  // 4F
-   {x: 4900, y: -340},  // 5F
-   {x: 3900, y: 460},   // 6F
-   {x: 4900, y: 460}    // 14F
+   {x: 1850, y: -1150},  // ★ 1F 改至右上方
+   {x: 2125, y: 1975},   // 11F
+   {x: 10400, y: -1140}, // 2F
+   {x: 15400, y: -1140}, // 3F
+   {x: 20400, y: -1140}, // 4F
+   {x: 25400, y: -1140}, // 5F
+   {x: 30400, y: -1140}, // 6F
+   {x: 35400, y: -1140}  // 14F
 ];
 
 function gameLoop() {
