@@ -502,21 +502,38 @@ function closeElevator() {
     setTimeout(()=> { gameActive = true; }, 300);
 }
 
+// ★ 電梯控制功能
+function showElevatorMenu() {
+    gameActive = false;
+    velocity = {x:0, y:0};
+    document.getElementById('joystickBase').style.display = 'none';
+    document.getElementById('elevatorModal').style.display = 'flex';
+}
+
+function closeElevator() {
+    document.getElementById('elevatorModal').style.display = 'none';
+    state.y += 60; // 往下退一步，離開傳送陣
+    updateCamera();
+    setTimeout(()=> { gameActive = true; }, 300);
+}
+
 function goToFloor(f) {
     document.getElementById('elevatorModal').style.display = 'none';
-    let target = {x: 1500, y: -1100}; // Default 1F
+    let target = {x: 1500, y: -1150}; // 預設 1F
     if(f===14) target = {x: 4900, y: 460};
-    if(f===11) target = {x: 2125, y: 1925}; // 11F
+    if(f===11) target = {x: 2125, y: 1975}; // 11F
     if(f===6)  target = {x: 3900, y: 460};
     if(f===5)  target = {x: 4900, y: -340};
     if(f===4)  target = {x: 3900, y: -340};
     if(f===3)  target = {x: 4900, y: -1140};
     if(f===2)  target = {x: 3900, y: -1140};
+    if(f===1)  target = {x: 1500, y: -1150}; 
     
-    // 傳送玩家 (給予一點下移緩衝避免連續觸發)
+    // ★ 關鍵修復：將玩家傳送到電梯前方 80px 的位置，避免馬上又踩到傳送點卡死
     state.x = target.x;
-    state.y = target.y + 40; 
+    state.y = target.y + 80; 
     updateCamera();
+    
     setTimeout(()=> { gameActive = true; }, 300);
 }
 
@@ -524,7 +541,15 @@ function goToFloor(f) {
 // ★ 物理阻擋邏輯 (支援擴建區域與多樓層) ★
 // ==========================================
 // 原本的細部障礙物 (只保留 11F 和 1F 櫃台)
+// ==========================================
+// ★ 物理阻擋邏輯 (支援擴建區域與多樓層) ★
+// ==========================================
+// 實體障礙物 (櫃台與牆壁)
 const solidBlocks = [
+  // 1F 障礙物
+  {x: 1350, y: -900, w: 300, h: 100},   // 大廳服務台
+  
+  // 11F 障礙物
   {x: 2000, y: 400, w: 320, h: 450}, {x: 2000, y: 1000, w: 320, h: 750},
   {x: 2050, y: 850, w: 270, h: 10}, {x: 2050, y: 990, w: 270, h: 10},
   {x: 2310, y: 850, w: 10, h: 150}, {x: 1750, y: 180, w: 250, h: 200},
@@ -539,29 +564,38 @@ function canMoveTo(x, y) {
   const r = 20; 
   let isWalkable = false;
 
-  // 定義所有的安全行走區域 (x, y, 寬, 高)
+  // ★ 關鍵修復：定義所有的安全行走區域，並針對「通道」增加覆蓋墊片，消除空氣牆
   const walkableZones = [
+    // 1F 主空間與房間
     {x: 1000, y: -1200, w: 1000, h: 800}, // 1F 大廳
-    {x: 1400, y: -400, w: 200, h: 250},   // 1F 休息室與走廊
-    {x: 500, y: -1000, w: 500, h: 400},   // 1F 便利商店
-    {x: 2000, y: -1000, w: 450, h: 400},  // 1F 門診藥局
-    {x: 2450, y: -1100, w: 550, h: 600},  // 1F 急診室
-    {x: 3500, y: -1200, w: 800, h: 600},  // 2F 
-    {x: 4500, y: -1200, w: 800, h: 600},  // 3F 
-    {x: 3500, y: -400, w: 800, h: 600},   // 4F 
-    {x: 4500, y: -400, w: 800, h: 600},   // 5F 
-    {x: 3500, y: 400, w: 800, h: 600},    // 6F 
+    {x: 1400, y: -350, w: 200, h: 200},   // 1F 休息室
+    {x: 500, y: -1000, w: 450, h: 400},   // 1F 便利商店
+    {x: 2050, y: -1000, w: 400, h: 400},  // 1F 門診藥局
+    {x: 2500, y: -1100, w: 500, h: 600},  // 1F 急診室
+
+    // 1F 連結通道 (刻意放大範圍，確保 20px 的碰撞半徑可以順利通過)
+    {x: 1450, y: -450, w: 100, h: 150},   // 大廳->休息室通道
+    {x: 900, y: -850, w: 150, h: 100},    // 便利商店->大廳通道
+    {x: 1950, y: -850, w: 150, h: 100},   // 大廳->藥局通道
+    {x: 2400, y: -850, w: 150, h: 100},   // 藥局->急診室通道
+
+    // 2F ~ 14F 獨立樓層區塊
+    {x: 3500, y: -1200, w: 800, h: 600},  // 2F
+    {x: 4500, y: -1200, w: 800, h: 600},  // 3F
+    {x: 3500, y: -400, w: 800, h: 600},   // 4F
+    {x: 4500, y: -400, w: 800, h: 600},   // 5F
+    {x: 3500, y: 400, w: 800, h: 600},    // 6F
     {x: 4500, y: 400, w: 800, h: 600}     // 14F
   ];
 
-  // 判斷是否在一般矩形區域內
+  // 判斷是否在一般矩形安全區域內
   for (let z of walkableZones) {
     if (x > z.x + r && x < z.x + z.w - r && y > z.y + r && y < z.y + z.h - r) {
       isWalkable = true; break;
     }
   }
 
-  // 11F 特殊梯形邏輯
+  // 11F 特殊梯形與斜角邏輯
   if (!isWalkable) {
     if (x > 350+r && x < 2500-r && y > 150+r && y < 2200-r) {
       let diagLine = x + y; let distAlong = (x - y + 1300) * 0.707;
@@ -574,9 +608,7 @@ function canMoveTo(x, y) {
   if (!isWalkable) return false; // 不在任何安全區域，直接禁止移動
 
   // 再判斷是否撞到區域內的實體障礙物
-  if (x > 1350 - r && x < 1650 + r && y > -900 - r && y < -800 + r) return false; // 1F 大廳服務台
-  if (x > 1200 - r && x < 1400 + r && Math.abs(y - (-0.93*x + 2365)) < 40) return false; // 11F 護理站斜角
-  
+  if (x > 1200 - r && x < 1400 + r && Math.abs(y - (-0.93*x + 2365)) < 40) return false; // 11F 護理站斜角牆
   for (let b of solidBlocks) { 
     if (x+r > b.x && x-r < b.x+b.w && y+r > b.y && y-r < b.y+b.h) return false; 
   }
