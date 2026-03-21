@@ -2,129 +2,73 @@
 /* =========================================
    腦脈先鋒：醫院地圖與建築場景樣式庫
    ========================================= */
+
 /* 1F 醫院大廳場景 (Lobby) 豪華升級版 */
 .lobby-main { 
   position: absolute; left: 1000px; top: -1200px; width: 1000px; height: 800px; 
-  /* 加上漂亮的大理石/網格地磚效果 */
   background: 
     linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)),
     repeating-linear-gradient(45deg, #cfd8dc 25%, transparent 25%, transparent 75%, #cfd8dc 75%, #cfd8dc),
     repeating-linear-gradient(45deg, #cfd8dc 25%, #eceff1 25%, #eceff1 75%, #cfd8dc 75%, #cfd8dc);
-  background-position: 0 0, 40px 40px, 40px 40px;
-  background-size: 80px 80px;
-  border: 16px solid #90a4ae; 
-  border-radius: 20px; 
+  background-position: 0 0, 40px 40px, 40px 40px; background-size: 80px 80px;
+  border: 16px solid #90a4ae; border-radius: 20px; 
   box-shadow: inset 0 0 80px rgba(0,0,0,0.15), 0 20px 50px rgba(0,0,0,0.2); 
-  z-index: 1;
+  z-index: 1; /* 大廳底層 */
 }
 
-/* 大廳中央加上醫院 Logo 巨大地毯 */
+/* ★ 修改：大廳地毯名稱 */
 .lobby-main::before {
-  content: '亞東紀念醫院';
+  content: '遙遠的東方醫院';
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-  width: 400px; height: 400px;
-  background: rgba(255, 255, 255, 0.95);
-  border: 6px solid #4fc3f7;
-  border-radius: 50%;
+  width: 450px; height: 450px;
+  background: rgba(255, 255, 255, 0.95); border: 6px solid #4fc3f7; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 40px; font-weight: 900; color: #0277bd;
+  font-size: 42px; font-weight: 900; color: #0277bd;
   box-shadow: 0 10px 30px rgba(0,0,0,0.1), inset 0 0 20px rgba(79, 195, 247, 0.3);
-  letter-spacing: 5px;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+  letter-spacing: 5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
 }
 
-/* 服務台立體化與細節 */
 .lobby-desk { 
   position: absolute; left: 1300px; top: -900px; width: 400px; height: 80px; 
   background: linear-gradient(180deg, #81d4fa 0%, #29b6f6 100%); 
-  border-radius: 12px; 
-  border: 4px solid #0288d1; 
-  border-bottom: 12px solid #0277bd; /* 營造高度立體感 */
+  border-radius: 12px; border: 4px solid #0288d1; border-bottom: 12px solid #0277bd; 
   z-index: 3; display: flex; align-items: center; justify-content: center; 
-  color: #fff; font-weight: 900; font-size: 22px; 
-  text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
-  box-shadow: 0 15px 25px rgba(0,0,0,0.3);
+  color: #fff; font-weight: 900; font-size: 22px; text-shadow: 1px 1px 3px rgba(0,0,0,0.5); box-shadow: 0 15px 25px rgba(0,0,0,0.3);
 }
-
-/* 服務台上的電腦螢幕 (使用偽元素製造) */
 .lobby-desk::before {
   content: ''; position: absolute; top: -25px; left: 80px; width: 45px; height: 30px;
-  background: #263238; border: 3px solid #111; border-radius: 4px;
-  box-shadow: 180px 0 0 #263238; /* 利用陰影複製出第二台電腦 */
+  background: #263238; border: 3px solid #111; border-radius: 4px; box-shadow: 180px 0 0 #263238;
 }
-
 .lobby-elevator { position: absolute; left: 1400px; top: -1210px; width: 200px; height: 40px; background: #37474f; border-radius: 8px 8px 0 0; z-index: 3; display: flex; align-items: center; justify-content: center; color: #00e676; font-weight: bold; font-size: 14px; box-shadow: 0 -5px 15px rgba(0,0,0,0.3);}
-
-/* 新增：裝飾品樣式 */
 .lobby-plant { position: absolute; width: 50px; height: 50px; background: radial-gradient(circle, #4caf50, #1b5e20); border-radius: 50%; border: 5px solid #8d6e63; z-index: 3; box-shadow: 0 10px 15px rgba(0,0,0,0.4); }
 .lobby-sofa { position: absolute; width: 120px; height: 60px; background: #ffb74d; border-radius: 15px; border: 4px solid #f57c00; border-bottom: 10px solid #e65100; z-index: 2; box-shadow: 0 10px 15px rgba(0,0,0,0.2); }
-/* --- 1F 新增擴建區域 (高級裝潢版) --- */
 
-/* 正前方 (南)：休息室 (擴大並加入木紋地板與衣櫃) */
-.room-rest { 
-  position: absolute; left: 1300px; top: -450px; width: 400px; height: 300px; 
-  background: repeating-linear-gradient(0deg, #d7ccc8, #d7ccc8 20px, #bcaaa4 20px, #bcaaa4 22px); 
-  border: 16px solid #8d6e63; border-radius: 12px; z-index:2; 
-  box-shadow: inset 0 0 50px rgba(0,0,0,0.4); overflow: hidden;
-}
-/* 衣櫃實體 (偽元素裝飾) */
-.room-rest::before { 
-  content: '員工衣櫃 🚪'; position: absolute; top: 0; left: 40px; width: 140px; height: 70px; 
-  background: linear-gradient(to right, #5d4037, #4e342e); color: #d7ccc8; 
-  display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;
-  border-radius: 0 0 8px 8px; border: 4px solid #3e2723; border-top: none;
-  box-shadow: 0 15px 25px rgba(0,0,0,0.6); 
-}
-.corridor-rest { position: absolute; left: 1450px; top: -500px; width: 100px; height: 50px; background: #eceff1; border-left: 8px solid #cfd8dc; border-right: 8px solid #cfd8dc; z-index:1;}
+/* --- 1F 新增擴建區域 (精準打通牆壁版) --- */
+/* 休息室 */
+.room-rest { position: absolute; left: 1300px; top: -250px; width: 400px; height: 300px; background: repeating-linear-gradient(0deg, #d7ccc8, #d7ccc8 20px, #bcaaa4 20px, #bcaaa4 22px); border: 16px solid #8d6e63; border-radius: 12px; z-index:1; box-shadow: inset 0 0 50px rgba(0,0,0,0.4); overflow: hidden; }
+.room-rest::before { content: '員工衣櫃 🚪'; position: absolute; top: 0px; left: 20px; width: 140px; height: 60px; background: linear-gradient(to right, #5d4037, #4e342e); color: #d7ccc8; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; border-radius: 0 0 8px 8px; border: 4px solid #3e2723; border-top: none; box-shadow: 0 15px 25px rgba(0,0,0,0.6); }
+/* ★ 休息室通道：z-index:3 蓋掉邊框，精準對齊高度消除牆壁 */
+.corridor-rest { position: absolute; left: 1425px; top: -416px; width: 150px; height: 182px; background: #eceff1; border-left: 16px solid #90a4ae; border-right: 16px solid #90a4ae; z-index:3; }
 
-/* 左方 (西)：便利商店 (雙色磁磚與發光貨架) */
-.room-store { 
-  position: absolute; left: 500px; top: -1000px; width: 450px; height: 400px; 
-  background: repeating-conic-gradient(#e8f5e9 0 25%, #c8e6c9 0 50%); background-size: 40px 40px; 
-  border: 16px solid #81c784; border-radius: 12px; z-index:2; 
-  box-shadow: inset 0 0 60px rgba(0,0,0,0.3);
-}
-/* 商店貨架 (偽元素裝飾) */
-.room-store::before { 
-  content: ''; position: absolute; top: 30px; left: 30px; width: 80px; height: 220px; 
-  background: linear-gradient(90deg, #a5d6a7, #81c784); border: 4px solid #388e3c; border-radius: 6px;
-  box-shadow: 220px 0 0 #a5d6a7, 220px 0 0 4px #388e3c, 0 10px 15px rgba(0,0,0,0.3);
-}
-.corridor-store { position: absolute; left: 950px; top: -850px; width: 50px; height: 100px; background: #eceff1; border-top: 8px solid #cfd8dc; border-bottom: 8px solid #cfd8dc; z-index:1;}
+/* 便利商店 */
+.room-store { position: absolute; left: 450px; top: -1000px; width: 400px; height: 400px; background: repeating-conic-gradient(#e8f5e9 0 25%, #c8e6c9 0 50%); background-size: 40px 40px; border: 16px solid #81c784; border-radius: 12px; z-index:1; box-shadow: inset 0 0 60px rgba(0,0,0,0.3); }
+.room-store::before { content: ''; position: absolute; top: 30px; left: 30px; width: 80px; height: 220px; background: linear-gradient(90deg, #a5d6a7, #81c784); border: 4px solid #388e3c; border-radius: 6px; box-shadow: 220px 0 0 #a5d6a7, 220px 0 0 4px #388e3c, 0 10px 15px rgba(0,0,0,0.3); }
+/* ★ 商店通道 */
+.corridor-store { position: absolute; left: 834px; top: -900px; width: 182px; height: 150px; background: #eceff1; border-top: 16px solid #90a4ae; border-bottom: 16px solid #90a4ae; z-index:3; }
 
-/* 右方 (東)：門診藥局 (溫暖黃光與取藥櫃台) */
-.room-pharmacy { 
-  position: absolute; left: 2050px; top: -1000px; width: 400px; height: 400px; 
-  background: #fff8e1; border: 16px solid #4fc3f7; border-radius: 12px; z-index:2; 
-  box-shadow: inset 0 0 50px rgba(0,0,0,0.15);
-}
-/* 取藥櫃台 */
-.room-pharmacy::before { 
-  content: '取藥櫃台'; position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); 
-  width: 300px; height: 50px; background: linear-gradient(180deg, #0288d1, #0277bd); 
-  color: white; display: flex; align-items: center; justify-content: center; 
-  font-weight: 900; font-size: 20px; border-radius: 25px; border: 4px solid #01579b;
-  box-shadow: 0 15px 25px rgba(0,0,0,0.3);
-}
-.corridor-pharmacy { position: absolute; left: 2000px; top: -850px; width: 50px; height: 100px; background: #eceff1; border-top: 8px solid #cfd8dc; border-bottom: 8px solid #cfd8dc; z-index:1;}
+/* 門診藥局 */
+.room-pharmacy { position: absolute; left: 2150px; top: -1000px; width: 400px; height: 400px; background: #fff8e1; border: 16px solid #4fc3f7; border-radius: 12px; z-index:1; box-shadow: inset 0 0 50px rgba(0,0,0,0.15); }
+.room-pharmacy::before { content: '取藥櫃台'; position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); width: 300px; height: 50px; background: linear-gradient(180deg, #0288d1, #0277bd); color: white; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 20px; border-radius: 25px; border: 4px solid #01579b; box-shadow: 0 15px 25px rgba(0,0,0,0.3); }
+/* ★ 藥局通道 */
+.corridor-pharmacy { position: absolute; left: 1984px; top: -900px; width: 182px; height: 150px; background: #eceff1; border-top: 16px solid #90a4ae; border-bottom: 16px solid #90a4ae; z-index:3; }
 
-/* 更右方：急診室 (警戒紅十字墊與病床) */
-.room-er { 
-  position: absolute; left: 2500px; top: -1100px; width: 500px; height: 600px; 
-  background: radial-gradient(circle, #ffebee, #ffcdd2); border: 16px solid #e57373; border-radius: 12px; z-index:2; 
-  box-shadow: inset 0 0 80px rgba(0,0,0,0.2);
-}
-/* 地板巨大紅十字與病床 */
-.room-er::before { 
-  content: '✚'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-  font-size: 200px; color: rgba(229, 115, 115, 0.15); pointer-events: none;
-}
-.room-er::after { 
-  content: ''; position: absolute; top: 80px; right: 80px; width: 80px; height: 150px; 
-  background: #fff; border: 6px solid #b0bec5; border-radius: 8px; 
-  box-shadow: -15px 15px 20px rgba(0,0,0,0.2), 0 200px 0 #fff, 0 200px 0 6px #b0bec5; 
-}
-.corridor-er { position: absolute; left: 2450px; top: -850px; width: 50px; height: 100px; background: #eceff1; border-top: 8px solid #cfd8dc; border-bottom: 8px solid #cfd8dc; z-index:1;}
+/* 急診室 */
+.room-er { position: absolute; left: 2700px; top: -1100px; width: 500px; height: 600px; background: radial-gradient(circle, #ffebee, #ffcdd2); border: 16px solid #e57373; border-radius: 12px; z-index:1; box-shadow: inset 0 0 80px rgba(0,0,0,0.2); }
+.room-er::before { content: '✚'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 200px; color: rgba(229, 115, 115, 0.15); pointer-events: none; }
+.room-er::after { content: ''; position: absolute; top: 80px; right: 80px; width: 80px; height: 150px; background: #fff; border: 6px solid #b0bec5; border-radius: 8px; box-shadow: -15px 15px 20px rgba(0,0,0,0.2), 0 200px 0 #fff, 0 200px 0 6px #b0bec5; }
+/* ★ 急診室通道 */
+.corridor-er { position: absolute; left: 2534px; top: -900px; width: 182px; height: 150px; background: #eceff1; border-top: 16px solid #e57373; border-bottom: 16px solid #e57373; z-index:3; }
+
 /* --- 高樓層通用模組 --- */
 .floor-box { position: absolute; width: 800px; height: 600px; background: #f0f4f8; border: 12px solid #b0bec5; border-radius: 20px; display:flex; align-items:center; justify-content:center; font-size: 40px; font-weight: 900; color: #78909c; z-index:1; box-shadow: inset 0 0 50px rgba(0,0,0,0.05);}
 .floor-elevator { position: absolute; left: 350px; top: 0; width: 100px; height: 40px; background: #cfd8dc; border: 6px solid #546e7a; border-top:none; border-radius: 0 0 8px 8px; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:14px; color:#37474f;}
