@@ -428,7 +428,9 @@ let playerState = {
   completedCasesBeg: new Map(), completedCasesAdv: new Map(),
   taskScoresBeg: new Map(), taskScoresAdv: new Map(),clothes: '#fff', 
   ownedClothes: ['#fff'],
-  scaleRecords: [], strokeCard: null, unlockedPuzzles: [], boughtPuzzles: 0
+  scaleRecords: [], strokeCard: null, unlockedPuzzles: [], boughtPuzzles: 0,
+  // ★ 新增：用來存放抽到但還沒拼完的拼圖
+  pendingPuzzles: [] 
 };
 
 let isGlobalFs = false; 
@@ -816,15 +818,14 @@ function saveGameData() {
     hasSetup: playerState.hasSetup, name: playerState.name, avatar: playerState.avatar, mode: playerState.mode, coins: playerState.coins, 
     storyMode: playerState.storyMode, storyProgression: playerState.storyProgression, replayProgression: playerState.replayProgression,
     explorationTasksCompleted: playerState.explorationTasksCompleted,
-    
-    // 👇 新增這兩行：把衣服和衣櫃存進存檔裡
     clothes: playerState.clothes,
     ownedClothes: playerState.ownedClothes,
-
     completedCasesBeg: Array.from(playerState.completedCasesBeg.entries()), completedCasesAdv: Array.from(playerState.completedCasesAdv.entries()),
     taskScoresBeg: Array.from(playerState.taskScoresBeg.entries()), taskScoresAdv: Array.from(playerState.taskScoresAdv.entries()),
     scaleRecords: playerState.scaleRecords, strokeCard: playerState.strokeCard,
     unlockedPuzzles: playerState.unlockedPuzzles, boughtPuzzles: playerState.boughtPuzzles,
+    // ★ 新增存檔欄位
+    pendingPuzzles: playerState.pendingPuzzles,
     roleProgressBeg: ROLES_DATA_BEG.map(r => ({ id: r.id, currentTask: r.currentTask, dailyAttempts: r.dailyAttempts })),
     roleProgressAdv: ROLES_DATA_ADV.map(r => ({ id: r.id, currentTask: r.currentTask, dailyAttempts: r.dailyAttempts }))
   };
@@ -845,15 +846,15 @@ function loadGameData() {
       if(parsed.storyProgression !== undefined) playerState.storyProgression = parsed.storyProgression;
       if(parsed.replayProgression !== undefined) playerState.replayProgression = parsed.replayProgression;
       if(parsed.explorationTasksCompleted !== undefined) playerState.explorationTasksCompleted = parsed.explorationTasksCompleted;
-      
-      // 👇 新增這兩行：讀取衣服與衣櫃資料
       if(parsed.clothes) playerState.clothes = parsed.clothes;
       if(parsed.ownedClothes) playerState.ownedClothes = parsed.ownedClothes;
-      
       if(parsed.strokeCard) playerState.strokeCard = parsed.strokeCard;
       if(parsed.scaleRecords) playerState.scaleRecords = parsed.scaleRecords;
       if(parsed.unlockedPuzzles) playerState.unlockedPuzzles = parsed.unlockedPuzzles;
       if(parsed.boughtPuzzles) playerState.boughtPuzzles = parsed.boughtPuzzles;
+      
+      // ★ 讀取待完成的拼圖
+      if(parsed.pendingPuzzles) playerState.pendingPuzzles = parsed.pendingPuzzles;
       
       if(parsed.completedCasesBeg) playerState.completedCasesBeg = new Map(parsed.completedCasesBeg);
       if(parsed.completedCasesAdv) playerState.completedCasesAdv = new Map(parsed.completedCasesAdv);
