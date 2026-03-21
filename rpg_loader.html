@@ -31,18 +31,6 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 /* ★ 擴大地圖世界邊界，容納所有的樓層 */
 .game-world { position: absolute; left: 0; top: 0; width: 6000px; height: 3500px; }
 
-/* 玩家角色 */
-.character{position:absolute;width:50px;height:70px;transform:translate(-50%,-100%);z-index:15; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3)); transition: opacity 0.5s;}
-.head{position:absolute;left:50%;top:10px;transform:translateX(-50%);width:34px;height:34px;border-radius:50%;background:#ffccbc; border: 2px solid #333;}
-.body{position:absolute;left:50%;top:40px;transform:translateX(-50%);width:30px;height:25px;border-radius:10px 10px 5px 5px;background:#fff; border: 2px solid #333;}
-.name{position:absolute;left:50%;top:-20px;transform:translateX(-50%);padding:3px 8px;border-radius:999px;background:#37474f;font-size:12px;color:white;white-space:nowrap;font-weight:bold; z-index:20;}
-
-/* NPC 角色與指標 */
-.target-npc { position: absolute; width: 50px; height: 80px; z-index: 10; display: flex; flex-direction: column; align-items: center; transform: translate(-50%, -50%);}
-.target-npc .head { background: #e57373; top: 0;}
-.target-npc .body { background: #bbdefb; top: 30px; height: 50px;}
-.npc-indicator { position: absolute; top: -45px; font-size: 20px; animation: bounce 1s infinite; z-index:20; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5));}
-@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 
 /* 虛擬搖桿 */
 .joystick-base { position: absolute; width: 140px; height: 140px; background: rgba(255,255,255,0.3); border: 3px solid rgba(255,255,255,0.6); border-radius: 50%; display: none; z-index: 50; transform: translate(-50%, -50%);}
