@@ -1199,12 +1199,6 @@ function showGachaAnimation(newId, availableIds) {
   }, 80);
 }
 
-function replayPuzzle(pid) {
-  window.currentChallengePuzzleId = null; // 重玩模式，不再次給獎勵
-  id('gameTitle').textContent = `🧩 欣賞拼圖 #${pid}`; 
-  id('gameFrame').src = `game_jigsaw.html?imgId=${pid}&isReplay=true`; 
-  id('gameOverlay').style.display = 'flex';
-}
 
 // 新增：重玩已解鎖的拼圖
 function replayPuzzle(pid) {
