@@ -8,6 +8,8 @@ const GAME_URLS = {
   'beg_id_1': 'game_name.html', 
   'role_emt_0': 'game_race_lev1.html', 
   'role_dr_0': 'game_shoot_lev1.html' 
+  'role_nurse_0': 'game_match_lev1.html' 
+  'role_nusse_0': 'game_match_lev2.html' 
 };
 
 const ROLES_DATA_BEG = [
