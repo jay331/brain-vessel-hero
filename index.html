@@ -547,7 +547,7 @@ else if (event.data.type === 'ACTION_CHECK_TABLET') {
       
       // ★ 在 customAlert 的最後面加上 "關閉" 參數
       if (remain > 0) {
-          customAlert(`<div style="text-align:left;">【今日進度】<br><br>目前剩餘可接取任務：<span style="color:var(--good); font-weight:bold; font-size:16px;">${remain}</span> 個<br><br>💡 請前往大廳找主治醫師接取！</div>`, null, "📱 任務平板", "關閉");
+          customAlert(`<div style="text-align:left;">【今日進度】<br><br>今日尚可接取 <span style="color:var(--good); font-weight:bold; font-size:16px;">${remain}</span> 個任務<br><br>💡 請前往大廳找主治醫師接取！</div>`, null, "📱 任務平板", "關閉");
       } else {
           customAlert(`<div style="text-align:left;">【今日進度】<br><br>今日任務已達上限 (0 個)。<br><br>您可以自由探索，或前往 6F教學室、14F衛教室 學習知識！</div>`, null, "📱 任務平板", "關閉");
       }
