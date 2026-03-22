@@ -348,14 +348,39 @@ if (task.npcs) {
 
 // ★ 接收來自父層主系統的資料同步，以及轉發小遊戲過關通知
 // ==========================================
+// ==========================================
+// ★ 接收來自父層主系統的資料同步，以及轉發小遊戲過關通知
+// ==========================================
 window.addEventListener('message', (event) => {
   if (!event.data) return;
 
-if (event.data.type === 'SYNC_PLAYER_DATA') {
+  if (event.data.type === 'SYNC_PLAYER_DATA') {
     const pData = event.data.payload;
     
     // 1. 處理玩家名稱與特定任務對話替換
-    // ... (這一段原本的邏輯不用動，請保留) ...
+    if (pData.name) {
+      let displayName = pData.name;
+      if (task.playAs) {
+        displayName = task.playAs;
+      } else if (taskId === 'beg_id_0' || taskId === 'beg_id_1') {
+        displayName = task.roleName;
+      }
+      document.getElementById('playerName').innerText = displayName;
+      document.getElementById('ui-role').innerText = displayName;
+      
+      if (taskId === 'beg_id_0') {
+        const patientNameEl = document.getElementById('npc-name-patient');
+        if (patientNameEl) patientNameEl.innerText = pData.name + " (你)"; 
+        
+        const patientNpc = task.npcs.find(n => n.id === 'patient');
+        if (patientNpc) {
+          patientNpc.name = pData.name;
+          patientNpc.dialogs.forEach(d => {
+            if (d.name === "我 (病患)") d.name = pData.name;
+          });
+        }
+      }
+    }
 
     // 2. 接收衣服顏色並立即套用
     if (pData.clothes !== undefined) {
@@ -365,47 +390,39 @@ if (event.data.type === 'SYNC_PLAYER_DATA') {
       }
     }
     
-    // ★ 3. 新增：接收眼鏡樣式並立即套用
+    // ★ 3. 接收眼鏡樣式並立即套用
     if (pData.glasses !== undefined) {
         const playerGlasses = document.querySelector('.player .head .glasses');
         if (playerGlasses) {
-            // 先移除所有舊的樣式 (黑框、紅框等)
             playerGlasses.classList.remove('style-black', 'style-red');
-            // 如果樣式不是 'none'，則加入對應的樣式類 (例如 'style-black')
             if (pData.glasses !== 'none' && pData.glasses !== '') {
                 playerGlasses.classList.add(`style-${pData.glasses}`);
             }
         }
     }
     
-    // ★ 4. (將原本的尋寶任務進度判定序號調整為 4)
-    if (pData.foundItems !== undefined) {
-        // ... (這一段原本的邏輯不用動，請保留) ...
-    }
-  }
-    
-    // ★ 3. 新增：接收尋寶任務進度，控制物品顯示
+    // 4. 接收尋寶與日常任務進度
     if (pData.foundItems !== undefined) {
        window.playerFoundItems = pData.foundItems;
-       updateItemVisibility();
     }
+    if (pData.dailyExplores !== undefined) {
+       window.playerDailyExplores = pData.dailyExplores;
+    }
+    
+    updateItemVisibility();
   }
   
-  // 3. ★ 核心修復：接收內層小遊戲的過關、失敗或中斷訊號，並「轉發」給外層的主系統
+  // ★ 核心修復：接收內層小遊戲的過關、失敗或中斷訊號，並「轉發」給外層的主系統
   else if (event.data.type === 'GAME_CLEAR' || event.data.type === 'GAME_OVER' || event.data.type === 'CLOSE_IFRAME') {
-     
-     // A. 隱藏地圖內部的動畫小遊戲視窗
      document.getElementById('animScreen').style.display = 'none';
      document.getElementById('animFrame').src = 'about:blank';
      
-     // B. 讓小人退後一步，離開 NPC，並恢復地圖的虛擬搖桿操控
      stepBackFromNpc();
      missionStage = 0; 
      setTimeout(() => { gameActive = true; currentNpc = null; }, 300);
 
-     // C. 最重要的一步：原封不動將這個過關訊息 (包含獲得的分數) 往上層傳給 index.html
      if (window.parent !== window) {
-        window.parent.postMessage(event.data, '*');
+       window.parent.postMessage(event.data, '*');
      }
   }
 });
