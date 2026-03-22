@@ -437,10 +437,14 @@ let playerState = {
   completedCasesBeg: new Map(), completedCasesAdv: new Map(),
   taskScoresBeg: new Map(), taskScoresAdv: new Map(), clothes: '#fff', 
   ownedClothes: ['#fff'],
+// ★ 新增：眼鏡系統資料 ★
+  glasses: 'none',       // 目前佩戴的眼鏡樣式 (e.g., 'none', 'black', 'red')
+  ownedGlasses: ['none'], // 初始只有「無眼鏡」
+  
   scaleRecords: [], strokeCard: null, unlockedPuzzles: [], boughtPuzzles: 0,
   pendingPuzzles: [], foundItems: [], 
   completedExplores: [], usedFreecellTickets: 0,
-  dailyExplores: { date: "", count: 0 } // ★ 新增：追蹤每日任務進度
+  dailyExplores: { date: "", count: 0 }
 };
 
 let isGlobalFs = false; 
@@ -955,13 +959,15 @@ function saveGameData() {
     storyMode: playerState.storyMode, storyProgression: playerState.storyProgression, replayProgression: playerState.replayProgression,
     explorationTasksCompleted: playerState.explorationTasksCompleted,
     clothes: playerState.clothes, ownedClothes: playerState.ownedClothes,
+    glasses: playerState.glasses,           // ★ 儲存：目前的眼鏡
+    ownedGlasses: playerState.ownedGlasses, // ★ 儲存：擁有的眼鏡
     completedCasesBeg: Array.from(playerState.completedCasesBeg.entries()), completedCasesAdv: Array.from(playerState.completedCasesAdv.entries()),
     taskScoresBeg: Array.from(playerState.taskScoresBeg.entries()), taskScoresAdv: Array.from(playerState.taskScoresAdv.entries()),
     scaleRecords: playerState.scaleRecords, strokeCard: playerState.strokeCard,
     unlockedPuzzles: playerState.unlockedPuzzles, boughtPuzzles: playerState.boughtPuzzles,
     pendingPuzzles: playerState.pendingPuzzles, foundItems: playerState.foundItems, 
     completedExplores: playerState.completedExplores, usedFreecellTickets: playerState.usedFreecellTickets,
-    dailyExplores: playerState.dailyExplores, // ★ 儲存每日任務
+    dailyExplores: playerState.dailyExplores, 
     roleProgressBeg: ROLES_DATA_BEG.map(r => ({ id: r.id, currentTask: r.currentTask, dailyAttempts: r.dailyAttempts })),
     roleProgressAdv: ROLES_DATA_ADV.map(r => ({ id: r.id, currentTask: r.currentTask, dailyAttempts: r.dailyAttempts }))
   };
@@ -984,6 +990,11 @@ function loadGameData() {
       if(parsed.explorationTasksCompleted !== undefined) playerState.explorationTasksCompleted = parsed.explorationTasksCompleted;
       if(parsed.clothes) playerState.clothes = parsed.clothes;
       if(parsed.ownedClothes) playerState.ownedClothes = parsed.ownedClothes;
+      
+      // ★ 讀取：恢復玩家上次戴的眼鏡和買過的眼鏡
+      if(parsed.glasses) playerState.glasses = parsed.glasses;
+      if(parsed.ownedGlasses) playerState.ownedGlasses = parsed.ownedGlasses;
+
       if(parsed.strokeCard) playerState.strokeCard = parsed.strokeCard;
       if(parsed.scaleRecords) playerState.scaleRecords = parsed.scaleRecords;
       if(parsed.unlockedPuzzles) playerState.unlockedPuzzles = parsed.unlockedPuzzles;
@@ -992,7 +1003,7 @@ function loadGameData() {
       if(parsed.foundItems) playerState.foundItems = parsed.foundItems;
       if(parsed.completedExplores) playerState.completedExplores = parsed.completedExplores; 
       if(parsed.usedFreecellTickets) playerState.usedFreecellTickets = parsed.usedFreecellTickets;
-      if(parsed.dailyExplores) playerState.dailyExplores = parsed.dailyExplores; // ★ 讀取每日任務
+      if(parsed.dailyExplores) playerState.dailyExplores = parsed.dailyExplores; 
       
       if(parsed.completedCasesBeg) playerState.completedCasesBeg = new Map(parsed.completedCasesBeg);
       if(parsed.completedCasesAdv) playerState.completedCasesAdv = new Map(parsed.completedCasesAdv);
@@ -1618,27 +1629,58 @@ const CLOTHES_DB = [
   { id: 'c_black', color: '#424242', name: '暗黑特勤', price: 15000 }
 ];
 
+  // ★ 新增這一段：眼鏡商品資料庫
+const GLASSES_DB = [
+  { id: 'g_none', style: 'none', name: '不戴眼鏡', price: 0 },
+  { id: 'g_black', style: 'black', name: '黑框眼鏡', price: 500 },
+  { id: 'g_red', style: 'red', name: '紅框眼鏡', price: 1000 }
+];
+
+// === 便利商店 - 治裝區 ===
 function openStoreUI() {
   let html = '';
-  const owned = playerState.ownedClothes || ['#fff'];
+  const ownedC = playerState.ownedClothes || ['#fff'];
+  const ownedG = playerState.ownedGlasses || ['none']; // ★ 新增：讀取擁有的眼鏡
   
+  // --- 分區 1：衣服 ---
+  html += `<h4 style="color:#81c784; margin:0 0 10px 0; border-bottom:1px solid #555; padding-bottom:4px; text-align:left;">職業服裝</h4>`;
   CLOTHES_DB.forEach(c => {
-    const isOwned = owned.includes(c.color);
+    const isOwned = ownedC.includes(c.color);
     const btnHtml = isOwned 
       ? `<button class="btn" style="width:auto; background:#555; pointer-events:none; padding:8px 12px; font-size:12px;">已擁有</button>` 
       : `<button class="btn btn-rescue" style="width:auto; padding:8px 12px; font-size:12px;" onclick="buyClothes('${c.color}', ${c.price})">💰 ${c.price}</button>`;
     
-    html += `<div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.5); padding:12px; border-radius:8px; border:1px solid var(--theme-dim);">
+    html += `<div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.5); padding:10px; border-radius:8px; border:1px solid var(--theme-dim); margin-bottom:5px;">
       <div style="display:flex; align-items:center; gap:10px;">
-        <div style="width:28px; height:28px; background:${c.color}; border:2px solid #fff; border-radius:6px; box-shadow:inset 0 0 5px rgba(0,0,0,0.3);"></div>
-        <span style="color:#fff; font-weight:bold; font-size:14px;">${c.name}</span>
+        <div style="width:24px; height:24px; background:${c.color}; border:2px solid #fff; border-radius:6px; box-shadow:inset 0 0 5px rgba(0,0,0,0.3);"></div>
+        <span style="color:#fff; font-weight:bold; font-size:13px;">${c.name}</span>
       </div>
       ${btnHtml}
     </div>`;
   });
   
-  document.getElementById('storeList').innerHTML = html;
-  document.getElementById('storeModal').style.display = 'flex';
+  // --- ★ 新增分區 2：配件 (眼鏡) ---
+  html += `<h4 style="color:#d7ccc8; margin:15px 0 10px 0; border-bottom:1px solid #555; padding-bottom:4px; text-align:left;">時尚配件</h4>`;
+  GLASSES_DB.forEach(g => {
+      // 免費的 (無眼鏡) 就不顯示在商店裡
+      if (g.price === 0) return;
+      
+      const isOwned = ownedG.includes(g.style);
+      const btnHtml = isOwned 
+        ? `<button class="btn" style="width:auto; background:#555; pointer-events:none; padding:8px 12px; font-size:12px;">已擁有</button>` 
+        : `<button class="btn btn-rescue" style="width:auto; padding:8px 12px; font-size:12px;" onclick="buyGlasses('${g.style}', ${g.price})">💰 ${g.price}</button>`;
+      
+      html += `<div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.5); padding:10px; border-radius:8px; border:1px solid var(--theme-dim); margin-bottom:5px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="font-size:24px; display:flex; align-items:center; justify-content:center; width:24px; height:24px;">👓</div>
+          <span style="color:#fff; font-weight:bold; font-size:13px;">${g.name}</span>
+        </div>
+        ${btnHtml}
+      </div>`;
+  });
+  
+  id('storeList').innerHTML = html;
+  id('storeModal').style.display = 'flex';
 }
 
 function buyClothes(color, price) {
@@ -1654,27 +1696,92 @@ function buyClothes(color, price) {
     customAlert(`健康幣不足！還差 ${price - playerState.coins} 幣。再去多救治病患吧！`, null, '❌ 餘額不足');
   }
 }
+// ... (上面是原本的 CLOTHES_DB, openStoreUI, buyClothes, openWardrobeUI, equipClothes 函式) ...
 
+// ===============================================
+// ★ 新增：眼鏡系統函式 ★
+// ===============================================
+
+// 1. 購買眼鏡
+function buyGlasses(style, price) {
+  if (playerState.coins >= price) {
+    playerState.coins -= price;
+    if (!playerState.ownedGlasses) playerState.ownedGlasses = ['none'];
+    // 將新買的眼鏡 style 加入擁有清單
+    playerState.ownedGlasses.push(style);
+    
+    saveGameData();
+    updateHUD();
+    openStoreUI(); // 刷新商店畫面 (會變成「已擁有」)
+    
+    customAlert(`購買成功！這副 ${style==='black'?'黑框':'紅框'}眼鏡很適合你喔！請前往【休息室】更換。`, null, '🛍️ 交易成功');
+  } else {
+    customAlert(`健康幣不足！還差 ${price - playerState.coins} 幣。`, null, '❌ 餘額不足');
+  }
+}
+
+// 2. 裝備眼鏡
+function equipGlasses(style) {
+  playerState.glasses = style;
+  saveGameData();
+  openWardrobeUI(); // 刷新衣櫃畫面 (會顯示「裝備中」)
+  
+  // ★ 將新的眼鏡樣式同步給正在運行的地圖引擎
+  const payload = { name: playerState.name, glasses: playerState.glasses };
+  if(id('homeMapFrame').contentWindow) {
+      id('homeMapFrame').contentWindow.postMessage({ type: 'SYNC_PLAYER_DATA', payload }, '*');
+  }
+  if(id('mapFrame').contentWindow) {
+      id('mapFrame').contentWindow.postMessage({ type: 'SYNC_PLAYER_DATA', payload }, '*');
+  }
+}
+// === 員工休息室 - 更衣櫃 ===
 function openWardrobeUI() {
   let html = '';
-  const owned = playerState.ownedClothes || ['#fff'];
+  const ownedC = playerState.ownedClothes || ['#fff'];
+  const ownedG = playerState.ownedGlasses || ['none']; // ★ 新增：讀取擁有的眼鏡
+  const currentC = playerState.clothes || '#fff';
+  const currentG = playerState.glasses || 'none'; // ★ 新增：目前戴的眼鏡
   
+  // --- 分區 1：衣服 (排列方式改為 flex 緊湊型，讓畫面容納更多東西) ---
+  html += `<h4 style="color:#d7ccc8; margin:0 0 10px 0; border-bottom:1px solid #555; padding-bottom:4px; text-align:left;">更換職業服裝</h4>`;
+  html += `<div style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-bottom:15px;">`;
   CLOTHES_DB.forEach(c => {
-    if (owned.includes(c.color)) {
-      const isEquipped = (playerState.clothes || '#fff') === c.color;
+    if (ownedC.includes(c.color)) {
+      const isEquipped = currentC === c.color;
       const eqStyle = isEquipped ? 'border-color:var(--good); box-shadow:0 0 15px rgba(61,255,142,0.4); background:rgba(61,255,142,0.1);' : 'border-color:#555;';
       const eqText = isEquipped ? '<span style="color:var(--good); font-size:10px; margin-top:4px;">裝備中</span>' : '';
       
-      html += `<div style="width:90px; padding:12px; background:rgba(0,0,0,0.5); border:2px solid transparent; ${eqStyle} border-radius:8px; cursor:pointer; display:flex; flex-direction:column; align-items:center; transition:transform 0.2s;" onclick="equipClothes('${c.color}')">
-        <div style="width:40px; height:40px; background:${c.color}; border:3px solid #fff; border-radius:8px; box-shadow:inset -3px -3px 5px rgba(0,0,0,0.2), 0 4px 8px rgba(0,0,0,0.5); margin-bottom:8px;"></div>
-        <span style="font-size:12px; font-weight:bold; color:#fff;">${c.name}</span>
+      html += `<div style="width:75px; padding:10px; background:rgba(0,0,0,0.5); border:2px solid transparent; ${eqStyle} border-radius:8px; cursor:pointer; display:flex; flex-direction:column; align-items:center;" onclick="equipClothes('${c.color}')">
+        <div style="width:30px; height:30px; background:${c.color}; border:3px solid #fff; border-radius:6px;"></div>
+        <span style="font-size:11px; font-weight:bold; color:#fff; margin-top:6px; text-align:center;">${c.name}</span>
         ${eqText}
       </div>`;
     }
   });
+  html += `</div>`;
+
+  // --- ★ 新增分區 2：配件 (眼鏡) ---
+  html += `<h4 style="color:#d7ccc8; margin:15px 0 10px 0; border-bottom:1px solid #555; padding-bottom:4px; text-align:left;">更換時尚配件</h4>`;
+  html += `<div style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center;">`;
+  GLASSES_DB.forEach(g => {
+    if (ownedG.includes(g.style)) {
+      const isEquipped = currentG === g.style;
+      const eqStyle = isEquipped ? 'border-color:var(--good); box-shadow:0 0 15px rgba(61,255,142,0.4); background:rgba(61,255,142,0.1);' : 'border-color:#555;';
+      const eqText = isEquipped ? '<span style="color:var(--good); font-size:10px; margin-top:4px;">裝備中</span>' : '';
+      const icon = g.style === 'none' ? '❌' : '👓'; // 無眼鏡用 X 表示
+      
+      html += `<div style="width:75px; padding:10px; background:rgba(0,0,0,0.5); border:2px solid transparent; ${eqStyle} border-radius:8px; cursor:pointer; display:flex; flex-direction:column; align-items:center;" onclick="equipGlasses('${g.style}')">
+        <div style="font-size:30px; display:flex; align-items:center; justify-content:center; width:30px; height:30px;">${icon}</div>
+        <span style="font-size:11px; font-weight:bold; color:#fff; margin-top:6px; text-align:center;">${c.name}</span>
+        ${eqText}
+      </div>`;
+    }
+  });
+  html += `</div>`;
   
-  document.getElementById('wardrobeList').innerHTML = html;
-  document.getElementById('wardrobeModal').style.display = 'flex';
+  id('wardrobeList').innerHTML = html;
+  id('wardrobeModal').style.display = 'flex';
 }
 
 function equipClothes(color) {
