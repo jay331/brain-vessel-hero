@@ -92,8 +92,7 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .pokedex-tabs::-webkit-scrollbar { display: none; }
 .tab-btn { flex-shrink: 0; padding: 6px 12px; border-radius: 20px; border: 1px solid var(--theme-dim); background: rgba(0,0,0,0.8); color: #ccc; font-weight: bold; font-size: 12px; cursor:pointer; white-space: nowrap; }
 .tab-btn.active { background: var(--theme-primary); color: var(--btn-text); border-color: #fff; text-shadow: var(--btn-shadow); box-shadow: 0 0 10px rgba(212,175,55,0.5); }
-.card-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; overflow-y: auto; overflow-x: hidden; padding: 2px; align-content: flex-start;}
-.card-title { font-size: 11px; font-weight: bold; line-height: 1.2; padding:0 2px; text-shadow: 1px 1px 2px #000; word-break: break-word;}.card-item { aspect-ratio: 3 / 4; border-radius: 6px; border: 1px solid var(--theme-dim); background: linear-gradient(180deg, #2a241e, #111); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; text-align: center; padding:4px;}
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 8px; overflow-y: auto; overflow-x: hidden; padding: 2px; align-content: flex-start;}.card-title { font-size: 11px; font-weight: bold; line-height: 1.2; padding:0 2px; text-shadow: 1px 1px 2px #000; word-break: break-word;}.card-item { aspect-ratio: 3 / 4; border-radius: 6px; border: 1px solid var(--theme-dim); background: linear-gradient(180deg, #2a241e, #111); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; text-align: center; padding:4px;}
 .card-icon { font-size: 20px; margin-bottom: 2px; }
 .card-item.locked { filter: grayscale(100%); opacity: 0.3; }
 
@@ -1105,7 +1104,8 @@ function handleGameClear(score) {
 if (playerState.isReplaying) {
       playerState.replayProgression++;
       if (playerState.replayProgression < TOTAL_BEG_TASKS) {
-          customConfirm(`得分：${score} 分\n\n回顧任務順利完成！要接著複習下一關嗎？`, 
+          // ★ 拔除得分
+          customConfirm(`回顧任務順利完成！\n要接著複習下一關嗎？`, 
               () => { playTaskFlat(playerState.replayProgression); }, 
               () => { updateModeUI(); playerState.isReplaying = false; }, 
               "✅ 任務回顧", "繼續下一關", "先休息"
@@ -1119,8 +1119,8 @@ if (playerState.isReplaying) {
       playerState.storyProgression++; saveGameData();
       if (playerState.storyProgression < TOTAL_BEG_TASKS) {
           const nextTask = getFlatTask(playerState.storyProgression);
-          // ★ 修改：加入 \n\n 強制換行，並把按鈕文字改為「觀看健康卡」
-          customConfirm(`得分：${score} 分\n\n${isFirstClear ? '獲得 100 健康幣！\n\n' : ''}✨ 取得新的健康卡\n\n是否立即進入下一關：${nextTask.role.subTasks[nextTask.taskIndex].substring(3)}？`, 
+          // ★ 拔除得分
+          customConfirm(`${isFirstClear ? '獲得 100 健康幣！\n\n' : ''}✨ 取得新的健康卡\n\n是否立即進入下一關：${nextTask.role.subTasks[nextTask.taskIndex].substring(3)}？`, 
               () => { playTaskFlat(playerState.storyProgression); }, 
               () => { updateModeUI(); openCardModal(tabMode, info.role.id, info.taskIndex, absoluteNumber); }, 
               "🎉 任務成功", "進入下一關", `觀看健康卡 ${cardId}`
@@ -1129,8 +1129,8 @@ if (playerState.isReplaying) {
           customAlert("恭喜你完成所有初階訓練！現在為您開啟「醫院自由探索模式」！", () => { updateModeUI(); }, "🎉 訓練結業");
       }
   } else {
-      // ★ 修改：加入 \n\n 強制換行，並把按鈕文字改為「觀看健康卡」
-      customAlert(`得分：${score} 分\n\n${isFirstClear ? (playerState.mode === 'beginner' ? '獲得 100 健康幣！\n\n' : '獲得 150 健康幣！\n\n') : '(複習任務無硬幣獎勵)\n\n'}✨ 取得新的健康卡`, () => {
+      // ★ 拔除得分
+      customAlert(`${isFirstClear ? (playerState.mode === 'beginner' ? '獲得 100 健康幣！\n\n' : '獲得 150 健康幣！\n\n') : '(複習任務無硬幣獎勵)\n\n'}✨ 取得新的健康卡`, () => {
         openCardModal(tabMode, info.role.id, info.taskIndex, absoluteNumber); updateModeUI();
       }, "🎉 任務成功！", `觀看健康卡 ${cardId}`);
   }
