@@ -36,7 +36,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 .game-world { position: absolute; left: 0; top: 0; width: 40000px; height: 3500px; }
 
 /* =========================================
-   ★ 玩家眼鏡系統 (完整樣式庫)
+   ★ 玩家眼鏡系統 (無橫線純淨版 - 絕不擋眼)
    ========================================= */
 .character .head .glasses {
     position: absolute;
@@ -44,9 +44,10 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
     opacity: 0; 
     z-index: 5; 
     pointer-events: none;
+    /* ★ 徹底移除 background-image 橫線 */
+    background: none !important;
 }
 
-/* 共用鏡片底座 */
 .character .head .glasses::before, 
 .character .head .glasses::after {
     content: ''; 
@@ -54,37 +55,28 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
     box-sizing: border-box;
 }
 
-/* 1. 復古黑框 (.style-black) */
-.character .head .glasses.style-black {
-    opacity: 1;
-    background-image: linear-gradient(to bottom, transparent 17.5px, #333 17.5px, #333 19.5px, transparent 19.5px);
-}
+/* 1. 復古黑框 */
+.character .head .glasses.style-black { opacity: 1; }
 .character .head .glasses.style-black::before, 
 .character .head .glasses.style-black::after {
     top: 11.5px; width: 14px; height: 14px;
-    border-radius: 50%; border: 2px solid #333; background: rgba(255,255,255,0.25);
+    border-radius: 50%; border: 2px solid #333; background: rgba(255,255,255,0.2);
 }
 .character .head .glasses.style-black::before { left: 1.5px; }
 .character .head .glasses.style-black::after { right: 1.5px; }
 
-/* 2. 紅框眼鏡 (.style-red) */
-.character .head .glasses.style-red {
-    opacity: 1;
-    background-image: linear-gradient(to bottom, transparent 17.5px, #c62828 17.5px, #c62828 19.5px, transparent 19.5px);
-}
+/* 2. 紅框眼鏡 */
+.character .head .glasses.style-red { opacity: 1; }
 .character .head .glasses.style-red::before, 
 .character .head .glasses.style-red::after {
     top: 11.5px; width: 14px; height: 14px;
-    border-radius: 50%; border: 2px solid #c62828; background: rgba(255,255,255,0.25);
+    border-radius: 50%; border: 2px solid #c62828; background: rgba(255,255,255,0.2);
 }
-.character .head .glasses.style-red::before { left: 2.5px; }
-.character .head .glasses.style-red::after { right: 2.5px; }
+.character .head .glasses.style-red::before { left: 1.5px; }
+.character .head .glasses.style-red::after { right: 1.5px; }
 
-/* 3. 帥氣墨鏡 (.style-sun) */
-.character .head .glasses.style-sun {
-    opacity: 1;
-    background-image: linear-gradient(to bottom, transparent 17.5px, #222 17.5px, #222 19.5px, transparent 19.5px);
-}
+/* 3. 帥氣墨鏡 */
+.character .head .glasses.style-sun { opacity: 1; }
 .character .head .glasses.style-sun::before, 
 .character .head .glasses.style-sun::after {
     top: 11.5px; width: 14px; height: 14px;
@@ -93,28 +85,22 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 .character .head .glasses.style-sun::before { left: 1.5px; }
 .character .head .glasses.style-sun::after { right: 1.5px; }
 
-/* 4. 文青方框 (.style-square) */
-.character .head .glasses.style-square {
-    opacity: 1;
-    background-image: linear-gradient(to bottom, transparent 16.5px, #222 16.5px, #222 18.5px, transparent 18.5px);
-}
+/* 4. 文青方框 */
+.character .head .glasses.style-square { opacity: 1; }
 .character .head .glasses.style-square::before, 
 .character .head .glasses.style-square::after {
-    top: 11px; width: 15px; height: 12px;
-    border-radius: 3px; border: 2.5px solid #222; background: rgba(255,255,255,0.2);
+    top: 12px; width: 15px; height: 12px;
+    border-radius: 3px; border: 2.5px solid #222; background: rgba(255,255,255,0.15);
 }
 .character .head .glasses.style-square::before { left: 2px; }
 .character .head .glasses.style-square::after { right: 2px; }
 
-/* 5. 經典半框 (.style-half) */
-.character .head .glasses.style-half {
-    opacity: 1;
-    background-image: linear-gradient(to bottom, transparent 16.5px, #222 16.5px, #222 18.5px, transparent 18.5px);
-}
+/* 5. 經典半框 */
+.character .head .glasses.style-half { opacity: 1; }
 .character .head .glasses.style-half::before, 
 .character .head .glasses.style-half::after {
     top: 11px; width: 15px; height: 13px;
-    border-radius: 4px 4px 10px 10px; border: 1.5px solid #444; border-top: 4px solid #111; background: rgba(255,255,255,0.2);
+    border-radius: 4px 4px 10px 10px; border: 1.5px solid #444; border-top: 4px solid #111; background: rgba(255,255,255,0.15);
 }
 .character .head .glasses.style-half::before { left: 2px; }
 .character .head .glasses.style-half::after { right: 2px; }
