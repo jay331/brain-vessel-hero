@@ -591,6 +591,16 @@ function returnToLobby() {
 // ==========================================
 function startNpcDialog(npc) {
   currentNpc = npc;
+  
+  // ★ 智慧判斷：如果是任務平板，直接觸發主系統視窗，不顯示地圖黑底對話框
+  if (npc.id === 'obj_tablet') {
+      window.parent.postMessage({type: npc.action}, '*');
+      stepBackFromNpc();
+      missionStage = 0; 
+      setTimeout(() => { gameActive = true; currentNpc = null; }, 300);
+      return; // 直接結束，不執行下方的 showDialog
+  }
+  
   currentDialogIndex = 0;
   showDialog();
 }
