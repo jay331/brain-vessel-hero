@@ -430,11 +430,15 @@ window.addEventListener('message', (event) => {
       }
     }
     
-    // ★ 3. 接收眼鏡樣式並立即套用
+
+// ★ 3. 接收眼鏡樣式並立即套用
     if (pData.glasses !== undefined) {
         const playerGlasses = document.querySelector('.player .head .glasses');
         if (playerGlasses) {
-            playerGlasses.classList.remove('style-black', 'style-red');
+            // ★ 關鍵修復：不要一個一個移除了，直接把 class 重置為最乾淨的狀態！
+            playerGlasses.className = 'glasses';
+            
+            // 如果不是 none，就加上對應的眼鏡樣式
             if (pData.glasses !== 'none' && pData.glasses !== '') {
                 playerGlasses.classList.add(`style-${pData.glasses}`);
             }
