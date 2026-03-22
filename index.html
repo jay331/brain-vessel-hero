@@ -449,6 +449,9 @@ let currentQIndex = 0; let currentAnswers = {}; let trendChartInstance = null;
 // ===============================================
 // ★ 全域事件監聽 (接收 iframe 訊息)
 // ===============================================
+// ===============================================
+// ★ 全域事件監聽 (接收 iframe 訊息)
+// ===============================================
 window.addEventListener('message', (event) => {
   if (!event.data) return;
 
@@ -466,7 +469,7 @@ window.addEventListener('message', (event) => {
     }
   }
   
-else if (event.data.type === 'ACTION_CONTINUE') {
+  else if (event.data.type === 'ACTION_CONTINUE') {
       if (!playerState.foundItems) { playerState.foundItems = []; saveGameData(); }
       if (event.source) event.source.postMessage({ type: 'SYNC_PLAYER_DATA', payload: { foundItems: playerState.foundItems } }, '*');
 
@@ -542,8 +545,6 @@ else if (event.data.type === 'ACTION_CONTINUE') {
           customAlert(`<div style="text-align:left;">【今日進度】<br><br>今日任務已達上限 (0 個)。<br><br>您可以自由探索，或前往 6F教學室、14F衛教室 學習知識！</div>`, null, "📱 任務平板");
       }
   }
-      }
-  } 
   
   // ★ 接收地圖傳來的撿取寶物訊號
   else if (event.data.type && event.data.type.startsWith('ACTION_FIND_')) {
@@ -603,21 +604,18 @@ else if (event.data.type === 'ACTION_CONTINUE') {
       updateModeUI(); 
   }
   
-else if (event.data.type === 'PUZZLE_CLEAR') {
+  else if (event.data.type === 'PUZZLE_CLEAR') {
       const pid = event.data.puzzleId;
       if (!playerState.unlockedPuzzles) playerState.unlockedPuzzles = [];
       if (!playerState.pendingPuzzles) playerState.pendingPuzzles = [];
       
       // 如果過關的 ID 是我們目前挑戰的 ID，且它還沒被收藏
       if (window.currentChallengePuzzleId === pid && !playerState.unlockedPuzzles.includes(pid)) {
-          
           // 1. 從待完成背包 (pendingPuzzles) 中移除它
           playerState.pendingPuzzles = playerState.pendingPuzzles.filter(id => id !== pid);
           // 2. 將它正式加入收藏圖鑑
           playerState.unlockedPuzzles.push(pid); 
-          
           saveGameData(); updateHUD(); renderCaseDex(); 
-          
           // ★ 移除 200 幣獎勵，只跳出成功提示
           setTimeout(() => { customAlert(`拼圖 #${pid} 挑戰成功！已為您正式加入收藏！`, null, "🎉 拼圖收藏成功"); }, 500);
       }
