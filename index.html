@@ -250,7 +250,7 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
           <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; border: 1px solid var(--theme-dim); margin-bottom: 12px; text-align: center; flex-shrink: 0;">
             <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px;">
               <div style="font-size: 14px; color: #ccc; display: flex; align-items: center;">
-                可領取拼圖：<span id="uiPuzzleAvail" style="color:var(--good); font-weight:bold; font-size:18px; margin: 0 4px;">0</span> 張 
+                可領拼圖<span id="uiPuzzleAvail" style="color:var(--good); font-weight:bold; font-size:18px; margin: 0 4px;">0</span> 張 
                 <button class="btn" style="width:20px; height:20px; padding:0; border-radius:50%; background:#555; color:#fff; border:none; font-size:12px; margin-left:6px; display:inline-flex; align-items:center; justify-content:center;" onclick="document.getElementById('puzzleHintText').style.display = document.getElementById('puzzleHintText').style.display === 'none' ? 'block' : 'none'">i</button>
               </div>
               <button id="btnDrawPuzzle" class="btn btn-rescue" style="padding:4px 12px; font-size:13px; width:auto; margin:0; display:none;" onclick="triggerGacha()">🧩 拼圖抽抽樂</button>
@@ -1057,7 +1057,8 @@ function playTask(taskIndex) {
 
 function customConfirm(msg, onConfirm, onCancel, title="請確認", confirmTxt="確定", cancelTxt="取消") {
   id('customMsgTitle').textContent = title; 
-  id('customMsgText').textContent = msg;
+  // ★ 修改：使用 innerHTML 支援換行與標籤
+  id('customMsgText').innerHTML = msg.replace(/\n/g, '<br>'); 
   id('customMsgBtnWrap').innerHTML = `
     <button class="btn" style="flex:1; width:auto; background:#555; color:#fff;" onclick="closeCustomMsg(); ${onCancel ? 'customMsgCancel();' : ''}">${cancelTxt}</button>
     <button class="btn" style="flex:1; width:auto; background:var(--theme-primary); color:var(--btn-text);" onclick="closeCustomMsg(); customMsgConfirm();">${confirmTxt}</button>`;
@@ -1066,7 +1067,9 @@ function customConfirm(msg, onConfirm, onCancel, title="請確認", confirmTxt="
 }
 
 function customAlert(msg, callback, title="系統提示", btnText="確定") {
-  id('customMsgTitle').textContent = title; id('customMsgText').textContent = msg;
+  id('customMsgTitle').textContent = title; 
+  // ★ 修改：使用 innerHTML 支援換行與標籤
+  id('customMsgText').innerHTML = msg.replace(/\n/g, '<br>'); 
   id('customMsgBtnWrap').innerHTML = `<button class="btn" style="flex:1; width:auto; background:var(--theme-primary); color:var(--btn-text);" onclick="closeCustomMsg(); ${callback ? 'customMsgCallback();' : ''}">${btnText}</button>`;
   window.customMsgCallback = callback || null; id('customMsgModal').style.display = 'flex';
 }
@@ -1104,8 +1107,7 @@ function handleGameClear(score) {
 if (playerState.isReplaying) {
       playerState.replayProgression++;
       if (playerState.replayProgression < TOTAL_BEG_TASKS) {
-          // ★ 拔除得分
-          customConfirm(`回顧任務順利完成！\n要接著複習下一關嗎？`, 
+          customConfirm(`<div style="text-align: left;">回顧任務順利完成！<br><br>要接著複習下一關嗎？</div>`, 
               () => { playTaskFlat(playerState.replayProgression); }, 
               () => { updateModeUI(); playerState.isReplaying = false; }, 
               "✅ 任務回顧", "繼續下一關", "先休息"
@@ -1119,8 +1121,9 @@ if (playerState.isReplaying) {
       playerState.storyProgression++; saveGameData();
       if (playerState.storyProgression < TOTAL_BEG_TASKS) {
           const nextTask = getFlatTask(playerState.storyProgression);
-          // ★ 拔除得分
-          customConfirm(`${isFirstClear ? '獲得 100 健康幣！\n\n' : ''}✨ 取得新的健康卡\n\n是否立即進入下一關：${nextTask.role.subTasks[nextTask.taskIndex].substring(3)}？`, 
+          // ★ 靠左對齊，圖示與文字換行
+          const msgHtml = `<div style="text-align: left; padding-left: 10px;">${isFirstClear ? '💰 獲得 100 健康幣！<br><br>' : ''}✨ 取得新的健康卡<br><br>是否立即進入下一關：<br>${nextTask.role.subTasks[nextTask.taskIndex].substring(3)}？</div>`;
+          customConfirm(msgHtml, 
               () => { playTaskFlat(playerState.storyProgression); }, 
               () => { updateModeUI(); openCardModal(tabMode, info.role.id, info.taskIndex, absoluteNumber); }, 
               "🎉 任務成功", "進入下一關", `觀看健康卡 ${cardId}`
@@ -1129,8 +1132,10 @@ if (playerState.isReplaying) {
           customAlert("恭喜你完成所有初階訓練！現在為您開啟「醫院自由探索模式」！", () => { updateModeUI(); }, "🎉 訓練結業");
       }
   } else {
-      // ★ 拔除得分
-      customAlert(`${isFirstClear ? (playerState.mode === 'beginner' ? '獲得 100 健康幣！\n\n' : '獲得 150 健康幣！\n\n') : '(複習任務無硬幣獎勵)\n\n'}✨ 取得新的健康卡`, () => {
+      // ★ 靠左對齊，圖示與文字換行
+      const coinText = playerState.mode === 'beginner' ? '💰 獲得 100 健康幣！' : '💰 獲得 150 健康幣！';
+      const msgHtml = `<div style="text-align: left; padding-left: 10px;">${isFirstClear ? coinText + '<br><br>' : '🔄 (複習任務無硬幣獎勵)<br><br>'}✨ 取得新的健康卡</div>`;
+      customAlert(msgHtml, () => {
         openCardModal(tabMode, info.role.id, info.taskIndex, absoluteNumber); updateModeUI();
       }, "🎉 任務成功！", `觀看健康卡 ${cardId}`);
   }
