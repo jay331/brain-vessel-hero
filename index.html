@@ -1736,14 +1736,15 @@ function equipGlasses(style) {
   }
 }
 // === 員工休息室 - 更衣櫃 ===
+// === 員工休息室 - 更衣櫃 ===
 function openWardrobeUI() {
   let html = '';
   const ownedC = playerState.ownedClothes || ['#fff'];
-  const ownedG = playerState.ownedGlasses || ['none']; // ★ 新增：讀取擁有的眼鏡
+  const ownedG = playerState.ownedGlasses || ['none']; 
   const currentC = playerState.clothes || '#fff';
-  const currentG = playerState.glasses || 'none'; // ★ 新增：目前戴的眼鏡
+  const currentG = playerState.glasses || 'none'; 
   
-  // --- 分區 1：衣服 (排列方式改為 flex 緊湊型，讓畫面容納更多東西) ---
+  // --- 分區 1：衣服 ---
   html += `<h4 style="color:#d7ccc8; margin:0 0 10px 0; border-bottom:1px solid #555; padding-bottom:4px; text-align:left;">更換職業服裝</h4>`;
   html += `<div style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-bottom:15px;">`;
   CLOTHES_DB.forEach(c => {
@@ -1761,7 +1762,7 @@ function openWardrobeUI() {
   });
   html += `</div>`;
 
-  // --- ★ 新增分區 2：配件 (眼鏡) ---
+  // --- 分區 2：配件 (眼鏡) ---
   html += `<h4 style="color:#d7ccc8; margin:15px 0 10px 0; border-bottom:1px solid #555; padding-bottom:4px; text-align:left;">更換時尚配件</h4>`;
   html += `<div style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center;">`;
   GLASSES_DB.forEach(g => {
@@ -1769,11 +1770,12 @@ function openWardrobeUI() {
       const isEquipped = currentG === g.style;
       const eqStyle = isEquipped ? 'border-color:var(--good); box-shadow:0 0 15px rgba(61,255,142,0.4); background:rgba(61,255,142,0.1);' : 'border-color:#555;';
       const eqText = isEquipped ? '<span style="color:var(--good); font-size:10px; margin-top:4px;">裝備中</span>' : '';
-      const icon = g.style === 'none' ? '❌' : '👓'; // 無眼鏡用 X 表示
+      const icon = g.style === 'none' ? '❌' : '👓'; 
       
+      // ★ 這裡的 c.name 已經修正為 g.name 了！
       html += `<div style="width:75px; padding:10px; background:rgba(0,0,0,0.5); border:2px solid transparent; ${eqStyle} border-radius:8px; cursor:pointer; display:flex; flex-direction:column; align-items:center;" onclick="equipGlasses('${g.style}')">
         <div style="font-size:30px; display:flex; align-items:center; justify-content:center; width:30px; height:30px;">${icon}</div>
-        <span style="font-size:11px; font-weight:bold; color:#fff; margin-top:6px; text-align:center;">${c.name}</span>
+        <span style="font-size:11px; font-weight:bold; color:#fff; margin-top:6px; text-align:center;">${g.name}</span>
         ${eqText}
       </div>`;
     }
