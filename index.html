@@ -1121,7 +1121,7 @@ function handleGameClear(score) {
   
   saveGameData(); updateHUD(); 
 
-if (playerState.isReplaying) {
+  if (playerState.isReplaying) {
       playerState.replayProgression++;
       if (playerState.replayProgression < TOTAL_BEG_TASKS) {
           customConfirm(`<div style="text-align: left;">回顧任務順利完成！<br><br>要接著複習下一關嗎？</div>`, 
@@ -1148,7 +1148,8 @@ if (playerState.isReplaying) {
       } else {
           customAlert("恭喜你完成所有初階訓練！現在為您開啟「醫院自由探索模式」！", () => { updateModeUI(); }, "🎉 訓練結業");
       }
-  } else {
+  } 
+  else {
       // ★ 靠左對齊，圖示與文字換行
       const coinText = playerState.mode === 'beginner' ? '💰 獲得 100 健康幣！' : '💰 獲得 150 健康幣！';
       const msgHtml = `<div style="text-align: left; padding-left: 10px;">${isFirstClear ? coinText + '<br><br>' : '🔄 (複習任務無硬幣獎勵)<br><br>'}✨ 取得新的健康卡</div>`;
@@ -1156,6 +1157,7 @@ if (playerState.isReplaying) {
         openCardModal(tabMode, info.role.id, info.taskIndex, absoluteNumber); updateModeUI();
       }, "🎉 任務成功！", `觀看健康卡 ${cardId}`);
   }
+  
   currentGameInfo = null;
 }
 
