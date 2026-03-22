@@ -36,7 +36,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 .game-world { position: absolute; left: 0; top: 0; width: 40000px; height: 3500px; }
 
 /* =========================================
-   ★ 玩家眼鏡系統 (外部支架版 - 鏡片內完全乾淨)
+   ★ 玩家眼鏡系統 (支架精確定位 & 橢圓墨鏡版)
    ========================================= */
 .character .head .glasses {
     position: absolute;
@@ -44,86 +44,84 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
     opacity: 0; 
     z-index: 5; 
     pointer-events: none;
-    background: none; /* 移除原本貫穿的背景線 */
 }
 
-/* 所有的支架線 (中間鼻梁、兩側鏡腳) */
+/* 所有的鏡框本體 */
 .character .head .glasses::before, 
 .character .head .glasses::after {
     content: ''; 
     position: absolute;
     box-sizing: border-box;
-    /* 這裡我們先定義鏡框本體 */
 }
 
-/* 核心邏輯：利用額外的偽元素來畫出「外部」的線 */
-/* 1. 中間鼻梁線 */
-.character .head .glasses.style-black::after,
-.character .head .glasses.style-red::after,
-.character .head .glasses.style-sun::after,
-.character .head .glasses.style-square::after,
-.character .head .glasses.style-half::after {
-    /* 在 style 指定的類別下，多畫一條中間的橫槓 */
-    box-shadow: 
-        /* 中間鼻梁：位於 18px 寬度正中央 */
-        -2px -3px 0 -13px #333, 
-        /* 左鏡腳：鏡框左邊緣 */
-        -16px 14px 0 -13px #333,
-        /* 右鏡腳：鏡框右邊緣 */
-        16px 14px 0 -13px #333;
-}
-
-/* --- 以下為各款式的精確修正 --- */
-
-/* 1. 復古黑框 & 2. 紅框 & 3. 墨鏡 (圓框系列) */
-.character .head .glasses.style-black, 
-.character .head .glasses.style-red, 
-.character .head .glasses.style-sun {
+/* ★ 核心修正：利用投影畫出「左鏡腳」、「右鏡腳」與「鼻樑橋」 
+   這樣能確保三段線條永遠待在鏡框外，不進入鏡面。 */
+.character .head .glasses.style-black,
+.character .head .glasses.style-red,
+.character .head .glasses.style-sun,
+.character .head .glasses.style-square,
+.character .head .glasses.style-half {
     opacity: 1;
-    /* 利用漸層只在「中間」和「兩側」畫線，避開鏡片區域 */
-    background-image: 
-        linear-gradient(to right, #333 3px, transparent 3px, transparent 33px, #333 33px), /* 兩側鏡腳 */
-        linear-gradient(to right, transparent 15px, #333 15px, #333 21px, transparent 21px); /* 中間鼻梁 */
-    background-size: 100% 1.5px;
-    background-position: 0 16px; /* 橫線高度 */
-    background-repeat: no-repeat;
+    /* 這裡畫的是中間那一截鼻樑橋 */
+    background: linear-gradient(to bottom, transparent 15px, currentColor 15px, currentColor 16.5px, transparent 16.5px) no-repeat center / 6px 100%;
 }
-/* 紅框與墨鏡顏色微調 */
-.character .head .glasses.style-red { background-image: linear-gradient(to right, #c62828 3px, transparent 3px, transparent 33px, #c62828 33px), linear-gradient(to right, transparent 15px, #c62828 15px, #c62828 21px, transparent 21px); }
-.character .head .glasses.style-sun { background-image: linear-gradient(to right, #222 3px, transparent 3px, transparent 33px, #222 33px), linear-gradient(to right, transparent 15px, #222 15px, #222 21px, transparent 21px); }
 
-/* 鏡片本體 (保持乾淨) */
-.character .head .glasses.style-black::before, .character .head .glasses.style-black::after,
-.character .head .glasses.style-red::before, .character .head .glasses.style-red::after,
-.character .head .glasses.style-sun::before, .character .head .glasses.style-sun::after {
-    top: 11.5px; width: 14px; height: 14px; border-radius: 50%; border: 2px solid currentColor; background: rgba(255,255,255,0.2);
+/* 畫左右兩側的鏡腳線 */
+.character .head .glasses::before {
+    /* 左鏡腳：從鏡框邊邊延伸到頭部邊緣 */
+    box-shadow: -4px 15.5px 0 -14.5px currentColor; 
 }
+.character .head .glasses::after {
+    /* 右鏡腳：從鏡框邊邊延伸到頭部邊緣 */
+    box-shadow: 4px 15.5px 0 -14.5px currentColor; 
+}
+
+/* --- 各款式細節微調 --- */
+
+/* 1. 復古黑框 & 2. 紅框 */
 .character .head .glasses.style-black { color: #333; }
 .character .head .glasses.style-red { color: #c62828; }
-.character .head .glasses.style-sun { color: #222; }
-.character .head .glasses.style-sun::before, .character .head .glasses.style-sun::after { background: rgba(15,15,15,0.95); }
 
-.character .head .glasses::before { left: 1.5px; }
-.character .head .glasses::after { right: 1.5px; }
+.character .head .glasses.style-black::before, .character .head .glasses.style-black::after,
+.character .head .glasses.style-red::before, .character .head .glasses.style-red::after {
+    top: 11.5px; width: 13px; height: 13px;
+    border-radius: 50%; border: 2px solid currentColor; background: rgba(255,255,255,0.2);
+}
+.character .head .glasses.style-black::before, .character .head .glasses.style-red::before { left: 2.5px; }
+.character .head .glasses.style-black::after, .character .head .glasses.style-red::after { right: 2.5px; }
 
-/* 4. 文青方框 & 5. 經典半框 (方框系列) */
-.character .head .glasses.style-square, .character .head .glasses.style-half {
-    opacity: 1;
-    background-image: 
-        linear-gradient(to right, #222 2px, transparent 2px, transparent 34px, #222 34px),
-        linear-gradient(to right, transparent 15px, #222 15px, #222 21px, transparent 21px);
-    background-size: 100% 2px;
-    background-position: 0 16px;
-    background-repeat: no-repeat;
+/* 3. ★ 橢圓飛行員墨鏡 (帥氣升級版) ★ */
+.character .head .glasses.style-sun { color: #1a1a1a; }
+.character .head .glasses.style-sun::before, 
+.character .head .glasses.style-sun::after {
+    top: 11.5px; width: 14px; height: 16px; /* 變長變窄 */
+    border-radius: 40% 40% 50% 50% / 40% 40% 70% 70%; /* 下垂的橢圓感 */
+    border: 1.5px solid #444; 
+    background: linear-gradient(135deg, #111 0%, #333 100%); /* 深色質感 */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
-.character .head .glasses.style-square::before, .character .head .glasses.style-square::after {
-    top: 12px; width: 15px; height: 12px; border-radius: 3px; border: 2.5px solid #222; background: rgba(255,255,255,0.15);
+.character .head .glasses.style-sun::before { left: 1.5px; }
+.character .head .glasses.style-sun::after { right: 1.5px; }
+
+/* 4. 文青方框 */
+.character .head .glasses.style-square { color: #222; }
+.character .head .glasses.style-square::before, 
+.character .head .glasses.style-square::after {
+    top: 12px; width: 15px; height: 11px;
+    border-radius: 2px; border: 2.5px solid currentColor; background: rgba(255,255,255,0.15);
 }
-.character .head .glasses.style-half::before, .character .head .glasses.style-half::after {
-    top: 11px; width: 15px; height: 13px; border-radius: 4px 4px 10px 10px; border: 1.5px solid #444; border-top: 4px solid #111; background: rgba(255,255,255,0.15);
+.character .head .glasses.style-square::before { left: 1px; }
+.character .head .glasses.style-square::after { right: 1px; }
+
+/* 5. 經典半框 */
+.character .head .glasses.style-half { color: #111; }
+.character .head .glasses.style-half::before, 
+.character .head .glasses.style-half::after {
+    top: 11px; width: 15px; height: 13px;
+    border-radius: 4px 4px 10px 10px; border: 1px solid #555; border-top: 4px solid currentColor; background: rgba(255,255,255,0.15);
 }
-.character .head .glasses.style-square::before, .character .head .glasses.style-half::before { left: 2px; }
-.character .head .glasses.style-square::after, .character .head .glasses.style-half::after { right: 2px; }
+.character .head .glasses.style-half::before { left: 1px; }
+.character .head .glasses.style-half::after { right: 1px; }
 /* 虛擬搖桿 */
 .joystick-base { position: absolute; width: 140px; height: 140px; background: rgba(255,255,255,0.3); border: 3px solid rgba(255,255,255,0.6); border-radius: 50%; display: none; z-index: 50; transform: translate(-50%, -50%);}
 .joystick-knob { position: absolute; width: 60px; height: 60px; background: var(--gold); border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%);}
