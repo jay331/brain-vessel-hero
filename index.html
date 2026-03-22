@@ -444,33 +444,29 @@ let currentQIndex = 0; let currentAnswers = {}; let trendChartInstance = null;
 // ★ 全域事件監聽 (接收 iframe 訊息)
 // ===============================================
 window.addEventListener('message', (event) => {
-  if (event.data) {
-    
-    // --- 階段四核心：當收到地圖引擎準備好的通知，把玩家資料同步過去 ---
-    if (event.data.type === 'MAP_READY') {
-      const payload = {
-        name: playerState.name,
-        mode: playerState.mode,
-        storyProgression: playerState.storyProgression,
-        explorationTasksCompleted: playerState.explorationTasksCompleted,
-        clothes: playerState.clothes || '#fff',
-        foundItems: playerState.foundItems || null // ★ 新增這行：把背包進度傳給地圖
-      };
-      
-      if (event.source) {
-        event.source.postMessage({ type: 'SYNC_PLAYER_DATA', payload: payload }, '*');
-      }
-    }
-    // --------------------------------------------------------
+  if (!event.data) return;
 
-else if (event.data.type === 'ACTION_CONTINUE') {
-      // 初始化背包
+  if (event.data.type === 'MAP_READY') {
+    const payload = {
+      name: playerState.name,
+      mode: playerState.mode,
+      storyProgression: playerState.storyProgression,
+      explorationTasksCompleted: playerState.explorationTasksCompleted,
+      clothes: playerState.clothes || '#fff',
+      foundItems: playerState.foundItems || null
+    };
+    if (event.source) {
+      event.source.postMessage({ type: 'SYNC_PLAYER_DATA', payload: payload }, '*');
+    }
+  }
+  
+  else if (event.data.type === 'ACTION_CONTINUE') {
       if (!playerState.foundItems) { 
           playerState.foundItems = []; 
           saveGameData(); 
       }
       
-      // ★ 觸發任務時，立刻同步給地圖，讓它知道現在的進度 (更新對話與寶物顯示)
+      // 觸發任務時，立刻同步給地圖更新對話與寶物
       if (event.source) {
           event.source.postMessage({ type: 'SYNC_PLAYER_DATA', payload: { foundItems: playerState.foundItems } }, '*');
       }
@@ -488,11 +484,10 @@ else if (event.data.type === 'ACTION_CONTINUE') {
           else if (foundCount === 3) {
               customAlert("主治醫師：\n「太感謝你了！這三樣可是神經科的法寶。這 300 健康幣是你應得的獎勵！」", () => {
                   playerState.coins += 300; 
-                  playerState.foundItems.push('DONE'); // 標記為徹底結案
+                  playerState.foundItems.push('DONE'); 
                   playerState.explorationTasksCompleted++;
                   saveGameData(); updateHUD();
                   
-                  // ★ 交任務後，立刻發送訊號清空頭頂的寶物
                   if (event.source) {
                       event.source.postMessage({ type: 'SYNC_PLAYER_DATA', payload: { foundItems: playerState.foundItems } }, '*');
                   }
@@ -500,8 +495,7 @@ else if (event.data.type === 'ACTION_CONTINUE') {
           }
       } 
       // 尋寶任務徹底解完後，才會開始派發後續的其他一般任務
-} else {
-          // 一般任務處理 (確保記錄陣列存在)
+      else {
           if (!playerState.completedExplores) playerState.completedExplores = [];
           
           const allTasks = [
@@ -510,11 +504,9 @@ else if (event.data.type === 'ACTION_CONTINUE') {
               "請到大廳協助引導新病患，熟悉 FAST 口訣！"
           ];
           
-          // 找出還沒做過的任務
           const uncompletedTasks = allTasks.filter(t => !playerState.completedExplores.includes(t));
           
           if (uncompletedTasks.length > 0) {
-              // ★ 有新任務：隨機抽一個未完成的派發
               const t = uncompletedTasks[Math.floor(Math.random() * uncompletedTasks.length)];
               customAlert(`主治醫師：\n「這裡有件事需要你幫忙：\n\n${t}」\n\n(一般探索，點擊模擬完成！)`, () => {
                   playerState.explorationTasksCompleted++;
@@ -524,148 +516,91 @@ else if (event.data.type === 'ACTION_CONTINUE') {
                   customAlert("完成新探索任務！獲得 300 健康幣！", null, "🏆 任務完成");
               }, "👨‍⚕️ 醫師的委託");
           } else {
-              // ★ 全部任務都解完了：改變對話，變成單純的複習！
               const t = allTasks[Math.floor(Math.random() * allTasks.length)];
               customAlert(`主治醫師：\n「目前醫院一切上了軌道，沒有新的探索任務囉！\n\n你可以隨意逛逛，或是幫忙複習一下這個流程：\n${t}」\n\n(點擊模擬複習，無額外健康幣)`, () => {
-                  // 純複習，不給錢
                   customAlert("這項任務你已經很熟練了！(重複任務無獎勵)", null, "🏆 複習完成");
               }, "👨‍⚕️ 醫師的委託 (複習)");
           }
       }
-    
-    // ★ 接收地圖傳來的撿取寶物訊號
-    else if (event.data.type && event.data.type.startsWith('ACTION_FIND_')) {
+  } 
+  
+  // ★ 接收地圖傳來的撿取寶物訊號
+  else if (event.data.type && event.data.type.startsWith('ACTION_FIND_')) {
       if (!playerState.foundItems) playerState.foundItems = [];
       let itemName = "";
       if (event.data.type === 'ACTION_FIND_PENLIGHT') itemName = "筆燈";
       if (event.data.type === 'ACTION_FIND_HAMMER') itemName = "扣診錘";
       if (event.data.type === 'ACTION_FIND_FORK') itemName = "音叉";
 
-      // 已經交任務領完獎了
       if (playerState.foundItems.includes('DONE')) {
           customAlert(`這把【${itemName}】已經交給醫師了喔！不用再撿了。`, null, "🎒 提示");
       } 
-      // 成功撿到新寶物
       else if (!playerState.foundItems.includes(itemName)) {
           playerState.foundItems.push(itemName);
           saveGameData();
           
-          // ★ 關鍵！撿起的瞬間，立刻同步給地圖，讓物品馬上飛到頭頂上！
           if (event.source) {
               event.source.postMessage({ type: 'SYNC_PLAYER_DATA', payload: { foundItems: playerState.foundItems } }, '*');
           }
-          
           customAlert(`你找到了【${itemName}】！\n\n目前進度：${playerState.foundItems.length}/3\n請繼續尋找，或回大廳交給主治醫師。`, null, "🎒 尋獲物品");
       } 
-      // 已經在背包裡了
       else {
           customAlert(`這個【${itemName}】你已經拿過了喔！快去其他樓層找找其他的吧！`, null, "🎒 提示");
       }
-    }
-    
-    // ★ 接收撿取寶物訊號
-    else if (event.data.type && event.data.type.startsWith('ACTION_FIND_')) {
-      if (!playerState.foundItems) playerState.foundItems = [];
-      let itemName = "";
-      if (event.data.type === 'ACTION_FIND_PENLIGHT') itemName = "筆燈";
-      if (event.data.type === 'ACTION_FIND_HAMMER') itemName = "扣診錘";
-      if (event.data.type === 'ACTION_FIND_FORK') itemName = "音叉";
-
-      if (playerState.foundItems.includes('DONE')) {
-          customAlert(`這把【${itemName}】已經交給醫師了喔！`, null, "🎒 提示");
-      } else if (!playerState.foundItems.includes(itemName)) {
-          playerState.foundItems.push(itemName);
-          saveGameData();
-          // ★ 關鍵！撿起的瞬間，讓物品馬上飛到頭頂上！
-          if (event.source) event.source.postMessage({ type: 'SYNC_PLAYER_DATA', payload: { foundItems: playerState.foundItems } }, '*');
-          customAlert(`你找到了【${itemName}】！\n\n目前進度：${playerState.foundItems.length}/3\n請繼續尋找，或回大廳交給主治醫師。`, null, "🎒 尋獲物品");
-      } else {
-          customAlert(`這個【${itemName}】你已經拿過了喔！`, null, "🎒 提示");
-      }
-    }
-    
-    // ★ 新增：接收地圖傳來的撿取寶物訊號
-    else if (event.data.type && event.data.type.startsWith('ACTION_FIND_')) {
-      if (!playerState.foundItems) playerState.foundItems = [];
-      let itemName = "";
-      if (event.data.type === 'ACTION_FIND_PENLIGHT') itemName = "筆燈";
-      if (event.data.type === 'ACTION_FIND_HAMMER') itemName = "扣診錘";
-      if (event.data.type === 'ACTION_FIND_FORK') itemName = "音叉";
-
-      // 已經交任務領完獎了
-      if (playerState.foundItems.includes('DONE')) {
-          customAlert(`這把【${itemName}】已經交給醫師了喔，不用再拿了！`, null, "🎒 提示");
-      } 
-      // 成功撿到新寶物
-      else if (!playerState.foundItems.includes(itemName)) {
-          playerState.foundItems.push(itemName);
-          saveGameData();
-          customAlert(`你找到了【${itemName}】！\n\n目前進度：${playerState.foundItems.length}/3\n請繼續尋找，或回大廳交給主治醫師。`, null, "🎒 尋獲物品");
-      } 
-      // 已經在背包裡了
-      else {
-          customAlert(`這個【${itemName}】你已經拿過了喔！快去其他樓層找找其他的吧！`, null, "🎒 提示");
-      }
-    }
-    else if (event.data.type === 'TOGGLE_FULLSCREEN') {
+  }
+  
+  else if (event.data.type === 'TOGGLE_FULLSCREEN') {
       isGlobalFs = event.data.isFullscreen;
       const mapWrap = id('homeMapContainer');
       if (isGlobalFs) {
-        if(mapWrap) mapWrap.classList.add('fullscreen-map');
-        id('mainHeader').style.display = 'none'; 
-        id('mainNav').style.display = 'none';    
+          if(mapWrap) mapWrap.classList.add('fullscreen-map');
+          id('mainHeader').style.display = 'none'; 
+          id('mainNav').style.display = 'none';    
       } else {
-        exitFullscreenUI();
+          exitFullscreenUI();
       }
-    }
-    else if (event.data.type === 'GAME_CLEAR' || event.data.type === 'GAME_OVER') {
+  }
+  
+  else if (event.data.type === 'GAME_CLEAR' || event.data.type === 'GAME_OVER') {
       closeAllIframes();
       exitFullscreenUI(); 
       
       if (event.data.type === 'GAME_CLEAR') {
-        handleGameClear(event.data.score || 1000);
+          handleGameClear(event.data.score || 1000);
       } else {
-        updateModeUI();
-        customAlert('扣除 1 次挑戰機會，請再接再厲！', () => {
-          currentGameInfo = null; 
-          if(playerState.mode === 'advanced') openRoleDetail(activeRoleId);
-        }, "❌ 任務失敗");
+          updateModeUI();
+          customAlert('扣除 1 次挑戰機會，請再接再厲！', () => {
+              currentGameInfo = null; 
+              if(playerState.mode === 'advanced') openRoleDetail(activeRoleId);
+          }, "❌ 任務失敗");
       }
-    }
-    else if (event.data.type === 'CLOSE_IFRAME') {
+  }
+  
+  else if (event.data.type === 'CLOSE_IFRAME') {
       closeAllIframes();
       exitFullscreenUI(); 
       updateModeUI(); 
-    }
-else if (event.data.type === 'PUZZLE_CLEAR') {
+  }
+  
+  else if (event.data.type === 'PUZZLE_CLEAR') {
       const pid = event.data.puzzleId;
       if (!playerState.unlockedPuzzles) playerState.unlockedPuzzles = [];
       if (!playerState.pendingPuzzles) playerState.pendingPuzzles = [];
       
-      // 如果過關的 ID 是我們目前挑戰的 ID，且它還沒被收藏
       if (window.currentChallengePuzzleId === pid && !playerState.unlockedPuzzles.includes(pid)) {
-        
-        // 1. 從待完成背包 (pendingPuzzles) 中移除它
-        playerState.pendingPuzzles = playerState.pendingPuzzles.filter(id => id !== pid);
-        // 2. 將它正式加入收藏圖鑑
-        playerState.unlockedPuzzles.push(pid); 
-        // 3. 發放 200 幣獎勵
-        playerState.coins += 200; 
-        
-        saveGameData(); updateHUD(); renderCaseDex(); 
-        setTimeout(() => { customAlert(`拼圖 #${pid} 挑戰成功！已為您正式加入收藏，並獲得 200 健康幣獎勵！`, null, "🎉 拼圖收藏成功"); }, 500);
+          playerState.pendingPuzzles = playerState.pendingPuzzles.filter(id => id !== pid);
+          playerState.unlockedPuzzles.push(pid); 
+          playerState.coins += 200; 
+          saveGameData(); updateHUD(); renderCaseDex(); 
+          setTimeout(() => { customAlert(`拼圖 #${pid} 挑戰成功！已為您正式加入收藏，並獲得 200 健康幣獎勵！`, null, "🎉 拼圖收藏成功"); }, 500);
       }
-    }
-    
-    // 👇👇👇 將商店和更衣櫃放在這裡 👇👇👇
-    else if (event.data.type === 'ACTION_STORE') {
+  }
+  
+  else if (event.data.type === 'ACTION_STORE') {
       openStoreUI();
-    }
-    else if (event.data.type === 'ACTION_WARDROBE') {
+  }
+  else if (event.data.type === 'ACTION_WARDROBE') {
       openWardrobeUI();
-    }
-    // 👆👆👆 ---------------------- 👆👆👆
-
   }
 });
 
