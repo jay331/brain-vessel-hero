@@ -1062,19 +1062,16 @@ function closeCustomMsg() { id('customMsgModal').style.display = 'none'; }
 
 function handleGameClear(score) {
   const info = currentGameInfo; if(!info) return;
-  
-  // ★ (4) 判斷是否為首次通關 (不發放複習獎勵)
   const targetMap = playerState.mode === 'beginner' ? playerState.taskScoresBeg : playerState.taskScoresAdv;
   const isFirstClear = !targetMap.has(info.id);
-  
-  if (isFirstClear) {
-      playerState.coins += (playerState.mode === 'beginner' ? 100 : 150);
-  }
+  if (isFirstClear) playerState.coins += (playerState.mode === 'beginner' ? 100 : 150);
   targetMap.set(info.id, score); 
-  
   if (info.role.currentTask === info.taskIndex + 1) info.role.currentTask++;
   
   const tabMode = playerState.mode === 'beginner' ? 'beg' : 'adv';
+  // ★ 產生專屬卡片編號 (例如：#BEG-ward-02)
+  const cardId = `#${tabMode.toUpperCase()}-${info.role.id}-${info.taskIndex + 1}`;
+  
   saveGameData(); updateHUD(); 
 
   if (playerState.isReplaying) {
@@ -1094,7 +1091,7 @@ function handleGameClear(score) {
       playerState.storyProgression++; saveGameData();
       if (playerState.storyProgression < TOTAL_BEG_TASKS) {
           const nextTask = getFlatTask(playerState.storyProgression);
-          customConfirm(`得分：${score} 分\n${isFirstClear ? '獲得 100 健康幣！\n' : ''}✨ 成功解鎖健康卡\n\n是否立即進入下一關：${nextTask.role.subTasks[nextTask.taskIndex].substring(3)}？`, 
+          customConfirm(`得分：${score} 分\n${isFirstClear ? '獲得 100 健康幣！\n' : ''}✨ 取得新的衛教卡，編號：${cardId}\n\n是否立即進入下一關：${nextTask.role.subTasks[nextTask.taskIndex].substring(3)}？`, 
               () => { playTaskFlat(playerState.storyProgression); }, 
               () => { updateModeUI(); openCardModal(tabMode, info.role.id, info.taskIndex); }, 
               "🎉 任務成功", "進入下一關", "先休息"
@@ -1103,7 +1100,7 @@ function handleGameClear(score) {
           customAlert("恭喜你完成所有初階訓練！現在為您開啟「醫院自由探索模式」！", () => { updateModeUI(); }, "🎉 訓練結業");
       }
   } else {
-      customAlert(`得分：${score} 分\n${isFirstClear ? (playerState.mode === 'beginner' ? '獲得 100 健康幣！\n' : '獲得 150 健康幣！\n') : '(複習任務無硬幣獎勵)\n'}✨ 成功解鎖健康卡`, () => {
+      customAlert(`得分：${score} 分\n${isFirstClear ? (playerState.mode === 'beginner' ? '獲得 100 健康幣！\n' : '獲得 150 健康幣！\n') : '(複習任務無硬幣獎勵)\n'}✨ 取得新的衛教卡，編號：${cardId}`, () => {
         openCardModal(tabMode, info.role.id, info.taskIndex); updateModeUI();
       }, "🎉 任務成功！", "觀看健康卡");
   }
@@ -1371,13 +1368,16 @@ function tryLaunchFreeCell() {
 function openCardModal(tab, roleId, taskIdx) {
   let role = (tab === 'beg' ? ROLES_DATA_BEG : ROLES_DATA_ADV).find(r => r.id === roleId); if (!role) return;
   id('modalIcon').textContent = role.icon; id('modalTitle').textContent = role.subTasks[taskIdx].substring(3);
-  id('modalCategory').textContent = `${role.name} - ${role.subtitle}`;
+  
+  // ★ 在分類標籤後面，加入專屬的卡片編號
+  const cardId = `#${tab.toUpperCase()}-${roleId}-${taskIdx + 1}`;
+  id('modalCategory').textContent = `${role.name} - ${role.subtitle} | 衛教卡編號：${cardId}`;
+  
   id('modalDesc').textContent = `這裡是關於「${role.subTasks[taskIdx].substring(3)}」的詳細重點整理。透過這張卡片，您可以隨時複習關鍵的醫療處置與照護知識！`;
   
   const modal = id('cardDetailModal');
   const content = modal.querySelector('.modal-content');
   
-  // ★ 1. 設定起始動畫狀態 (縮小、翻轉、透明)
   content.style.transform = 'scale(0.2) rotateY(180deg)';
   content.style.opacity = '0';
   content.style.transition = 'all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
@@ -1385,7 +1385,6 @@ function openCardModal(tab, roleId, taskIdx) {
   
   modal.style.display = 'flex';
   
-  // ★ 2. 強制瀏覽器重繪，接著賦予終點狀態 (放大、回正、發光彈跳！)
   requestAnimationFrame(() => {
       requestAnimationFrame(() => {
           content.style.transform = 'scale(1) rotateY(0deg)';
