@@ -1389,9 +1389,27 @@ function openCardModal(tab, roleId, taskIdx) {
   id('modalIcon').textContent = role.icon; id('modalTitle').textContent = role.subTasks[taskIdx].substring(3);
   id('modalCategory').textContent = `${role.name} - ${role.subtitle}`;
   id('modalDesc').textContent = `這裡是關於「${role.subTasks[taskIdx].substring(3)}」的詳細重點整理。透過這張卡片，您可以隨時複習關鍵的醫療處置與照護知識！`;
-  id('cardDetailModal').style.display = 'flex';
+  
+  const modal = id('cardDetailModal');
+  const content = modal.querySelector('.modal-content');
+  
+  // ★ 1. 設定起始動畫狀態 (縮小、翻轉、透明)
+  content.style.transform = 'scale(0.2) rotateY(180deg)';
+  content.style.opacity = '0';
+  content.style.transition = 'all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+  content.style.boxShadow = 'none';
+  
+  modal.style.display = 'flex';
+  
+  // ★ 2. 強制瀏覽器重繪，接著賦予終點狀態 (放大、回正、發光彈跳！)
+  requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+          content.style.transform = 'scale(1) rotateY(0deg)';
+          content.style.opacity = '1';
+          content.style.boxShadow = '0 0 60px var(--theme-primary), inset 0 0 20px rgba(255,255,255,0.2)';
+      });
+  });
 }
-
 function renderTotalScoreLeaderboard(tab, btnEl) {
   Array.from(id('lbTabs').children).forEach(t => t.classList.remove('active')); btnEl.classList.add('active');
   let html = ''; let mockNames = ["陳醫師", "王護理長", "林復健師", "張志明", "李小華", "趙大寶", "孫阿姨", "周先生", "吳小姐", "鄭伯伯", "劉醫師", "蔡技術員", "楊先生", "許小姐", "黃志強", "曾美麗", "蕭醫師", "郭大俠", "羅護理師", "梁伯伯"];
