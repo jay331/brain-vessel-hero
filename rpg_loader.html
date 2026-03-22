@@ -26,6 +26,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 .header { position: absolute; top: max(15px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); background: rgba(20, 30, 40, 0.85); padding: 8px 16px; border-radius: 30px; color: #fff; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 15px; z-index: 2000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.1); white-space: nowrap; backdrop-filter: blur(4px); }
 .mission-text { color: #ffca28; flex: 1; text-align: center; }
 .btn-cancel { padding: 4px 10px; border-radius: 6px; color: #fff; border: none; font-weight: bold; font-size: 11px; cursor: pointer; background: #78909c; }
+
+/* ★ 強制隱藏地圖背景預設的衣櫃，避免跟新的可互動衣櫃重疊 */
+.room-rest::before { display: none !important; }
 .scene{position:absolute;inset:0;top:0;overflow:hidden;} 
 .camera { position: absolute; left: 0; top: 0; width: 100%; height: 100%; transition: transform 0.05s ease-out; }
 
@@ -315,13 +318,6 @@ if (task.npcs) {
   });
 }
 
-// ==========================================
-// ★ 接收來自父層主系統的資料同步
-// ==========================================
-// ==========================================
-// ★ 接收來自父層主系統的資料同步
-// ==========================================
-// ==========================================
 // ★ 接收來自父層主系統的資料同步，以及轉發小遊戲過關通知
 // ==========================================
 window.addEventListener('message', (event) => {
