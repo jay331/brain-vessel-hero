@@ -36,31 +36,53 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 .game-world { position: absolute; left: 0; top: 0; width: 40000px; height: 3500px; }
 
 /* =========================================
-   ★ 新增：玩家眼鏡樣式 (對應 glasses.style)
+   ★ 新增：玩家圓框眼鏡樣式 (精準對齊雙眼)
    ========================================= */
 .character .head .glasses {
     position: absolute;
-    width: 14px; height: 14px; /* 比頭 (18x18) 稍微小一點 */
-    top: 2px; left: 2px; /* 調整在臉上的位置 */
+    inset: 0; /* 填滿整個頭部，方便定位雙眼 */
     opacity: 0; /* 預設隱藏 */
-    z-index: 5;
+    z-index: 5; 
     pointer-events: none;
+    /* 眼鏡橋 (中間連接左右鏡片處) */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 6px 100%;
 }
 
-/* 黑框眼鏡 */
+/* 左右鏡片 */
+.character .head .glasses::before, 
+.character .head .glasses::after {
+    content: ''; 
+    position: absolute;
+    top: 10.5px;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    background: rgba(255,255,255,0.3); /* 鏡片微微的反光感，可透出底下的眼睛眨眼 */
+    box-sizing: border-box;
+}
+.character .head .glasses::before { left: 1.5px; }
+.character .head .glasses::after { right: 1.5px; }
+
+/* 黑框圓形眼鏡 */
 .character .head .glasses.style-black {
     opacity: 1;
-    border: 1.5px solid #000;
-    border-radius: 2px;
-    background: rgba(255,255,255,0.2); /* 鏡片淡淡的透光感 */
+    background-image: linear-gradient(to bottom, transparent 17px, #333 17px, #333 19.5px, transparent 19.5px);
+}
+.character .head .glasses.style-black::before, 
+.character .head .glasses.style-black::after {
+    border-color: #333;
 }
 
-/* 紅框眼鏡 */
+/* 紅框圓形眼鏡 */
 .character .head .glasses.style-red {
     opacity: 1;
-    border: 1.5px solid #d32f2f;
-    border-radius: 2px;
-    background: rgba(255,255,255,0.2);
+    background-image: linear-gradient(to bottom, transparent 17px, #c62828 17px, #c62828 19.5px, transparent 19.5px);
+}
+.character .head .glasses.style-red::before, 
+.character .head .glasses.style-red::after {
+    border-color: #c62828;
 }
 
 /* 虛擬搖桿 */
