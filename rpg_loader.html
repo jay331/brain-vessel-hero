@@ -35,6 +35,33 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 /* ★ 擴大地圖世界邊界，容納所有的樓層 */
 .game-world { position: absolute; left: 0; top: 0; width: 40000px; height: 3500px; }
 
+/* =========================================
+   ★ 新增：玩家眼鏡樣式 (對應 glasses.style)
+   ========================================= */
+.character .head .glasses {
+    position: absolute;
+    width: 14px; height: 14px; /* 比頭 (18x18) 稍微小一點 */
+    top: 2px; left: 2px; /* 調整在臉上的位置 */
+    opacity: 0; /* 預設隱藏 */
+    z-index: 5;
+    pointer-events: none;
+}
+
+/* 黑框眼鏡 */
+.character .head .glasses.style-black {
+    opacity: 1;
+    border: 1.5px solid #000;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.2); /* 鏡片淡淡的透光感 */
+}
+
+/* 紅框眼鏡 */
+.character .head .glasses.style-red {
+    opacity: 1;
+    border: 1.5px solid #d32f2f;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.2);
+}
 
 /* 虛擬搖桿 */
 .joystick-base { position: absolute; width: 140px; height: 140px; background: rgba(255,255,255,0.3); border: 3px solid rgba(255,255,255,0.6); border-radius: 50%; display: none; z-index: 50; transform: translate(-50%, -50%);}
@@ -147,10 +174,12 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
         <div id="npcContainer"></div>
 
 <div class="character player" id="player" style="left:1500px;top:-600px;opacity:0;">
-          <div id="player-items" style="position:absolute; top:-55px; left:50%; transform:translateX(-50%); font-size:22px; display:flex; gap:2px; white-space:nowrap; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8)); z-index:10;"></div>
-          
-          <div class="name" id="playerName">玩家</div><div class="head"></div><div class="body"></div>
-        </div>
+  <div id="player-items" style="position:absolute; top:-55px; left:50%; transform:translateX(-50%); font-size:22px; display:flex; gap:2px; white-space:nowrap; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8)); z-index:10;"></div>
+  <div class="name" id="playerName">玩家</div>
+  <div class="head">
+    <div class="glasses"></div> </div>
+  <div class="body"></div>
+</div>
       </div>
     </div>
     
@@ -322,42 +351,38 @@ if (task.npcs) {
 window.addEventListener('message', (event) => {
   if (!event.data) return;
 
-  if (event.data.type === 'SYNC_PLAYER_DATA') {
+if (event.data.type === 'SYNC_PLAYER_DATA') {
     const pData = event.data.payload;
     
     // 1. 處理玩家名稱與特定任務對話替換
-    if (pData.name) {
-      let displayName = pData.name;
-      if (task.playAs) {
-        displayName = task.playAs;
-      } else if (taskId === 'beg_id_0' || taskId === 'beg_id_1') {
-        displayName = task.roleName;
-      }
-      document.getElementById('playerName').innerText = displayName;
-      document.getElementById('ui-role').innerText = displayName;
-      
-      // 保留第一關 (beg_id_0) 病患名稱與對話替換
-      if (taskId === 'beg_id_0') {
-        const patientNameEl = document.getElementById('npc-name-patient');
-        if (patientNameEl) patientNameEl.innerText = pData.name + " (你)"; 
-        
-        const patientNpc = task.npcs.find(n => n.id === 'patient');
-        if (patientNpc) {
-          patientNpc.name = pData.name;
-          patientNpc.dialogs.forEach(d => {
-            if (d.name === "我 (病患)") d.name = pData.name;
-          });
-        }
-      }
-    }
+    // ... (這一段原本的邏輯不用動，請保留) ...
 
-// 2. 接收衣服顏色並立即套用 (如果沒有傳送，預設為白色 #fff)
+    // 2. 接收衣服顏色並立即套用
     if (pData.clothes !== undefined) {
       const playerBody = document.querySelector('.player .body');
       if (playerBody) {
         playerBody.style.background = pData.clothes || '#fff';
       }
     }
+    
+    // ★ 3. 新增：接收眼鏡樣式並立即套用
+    if (pData.glasses !== undefined) {
+        const playerGlasses = document.querySelector('.player .head .glasses');
+        if (playerGlasses) {
+            // 先移除所有舊的樣式 (黑框、紅框等)
+            playerGlasses.classList.remove('style-black', 'style-red');
+            // 如果樣式不是 'none'，則加入對應的樣式類 (例如 'style-black')
+            if (pData.glasses !== 'none' && pData.glasses !== '') {
+                playerGlasses.classList.add(`style-${pData.glasses}`);
+            }
+        }
+    }
+    
+    // ★ 4. (將原本的尋寶任務進度判定序號調整為 4)
+    if (pData.foundItems !== undefined) {
+        // ... (這一段原本的邏輯不用動，請保留) ...
+    }
+  }
     
     // ★ 3. 新增：接收尋寶任務進度，控制物品顯示
     if (pData.foundItems !== undefined) {
