@@ -1102,10 +1102,10 @@ function handleGameClear(score) {
   
   saveGameData(); updateHUD(); 
 
-  if (playerState.isReplaying) {
+if (playerState.isReplaying) {
       playerState.replayProgression++;
       if (playerState.replayProgression < TOTAL_BEG_TASKS) {
-          customConfirm(`回顧任務順利完成！\n要接著複習下一關嗎？`, 
+          customConfirm(`得分：${score} 分\n\n回顧任務順利完成！要接著複習下一關嗎？`, 
               () => { playTaskFlat(playerState.replayProgression); }, 
               () => { updateModeUI(); playerState.isReplaying = false; }, 
               "✅ 任務回顧", "繼續下一關", "先休息"
@@ -1119,20 +1119,20 @@ function handleGameClear(score) {
       playerState.storyProgression++; saveGameData();
       if (playerState.storyProgression < TOTAL_BEG_TASKS) {
           const nextTask = getFlatTask(playerState.storyProgression);
-          // ★ 拔掉分數、強制換行、更改卡片名稱，並將編號移到按鈕上
-          customConfirm(`${isFirstClear ? '獲得 100 健康幣！\n' : ''}✨ 取得新的健康卡\n\n是否立即進入下一關：${nextTask.role.subTasks[nextTask.taskIndex].substring(3)}？`, 
+          // ★ 修改：加入 \n\n 強制換行，並把按鈕文字改為「觀看健康卡」
+          customConfirm(`得分：${score} 分\n\n${isFirstClear ? '獲得 100 健康幣！\n\n' : ''}✨ 取得新的健康卡\n\n是否立即進入下一關：${nextTask.role.subTasks[nextTask.taskIndex].substring(3)}？`, 
               () => { playTaskFlat(playerState.storyProgression); }, 
               () => { updateModeUI(); openCardModal(tabMode, info.role.id, info.taskIndex, absoluteNumber); }, 
-              "🎉 任務成功", "進入下一關", `觀看卡片 ${cardId}`
+              "🎉 任務成功", "進入下一關", `觀看健康卡 ${cardId}`
           );
       } else {
           customAlert("恭喜你完成所有初階訓練！現在為您開啟「醫院自由探索模式」！", () => { updateModeUI(); }, "🎉 訓練結業");
       }
   } else {
-      // ★ 拔掉分數、強制換行、更改卡片名稱，並將編號移到按鈕上
-      customAlert(`${isFirstClear ? (playerState.mode === 'beginner' ? '獲得 100 健康幣！\n' : '獲得 150 健康幣！\n') : '(複習任務無硬幣獎勵)\n'}✨ 取得新的健康卡`, () => {
+      // ★ 修改：加入 \n\n 強制換行，並把按鈕文字改為「觀看健康卡」
+      customAlert(`得分：${score} 分\n\n${isFirstClear ? (playerState.mode === 'beginner' ? '獲得 100 健康幣！\n\n' : '獲得 150 健康幣！\n\n') : '(複習任務無硬幣獎勵)\n\n'}✨ 取得新的健康卡`, () => {
         openCardModal(tabMode, info.role.id, info.taskIndex, absoluteNumber); updateModeUI();
-      }, "🎉 任務成功！", `觀看卡片 ${cardId}`);
+      }, "🎉 任務成功！", `觀看健康卡 ${cardId}`);
   }
   currentGameInfo = null;
 }
@@ -1140,12 +1140,16 @@ function handleGameClear(score) {
 // ★ 加入第四個參數 absNum 來接收純數字編號
 function openCardModal(tab, roleId, taskIdx, absNum) {
   let role = (tab === 'beg' ? ROLES_DATA_BEG : ROLES_DATA_ADV).find(r => r.id === roleId); if (!role) return;
-  id('modalIcon').textContent = role.icon; id('modalTitle').textContent = role.subTasks[taskIdx].substring(3);
+  id('modalIcon').textContent = role.icon; 
   
-  // ★ 使用純數字編號
-// ★ 將原本的「衛教卡編號」改為「健康卡編號」
-  id('modalCategory').textContent = `${role.name} - ${role.subtitle} | 健康卡編號：#${absNum}`;  
-  id('modalDesc').textContent = `這裡是關於「${role.subTasks[taskIdx].substring(3)}」的詳細重點整理。透過這張卡片，您可以隨時複習關鍵的醫療處置與照護知識！`;
+  // ★ 修改：把編號加在標題文字的前面
+  id('modalTitle').textContent = `#${absNum} ${role.subTasks[taskIdx].substring(3)}`;
+  id('modalCategory').textContent = `${role.name} - ${role.subtitle}`;
+  
+  // ★ 修改：從 db_main.js 中讀取 cardDesc (健康卡內容)，如果沒寫就顯示預設文字
+  // 同時將 textContent 改為 innerHTML，這樣你在內容裡打 <br> 就能夠換行了
+  const customDesc = role.cardDesc && role.cardDesc[taskIdx] ? role.cardDesc[taskIdx] : `這裡是關於「${role.subTasks[taskIdx].substring(3)}」的詳細重點整理。透過這張卡片，您可以隨時複習關鍵的醫療處置與照護知識！`;
+  id('modalDesc').innerHTML = customDesc;
   
   const modal = id('cardDetailModal');
   const content = modal.querySelector('.modal-content');
@@ -1428,14 +1432,14 @@ function renderDexCards(tab, btnEl) {
 } else if (tab === 'hidden') {
     // 隱藏卡：51, 52
     grid.innerHTML += `
-      <div class="card-item hidden-card ${isBegMaster?'':'locked'}" onclick="if(${isBegMaster}) { id('modalIcon').textContent='🏥'; id('modalTitle').textContent='亞東中風中心'; id('modalCategory').textContent='初階隱藏卡 | 健康卡編號：#51'; id('modalDesc').textContent='整合急診、神經內外科、復健科跨團隊，為病患提供全方位黃金救援與術後照護體系！'; id('cardDetailModal').style.display='flex'; } else customAlert('請先完成初階版所有 25 個任務！', null, '🔒 尚未解鎖')">
+      <div class="card-item hidden-card ${isBegMaster?'':'locked'}" onclick="if(${isBegMaster}) { id('modalIcon').textContent='🏥'; id('modalTitle').textContent='#51 亞東中風中心'; id('modalCategory').textContent='初階隱藏卡'; id('modalDesc').innerHTML='整合急診、神經內外科、復健科跨團隊，為病患提供全方位黃金救援與術後照護體系！'; id('cardDetailModal').style.display='flex'; } else customAlert('請先完成初階版所有 25 個任務！', null, '🔒 尚未解鎖')">
         <div style="font-size:10px; color:#aaa; width:100%; text-align:left; padding-left:4px;">#51</div>
         <div class="card-icon">🏥</div>
         <div class="card-title" style="color:#4fc3f7">亞東中風中心</div>
       </div>`;
       
     grid.innerHTML += `
-      <div class="card-item hidden-card ${isAdvMaster?'':'locked'}" onclick="if(${isAdvMaster}) { id('modalIcon').textContent='🏛️'; id('modalTitle').textContent='亞東紀念醫院'; id('modalCategory').textContent='進階隱藏卡 | 健康卡編號：#52'; id('modalDesc').textContent='秉持持續提升醫療品質，善盡社會醫療責任之宗旨，是您最堅強的醫療後盾！'; id('cardDetailModal').style.display='flex'; } else customAlert('請先完成進階版所有 25 個任務！', null, '🔒 尚未解鎖')">
+      <div class="card-item hidden-card ${isAdvMaster?'':'locked'}" onclick="if(${isAdvMaster}) { id('modalIcon').textContent='🏛️'; id('modalTitle').textContent='#52 亞東紀念醫院'; id('modalCategory').textContent='進階隱藏卡'; id('modalDesc').innerHTML='秉持持續提升醫療品質，善盡社會醫療責任之宗旨，是您最堅強的醫療後盾！'; id('cardDetailModal').style.display='flex'; } else customAlert('請先完成進階版所有 25 個任務！', null, '🔒 尚未解鎖')">
         <div style="font-size:10px; color:#aaa; width:100%; text-align:left; padding-left:4px;">#52</div>
         <div class="card-icon">🏛️</div>
         <div class="card-title" style="color:var(--theme-primary)">亞東紀念醫院</div>
