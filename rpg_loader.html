@@ -607,9 +607,9 @@ function showDialog() {
       let remain = 3 - dailyCount;
       
       if (remain > 0) {
-          currentNpc.dialogs[0].text = `【今日進度】\n\n目前剩餘可接取任務：${remain} 個\n\n💡 請前往大廳找主治醫師接取！`;
+          currentNpc.dialogs[0].text = `今日可執行：${remain} 個任務 \n\n💡 請前往大廳找主治醫師接取！`;
       } else {
-          currentNpc.dialogs[0].text = `【今日進度】\n\n今日任務已達上限 (0 個)。\n\n您可以自由探索，或前往 6F教學室、14F衛教室學習！`;
+          currentNpc.dialogs[0].text = `今日無法任務\n\n您可以自由探索，或前往 6F教學室、14F衛教室學習！`;
       }
       // 這裡設定 NONE 讓系統知道對話結束後不需要發送額外的 action
       currentNpc.action = 'NONE';
