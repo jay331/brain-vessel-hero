@@ -421,7 +421,7 @@
   
   image.src = IMG_SRC;
 
-  function init(){
+function init(){
     updateSizes();
     generateEdgeMap();
     buildPieces(); 
@@ -435,8 +435,7 @@
     introDesc.textContent = currentPuzzleText;
     modalDesc.textContent = currentPuzzleText;
 
-    window.addEventListener("resize", () => {
-
+    // ★ 修正：這裡只能有一組 resize 監聽器
     window.addEventListener("resize", () => {
       const oldBoard = BOARD_SIZE;
       updateSizes();
