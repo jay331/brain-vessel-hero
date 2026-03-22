@@ -1289,12 +1289,40 @@ function renderCaseDex() {
   pendingArr.forEach(id => displayItems.push({id: id, status: 'pending'}));
   displayItems.sort((a, b) => a.id - b.id);
   
+  // ★ 這裡是你要求的 20 個拼圖說明文字，未來你可以隨時在這裡自己修改！
+  const puzzleTitles = [
+    "急診啟動中風綠色通道", "神經內科醫師評估病情", "腦部電腦斷層(CT)檢查", "靜脈血栓溶解劑施打", "動脈取栓手術(IA)進行",
+    "神經加護病房密切觀察", "護理師量測生命徵象", "吞嚥困難與鼻胃管評估", "物理治療師床邊復健", "職能治療師精細動作",
+    "語言治療師訓練發音", "營養師調配專屬飲食", "社工師協助申請資源", "心理師提供心理支持", "中風個管師電話訪問",
+    "家屬學習翻身拍背技巧", "居家無障礙環境評估", "門診追蹤與慢性病控制", "參與病友會分享經驗", "成功重返職場與社區"
+  ];
+  
   if (displayItems.length === 0) gallery.innerHTML = '<div style="grid-column: 1 / -1; text-align:center; color:#aaa; margin-top:20px;">尚未收集到任何拼圖，快去破關累積票券吧！</div>';
   else displayItems.forEach(item => {
+    // 抓取對應的標題文字 (item.id 是從 1 開始，所以陣列要減 1)
+    let pTitle = puzzleTitles[item.id - 1] || "未知名稱";
+      
     if (item.status === 'unlocked') {
-      gallery.innerHTML += `<div class="card-item" style="aspect-ratio: 1/1; padding: 0; overflow: hidden; position: relative; cursor: pointer;" onclick="replayPuzzle(${item.id})"><img src="assets/puzzle_${item.id}.png" style="width:100%; height:100%; object-fit:cover; opacity: 0.8; transition: opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8" onerror="this.onerror=null; this.style.display='none'; this.parentElement.style.background='linear-gradient(135deg, #37474f, #263238)'; this.parentElement.innerHTML+='<div style=\\\'position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); font-size:30px; opacity:0.3;\\\'>🧩</div>';"><div style="position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.7); color:#fff; font-size:11px; font-weight:bold; padding:4px 0; z-index:10;">#${item.id}</div></div>`;
+      // 已解鎖的拼圖
+      gallery.innerHTML += `
+        <div class="card-item" style="padding: 4px; justify-content: flex-start; height: auto;" onclick="replayPuzzle(${item.id})">
+          <div style="width: 100%; aspect-ratio: 1/1; position: relative; overflow: hidden; border-radius: 4px; background:#000;">
+            <img src="assets/puzzle_${item.id}.png" style="width:100%; height:100%; object-fit:cover; opacity: 0.8; transition: opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8" onerror="this.onerror=null; this.style.display='none'; this.parentElement.style.background='linear-gradient(135deg, #37474f, #263238)'; this.parentElement.innerHTML+='<div style=\\\'position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); font-size:30px; opacity:0.3;\\\'>🧩</div>';">
+            <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.7); color:#fff; font-size:11px; font-weight:bold; padding:2px 0; z-index:10;">#${item.id}</div>
+          </div>
+          <div style="font-size:10px; color:#e0e0e0; margin-top:6px; line-height:1.2; word-break:break-word; padding: 0 2px;">${pTitle}</div>
+        </div>`;
     } else {
-      gallery.innerHTML += `<div class="card-item" style="aspect-ratio: 1/1; padding: 0; overflow: hidden; position: relative; cursor: pointer; background: linear-gradient(135deg, #5d4037, #3e2723); border-color: #ffb300;" onclick="playPendingPuzzle(${item.id})"><div style="font-size:30px; margin-bottom:5px;">🎁</div><div style="font-size:11px; font-weight:bold; color:#ffb300; text-shadow:1px 1px 2px #000;">點擊挑戰</div><div style="position:absolute; bottom:0; left:0; right:0; background:rgba(189,122,0,0.8); color:#fff; font-size:11px; font-weight:bold; padding:4px 0; z-index:10;">待拼湊 #${item.id}</div></div>`;
+      // 待完成的盲盒拼圖
+      gallery.innerHTML += `
+        <div class="card-item" style="padding: 4px; justify-content: flex-start; border-color: #ffb300; height: auto;" onclick="playPendingPuzzle(${item.id})">
+          <div style="width: 100%; aspect-ratio: 1/1; position: relative; overflow: hidden; border-radius: 4px; background: linear-gradient(135deg, #5d4037, #3e2723); display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <div style="font-size:26px; margin-bottom:2px;">🎁</div>
+            <div style="font-size:10px; font-weight:bold; color:#ffb300; text-shadow:1px 1px 2px #000;">點擊挑戰</div>
+            <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(189,122,0,0.8); color:#fff; font-size:11px; font-weight:bold; padding:2px 0; z-index:10;">待拼湊 #${item.id}</div>
+          </div>
+          <div style="font-size:10px; color:#aaa; margin-top:6px; line-height:1.2; word-break:break-word; padding: 0 2px;">${pTitle}</div>
+        </div>`;
     }
   });
 }
