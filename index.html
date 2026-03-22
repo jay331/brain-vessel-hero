@@ -900,7 +900,12 @@ function saveProfile(m) {
       ROLES_DATA_BEG.forEach(r => { r.currentTask = 6; r.subTasks.forEach((st, i) => playerState.taskScoresBeg.set(`${r.id}_${i}`, 1000)); });
       ROLES_DATA_ADV.forEach(r => { r.currentTask = 6; r.subTasks.forEach((st, i) => playerState.taskScoresAdv.set(`${r.id}_${i}`, 1000)); });
       playerState.completedCasesBeg.set("11111", 5000); playerState.completedCasesAdv.set("11111", 5000);
-      customAlert("已解鎖全部任務！", null, "🔓 開發者模式");
+      
+      // ★ 新增：一鍵解鎖 1~20 號所有拼圖，並清空待完成區
+      playerState.unlockedPuzzles = Array.from({length: 20}, (_, i) => i + 1);
+      playerState.pendingPuzzles = [];
+      
+      customAlert("已解鎖全部任務與拼圖！", null, "🔓 開發者模式");
     }
 
     if (m === 'beginner' && playerState.storyProgression >= TOTAL_BEG_TASKS) {
