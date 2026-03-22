@@ -189,6 +189,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 // ==========================================
 // 1. 載入任務與防護機制
 // ==========================================
+// ==========================================
+// 1. 載入任務與防護機制
+// ==========================================
 let RPG_TASKS = {};
 if (typeof MAIN_TASKS !== 'undefined') {
     RPG_TASKS = Object.assign({}, MAIN_TASKS);
@@ -217,10 +220,33 @@ if (!task) {
   };
 }
 
-if (taskId === 'hub_world' && isFirstTask && task.npcs) {
-    let docNpc = task.npcs.find(n => n.id === 'npc_continue');
-    if(docNpc) docNpc.dialogs[0].text = "歡迎來到腦脈先鋒的行列！我是主治醫師。守護大腦的旅程即將開始，準備好接受第一項訓練了嗎？";
-    task.intro = "歡迎來到遙遠的東方醫院！\n\n戰勝腦中風不靠運氣\n靠的是不斷累積的知識與能力 💪\n\n出發吧！前往大廳尋找主治醫師的指引";
+// ★ 關鍵修復：在還沒畫出 NPC 之前，先改造 hub_world 的初始設定
+if (taskId === 'hub_world') {
+    if (isFirstTask && task.npcs) {
+        let docNpc = task.npcs.find(n => n.id === 'npc_continue');
+        if(docNpc) docNpc.dialogs[0].text = "歡迎來到腦脈先鋒的行列！我是主治醫師。守護大腦的旅程即將開始，準備好接受第一項訓練了嗎？";
+        task.intro = "歡迎來到遙遠的東方醫院！\n\n戰勝腦中風不靠運氣\n靠的是不斷累積的知識與能力 💪\n\n出發吧！前往大廳尋找主治醫師的指引";
+    }
+
+    // 1. 改變起始座標為休息室
+    task.startPos = { x: 1500, y: -150 };
+
+    // 2. 將更衣櫃轉換為純物件 (obj_)，並把舊的砍掉避免重複
+    let oldWardrobeIndex = task.npcs.findIndex(n => n.action === 'ACTION_WARDROBE' || n.name.includes('更衣'));
+    if (oldWardrobeIndex !== -1) {
+        task.npcs[oldWardrobeIndex] = {
+            id: 'obj_wardrobe', name: '更衣櫃', icon: '🚪', color: '#37474f',
+            pos: { x: 1350, y: -220 }, action: 'ACTION_WARDROBE', dialogs: [{name: '', text: ''}]
+        };
+    }
+
+    // 3. 加入任務平板 (obj_)
+    if (!task.npcs.find(n => n.id === 'obj_tablet')) {
+        task.npcs.push({
+            id: 'obj_tablet', name: '任務平板', icon: '📱', color: '#1976d2',
+            pos: { x: 1650, y: -220 }, action: 'ACTION_CHECK_TABLET', dialogs: [{name: '', text: ''}]
+        });
+    }
 }
 
 let state = { x: task.startPos.x, y: task.startPos.y };
@@ -245,16 +271,17 @@ if (task.npcs) {
     npcDiv.style.left = n.pos.x + 'px';
     npcDiv.style.top = n.pos.y + 'px';
     
+    // ★ 物品類：隱藏、無身體
     if (n.id.startsWith('item_')) {
         npcDiv.style.display = 'none'; 
-        npcDiv.setAttribute('data-interactable', 'false'); // ★ 預設不可互動
+        npcDiv.setAttribute('data-interactable', 'false'); 
         npcDiv.innerHTML = `
           <style>#npc-node-${n.id}::before { display: none !important; }</style>
           <div class="name" id="npc-name-${n.id}" style="background:${n.color || '#37474f'}; top: -50px; z-index: 10;">${n.name}</div>
           <div style="font-size: 38px; margin-top: 15px; filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6)); animation: bounce 1.5s infinite alternate ease-in-out;">${n.icon}</div>
         `;
     } 
-    // ★ 平板專屬樣式 (帶有一個像桌子的底座)
+    // ★ 任務平板：有小桌子底座、無身體
     else if (n.id === 'obj_tablet') {
         npcDiv.setAttribute('data-interactable', 'true');
         npcDiv.innerHTML = `
@@ -264,7 +291,16 @@ if (task.npcs) {
           <div style="width: 40px; height: 15px; background: #8d6e63; border-radius: 4px; border-bottom: 3px solid #5d4037; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); box-shadow: 0 4px 6px rgba(0,0,0,0.5); z-index: 1;"></div>
         `;
     }
-    // 原本的人形 NPC
+    // ★ 一般物件 (例如更衣櫃)：純圖示、無身體
+    else if (n.id.startsWith('obj_')) {
+        npcDiv.setAttribute('data-interactable', 'true');
+        npcDiv.innerHTML = `
+          <style>#npc-node-${n.id}::before { display: none !important; }</style>
+          <div class="name" id="npc-name-${n.id}" style="background:${n.color || '#37474f'}; top: -35px; z-index: 10;">${n.name}</div>
+          <div style="font-size: 40px; margin-top: 5px; filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6));">${n.icon}</div>
+        `;
+    }
+    // 原本的人形 NPC (會長出手腳)
     else {
         npcDiv.setAttribute('data-interactable', 'true');
         let indicatorHtml = n.icon ? `<div class="npc-indicator">${n.icon}</div>` : '';
