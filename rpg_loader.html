@@ -36,7 +36,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 .game-world { position: absolute; left: 0; top: 0; width: 40000px; height: 3500px; }
 
 /* =========================================
-   ★ 新增：玩家圓框眼鏡樣式 (精準對齊雙眼)
+   ★ 新增：玩家圓框眼鏡樣式 (黃金比例微調版)
    ========================================= */
 .character .head .glasses {
     position: absolute;
@@ -44,31 +44,28 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
     opacity: 0; /* 預設隱藏 */
     z-index: 5; 
     pointer-events: none;
-    /* 眼鏡橋 (中間連接左右鏡片處) */
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: 6px 100%;
 }
 
-/* 左右鏡片 */
+/* 左右鏡片：縮小為 14px，並向中間靠攏對齊眼睛中心 */
 .character .head .glasses::before, 
 .character .head .glasses::after {
     content: ''; 
     position: absolute;
-    top: 10.5px;
-    width: 16px; height: 16px;
+    top: 11.5px; /* 精準對齊眼睛垂直中心 */
+    width: 14px; height: 14px;
     border-radius: 50%;
     border: 2px solid transparent;
-    background: rgba(255,255,255,0.3); /* 鏡片微微的反光感，可透出底下的眼睛眨眼 */
+    background: rgba(255,255,255,0.25); /* 鏡片微微的反光感 */
     box-sizing: border-box;
 }
-.character .head .glasses::before { left: 1.5px; }
-.character .head .glasses::after { right: 1.5px; }
+.character .head .glasses::before { left: 2.5px; } /* 拉近距離 */
+.character .head .glasses::after { right: 2.5px; } /* 拉近距離 */
 
 /* 黑框圓形眼鏡 */
 .character .head .glasses.style-black {
     opacity: 1;
-    background-image: linear-gradient(to bottom, transparent 17px, #333 17px, #333 19.5px, transparent 19.5px);
+    /* 利用背景漸層畫出鏡架的鏡腳與鼻梁橋 */
+    background-image: linear-gradient(to bottom, transparent 17.5px, #333 17.5px, #333 19.5px, transparent 19.5px);
 }
 .character .head .glasses.style-black::before, 
 .character .head .glasses.style-black::after {
@@ -78,7 +75,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 /* 紅框圓形眼鏡 */
 .character .head .glasses.style-red {
     opacity: 1;
-    background-image: linear-gradient(to bottom, transparent 17px, #c62828 17px, #c62828 19.5px, transparent 19.5px);
+    background-image: linear-gradient(to bottom, transparent 17.5px, #c62828 17.5px, #c62828 19.5px, transparent 19.5px);
 }
 .character .head .glasses.style-red::before, 
 .character .head .glasses.style-red::after {
