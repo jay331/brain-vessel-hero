@@ -430,14 +430,15 @@ const SAVE_KEY = 'BrainPioneer_SaveData_v9.6';
 
 let playerState = { 
   hasSetup: false, name: "", avatar: "https://i.pravatar.cc/150?img=11", mode: "beginner", 
-  coins: 0, // ★ (1) 初始健康幣改為 0
+  coins: 0, // ★ 初始健康幣為 0
   storyMode: false, storyProgression: 0, replayProgression: 0, isReplaying: false, explorationTasksCompleted: 0, 
   completedCasesBeg: new Map(), completedCasesAdv: new Map(),
   taskScoresBeg: new Map(), taskScoresAdv: new Map(), clothes: '#fff', 
   ownedClothes: ['#fff'],
   scaleRecords: [], strokeCard: null, unlockedPuzzles: [], boughtPuzzles: 0,
   pendingPuzzles: [], foundItems: [], 
-  completedExplores: [], usedFreecellTickets: 0 // ★ 新增：追蹤已完成的探索與接龍票券
+  completedExplores: [], usedFreecellTickets: 0,
+  dailyExplores: { date: "", count: 0 } // ★ 新增：追蹤每日任務進度
 };
 
 let isGlobalFs = false; 
@@ -465,67 +466,82 @@ window.addEventListener('message', (event) => {
     }
   }
   
-  else if (event.data.type === 'ACTION_CONTINUE') {
-      if (!playerState.foundItems) { 
-          playerState.foundItems = []; 
-          saveGameData(); 
+else if (event.data.type === 'ACTION_CONTINUE') {
+      if (!playerState.foundItems) { playerState.foundItems = []; saveGameData(); }
+      if (event.source) event.source.postMessage({ type: 'SYNC_PLAYER_DATA', payload: { foundItems: playerState.foundItems } }, '*');
+
+      const todayStr = new Date().toLocaleDateString('zh-TW');
+      if (!playerState.dailyExplores || playerState.dailyExplores.date !== todayStr) {
+          playerState.dailyExplores = { date: todayStr, count: 0 };
+          saveGameData();
       }
       
-      // 觸發任務時，立刻同步給地圖更新對話與寶物
-      if (event.source) {
-          event.source.postMessage({ type: 'SYNC_PLAYER_DATA', payload: { foundItems: playerState.foundItems } }, '*');
+      // ★ 判斷是否超過每日 3 次
+      if (playerState.dailyExplores.count >= 3) {
+          customAlert("主治醫師：\n「辛苦了！你今天已經幫了很大的忙。\n\n目前醫院一切上了軌道，你可以自由探索，或是去 6F教學室、14F衛教室 學習新知識！」", null, "👨‍⚕️ 醫師的問候");
+          return;
       }
 
       const foundCount = playerState.foundItems.length;
-      
-      // 判斷尋寶任務是否徹底結束 (包含 'DONE' 標記)
       if (!playerState.foundItems.includes('DONE')) {
-          if (foundCount === 0) {
-              customAlert("主治醫師：\n「神經內科的學弟太粗心了，查房完把『神內三寶』忘在醫院各處了。你能幫我找回【筆燈】、【扣診錘】和【音叉】嗎？\n\n💡 提示：掉在 1F 急診、11F 病房、或 6F 教學室。」", null, "👨‍⚕️ 尋找神內三寶");
-          } 
-          else if (foundCount > 0 && foundCount < 3) {
-              customAlert(`主治醫師：\n「你目前已經找到 ${foundCount} 樣了！還差一點，加油啊！\n\n💡 提示：去 1F、6F、11F 仔細找找。」`, null, "👨‍⚕️ 任務進行中");
-          } 
+          if (foundCount === 0) customAlert("主治醫師：\n「神經內科的學弟太粗心了，查房完把『神內三寶』忘在醫院各處了。你能幫我找回【筆燈】、【扣診錘】和【音叉】嗎？\n\n💡 提示：掉在 1F 急診、11F 病房、或 6F 教學室。」", null, "👨‍⚕️ 尋找神內三寶");
+          else if (foundCount > 0 && foundCount < 3) customAlert(`主治醫師：\n「你目前已經找到 ${foundCount} 樣了！還差一點，加油啊！\n\n💡 提示：去 1F、6F、11F 仔細找找。」`, null, "👨‍⚕️ 任務進行中");
           else if (foundCount === 3) {
               customAlert("主治醫師：\n「太感謝你了！這三樣可是神經科的法寶。這 300 健康幣是你應得的獎勵！」", () => {
-                  playerState.coins += 300; 
-                  playerState.foundItems.push('DONE'); 
+                  playerState.coins += 300; playerState.foundItems.push('DONE'); 
                   playerState.explorationTasksCompleted++;
+                  playerState.dailyExplores.count++; // ★ 計入每日任務
                   saveGameData(); updateHUD();
-                  
-                  if (event.source) {
-                      event.source.postMessage({ type: 'SYNC_PLAYER_DATA', payload: { foundItems: playerState.foundItems } }, '*');
-                  }
+                  if (event.source) event.source.postMessage({ type: 'SYNC_PLAYER_DATA', payload: { foundItems: playerState.foundItems } }, '*');
               }, "🏆 尋寶任務完成！");
           }
       } 
-      // 尋寶任務徹底解完後，才會開始派發後續的其他一般任務
       else {
           if (!playerState.completedExplores) playerState.completedExplores = [];
-          
           const allTasks = [
               "4F 物理治療師籌辦說明會，去 14F 拿海報吧！", 
               "11G 病房缺藥了，去 1F 門診藥局幫忙領急件！", 
               "請到大廳協助引導新病患，熟悉 FAST 口訣！"
           ];
-          
           const uncompletedTasks = allTasks.filter(t => !playerState.completedExplores.includes(t));
           
+          let t = ""; let isNew = false;
+          // ★ 以不重複優先
           if (uncompletedTasks.length > 0) {
-              const t = uncompletedTasks[Math.floor(Math.random() * uncompletedTasks.length)];
-              customAlert(`主治醫師：\n「這裡有件事需要你幫忙：\n\n${t}」\n\n(一般探索，點擊模擬完成！)`, () => {
-                  playerState.explorationTasksCompleted++;
-                  playerState.coins += 300;
-                  playerState.completedExplores.push(t);
-                  saveGameData(); updateHUD();
-                  customAlert("完成新探索任務！獲得 300 健康幣！", null, "🏆 任務完成");
-              }, "👨‍⚕️ 醫師的委託");
+              t = uncompletedTasks[Math.floor(Math.random() * uncompletedTasks.length)];
+              isNew = true;
           } else {
-              const t = allTasks[Math.floor(Math.random() * allTasks.length)];
-              customAlert(`主治醫師：\n「目前醫院一切上了軌道，沒有新的探索任務囉！\n\n你可以隨意逛逛，或是幫忙複習一下這個流程：\n${t}」\n\n(點擊模擬複習，無額外健康幣)`, () => {
-                  customAlert("這項任務你已經很熟練了！(重複任務無獎勵)", null, "🏆 複習完成");
-              }, "👨‍⚕️ 醫師的委託 (複習)");
+              t = allTasks[Math.floor(Math.random() * allTasks.length)];
           }
+          
+          customAlert(`主治醫師：\n「這裡有件事需要你幫忙：\n\n${t}」\n\n(一般探索，點擊模擬完成！)`, () => {
+              playerState.explorationTasksCompleted++;
+              playerState.dailyExplores.count++; // ★ 計入每日任務
+              if (isNew) {
+                  playerState.coins += 300; playerState.completedExplores.push(t);
+                  customAlert("完成新探索任務！獲得 300 健康幣！", null, "🏆 任務完成");
+              } else {
+                  customAlert("這項任務你已經很熟練了！\n(重複任務無健康幣，但已計入今日任務數)", null, "🏆 複習完成");
+              }
+              saveGameData(); updateHUD();
+          }, "👨‍⚕️ 醫師的委託");
+      }
+  } 
+  
+  // ★ 新增：任務平板的功能
+  else if (event.data.type === 'ACTION_CHECK_TABLET') {
+      const todayStr = new Date().toLocaleDateString('zh-TW');
+      if (!playerState.dailyExplores || playerState.dailyExplores.date !== todayStr) {
+          playerState.dailyExplores = { date: todayStr, count: 0 };
+          saveGameData();
+      }
+      let remain = 3 - playerState.dailyExplores.count;
+      if (remain > 0) {
+          customAlert(`<div style="text-align:left;">【今日進度】<br><br>目前剩餘可接取任務：<span style="color:var(--good); font-weight:bold; font-size:16px;">${remain}</span> 個<br><br>💡 請前往大廳找主治醫師接取！</div>`, null, "📱 任務平板");
+      } else {
+          customAlert(`<div style="text-align:left;">【今日進度】<br><br>今日任務已達上限 (0 個)。<br><br>您可以自由探索，或前往 6F教學室、14F衛教室 學習知識！</div>`, null, "📱 任務平板");
+      }
+  }
       }
   } 
   
@@ -738,14 +754,12 @@ function updateHUD() {
   if(id('uiFreecellAvail')) id('uiFreecellAvail').textContent = tickets;
   
   // ★ 計算並顯示「醫院探索」未完成任務數量的小紅點
-  let uncompletedExploreCount = 0;
-  // 1. 尋寶任務 (若還沒找齊神內三寶，算 1 個任務)
-  if (!playerState.foundItems || !playerState.foundItems.includes('DONE')) {
-      uncompletedExploreCount++;
+// ★ 計算並顯示「醫院探索」未完成任務數量的小紅點 (每日限制 3 次)
+  const todayStr = new Date().toLocaleDateString('zh-TW');
+  if (!playerState.dailyExplores || playerState.dailyExplores.date !== todayStr) {
+      playerState.dailyExplores = { date: todayStr, count: 0 };
   }
-  // 2. 一般隨機任務 (總共 3 個)
-  const completedCount = playerState.completedExplores ? playerState.completedExplores.length : 0;
-  uncompletedExploreCount += Math.max(0, 3 - completedCount); 
+  let uncompletedExploreCount = Math.max(0, 3 - playerState.dailyExplores.count); 
   
   // 更新小紅點 UI
   const badge = id('exploreBadge');
@@ -940,7 +954,8 @@ function saveGameData() {
     scaleRecords: playerState.scaleRecords, strokeCard: playerState.strokeCard,
     unlockedPuzzles: playerState.unlockedPuzzles, boughtPuzzles: playerState.boughtPuzzles,
     pendingPuzzles: playerState.pendingPuzzles, foundItems: playerState.foundItems, 
-    completedExplores: playerState.completedExplores, usedFreecellTickets: playerState.usedFreecellTickets, // ★ 儲存
+    completedExplores: playerState.completedExplores, usedFreecellTickets: playerState.usedFreecellTickets,
+    dailyExplores: playerState.dailyExplores, // ★ 儲存每日任務
     roleProgressBeg: ROLES_DATA_BEG.map(r => ({ id: r.id, currentTask: r.currentTask, dailyAttempts: r.dailyAttempts })),
     roleProgressAdv: ROLES_DATA_ADV.map(r => ({ id: r.id, currentTask: r.currentTask, dailyAttempts: r.dailyAttempts }))
   };
@@ -969,8 +984,9 @@ function loadGameData() {
       if(parsed.boughtPuzzles) playerState.boughtPuzzles = parsed.boughtPuzzles;
       if(parsed.pendingPuzzles) playerState.pendingPuzzles = parsed.pendingPuzzles;
       if(parsed.foundItems) playerState.foundItems = parsed.foundItems;
-      if(parsed.completedExplores) playerState.completedExplores = parsed.completedExplores; // ★ 讀取
-      if(parsed.usedFreecellTickets) playerState.usedFreecellTickets = parsed.usedFreecellTickets; // ★ 讀取
+      if(parsed.completedExplores) playerState.completedExplores = parsed.completedExplores; 
+      if(parsed.usedFreecellTickets) playerState.usedFreecellTickets = parsed.usedFreecellTickets;
+      if(parsed.dailyExplores) playerState.dailyExplores = parsed.dailyExplores; // ★ 讀取每日任務
       
       if(parsed.completedCasesBeg) playerState.completedCasesBeg = new Map(parsed.completedCasesBeg);
       if(parsed.completedCasesAdv) playerState.completedCasesAdv = new Map(parsed.completedCasesAdv);
