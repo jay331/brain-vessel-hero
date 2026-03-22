@@ -591,16 +591,6 @@ function returnToLobby() {
 // ==========================================
 function startNpcDialog(npc) {
   currentNpc = npc;
-  
-  // ★ 智慧判斷：如果是任務平板，直接觸發主系統視窗，不顯示地圖黑底對話框
-  if (npc.id === 'obj_tablet') {
-      window.parent.postMessage({type: npc.action}, '*');
-      stepBackFromNpc();
-      missionStage = 0; 
-      setTimeout(() => { gameActive = true; currentNpc = null; }, 300);
-      return; // 直接結束，不執行下方的 showDialog
-  }
-  
   currentDialogIndex = 0;
   showDialog();
 }
@@ -611,6 +601,20 @@ function showDialog() {
   document.getElementById('joystickBase').style.display = 'none';
   document.getElementById('dialogBox').style.display = 'flex';
   
+  // ★ 動態更新任務平板的內容
+  if (currentNpc.id === 'obj_tablet') {
+      let dailyCount = window.playerDailyExplores ? window.playerDailyExplores.count : 0;
+      let remain = 3 - dailyCount;
+      
+      if (remain > 0) {
+          currentNpc.dialogs[0].text = `【今日進度】\n\n目前剩餘可接取任務：${remain} 個\n\n💡 請前往大廳找主治醫師接取！`;
+      } else {
+          currentNpc.dialogs[0].text = `【今日進度】\n\n今日任務已達上限 (0 個)。\n\n您可以自由探索，或前往 6F教學室、14F衛教室學習！`;
+      }
+      // 這裡設定 NONE 讓系統知道對話結束後不需要發送額外的 action
+      currentNpc.action = 'NONE';
+  }
+
   const d = currentNpc.dialogs[currentDialogIndex];
   document.getElementById('dialogName').innerText = d.name;
   document.getElementById('dialogName').style.color = (d.name === task.roleName) ? '#4CAF50' : currentNpc.color;
@@ -619,15 +623,12 @@ function showDialog() {
   if (currentDialogIndex === currentNpc.dialogs.length - 1) {
     if (currentNpc.action === 'NONE') {
       document.getElementById('btnCancelDialog').style.display = 'none'; 
-      document.getElementById('btnNextDialog').innerText = '結束對話';
+      document.getElementById('btnNextDialog').innerText = '關閉'; // ★ 平板看完後只顯示一個「關閉」按鈕
     } else {
       document.getElementById('btnCancelDialog').style.display = 'block';
       
-      // ★ 智慧判斷按鈕文字
-      if (currentNpc.id === 'obj_tablet') {
-          document.getElementById('btnCancelDialog').innerText = '關閉';
-          document.getElementById('btnNextDialog').innerText = '查看';
-      } else if (currentNpc.id === 'obj_wardrobe') {
+      // 智慧判斷按鈕文字
+      if (currentNpc.id === 'obj_wardrobe') {
           document.getElementById('btnCancelDialog').innerText = '關閉';
           document.getElementById('btnNextDialog').innerText = '開啟';
       } else if (currentNpc.id === 'npc_continue') {
