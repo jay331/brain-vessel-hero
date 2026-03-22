@@ -92,10 +92,9 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .pokedex-tabs::-webkit-scrollbar { display: none; }
 .tab-btn { flex-shrink: 0; padding: 6px 12px; border-radius: 20px; border: 1px solid var(--theme-dim); background: rgba(0,0,0,0.8); color: #ccc; font-weight: bold; font-size: 12px; cursor:pointer; white-space: nowrap; }
 .tab-btn.active { background: var(--theme-primary); color: var(--btn-text); border-color: #fff; text-shadow: var(--btn-shadow); box-shadow: 0 0 10px rgba(212,175,55,0.5); }
-.card-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; overflow-y: auto; padding: 2px; align-content: flex-start;}
-.card-item { aspect-ratio: 3 / 4; border-radius: 6px; border: 1px solid var(--theme-dim); background: linear-gradient(180deg, #2a241e, #111); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; text-align: center; padding:4px;}
+.card-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; overflow-y: auto; overflow-x: hidden; padding: 2px; align-content: flex-start;}
+.card-title { font-size: 11px; font-weight: bold; line-height: 1.2; padding:0 2px; text-shadow: 1px 1px 2px #000; word-break: break-word;}.card-item { aspect-ratio: 3 / 4; border-radius: 6px; border: 1px solid var(--theme-dim); background: linear-gradient(180deg, #2a241e, #111); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; text-align: center; padding:4px;}
 .card-icon { font-size: 20px; margin-bottom: 2px; }
-.card-title { font-size: 11px; font-weight: bold; line-height: 1.2; padding:0 2px; text-shadow: 1px 1px 2px #000;}
 .card-item.locked { filter: grayscale(100%); opacity: 0.3; }
 
 .case-dex-item { background: rgba(0,0,0,0.4); border: 1px solid var(--theme-dim); border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; display: flex; flex-direction: row; justify-content: space-between; align-items: center; cursor:pointer; flex-shrink: 0;}
@@ -1089,7 +1088,7 @@ function handleGameClear(score) {
   
   const tabMode = playerState.mode === 'beginner' ? 'beg' : 'adv';
   
-  // ★ 算出過關當下的純數字編號 (1~50)
+  // 算出過關當下的純數字編號 (1~50)
   const rolesList = tabMode === 'beg' ? ROLES_DATA_BEG : ROLES_DATA_ADV;
   let absoluteNumber = tabMode === 'beg' ? 1 : 26;
   for (let r of rolesList) {
@@ -1106,7 +1105,7 @@ function handleGameClear(score) {
   if (playerState.isReplaying) {
       playerState.replayProgression++;
       if (playerState.replayProgression < TOTAL_BEG_TASKS) {
-          customConfirm(`得分：${score} 分\n\n回顧任務順利完成！要接著複習下一關嗎？`, 
+          customConfirm(`回顧任務順利完成！\n要接著複習下一關嗎？`, 
               () => { playTaskFlat(playerState.replayProgression); }, 
               () => { updateModeUI(); playerState.isReplaying = false; }, 
               "✅ 任務回顧", "繼續下一關", "先休息"
@@ -1120,18 +1119,20 @@ function handleGameClear(score) {
       playerState.storyProgression++; saveGameData();
       if (playerState.storyProgression < TOTAL_BEG_TASKS) {
           const nextTask = getFlatTask(playerState.storyProgression);
-          customConfirm(`得分：${score} 分\n${isFirstClear ? '獲得 100 健康幣！\n' : ''}✨ 取得新的衛教卡，編號：${cardId}\n\n是否立即進入下一關：${nextTask.role.subTasks[nextTask.taskIndex].substring(3)}？`, 
+          // ★ 拔掉分數、強制換行、更改卡片名稱，並將編號移到按鈕上
+          customConfirm(`${isFirstClear ? '獲得 100 健康幣！\n' : ''}✨ 取得新的健康卡\n\n是否立即進入下一關：${nextTask.role.subTasks[nextTask.taskIndex].substring(3)}？`, 
               () => { playTaskFlat(playerState.storyProgression); }, 
               () => { updateModeUI(); openCardModal(tabMode, info.role.id, info.taskIndex, absoluteNumber); }, 
-              "🎉 任務成功", "進入下一關", "先休息"
+              "🎉 任務成功", "進入下一關", `觀看卡片 ${cardId}`
           );
       } else {
           customAlert("恭喜你完成所有初階訓練！現在為您開啟「醫院自由探索模式」！", () => { updateModeUI(); }, "🎉 訓練結業");
       }
   } else {
-      customAlert(`得分：${score} 分\n${isFirstClear ? (playerState.mode === 'beginner' ? '獲得 100 健康幣！\n' : '獲得 150 健康幣！\n') : '(複習任務無硬幣獎勵)\n'}✨ 取得新的衛教卡，編號：${cardId}`, () => {
+      // ★ 拔掉分數、強制換行、更改卡片名稱，並將編號移到按鈕上
+      customAlert(`${isFirstClear ? (playerState.mode === 'beginner' ? '獲得 100 健康幣！\n' : '獲得 150 健康幣！\n') : '(複習任務無硬幣獎勵)\n'}✨ 取得新的健康卡`, () => {
         openCardModal(tabMode, info.role.id, info.taskIndex, absoluteNumber); updateModeUI();
-      }, "🎉 任務成功！", "觀看健康卡");
+      }, "🎉 任務成功！", `觀看卡片 ${cardId}`);
   }
   currentGameInfo = null;
 }
@@ -1142,8 +1143,8 @@ function openCardModal(tab, roleId, taskIdx, absNum) {
   id('modalIcon').textContent = role.icon; id('modalTitle').textContent = role.subTasks[taskIdx].substring(3);
   
   // ★ 使用純數字編號
-  id('modalCategory').textContent = `${role.name} - ${role.subtitle} | 衛教卡編號：#${absNum}`;
-  
+// ★ 將原本的「衛教卡編號」改為「健康卡編號」
+  id('modalCategory').textContent = `${role.name} - ${role.subtitle} | 健康卡編號：#${absNum}`;  
   id('modalDesc').textContent = `這裡是關於「${role.subTasks[taskIdx].substring(3)}」的詳細重點整理。透過這張卡片，您可以隨時複習關鍵的醫療處置與照護知識！`;
   
   const modal = id('cardDetailModal');
@@ -1424,17 +1425,17 @@ function renderDexCards(tab, btnEl) {
               </div>`;
         }); 
     });
-  } else if (tab === 'hidden') {
+} else if (tab === 'hidden') {
     // 隱藏卡：51, 52
     grid.innerHTML += `
-      <div class="card-item hidden-card ${isBegMaster?'':'locked'}" onclick="if(${isBegMaster}) { id('modalIcon').textContent='🏥'; id('modalTitle').textContent='亞東中風中心'; id('modalCategory').textContent='初階隱藏卡 | 衛教卡編號：#51'; id('modalDesc').textContent='整合急診、神經內外科、復健科跨團隊，為病患提供全方位黃金救援與術後照護體系！'; id('cardDetailModal').style.display='flex'; } else customAlert('請先完成初階版所有 25 個任務！', null, '🔒 尚未解鎖')">
+      <div class="card-item hidden-card ${isBegMaster?'':'locked'}" onclick="if(${isBegMaster}) { id('modalIcon').textContent='🏥'; id('modalTitle').textContent='亞東中風中心'; id('modalCategory').textContent='初階隱藏卡 | 健康卡編號：#51'; id('modalDesc').textContent='整合急診、神經內外科、復健科跨團隊，為病患提供全方位黃金救援與術後照護體系！'; id('cardDetailModal').style.display='flex'; } else customAlert('請先完成初階版所有 25 個任務！', null, '🔒 尚未解鎖')">
         <div style="font-size:10px; color:#aaa; width:100%; text-align:left; padding-left:4px;">#51</div>
         <div class="card-icon">🏥</div>
         <div class="card-title" style="color:#4fc3f7">亞東中風中心</div>
       </div>`;
       
     grid.innerHTML += `
-      <div class="card-item hidden-card ${isAdvMaster?'':'locked'}" onclick="if(${isAdvMaster}) { id('modalIcon').textContent='🏛️'; id('modalTitle').textContent='亞東紀念醫院'; id('modalCategory').textContent='進階隱藏卡 | 衛教卡編號：#52'; id('modalDesc').textContent='秉持持續提升醫療品質，善盡社會醫療責任之宗旨，是您最堅強的醫療後盾！'; id('cardDetailModal').style.display='flex'; } else customAlert('請先完成進階版所有 25 個任務！', null, '🔒 尚未解鎖')">
+      <div class="card-item hidden-card ${isAdvMaster?'':'locked'}" onclick="if(${isAdvMaster}) { id('modalIcon').textContent='🏛️'; id('modalTitle').textContent='亞東紀念醫院'; id('modalCategory').textContent='進階隱藏卡 | 健康卡編號：#52'; id('modalDesc').textContent='秉持持續提升醫療品質，善盡社會醫療責任之宗旨，是您最堅強的醫療後盾！'; id('cardDetailModal').style.display='flex'; } else customAlert('請先完成進階版所有 25 個任務！', null, '🔒 尚未解鎖')">
         <div style="font-size:10px; color:#aaa; width:100%; text-align:left; padding-left:4px;">#52</div>
         <div class="card-icon">🏛️</div>
         <div class="card-title" style="color:var(--theme-primary)">亞東紀念醫院</div>
