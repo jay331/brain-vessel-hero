@@ -81,7 +81,17 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 .character .head .glasses.style-red::after {
     border-color: #c62828;
 }
-
+/* 帥氣墨鏡 */
+.character .head .glasses.style-sun {
+    opacity: 1;
+    /* 深灰色的鼻梁橋 */
+    background-image: linear-gradient(to bottom, transparent 17.5px, #222 17.5px, #222 19.5px, transparent 19.5px);
+}
+.character .head .glasses.style-sun::before, 
+.character .head .glasses.style-sun::after {
+    border-color: #222;
+    background: rgba(15, 15, 15, 0.95); /* ★ 關鍵：深色幾乎不透明的鏡片，直接蓋住眼睛 */
+}
 /* 虛擬搖桿 */
 .joystick-base { position: absolute; width: 140px; height: 140px; background: rgba(255,255,255,0.3); border: 3px solid rgba(255,255,255,0.6); border-radius: 50%; display: none; z-index: 50; transform: translate(-50%, -50%);}
 .joystick-knob { position: absolute; width: 60px; height: 60px; background: var(--gold); border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%);}
