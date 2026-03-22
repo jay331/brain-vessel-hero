@@ -72,6 +72,15 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
     border-color: #333;
 }
 
+   const GLASSES_DB = [
+  { id: 'g_none', style: 'none', name: '不戴眼鏡', price: 0 },
+  { id: 'g_black', style: 'black', name: '復古圓框', price: 500 },
+  { id: 'g_square', style: 'square', name: '文青方框', price: 500 }, // ★ 新增：呼叫 .style-square
+  { id: 'g_half', style: 'half', name: '經典半框', price: 800 },     // ★ 新增：呼叫 .style-half
+  { id: 'g_red', style: 'red', name: '紅框眼鏡', price: 1000 },
+  { id: 'g_sun', style: 'sun', name: '帥氣墨鏡', price: 1500 }
+];
+
 /* 紅框圓形眼鏡 */
 .character .head .glasses.style-red {
     opacity: 1;
@@ -81,6 +90,8 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 .character .head .glasses.style-red::after {
     border-color: #c62828;
 }
+
+   
 /* 帥氣墨鏡 */
 .character .head .glasses.style-sun {
     opacity: 1;
