@@ -11,7 +11,13 @@ const GAME_URLS = {
 };
 
 const ROLES_DATA_BEG = [
-  { id: 'beg_id', name: '中風補習班', subtitle: '一定要知道的', icon: '🧠', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 什麼是腦中風 ?', '2. 認識中風團隊人員', '3. 中風常見檢查項目', '4. 中風常見治療項目', '5. 完成您專屬的中風名片'] }, 
+  { id: 'beg_id', name: '中風補習班', subtitle: '一定要知道的', icon: '🧠', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 什麼是腦中風 ?', '2. 認識中風團隊人員', '3. 中風常見檢查項目', '4. 中風常見治療項目', '5. 完成您專屬的中風名片'],cardDesc: [
+      "中風常見的症狀包括：<br>1. 臉部不對稱 (Face)<br>2. 手臂無力 (Arm)<br>3. 說話含糊 (Speech)<br>千萬不可忽視！",
+      "記錄發病時間非常重要！<br>因為這會決定醫師是否能施打『靜脈血栓溶解劑』(黃金 4.5 小時內)。",
+      "遇到疑似中風，請『立刻撥打 119』，切勿自行開車送醫，以免延誤黃金搶救時間。",
+      "在等待救護車時，請協助病患側臥，保持呼吸道暢通，並鬆開緊繃的衣物。",
+      "病患當下通常會非常恐慌，家屬的陪伴與冷靜安撫是穩定生命徵象的關鍵。"
+    ] }, 
   { id: 'beg_hosp', name: '住院須知', subtitle: '急性期', icon: '🏥', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 認識影像檢查', '2. 抽血與點滴目的', '3. 防跌倒與床欄', '4. 吞嚥與安全飲食', '5. 認識醫療團隊'] }, 
   { id: 'beg_care', name: '基礎照護', subtitle: '病房起居', icon: '🤲', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 協助翻身拍背', '2. 管路日常注意', '3. 安全上下床技巧', '4. 患側先穿健側脫', '5. 輪椅助行器認識'] }, 
   { id: 'beg_rehab', name: '復健入門', subtitle: '早期活動', icon: '💪', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 被動關節活動', '2. 良姿位擺位原則', '3. 床邊坐站平衡', '4. 預防關節攣縮', '5. 鼓勵使用患側'] }, 
