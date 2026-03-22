@@ -252,8 +252,18 @@ if (n.id.startsWith('item_')) {
           <div class="name" id="npc-name-${n.id}" style="background:${n.color || '#37474f'}; top: -50px; z-index: 10;">${n.name}</div>
           <div style="font-size: 38px; margin-top: 15px; filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6)); animation: bounce 1.5s infinite alternate ease-in-out;">${n.icon}</div>
         `;
+    } 
+    // ★ 新增：物件專屬樣式 (不會長出身體與頭，純顯示 Icon)
+    else if (n.id.startsWith('obj_')) {
+        npcDiv.innerHTML = `
+          <style>#npc-node-${n.id}::before { display: none !important; }</style>
+          <div class="name" id="npc-name-${n.id}" style="background:${n.color || '#37474f'}; top: -35px; z-index: 10;">${n.name}</div>
+          <div style="font-size: 40px; margin-top: 5px; filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6));">${n.icon}</div>
+        `;
     }
+    // 原本的人形 NPC
     else {
+        // ...後面保持原樣
         let indicatorHtml = n.icon ? `<div class="npc-indicator">${n.icon}</div>` : '';
         npcDiv.innerHTML = `
           ${indicatorHtml}
@@ -410,6 +420,29 @@ function updateCamera() {
 }
 
 window.onload = () => {
+  // ★ 新增：動態改造初始設定、更衣櫃與平板
+  if (taskId === 'hub_world') {
+      task.startPos = { x: 1500, y: -150 }; // 起始點改為休息室內部
+      state.x = 1500; state.y = -150;
+      
+      // 把更衣櫃變成物件，移到休息室左上角避免擋住出口
+      let wardrobe = task.npcs.find(n => n.action === 'ACTION_WARDROBE' || n.name.includes('更衣'));
+      if (wardrobe) {
+          wardrobe.id = 'obj_wardrobe';
+          wardrobe.icon = '🚪';
+          wardrobe.name = '更衣櫃';
+          wardrobe.pos = { x: 1350, y: -220 }; // 移到左上角
+      }
+      // 加入右上角的平板
+      if (!task.npcs.find(n => n.id === 'obj_tablet')) {
+          task.npcs.push({
+              id: 'obj_tablet', name: '任務平板', icon: '📱', color: '#1976d2',
+              pos: { x: 1650, y: -220 }, action: 'ACTION_CHECK_TABLET', dialogs: [{name: '', text: ''}]
+          });
+      }
+  }
+
+  // 原本的程式碼保持不變
   document.getElementById('player').style.left = state.x + 'px'; 
   document.getElementById('player').style.top = state.y + 'px'; 
 
