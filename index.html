@@ -234,7 +234,15 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
             </div>
             <div id="freecellHintText" style="font-size: 11px; color: var(--theme-primary); margin-top: 6px; display:none;">💡 每完成 5 次不重複的「任務或演練」可遊玩 1 次</div>
           </div>
+          
           <div class="pokedex-tabs" id="pokedexTabs">
+            <button class="tab-btn active" onclick="renderDexCards('beg', this)">初階卡</button>
+            <button class="tab-btn" onclick="renderDexCards('adv', this)">進階卡</button>
+            <button class="tab-btn" onclick="renderDexCards('hidden', this)">隱藏卡</button>
+          </div>
+          
+          <div class="card-grid" id="cardGrid"></div>
+          
         </div>
         <button class="btn btn-back" onclick="showScreen('scrHome')"><span class="back-icon">🏠</span> 返回主畫面</button>
       </section>
