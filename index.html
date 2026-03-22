@@ -333,8 +333,9 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
         <div class="mode-toggle-sq" onclick="toggleMode()">
           <div class="icon">❖</div><span id="navModeText" style="font-size:10px;">初階版</span>
         </div>
-        <div class="nav-item" id="navExplore" onclick="launchExplore()">
+<div class="nav-item" id="navExplore" onclick="launchExplore()" style="position: relative;">
           <div class="icon">🏥</div><span style="font-size:10px;">醫院探索</span>
+          <div id="exploreBadge" style="position:absolute; top:-2px; right:5px; background:var(--accent-red); color:#fff; border-radius:50%; width:16px; height:16px; font-size:10px; font-weight:bold; display:none; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.5); z-index:10;"></div>
         </div>
         <div class="nav-item" id="navLeaderboard" onclick="navBtn4Action()">
           <div class="icon" id="navLbIcon">📇</div><span style="font-size:10px;" id="navLbText">名片</span>
@@ -499,25 +500,38 @@ else if (event.data.type === 'ACTION_CONTINUE') {
           }
       } 
       // 尋寶任務徹底解完後，才會開始派發後續的其他一般任務
-      else {
+} else {
+          // 一般任務處理 (確保記錄陣列存在)
           if (!playerState.completedExplores) playerState.completedExplores = [];
-          const randTasks = ["4F 物理治療師籌辦說明會，去 14F 拿海報吧！", "11G 病房缺藥了，去 1F 門診藥局幫忙領急件！", "請到大廳協助引導新病患，熟悉 FAST 口訣！"];
-          const t = randTasks[Math.floor(Math.random()*randTasks.length)];
-          const isRepeat = playerState.completedExplores.includes(t);
           
-          customAlert(`主治醫師：\n「這裡有件事需要你幫忙：\n\n${t}」\n\n(一般探索，點擊模擬完成！)`, () => {
-              playerState.explorationTasksCompleted++;
-              if (!isRepeat) {
+          const allTasks = [
+              "4F 物理治療師籌辦說明會，去 14F 拿海報吧！", 
+              "11G 病房缺藥了，去 1F 門診藥局幫忙領急件！", 
+              "請到大廳協助引導新病患，熟悉 FAST 口訣！"
+          ];
+          
+          // 找出還沒做過的任務
+          const uncompletedTasks = allTasks.filter(t => !playerState.completedExplores.includes(t));
+          
+          if (uncompletedTasks.length > 0) {
+              // ★ 有新任務：隨機抽一個未完成的派發
+              const t = uncompletedTasks[Math.floor(Math.random() * uncompletedTasks.length)];
+              customAlert(`主治醫師：\n「這裡有件事需要你幫忙：\n\n${t}」\n\n(一般探索，點擊模擬完成！)`, () => {
+                  playerState.explorationTasksCompleted++;
                   playerState.coins += 300;
                   playerState.completedExplores.push(t);
+                  saveGameData(); updateHUD();
                   customAlert("完成新探索任務！獲得 300 健康幣！", null, "🏆 任務完成");
-              } else {
+              }, "👨‍⚕️ 醫師的委託");
+          } else {
+              // ★ 全部任務都解完了：改變對話，變成單純的複習！
+              const t = allTasks[Math.floor(Math.random() * allTasks.length)];
+              customAlert(`主治醫師：\n「目前醫院一切上了軌道，沒有新的探索任務囉！\n\n你可以隨意逛逛，或是幫忙複習一下這個流程：\n${t}」\n\n(點擊模擬複習，無額外健康幣)`, () => {
+                  // 純複習，不給錢
                   customAlert("這項任務你已經很熟練了！(重複任務無獎勵)", null, "🏆 複習完成");
-              }
-              saveGameData(); updateHUD();
-          }, "👨‍⚕️ 醫師的委託");
+              }, "👨‍⚕️ 醫師的委託 (複習)");
+          }
       }
-    } 
     
     // ★ 接收地圖傳來的撿取寶物訊號
     else if (event.data.type && event.data.type.startsWith('ACTION_FIND_')) {
@@ -744,7 +758,6 @@ function toggleMode() {
 function updateHUD() { 
   id('uiCoins').textContent = playerState.coins.toLocaleString(); 
   
-  // ★ (5)(6) 解鎖條件：每個類別皆至少通關一次
   const isUnlocked = playerState.mode === 'beginner' 
       ? ROLES_DATA_BEG.every(r => r.currentTask > 1) 
       : ROLES_DATA_ADV.every(r => r.currentTask > 1);
@@ -761,6 +774,28 @@ function updateHUD() {
         if(id('bossStatusText')) id('bossStatusText').textContent = '需五大類別皆通關至少一項任務以解鎖'; 
     }
   }
+  
+  // ★ 計算並顯示「醫院探索」未完成任務數量的小紅點
+  let uncompletedExploreCount = 0;
+  // 1. 尋寶任務 (若還沒找齊神內三寶，算 1 個任務)
+  if (!playerState.foundItems || !playerState.foundItems.includes('DONE')) {
+      uncompletedExploreCount++;
+  }
+  // 2. 一般隨機任務 (總共 3 個)
+  const completedCount = playerState.completedExplores ? playerState.completedExplores.length : 0;
+  uncompletedExploreCount += Math.max(0, 3 - completedCount); 
+  
+  // 更新小紅點 UI
+  const badge = id('exploreBadge');
+  if (badge) {
+      if (uncompletedExploreCount > 0) {
+          badge.style.display = 'flex';
+          badge.textContent = uncompletedExploreCount;
+      } else {
+          badge.style.display = 'none'; // 數量為 0 時隱藏
+      }
+  }
+  
   renderHomeRoles();
 }
 
