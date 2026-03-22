@@ -461,13 +461,14 @@ let currentQIndex = 0; let currentAnswers = {}; let trendChartInstance = null;
 window.addEventListener('message', (event) => {
   if (!event.data) return;
 
-  if (event.data.type === 'MAP_READY') {
+if (event.data.type === 'MAP_READY') {
     const payload = {
       name: playerState.name,
       mode: playerState.mode,
       storyProgression: playerState.storyProgression,
       explorationTasksCompleted: playerState.explorationTasksCompleted,
       clothes: playerState.clothes || '#fff',
+      glasses: playerState.glasses || 'none', // ★ 關鍵修復：把眼鏡資料傳給地圖！
       foundItems: playerState.foundItems || null
     };
     if (event.source) {
