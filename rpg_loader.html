@@ -617,7 +617,27 @@ function showDialog() {
       document.getElementById('btnNextDialog').innerText = '結束對話';
     } else {
       document.getElementById('btnCancelDialog').style.display = 'block';
-      document.getElementById('btnNextDialog').innerText = '確認前往';
+      
+      // ★ 智慧判斷按鈕文字
+      if (currentNpc.id === 'obj_tablet') {
+          document.getElementById('btnCancelDialog').innerText = '關閉';
+          document.getElementById('btnNextDialog').innerText = '查看';
+      } else if (currentNpc.id === 'obj_wardrobe') {
+          document.getElementById('btnCancelDialog').innerText = '關閉';
+          document.getElementById('btnNextDialog').innerText = '開啟';
+      } else if (currentNpc.id === 'npc_continue') {
+          document.getElementById('btnCancelDialog').innerText = '離開';
+          if (window.playerFoundItems && window.playerFoundItems.length === 3 && !window.playerFoundItems.includes('DONE')) {
+              document.getElementById('btnNextDialog').innerText = '領取獎勵';
+          } else if (window.playerFoundItems && window.playerFoundItems.length > 0 && !window.playerFoundItems.includes('DONE')) {
+              document.getElementById('btnNextDialog').innerText = '繼續尋找';
+          } else {
+              document.getElementById('btnNextDialog').innerText = '接受任務';
+          }
+      } else {
+          document.getElementById('btnCancelDialog').innerText = '離開';
+          document.getElementById('btnNextDialog').innerText = '確認前往';
+      }
     }
   } else {
     document.getElementById('btnCancelDialog').style.display = 'block';
