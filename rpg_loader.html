@@ -614,7 +614,11 @@ function showDialog() {
       // 這裡設定 NONE 讓系統知道對話結束後不需要發送額外的 action
       currentNpc.action = 'NONE';
   }
-
+// ★ 新增：為更衣櫃補上說明對話
+  else if (currentNpc.id === 'obj_wardrobe') {
+      currentNpc.dialogs[0].name = '系統提示';
+      currentNpc.dialogs[0].text = '這是員工專屬的更衣櫃。\n你可以在這裡換上從「1F 便利商店」購買的各種醫護服裝！\n\n要打開更衣櫃嗎？';
+  }
   const d = currentNpc.dialogs[currentDialogIndex];
   document.getElementById('dialogName').innerText = d.name;
   document.getElementById('dialogName').style.color = (d.name === task.roleName) ? '#4CAF50' : currentNpc.color;
