@@ -14,7 +14,10 @@
 :root{  
   --bg: #d9e1e8; --text: #37474f;  
   --safe-top: max(8px, env(safe-area-inset-top));  
-  --c-floor-out: #f0f4f8; --c-floor-core: #b2dfdb; 
+  /* ★ 修改這兩行：將走廊背景改為淺橘色，牆壁核心改為暖橘色 */
+  --c-floor-out: #fff3e0; 
+  --c-floor-core: #ffe0b2; 
+  
   --c-room: #d2b48c; --c-wall: #546e7a; 
   --c-desk: #81d4fa; --gold: #ffb300;
 }
@@ -187,7 +190,11 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
           <div style="position:absolute; left:10%; right:10%; top:20%; bottom:20%; border:2px solid rgba(0,0,0,0.05); border-radius:20px;"></div>
         </div>
         <div class="lobby-desk">大廳服務中心</div>
-        <div class="lobby-elevator">往 各大樓層 ⬆️</div>
+        
+        <div id="lobby-tv" style="position:absolute; left:1800px; top:-500px; width:150px; height:80px; background:#111; border:4px solid #333; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; font-weight:bold; box-shadow:0 10px 20px rgba(0,0,0,0.5), inset 0 0 10px rgba(255,255,255,0.2); z-index:2; text-align:center;">
+            📺 亞東影音衛教<br><span style="font-size:10px; color:#4fc3f7; margin-top:4px; display:inline-block;">(靠近可觀看)</span>
+        </div>
+
         <div class="teleport-zone" style="left: 1400px; top: -1170px; width: 200px; height: 50px;"></div>
         
         <div class="corridor-rest"></div><div class="room-rest">休息室</div>
@@ -319,10 +326,8 @@ if (taskId === 'hub_world') {
         task.intro = "歡迎來到遙遠的東方醫院！\n\n戰勝腦中風不靠運氣\n靠的是不斷累積的知識與能力 💪\n\n出發吧！前往大廳尋找主治醫師的指引";
     }
 
-    // 1. 改變起始座標為休息室
     task.startPos = { x: 1500, y: -150 };
 
-    // 2. 將更衣櫃轉換為純物件 (obj_)，並把舊的砍掉避免重複
     let oldWardrobeIndex = task.npcs.findIndex(n => n.action === 'ACTION_WARDROBE' || n.name.includes('更衣'));
     if (oldWardrobeIndex !== -1) {
         task.npcs[oldWardrobeIndex] = {
@@ -331,11 +336,25 @@ if (taskId === 'hub_world') {
         };
     }
 
-    // 3. 加入任務平板 (obj_)
     if (!task.npcs.find(n => n.id === 'obj_tablet')) {
         task.npcs.push({
             id: 'obj_tablet', name: '任務平板', icon: '📱', color: '#1976d2',
             pos: { x: 1650, y: -220 }, action: 'ACTION_CHECK_TABLET', dialogs: [{name: '', text: ''}]
+        });
+    }
+
+    // ★ 新增：電視看板的互動邏輯 (設定在我們剛才放電視的位置附近)
+    if (!task.npcs.find(n => n.id === 'obj_tv')) {
+        task.npcs.push({
+            id: 'obj_tv', name: '電視看板', icon: '', color: 'transparent',
+            // 座標設定在電視正前方一點點，讓玩家靠近時會觸發
+            pos: { x: 1875, y: -460 }, 
+            // 發送專屬指令給外部系統
+            action: 'ACTION_WATCH_TV', 
+            dialogs: [{
+                name: '系統提示', 
+                text: '這是一台播放著亞東紀念醫院精選影音的數位看板。\n\n你要開啟 YouTube 觀看最新的衛教影片嗎？'
+            }]
         });
     }
 }
