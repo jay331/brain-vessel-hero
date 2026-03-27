@@ -275,18 +275,13 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
         <button class="btn btn-back" onclick="showScreen('scrHome')"><span class="back-icon">🏠</span> 返回主畫面</button>
       </section>
 
-      <section class="screen" id="scrLeaderboard">
-        <div class="panel">
-          <h2 style="color: var(--theme-primary); margin-top:0; border-bottom: none;">全院排行榜</h2>
-          <div class="pokedex-tabs" id="lbTabs">
-            <button class="tab-btn active" onclick="renderTotalScoreLeaderboard('cases', this)">救治個案數</button>
-            <button class="tab-btn" onclick="renderTotalScoreLeaderboard('adv', this)">進階任務</button>
-            <button class="tab-btn" onclick="renderTotalScoreLeaderboard('beg', this)">初階任務</button>
-          </div>
-          <div id="lbListTotal" style="flex: 1; overflow-y: auto; padding-right: 4px;"></div>
-        </div>
-        <button class="btn btn-back" onclick="showScreen('scrHome')"><span class="back-icon">🏠</span> 返回主畫面</button>
-      </section>
+<section class="screen" id="scrLeaderboard">
+  <div class="panel">
+    <h2 style="color: var(--theme-primary); margin-top:0; border-bottom: none;" id="lbMainTitle">極限挑戰大賽</h2>
+    <div id="lbListTotal" style="flex: 1; overflow-y: auto; padding-right: 4px;"></div>
+  </div>
+  <button class="btn btn-back" onclick="showScreen('scrHome')"><span class="back-icon">🏠</span> 返回主畫面</button>
+</section>
 
       <section class="screen" id="scrStrokeCard">
         <div class="panel">
@@ -872,8 +867,9 @@ function updateModeUI() {
   id('uiPlayerName').textContent = playerState.name;
   id('hudAvatar').src = playerState.avatar;
   
-  id('navModeText').textContent = isBeg ? '初階版' : '進階版';
-  id('navLbText').textContent = isBeg ? '中風名片' : '排行榜';
+// 在 updateModeUI 函式內修改
+id('navLbText').textContent = isBeg ? '中風名片' : '極限挑戰'; // 排行榜 -> 極限挑戰
+id('navLbIcon').innerHTML = isBeg ? '📇' : '🔥'; // 改成更熱血的圖示
   
   if (isBeg) {
     id('uiStoryToggleWrap').style.display = 'flex';
@@ -1535,17 +1531,60 @@ function tryLaunchFreeCell() {
   }
 }
 
-function renderTotalScoreLeaderboard(tab, btnEl) {
-  Array.from(id('lbTabs').children).forEach(t => t.classList.remove('active')); btnEl.classList.add('active');
-  let html = ''; let mockNames = ["陳醫師", "王護理長", "林復健師", "張志明", "李小華", "趙大寶", "孫阿姨", "周先生", "吳小姐", "鄭伯伯", "劉醫師", "蔡技術員", "楊先生", "許小姐", "黃志強", "曾美麗", "蕭醫師", "郭大俠", "羅護理師", "梁伯伯"];
-  for(let i=0; i<20; i++) {
-     let rankIcon = (i===0)?'🥇':(i===1)?'🥈':(i===2)?'🥉':`${i+1}`; let score = 0;
-     if(tab === 'cases') score = 120 - i*3 + " 例"; else if(tab === 'adv') score = (25000 - i*500) + " 分"; else score = (10000 - i*200) + " 分";
-     let name = mockNames[i]; if(i===6) { name = playerState.name + " (您)"; score = "持續努力中"; }
-     let isMeClass = (i===6) ? 'border-color: var(--theme-primary); background: rgba(255,255,255,0.1);' : '';
-     html += `<div class="lb-item" style="${isMeClass}"><span class="lb-rank" style="width:25px; text-align:center; font-weight:bold; color:#ccc;">${rankIcon}</span><div style="flex:1; padding-left:10px;"><div style="font-weight:bold; font-size:14px; color:${i===6?'var(--theme-primary)':'#fff'};">${name}</div></div><div style="color:var(--theme-primary); font-weight:bold; font-size:13px;">${score}</div></div>`;
+function renderTotalScoreLeaderboard() {
+  // 如果是初階模式，我們還是讓它進到排行榜 (或你可以引導去名片)
+  if (playerState.mode === 'beginner') {
+    renderStrokeCard(); // 或者跳轉到名片
+    return;
   }
-  if(id('lbListTotal')) id('lbListTotal').innerHTML = html;
+
+  id('lbMainTitle').textContent = '🔥 極限挑戰大賽';
+  const container = id('lbListTotal');
+  container.innerHTML = '';
+
+  CHALLENGE_GAMES.forEach(ch => {
+    // 檢查該類別是否已全破 (尋找對應 role)
+    const role = ROLES_DATA_ADV.find(r => r.id === ch.roleId);
+    let isUnlocked = false;
+    
+    if (role) {
+      // 邏輯：完成任務數等於總任務數，或是 currentTask 指向了總數+1
+      const doneCount = Array.from(playerState.taskScoresAdv.keys()).filter(k => k.startsWith(role.id + '_')).length;
+      isUnlocked = doneCount >= role.totalTasks;
+    }
+
+    if (isUnlocked) {
+      // 已解鎖樣式
+      container.innerHTML += `
+        <div class="role-card" style="margin-bottom:10px; min-height:80px; background:linear-gradient(135deg, #1a1a1a, #333); border:2px solid var(--theme-primary);" onclick="launchChallenge('${ch.url}', '${ch.title}')">
+          <div class="role-avatar" style="font-size:28px;">${ch.icon}</div>
+          <div class="role-info">
+            <div class="role-name" style="color:var(--good);">${ch.title}</div>
+            <div class="role-task" style="opacity:0.8;">${ch.desc}</div>
+          </div>
+          <div class="role-go-btn" style="background:var(--good); color:#000;">GO</div>
+        </div>
+      `;
+    } else {
+      // 未解鎖樣式
+      container.innerHTML += `
+        <div class="role-card" style="margin-bottom:10px; min-height:80px; opacity:0.6; filter:grayscale(100%); cursor:not-allowed;">
+          <div class="role-avatar" style="font-size:28px;">🔒</div>
+          <div class="role-info">
+            <div class="role-name">${ch.title}</div>
+            <div class="role-task">解鎖條件：完成「${role ? role.name : '未知'}」類別所有進階任務</div>
+          </div>
+        </div>
+      `;
+    }
+  });
+}
+
+// 啟動挑戰賽
+function launchChallenge(url, title) {
+  id('gameTitle').textContent = title;
+  id('gameFrame').src = url;
+  id('gameOverlay').style.display = 'flex';
 }
 
 function renderStrokeCard() {
@@ -1638,6 +1677,40 @@ const GLASSES_DB = [
   { id: 'g_half', style: 'half', name: '經典半框', price: 800 },     // ★ 新增：呼叫 .style-half
   { id: 'g_red', style: 'red', name: '紅框眼鏡', price: 1000 },
   { id: 'g_sun', style: 'sun', name: '帥氣墨鏡', price: 1500 }
+];
+
+  // ===============================================
+// ★ 極限挑戰賽資料庫 ★
+// ===============================================
+const CHALLENGE_GAMES = [
+  {
+    id: 'ch_racing_dist',
+    roleId: 'ems', // 假設這是急診/119類別
+    title: '【極限】長程救護拉力賽',
+    desc: '在無盡的車流中行駛最長距離，測試穩定度！',
+    icon: '🏎️',
+    url: 'game_racing_infinite.html',
+    unit: '公尺'
+  },
+  {
+    id: 'ch_racing_speed',
+    roleId: 'ems',
+    title: '【極限】黃金秒數速飆賽',
+    desc: '極速避開障礙，挑戰全院最快到達紀錄！',
+    icon: '⚡',
+    url: 'game_racing_speed.html',
+    unit: 'km/h'
+  },
+  {
+    id: 'ch_sorting_endless',
+    roleId: 'nurse', // 假設這是護理師類別
+    title: '【極限】地獄檢傷分類',
+    desc: '永無止盡的病患湧入，挑戰你的判斷精準與速度！',
+    icon: '🏥',
+    url: 'game_sorting_endless.html',
+    unit: '人次'
+  }
+  // 你可以依此類推增加更多...
 ];
 
 // === 便利商店 - 治裝區 ===
