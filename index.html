@@ -1286,11 +1286,77 @@ function getAvailableTickets() {
 }
 
 // 1. 切換 拼圖畫廊 / 橫向健康卡
+// 1. 修復拼圖畫廊渲染 (移除舊的個案紀錄，避免報錯當機)
+function renderCaseDex() {
+  const avail = getAvailableTickets(); 
+  const unlockedCount = (playerState.unlockedPuzzles || []).length;
+  
+  id('uiPuzzleAvail').textContent = avail;
+  id('uiPuzzleCollected').textContent = unlockedCount;
+  if(id('puzzleHintText')) id('puzzleHintText').innerText = `💡 每完成 5 次不重複的「任務或演練」可獲 1 張通用票券\n(可用於抽拼圖或玩新接龍)`;
+  
+  if (avail > 0) id('btnDrawPuzzle').style.display = 'inline-block';
+  else id('btnDrawPuzzle').style.display = 'none';
+
+  const gallery = id('puzzleGallery'); gallery.innerHTML = '';
+  let unlockedArr = playerState.unlockedPuzzles || []; let pendingArr = playerState.pendingPuzzles || [];
+  let displayItems = [];
+  unlockedArr.forEach(pid => displayItems.push({id: pid, status: 'unlocked'}));
+  pendingArr.forEach(pid => displayItems.push({id: pid, status: 'pending'}));
+  displayItems.sort((a, b) => a.id - b.id);
+  
+  const puzzleTitles = [
+    "神經內科醫師是腦中風病人主要診療者", "急診醫師與神經內科醫師交接急診中風病人", "中風病房護理師專精於中風病人照護", "動脈取栓醫師負責腦血管導管治療", "語言治療師訓練中風病人發音及語言表達",
+    "119緊急救護人員(EMT)協助中風第一線場評估及轉送", "營養師調配腦中風專屬飲食", "加護病房醫師進行神經學檢查及監測", "腦中風手術治療進行中，搶救受損腦細胞", "專科護理師協助醫師照護臨床中風病人",
+    "放射師與影醫科醫師執行腦部影像檢查及判讀", "住院醫師學習神經學評估與中風照護", "頸動脈超音波檢查腦血管及血流狀態", "針灸治療輔助中風復健，中西醫合併", "腦中風磁刺激治療加強復健成效",
+    "物理治療師使用下肢機器人協助中風步態訓練", "個管師電訪關心中風病人出院後恢復狀態", "社工師協助長照資源及社會福利申請", "中風後吞嚥困難使用鼻胃管協助進食", "職能治療師協助精細動作及日常功能訓練"
+  ];
+  
+  if (displayItems.length === 0) gallery.innerHTML = '<div style="grid-column: 1 / -1; text-align:center; color:#aaa; margin-top:20px;">尚未收集到任何拼圖，快去破關累積票券吧！</div>';
+  else displayItems.forEach(item => {
+    let pTitle = puzzleTitles[item.id - 1] || "未知名稱";
+    if (item.status === 'unlocked') {
+      gallery.innerHTML += `
+        <div class="card-item" style="padding: 4px; justify-content: flex-start; height: auto;" onclick="replayPuzzle(${item.id})">
+          <div style="width: 100%; aspect-ratio: 1/1; position: relative; overflow: hidden; border-radius: 4px; background:#000;">
+            <img src="assets/puzzle_${item.id}.png" style="width:100%; height:100%; object-fit:cover; opacity: 0.8; transition: opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8" onerror="this.onerror=null; this.style.display='none'; this.parentElement.style.background='linear-gradient(135deg, #37474f, #263238)'; this.parentElement.innerHTML+='<div style=\\\'position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); font-size:30px; opacity:0.3;\\\'>🧩</div>';">
+            <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.7); color:#fff; font-size:11px; font-weight:bold; padding:2px 0; z-index:10;">#${item.id}</div>
+          </div>
+          <div style="font-size:10px; color:#e0e0e0; margin-top:6px; line-height:1.2; word-break:break-word; padding: 0 2px;">${pTitle}</div>
+        </div>`;
+    } else {
+      gallery.innerHTML += `
+        <div class="card-item" style="padding: 4px; justify-content: flex-start; border-color: #ffb300; height: auto;" onclick="playPendingPuzzle(${item.id})">
+          <div style="width: 100%; aspect-ratio: 1/1; position: relative; overflow: hidden; border-radius: 4px; background: linear-gradient(135deg, #5d4037, #3e2723); display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <div style="font-size:26px; margin-bottom:2px;">🎁</div>
+            <div style="font-size:10px; font-weight:bold; color:#ffb300; text-shadow:1px 1px 2px #000;">點擊挑戰</div>
+            <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(189,122,0,0.8); color:#fff; font-size:11px; font-weight:bold; padding:2px 0; z-index:10;">待拼湊 #${item.id}</div>
+          </div>
+          <div style="font-size:10px; color:#aaa; margin-top:6px; line-height:1.2; word-break:break-word; padding: 0 2px;">${pTitle}</div>
+        </div>`;
+    }
+  });
+  
+  // 確保每次渲染畫廊時，健康卡也同步更新
+  renderHealthCardsList();
+}
+
+// ★ 防呆機制：確保 HTML 中呼叫 renderPuzzleGallery 時也能正確對應
+window.renderPuzzleGallery = renderCaseDex;
+
+// 2. 修復標籤切換 (正確對應 拼圖 與 健康卡)
 function switchCaseTab(tab, btnEl) {
-  Array.from(id('caseDexTabs').children).forEach(t => t.classList.remove('active')); btnEl.classList.add('active');
+  Array.from(id('caseDexTabs').children).forEach(t => t.classList.remove('active')); 
+  btnEl.classList.add('active');
+  
+  // 顯示或隱藏對應的容器
   id('puzzleGallery').style.display = tab === 'gallery' ? 'grid' : 'none';
   id('healthCardsContainer').style.display = tab === 'healthcards' ? 'block' : 'none';
-  if (tab === 'healthcards') renderHealthCardsList();
+  
+  // 如果切換到健康卡，確保資料有渲染出來
+  if (tab === 'healthcards') {
+      renderHealthCardsList();
+  }
 }
 
 // 2. 渲染拼圖畫廊 (保留你原本的所有拼圖陣列與抽獎狀態)
