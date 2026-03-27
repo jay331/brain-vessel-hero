@@ -48,7 +48,7 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 /* ===== 元件 ===== */
 .panel { background: var(--theme-panel); border: 1px solid var(--theme-dim); border-radius: 10px; padding: 12px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; flex: 1; min-height: 0;}
 .panel h2 { color: var(--theme-primary); margin: 0 0 10px 0; font-size: 16px; text-align: center; border-bottom: 1px dashed var(--theme-dim); padding-bottom: 6px; flex-shrink: 0;}
-.btn { padding: 12px; border-radius: 6px; font-weight: 900; font-size: 15px; text-align: center; background: linear-gradient(180deg, #444, #222); color: #fff; border: 1px solid #666; width: 100%; cursor:pointer; flex-shrink: 0;}
+.btn { padding: 12px; border-radius: 6px; font-weight: 900; font-size: 15px; text-align: center; background: linear-gradient(180deg, #444, #222); color: #fff; border: 1px solid #666; width: 100%; cursor:pointer; flex-shrink: 0; transition: transform 0.1s;}
 .btn:active { transform: scale(0.95); }
 .btn-back { background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.6)); border: 1px solid var(--theme-dim); color: #fff; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 10px rgba(0,0,0,0.5); border-radius: 8px; transition: all 0.2s; flex-shrink: 0; }
 .btn-back:active { transform: scale(0.97); background: rgba(0,0,0,0.8); }
@@ -60,25 +60,19 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .linear-standby h2 { color: var(--theme-primary); font-size: 22px; margin: 0 0 8px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
 .linear-standby p { color: #ccc; font-size: 13px; margin: 0 0 15px 0; line-height: 1.6; }
 
-.subtask-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; overflow-y:auto; flex:1;}
-.subtask-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-radius: 8px; border: 1px solid var(--theme-dim); font-weight: bold; font-size: 14px; transition: all 0.2s; flex-shrink: 0;}
-.subtask-item.completed { background: rgba(255, 255, 255, 0.05); border-color: #444; color: #aaa; }
-.subtask-item.completed .status-text { color: var(--theme-primary); filter: drop-shadow(0 0 2px rgba(0,0,0,0.8)); font-size: 15px;}
-.subtask-item.active { background: linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); border: 2px solid #fff; color: var(--btn-text); text-shadow: var(--btn-shadow); cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5), 0 0 15px var(--theme-primary); transform: scale(1.02); z-index:2; }
-.subtask-item.locked { background: rgba(0, 0, 0, 0.6); border-color: #333; color: #666; pointer-events: none; }
-
-.boss-banner { background: linear-gradient(135deg, var(--theme-dim), #0a0a0a); border: 2px solid var(--theme-primary); border-radius: 8px; padding: 0; display:flex; flex-direction: column; justify-content: center; text-align: center; margin: 0; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.8); flex-shrink:0; min-height:55px;}
-.boss-banner h3 { margin: 0; color: #fff; font-size: 15px; text-shadow: 1px 1px 3px rgba(0,0,0,0.9); }
-.boss-banner p { margin: 2px 0 0; font-size: 11px; color: var(--text-main); text-shadow: 1px 1px 2px rgba(0,0,0,0.9); }
-.boss-banner.locked { filter: grayscale(100%); opacity: 0.6; border-color: #555; box-shadow: none; }
-
-/* 挑戰清單特殊卡片 */
+.role-list { display: flex; flex-direction: column; gap: 6px; margin: 0; flex: 1; overflow-y:auto; padding-bottom: 10px;}
 .role-card { display: flex; align-items: center; gap: 10px; padding: 0 12px; background: var(--theme-grad); border: 1px solid var(--theme-dim); border-radius: 8px; position: relative; cursor: pointer; flex-shrink: 0; min-height:60px;} 
+.role-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--theme-primary); border-radius: 8px 0 0 8px; }
 .role-avatar { width: 38px; height: 38px; border-radius: 6px; border: 1px solid var(--theme-dim); background: #000; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink: 0;}
 .role-info { flex: 1; display: flex; flex-direction: column; justify-content: center;}
 .role-name { font-size: 15px; font-weight: 900; color: var(--theme-primary); margin: 0 0 2px 0; text-shadow: 1px 1px 2px #000; line-height: 1.2;}
 .role-task { font-size: 11px; color: #fff; font-weight: bold; margin: 0; opacity: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); line-height: 1.2;}
 .role-go-btn { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); color: var(--btn-text); display: flex; align-items: center; justify-content: center; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.8); transition: transform 0.2s; font-weight:bold;}
+
+.boss-banner { background: linear-gradient(135deg, var(--theme-dim), #0a0a0a); border: 2px solid var(--theme-primary); border-radius: 8px; padding: 0; display:flex; flex-direction: column; justify-content: center; text-align: center; margin: 0; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.8); flex-shrink:0; min-height:55px;}
+.boss-banner h3 { margin: 0; color: #fff; font-size: 15px; text-shadow: 1px 1px 3px rgba(0,0,0,0.9); }
+.boss-banner p { margin: 2px 0 0; font-size: 11px; color: var(--text-main); text-shadow: 1px 1px 2px rgba(0,0,0,0.9); }
+.boss-banner.locked { filter: grayscale(100%); opacity: 0.6; border-color: #555; box-shadow: none; }
 
 /* 卡匣等其餘 UI */
 .pokedex-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 6px; flex-wrap: nowrap; scrollbar-width: none; justify-content:center; flex-shrink: 0;}
@@ -145,7 +139,7 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
           <div class="player-name" id="uiPlayerName" onclick="openSettings()">急救新星</div>
           <div id="uiStoryToggleWrap" class="segment-ctrl" style="display:flex;">
             <div class="segment-btn active" id="segMap" onclick="setHomeView(true)">地圖</div>
-            <div class="segment-btn" id="segList" onclick="setHomeView(false)">任務</div>
+            <div class="segment-btn" id="segList" onclick="setHomeView(false)">清單</div>
           </div>
         </div>
       </div>
@@ -184,15 +178,23 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
           <iframe id="homeMapFrame" style="position:absolute; inset:0; width:100%; height:100%; border:none; background:#000;"></iframe>
         </div>
 
-        <div id="roleListContainer" style="display: none; flex-direction: column; flex: 1; overflow: hidden;">
-          <select id="homeRoleSelect" onchange="renderSelectedRoleTasks(this.value)" style="margin-bottom: 8px; font-weight:bold; color:var(--theme-primary); font-size:16px; text-align:center; padding:10px; background:var(--theme-panel); border:1px solid var(--theme-primary); box-shadow:0 2px 10px rgba(0,0,0,0.5);"></select>
-          <div class="subtask-list" id="homeTaskListContainer" style="flex:1; overflow-y:auto; margin:0; padding-right:4px;"></div>
-        </div>
+        <div class="role-list" id="roleListContainer" style="display: none;"></div>
         
         <div class="boss-banner locked" id="bossBanner" onclick="openBossPrep()" style="display:flex; margin-bottom:10px;">
           <h3 id="bossTitleText">🛡️ 居家演練 - 綜合情境驗收</h3>
           <p id="bossStatusText">需完成探索任務以解鎖</p>
         </div>
+      </section>
+
+      <section class="screen" id="scrRoleDetail">
+        <div class="panel">
+          <h2 id="detailTitle">任務詳情</h2>
+          <div style="display:flex; flex-direction:column; gap:15px; margin-top:20px; flex:1;">
+            <select id="taskDropdown" style="padding:15px 10px; font-size:16px; font-weight:bold; color:var(--theme-primary); background:rgba(0,0,0,0.6); border:2px solid var(--theme-dim); border-radius:8px; width:100%; outline:none;" onchange="updateTaskButton()"></select>
+            <button id="btnStartTask" class="btn" style="background:linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); color:var(--btn-text); font-size:18px; padding:15px; box-shadow:0 4px 15px rgba(0,0,0,0.5);">➤ 開始挑戰</button>
+          </div>
+        </div>
+        <button class="btn btn-back" onclick="showScreen('scrHome')"><span class="back-icon">🏠</span> 返回主畫面</button>
       </section>
 
       <section class="screen" id="scrCaseDex">
@@ -349,6 +351,10 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
 <div class="modal-overlay" id="storeModal">
   <div class="modal-content" style="border-color: #81c784;">
     <button class="close-btn" onclick="document.getElementById('storeModal').style.display='none'">✖</button>
+    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.6); padding:10px 15px; border-radius:8px; margin-bottom:15px; border:1px solid var(--theme-dim);">
+       <span style="color:#aaa; font-size:13px; font-weight:bold;">目前餘額</span>
+       <span style="color:var(--good); font-size:16px; font-weight:900;" id="storeCoinDisplay">$ 0 幣</span>
+    </div>
     <h3 style="color:#4caf50; margin: 0 0 5px 0;">🏪 便利商店 - 治裝區</h3>
     <p style="font-size:12px; color:#aaa; margin-bottom:15px;">使用健康幣購買職業服裝，購買後請至「休息室」更換。</p>
     <div id="storeList" style="display:flex; flex-direction:column; gap:8px;"></div>
@@ -479,7 +485,7 @@ window.addEventListener('message', (event) => {
           else handleGameClear(event.data.score || 1000);
       } else {
           updateModeUI();
-          customAlert('扣除 1 次挑戰機會，請再接再厲！', () => { currentGameInfo = null; }, "❌ 任務失敗");
+          customAlert('任務模擬失敗，請再接再厲！', () => { currentGameInfo = null; }, "❌ 任務失敗");
       }
   }
   
@@ -498,6 +504,7 @@ window.addEventListener('message', (event) => {
   }
   else if (event.data.type === 'ACTION_STORE') openStoreUI();
   else if (event.data.type === 'ACTION_WARDROBE') openWardrobeUI();
+  else if (event.data.type === 'ACTION_WATCH_TV') window.open('https://www.youtube.com/@femhospital4347/videos', '_blank');
 });
 
 // ===============================================
@@ -590,6 +597,7 @@ function handleNavSlot5() {
 
 function updateHUD() { 
   id('uiCoins').textContent = playerState.coins.toLocaleString(); 
+  if(id('storeCoinDisplay')) id('storeCoinDisplay').textContent = `$ ${playerState.coins.toLocaleString()} 幣`;
   
   const isUnlocked = playerState.mode === 'beginner' ? ROLES_DATA_BEG.every(r => r.currentTask > 1) : ROLES_DATA_ADV.every(r => r.currentTask > 1);
   const banner = id('bossBanner');
@@ -619,14 +627,8 @@ function updateHUD() {
 }
 
 function renderHomeRoles() {
-  const select = id('homeRoleSelect'); const wrap = id('roleListContainer'); const taskCont = id('homeTaskListContainer');
-  if (!select || !wrap || !taskCont) return;
-  if (playerState.storyMode && playerState.mode === 'beginner') { wrap.style.display = 'none'; return; }
-  
-  wrap.style.display = 'flex';
-  const prevValue = select.value;
-  select.innerHTML = '';
-  
+  const container = id('roleListContainer'); if(!container) return;
+  container.innerHTML = '';
   getActiveRoles().forEach(role => {
     let doneCount = 0;
     for(let i=0; i<role.totalTasks; i++) {
@@ -635,31 +637,57 @@ function renderHomeRoles() {
     }
     const isCompleted = playerState.mode === 'beginner' ? (doneCount === role.totalTasks) : (role.currentTask > role.totalTasks);
     const progressText = isCompleted ? '✅ 已通關' : `進度 ${playerState.mode==='beginner'?doneCount:role.currentTask-1}/${role.totalTasks}`;
-    select.innerHTML += `<option value="${role.id}">${role.name} (${progressText})</option>`;
+    const actionBtn = isCompleted ? `<div class="role-go-btn done">✔</div>` : `<div class="role-go-btn">➤</div>`;
+
+    container.innerHTML += `
+      <div class="role-card" onclick="openRoleDetail('${role.id}')">
+        <div class="role-avatar">${role.icon}</div>
+        <div class="role-info">
+          <div class="role-name">${role.name}</div>
+          <div class="role-task">${role.subtitle} | ${progressText}</div>
+        </div>
+        <div class="role-status">${actionBtn}</div>
+      </div>
+    `;
   });
-  
-  if (prevValue && getActiveRoles().find(r => r.id === prevValue)) select.value = prevValue;
-  else select.selectedIndex = 0;
-  
-  if(select.value) renderSelectedRoleTasks(select.value);
 }
 
-function renderSelectedRoleTasks(roleId) {
+function openRoleDetail(roleId) { 
   activeRoleId = roleId; const role = getActiveRoles().find(r => r.id === roleId);
-  const container = id('homeTaskListContainer'); container.innerHTML = '';
+  id('detailTitle').textContent = `${role.name} - 任務詳情`; 
+  
+  const dropdown = id('taskDropdown'); dropdown.innerHTML = '';
+  let targetIdx = 0;
   
   for(let i=0; i<role.totalTasks; i++) {
-    let statusClass = 'locked', icon = '🔒', action = '';
+    let status = '🔒 未解鎖', isLocked = true, isDone = false;
     if (playerState.mode === 'beginner') {
-       const isDone = playerState.taskScoresBeg.has(`${role.id}_${i}`);
-       statusClass = isDone ? 'completed' : 'active'; icon = isDone ? '✔ 完成' : '➤ 挑戰'; action = `onclick="playTask(${i})"`;
+       isDone = playerState.taskScoresBeg.has(`${role.id}_${i}`);
+       isLocked = false; status = isDone ? '✔ 已完成' : '➤ 可挑戰';
     } else {
-       if (i+1 < role.currentTask) { statusClass = 'completed'; icon = '✔ 完成'; action = `onclick="playTask(${i})"`; }
-       else if (i+1 === role.currentTask) { statusClass = 'active'; icon = '➤ 挑戰'; action = `onclick="playTask(${i})"`; }
-       if (role.currentTask > role.totalTasks) { statusClass = 'active'; icon = '↻ 複習'; action = `onclick="playTask(${i})"`;}
+       if (i+1 < role.currentTask) { isDone = true; isLocked = false; status = '✔ 已完成'; }
+       else if (i+1 === role.currentTask) { isLocked = false; status = '➤ 可挑戰'; targetIdx = i; }
+       if (role.currentTask > role.totalTasks) { isLocked = false; status = '↻ 複習'; }
     }
-    container.innerHTML += `<div class="subtask-item ${statusClass}" ${action}><span>${role.subTasks[i]}</span><span class="status-text">${icon}</span></div>`;
+    dropdown.innerHTML += `<option value="${i}" ${isLocked ? 'disabled' : ''}>${role.subTasks[i]} [${status}]</option>`;
   }
+  
+  if (playerState.mode === 'advanced') {
+      if (role.currentTask <= role.totalTasks) dropdown.value = targetIdx;
+      else dropdown.value = 0;
+  }
+  
+  updateTaskButton(); showScreen('scrRoleDetail'); 
+}
+
+function updateTaskButton() {
+    const dropdown = id('taskDropdown'); const btn = id('btnStartTask');
+    const opt = dropdown.options[dropdown.selectedIndex];
+    if (!opt || opt.disabled) {
+        btn.style.background = '#555'; btn.style.color = '#888'; btn.style.cursor = 'not-allowed'; btn.onclick = null; btn.innerText = '🔒 尚未解鎖';
+    } else {
+        btn.style.background = 'linear-gradient(135deg, var(--theme-primary), var(--theme-dim))'; btn.style.color = 'var(--btn-text)'; btn.style.cursor = 'pointer'; btn.innerText = '➤ 開始挑戰'; btn.onclick = () => playTask(parseInt(dropdown.value));
+    }
 }
 
 function closeAllIframes() { id('gameOverlay').style.display = 'none'; id('gameFrame').src = ''; id('mapOverlay').style.display = 'none'; id('mapFrame').src = ''; }
