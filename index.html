@@ -262,7 +262,7 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
 
       <section class="screen" id="scrStrokeCard">
         <div class="panel">
-          <h2>我的中風名片</h2>
+          <h2>我的中風歷程</h2>
           <div style="flex:1; overflow-y:auto;">
             <div id="scDisplayMode" style="display:none;">
               <div class="business-card" id="bcView"></div>
@@ -296,16 +296,16 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
           <div id="scaleListView" style="display:none; overflow-y:auto; flex:1;"><div id="trendListContainer"></div></div>
           <div id="scaleTrendView" style="display:none; overflow-y:auto; flex:1;"><div id="chartContainer"></div></div>
         </div>
-        <button class="btn btn-back" onclick="showScreen('scrStrokeCard')"><span class="back-icon">📇</span> 返回中風名片</button>
+        <button class="btn btn-back" onclick="showScreen('scrStrokeCard')"><span class="back-icon">📇</span> 返回中風歷程</button>
       </section>
 
       <nav class="bottom-nav" id="mainNav">
         <div class="nav-item" id="navSlot1" onclick="handleNavSlot1()">
-          <div class="icon" id="navSlot1Icon">📇</div><span style="font-size:10px;" id="navSlot1Text">中風名片</span>
+          <div class="icon" id="navSlot1Icon">📖</div><span style="font-size:10px;" id="navSlot1Text">中風歷程</span>
         </div>
         
         <div class="nav-item" id="navCaseDex" onclick="showScreen('scrCaseDex'); renderCaseDex();" style="position: relative;">
-          <div class="icon">🖼️</div><span style="font-size:10px;">健康圖卡</span>
+          <div class="icon">🗂️</div><span style="font-size:10px;">健康圖卡</span>
           <div id="casedexBadge" style="position:absolute; top:-2px; right:5px; background:var(--accent-red); color:#fff; border-radius:50%; width:16px; height:16px; font-size:10px; font-weight:bold; display:none; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.5); z-index:10;"></div>
         </div>
         
@@ -319,7 +319,7 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
         </div>
         
         <div class="nav-item" id="navSlot5" onclick="handleNavSlot5()">
-          <div class="icon" id="navSlot5Icon">🎯</div><span style="font-size:10px;" id="navSlot5Text">復健挑戰</span>
+          <div class="icon" id="navSlot5Icon">💪</div><span style="font-size:10px;" id="navSlot5Text">復健挑戰</span>
         </div>
       </nav>
 
@@ -673,22 +673,28 @@ function updateModeUI() {
   
   id('navModeText').textContent = isBeg ? '初階版' : '進階版';
   
-  id('navSlot1Icon').innerHTML = isBeg ? '📇' : '⚕️';
-  id('navSlot1Text').textContent = isBeg ? '中風名片' : '臨床工具';
+  // ★ 動態更新導覽列第一格 (📖 中風歷程 / 🩺 臨床工具)
+  id('navSlot1Icon').innerHTML = isBeg ? '📖' : '🩺';
+  id('navSlot1Text').textContent = isBeg ? '中風歷程' : '臨床工具';
   
-  id('navSlot5Icon').innerHTML = isBeg ? '🎯' : '🏆';
+  // ★ 動態更新導覽列第五格 (💪 復健挑戰 / 🏆 極限挑戰)
+  id('navSlot5Icon').innerHTML = isBeg ? '💪' : '🏆';
   id('navSlot5Text').textContent = isBeg ? '復健挑戰' : '極限挑戰';
   
   if (isBeg) {
     id('uiStoryToggleWrap').style.display = 'flex';
-    if (playerState.storyProgression >= TOTAL_BEG_TASKS && playerState.storyMode) playerState.storyMode = false;
+    if (playerState.storyProgression >= TOTAL_BEG_TASKS && playerState.storyMode) {
+        playerState.storyMode = false;
+    }
     setHomeView(playerState.storyMode);
   } else {
     id('uiStoryToggleWrap').style.display = 'none'; 
     setHomeView(false); 
   }
   
-  updateHUD(); renderHomeRoles(); showScreen('scrHome');
+  updateHUD();
+  renderHomeRoles();
+  showScreen('scrHome');
 }
 
 function handleNavSlot1() {
