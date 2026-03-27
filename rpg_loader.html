@@ -191,12 +191,13 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
         </div>
         <div class="lobby-desk">大廳服務中心</div>
         
-        <div id="lobby-tv" style="position:absolute; left:1800px; top:-500px; width:150px; height:80px; background:#111; border:4px solid #333; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; font-weight:bold; box-shadow:0 10px 20px rgba(0,0,0,0.5), inset 0 0 10px rgba(255,255,255,0.2); z-index:2; text-align:center;">
-            📺 亞東影音衛教<br><span style="font-size:10px; color:#4fc3f7; margin-top:4px; display:inline-block;">(靠近可觀看)</span>
+        <div style="position:absolute; left:1820px; top:-1200px; font-weight:bold; color:#1565c0; text-shadow:0 0 5px #fff; z-index:3;">⬆️ 往 各大樓層</div>
+        <div class="teleport-zone" style="left: 1850px; top: -1170px; width: 100px; height: 50px;"></div>
+        
+        <div id="lobby-tv" style="position:absolute; left:1800px; top:-500px; width:180px; height:100px; background:#111; border:5px solid #222; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px; font-weight:bold; box-shadow:-10px 10px 20px rgba(0,0,0,0.6), inset 0 0 15px rgba(255,255,255,0.1); z-index:2; text-align:center; transform: perspective(600px) rotateY(-35deg);">
+            📺 亞東影音衛教
         </div>
 
-        <div class="teleport-zone" style="left: 1400px; top: -1170px; width: 200px; height: 50px;"></div>
-        
         <div class="corridor-rest"></div><div class="room-rest">休息室</div>
         <div class="corridor-store"></div><div class="room-store">便利商店<br>(外觀購買)</div>
         <div class="corridor-pharmacy"></div><div class="room-pharmacy">門診藥局</div>
@@ -336,10 +337,17 @@ if (taskId === 'hub_world') {
         };
     }
 
-    if (!task.npcs.find(n => n.id === 'obj_tablet')) {
+// ★ 更新：電視看板的互動邏輯
+    if (!task.npcs.find(n => n.id === 'obj_tv')) {
         task.npcs.push({
-            id: 'obj_tablet', name: '任務平板', icon: '📱', color: '#1976d2',
-            pos: { x: 1650, y: -220 }, action: 'ACTION_CHECK_TABLET', dialogs: [{name: '', text: ''}]
+            id: 'obj_tv', name: '電視看板', icon: '', color: 'transparent',
+            // 將觸發座標設定在電視的左前方
+            pos: { x: 1800, y: -450 }, 
+            action: 'ACTION_WATCH_TV', 
+            dialogs: [{
+                name: '系統提示', 
+                text: '這是一台播放著亞東紀念醫院精選影音的數位看板。\n\n你要開啟 YouTube 觀看最新的衛教影片嗎？'
+            }]
         });
     }
 
