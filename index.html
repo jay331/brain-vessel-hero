@@ -1212,6 +1212,12 @@ const GLASSES_DB = [
 function openStoreUI() {
   let html = ''; const ownedC = playerState.ownedClothes || ['#fff']; const ownedG = playerState.ownedGlasses || ['none']; 
   
+  // ★ 新增：顯示目前持有的健康幣餘額
+  html += `<div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.6); padding:10px 15px; border-radius:8px; margin-bottom:15px; border:1px solid var(--theme-dim);">
+             <span style="color:#aaa; font-size:13px; font-weight:bold;">目前餘額</span>
+             <span style="color:var(--good); font-size:16px; font-weight:900;">$ ${playerState.coins.toLocaleString()} 幣</span>
+           </div>`;
+
   html += `<h4 style="color:#81c784; margin:0 0 10px 0; border-bottom:1px solid #555; padding-bottom:4px; text-align:left;">職業服裝</h4>`;
   CLOTHES_DB.forEach(c => {
     const btnHtml = ownedC.includes(c.color) ? `<button class="btn" style="width:auto; background:#555; pointer-events:none; padding:8px 12px; font-size:12px;">已擁有</button>` : `<button class="btn btn-rescue" style="width:auto; padding:8px 12px; font-size:12px;" onclick="buyClothes('${c.color}', ${c.price})">💰 ${c.price}</button>`;
