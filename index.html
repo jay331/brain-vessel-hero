@@ -66,7 +66,7 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .subtask-item.active { background: linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); border: 2px solid #fff; color: var(--btn-text); text-shadow: var(--btn-shadow); cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5), 0 0 15px var(--theme-primary); transform: scale(1.02); z-index:2; }
 .subtask-item.locked { background: rgba(0, 0, 0, 0.6); border-color: #333; color: #666; pointer-events: none; }
 
-/* ★ 手風琴式清單卡片 */
+/* 挑戰清單特殊卡片與下拉面板 (手風琴) */
 .role-list { display: flex; flex-direction: column; gap: 6px; margin: 0; flex: 1; overflow-y:auto; padding-bottom: 10px;}
 .role-card { display: flex; align-items: center; gap: 10px; padding: 0 12px; background: var(--theme-grad); border: 1px solid var(--theme-dim); border-radius: 8px; position: relative; cursor: pointer; flex-shrink: 0; min-height:60px; transition: border-radius 0.2s;} 
 .role-card.expanded { border-radius: 8px 8px 0 0; background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent); border-bottom-color: transparent;}
@@ -78,6 +78,7 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .role-task { font-size: 11px; color: #fff; font-weight: bold; margin: 0; opacity: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); line-height: 1.2;}
 .role-go-btn { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); color: var(--btn-text); display: flex; align-items: center; justify-content: center; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.8); transition: transform 0.2s; font-weight:bold;}
 
+/* ★ 下拉式任務面板 */
 .role-tasks-accordion { display:none; background:rgba(0,0,0,0.3); border-radius:0 0 8px 8px; padding:10px; margin-top:-4px; border:1px solid var(--theme-dim); border-top:none; box-shadow:inset 0 2px 10px rgba(0,0,0,0.5); margin-bottom: 4px;}
 .role-tasks-accordion.open { display:flex; flex-direction:column; gap:8px; }
 
@@ -114,18 +115,18 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .trend-card { background: rgba(0,0,0,0.5); border: 1px solid var(--theme-dim); border-radius: 8px; padding: 10px; margin-bottom: 8px; flex-shrink: 0;}
 .health-dist-title { display: flex; justify-content: space-between; font-size: 10px; color: #ccc; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 
-/* ===== ★ 底部導覽列 (瘦身至支援6格) ===== */
-.bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 65px; background: rgba(10,10,10,0.95); border-top: 1px solid #333; display: flex; justify-content: space-around; padding: 0 2px; align-items: center; z-index: 100; backdrop-filter: blur(5px); }
-.nav-item { color: #888; font-weight: bold; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; width: 48px; transition: color 0.2s;}
+/* ===== ★ 新版底部導覽列 (中央突起演練按鈕) ===== */
+.bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 65px; background: rgba(10,10,10,0.95); border-top: 1px solid #333; display: flex; justify-content: space-around; padding: 0 4px; align-items: center; z-index: 100; backdrop-filter: blur(5px); }
+.nav-item { color: #888; font-weight: bold; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; width: 55px; transition: color 0.2s;}
 .nav-item .icon { font-size: 20px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); transition: transform 0.2s; }
 .nav-item.active { color: var(--theme-primary); }
 .nav-item.active .icon { transform: translateY(-2px); }
 
-.mode-toggle-sq { width: 50px; height: 45px; border: 1px solid var(--theme-primary); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--theme-primary); font-size: 10px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.05); margin: 0 2px;}
-body.mode-advanced .mode-toggle-sq { background: linear-gradient(135deg, var(--theme-dim), #0a0a0a); }
-body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--theme-dim), #0a0a0a); }
-.mode-toggle-sq:active { background: #000; transform: scale(0.95); }
-.mode-toggle-sq .icon { font-size: 18px; margin-bottom: 2px; text-shadow: none;}
+/* 中央凸起設計 */
+.nav-item.center-action { position: relative; top: -15px; width: 65px; height: 65px; background: linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); border-radius: 50%; border: 4px solid #111; box-shadow: 0 4px 10px rgba(0,0,0,0.5); color: var(--btn-text); z-index: 105; justify-content: center; gap: 0;}
+.nav-item.center-action .icon { font-size: 24px; margin-bottom: 2px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3)); }
+.nav-item.center-action span:not(.icon) { font-size: 10px; font-weight: 900; text-shadow: var(--btn-shadow); }
+.nav-item.center-action:active { transform: scale(0.95); }
 
 /* 彈出視窗 */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 50000; padding: 15px;}
@@ -157,6 +158,12 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
         <span style="color:#aaa; font-weight:normal;">救治數</span>
         <span id="uiCases" style="color:#fff;">0</span>
       </div>
+      
+      <button class="res-item" style="background: linear-gradient(135deg, var(--theme-dim), #0a0a0a); color: var(--theme-primary); border: 1px solid var(--theme-primary); cursor: pointer; padding: 4px 8px; margin-right: 4px;" onclick="toggleMode()">
+        <span style="font-size:10px;">❖</span>
+        <span id="navModeText">初階版</span>
+      </button>
+
       <div class="res-item">
         <span class="green-coin">$</span> 
         <span style="color:#aaa; font-weight:normal;">健康幣</span>
@@ -186,6 +193,7 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
         </div>
 
         <div class="role-list" id="roleListContainer" style="display: none;"></div>
+        
       </section>
 
       <section class="screen" id="scrCaseDex">
@@ -290,24 +298,20 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
       </section>
 
       <nav class="bottom-nav" id="mainNav">
-        <div class="nav-item" id="navSlot1" onclick="openBossPrep()" style="position: relative;">
-          <div class="icon" id="navSlot1Icon">🛡️</div><span style="font-size:10px;" id="navSlot1Text">知識演練</span>
-          <div id="drillBadge" style="position:absolute; top:-2px; right:5px; background:var(--accent-red); color:#fff; border-radius:50%; width:16px; height:16px; font-size:10px; font-weight:bold; display:none; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.5); z-index:10;">!</div>
-        </div>
-
         <div class="nav-item" id="navSlot2" onclick="handleNavSlot2()">
           <div class="icon" id="navSlot2Icon">📖</div><span style="font-size:10px;" id="navSlot2Text">中風歷程</span>
         </div>
         
-        <div class="mode-toggle-sq" onclick="toggleMode()">
-          <div class="icon">❖</div><span id="navModeText" style="font-size:10px;">初階版</span>
-        </div>
-
         <div class="nav-item" id="navCaseDex" onclick="showScreen('scrCaseDex'); renderCaseDex();" style="position: relative;">
           <div class="icon">🗂️</div><span style="font-size:10px;">健康圖卡</span>
           <div id="casedexBadge" style="position:absolute; top:-2px; right:5px; background:var(--accent-red); color:#fff; border-radius:50%; width:16px; height:16px; font-size:10px; font-weight:bold; display:none; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.5); z-index:10;"></div>
         </div>
         
+        <div class="nav-item center-action" id="navSlot1" onclick="openBossPrep()" style="position: relative;">
+          <div class="icon" id="navSlot1Icon">🛡️</div><span style="font-size:10px; margin-top:2px;" id="navSlot1Text">知識演練</span>
+          <div id="drillBadge" style="position:absolute; top:0px; right:0px; background:var(--accent-red); color:#fff; border-radius:50%; width:18px; height:18px; font-size:12px; font-weight:bold; display:none; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.8); z-index:10;">!</div>
+        </div>
+
         <div class="nav-item" id="navExplore" onclick="launchExplore()" style="position: relative;">
           <div class="icon">🏥</div><span style="font-size:10px;">醫院探索</span>
           <div id="exploreBadge" style="position:absolute; top:-2px; right:5px; background:var(--accent-red); color:#fff; border-radius:50%; width:16px; height:16px; font-size:10px; font-weight:bold; display:none; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.5); z-index:10;"></div>
