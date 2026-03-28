@@ -11,9 +11,6 @@
 /* =========================================
    遊戲引擎與 UI 核心樣式 (不隨樓層地圖改變)
    ========================================= */
-/* =========================================
-   遊戲引擎與 UI 核心樣式 (不隨樓層地圖改變)
-   ========================================= */
 :root {  
   --bg: #d9e1e8; --text: #37474f;  
   --safe-top: max(8px, env(safe-area-inset-top));  
@@ -25,14 +22,13 @@
   --c-desk: #81d4fa; --gold: #ffb300;
 }
 
-/* ★ 強制覆蓋外部 CSS，讓 1F 的主要空間變成橘色 (保留原本的幾何形狀設定，只改變顏色) */
+/* ★ 強制覆蓋外部 CSS，讓 1F 的主要空間變成橘色 */
 .corridor-main, .corridor-rest, .corridor-store, .corridor-pharmacy, .corridor-er {
     background-color: var(--c-floor-core) !important;
 }
 
 /* ★ 強制覆蓋外部 CSS，徹底消除綠色大草皮，改為橘色系菱格紋 */
 .lobby-main {
-    /* 這裡必須用 !important 強制覆蓋，確保不會被外部 css 蓋掉 */
     background: 
       linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)),
       repeating-linear-gradient(45deg, #ffe0b2 25%, transparent 25%, transparent 75%, #ffe0b2 75%, #ffe0b2),
@@ -76,8 +72,6 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
     z-index: 5; 
     pointer-events: none;
 }
-
-/* 所有的鏡框本體 */
 .character .head .glasses::before, 
 .character .head .glasses::after {
     content: ''; 
@@ -85,34 +79,20 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
     box-sizing: border-box;
 }
 
-/* ★ 核心修正：利用投影畫出「左鏡腳」、「右鏡腳」與「鼻樑橋」 
-   這樣能確保三段線條永遠待在鏡框外，不進入鏡面。 */
 .character .head .glasses.style-black,
 .character .head .glasses.style-red,
 .character .head .glasses.style-sun,
 .character .head .glasses.style-square,
 .character .head .glasses.style-half {
     opacity: 1;
-    /* 這裡畫的是中間那一截鼻樑橋 */
     background: linear-gradient(to bottom, transparent 15px, currentColor 15px, currentColor 16.5px, transparent 16.5px) no-repeat center / 6px 100%;
 }
 
-/* 畫左右兩側的鏡腳線 */
-.character .head .glasses::before {
-    /* 左鏡腳：從鏡框邊邊延伸到頭部邊緣 */
-    box-shadow: -4px 15.5px 0 -14.5px currentColor; 
-}
-.character .head .glasses::after {
-    /* 右鏡腳：從鏡框邊邊延伸到頭部邊緣 */
-    box-shadow: 4px 15.5px 0 -14.5px currentColor; 
-}
+.character .head .glasses::before { box-shadow: -4px 15.5px 0 -14.5px currentColor; }
+.character .head .glasses::after { box-shadow: 4px 15.5px 0 -14.5px currentColor; }
 
-/* --- 各款式細節微調 --- */
-
-/* 1. 復古黑框 & 2. 紅框 */
 .character .head .glasses.style-black { color: #333; }
 .character .head .glasses.style-red { color: #c62828; }
-
 .character .head .glasses.style-black::before, .character .head .glasses.style-black::after,
 .character .head .glasses.style-red::before, .character .head .glasses.style-red::after {
     top: 11.5px; width: 13px; height: 13px;
@@ -121,20 +101,18 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 .character .head .glasses.style-black::before, .character .head .glasses.style-red::before { left: 2.5px; }
 .character .head .glasses.style-black::after, .character .head .glasses.style-red::after { right: 2.5px; }
 
-/* 3. ★ 橢圓飛行員墨鏡 (帥氣升級版) ★ */
 .character .head .glasses.style-sun { color: #1a1a1a; }
 .character .head .glasses.style-sun::before, 
 .character .head .glasses.style-sun::after {
-    top: 11.5px; width: 14px; height: 16px; /* 變長變窄 */
-    border-radius: 40% 40% 50% 50% / 40% 40% 70% 70%; /* 下垂的橢圓感 */
+    top: 11.5px; width: 14px; height: 16px; 
+    border-radius: 40% 40% 50% 50% / 40% 40% 70% 70%; 
     border: 1.5px solid #444; 
-    background: linear-gradient(135deg, #111 0%, #333 100%); /* 深色質感 */
+    background: linear-gradient(135deg, #111 0%, #333 100%); 
     box-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 .character .head .glasses.style-sun::before { left: 1.5px; }
 .character .head .glasses.style-sun::after { right: 1.5px; }
 
-/* 4. 文青方框 */
 .character .head .glasses.style-square { color: #222; }
 .character .head .glasses.style-square::before, 
 .character .head .glasses.style-square::after {
@@ -144,7 +122,6 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 .character .head .glasses.style-square::before { left: 1px; }
 .character .head .glasses.style-square::after { right: 1px; }
 
-/* 5. 經典半框 */
 .character .head .glasses.style-half { color: #111; }
 .character .head .glasses.style-half::before, 
 .character .head .glasses.style-half::after {
@@ -153,6 +130,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 }
 .character .head .glasses.style-half::before { left: 1px; }
 .character .head .glasses.style-half::after { right: 1px; }
+
 /* 虛擬搖桿 */
 .joystick-base { position: absolute; width: 140px; height: 140px; background: rgba(255,255,255,0.3); border: 3px solid rgba(255,255,255,0.6); border-radius: 50%; display: none; z-index: 50; transform: translate(-50%, -50%);}
 .joystick-knob { position: absolute; width: 60px; height: 60px; background: var(--gold); border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%);}
@@ -214,7 +192,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
     <div class="camera" id="camera">
       <div class="game-world" id="gameWorld">
         
-        <div class="lobby-main">
+        <div class="lobby-main tile-luxury">
           <div style="position:absolute; left:10%; right:10%; top:20%; bottom:20%; border:2px solid rgba(0,0,0,0.05); border-radius:20px;"></div>
         </div>
         <div class="lobby-desk">大廳服務中心</div>
@@ -228,14 +206,14 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
         <div class="corridor-pharmacy"></div><div class="room-pharmacy">門診藥局</div>
         <div class="corridor-er"></div><div class="room-er">急診室</div>
 
-        <div class="floor-box" style="left:10000px; top:-1200px;">2F 導管室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
-        <div class="floor-box" style="left:15000px; top:-1200px;">3F 手術室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
-        <div class="floor-box" style="left:20000px; top:-1200px;">4F 復健室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
-        <div class="floor-box" style="left:25000px; top:-1200px;">5F 神經加護病房<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
-        <div class="floor-box" style="left:30000px; top:-1200px;">6F 教學室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
-        <div class="floor-box" style="left:35000px; top:-1200px;">14F 衛教影片室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
+        <div class="floor-box tile-tech" style="left:10000px; top:-1200px;">2F 導管室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
+        <div class="floor-box tile-tech" style="left:15000px; top:-1200px;">3F 手術室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
+        <div class="floor-box tile-tech" style="left:20000px; top:-1200px;">4F 復健室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
+        <div class="floor-box tile-tech" style="left:25000px; top:-1200px;">5F 神經加護病房<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
+        <div class="floor-box tile-tech" style="left:30000px; top:-1200px;">6F 教學室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
+        <div class="floor-box tile-tech" style="left:35000px; top:-1200px;">14F 衛教影片室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
         
-        <div class="corridor-main"></div><div class="workspace-core"></div>
+        <div class="corridor-main tile-clinical"></div><div class="workspace-core"></div>
         <div class="room-block room-discuss">討論室</div><div class="room-block room-soiled">污物室</div>
         <div class="room-block room-headnurse">護理長</div><div class="room-block room-pantry">茶水間</div>
         <div class="room-block room-office">辦公室</div><div class="room-block room-prep">準備室</div>
@@ -258,10 +236,20 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
         <div class="desk-island desk-front">前櫃台</div><div class="desk-island desk-back">後護理站</div>
         <div class="ward-diag"><div class="room-d">11G23</div><div class="room-d">11G22</div><div class="room-d">11G21</div><div class="room-d">11G20</div><div class="room-d">11G19</div><div class="room-d">11G18</div><div class="room-d">11G17</div><div class="room-d">11G16</div><div class="room-d">11G15</div><div class="room-d">11G14</div><div class="room-d">11G13</div><div class="room-d">11G12</div></div>
         <div class="ward-top"><div>11G10</div><div style="margin-top: 30px;">11G11</div></div>
+        
         <div class="ward-right">
-          <div class="room-rv">11G09</div><div class="room-rv">11G08</div><div class="room-rv">11G07</div>
-          <div class="room-rv has-door door-right">11G06</div> 
-          <div class="room-rv">11G05</div><div class="room-rv">11G04</div><div class="room-rv">11G03</div><div class="room-rv">11G02</div><div class="room-rv">11G01</div>
+          <div class="room-rv">11G09<div class="hosp-bed" style="right: 20px; top: 15px;"></div></div>
+          <div class="room-rv">11G08<div class="hosp-bed" style="right: 20px; top: 15px;"></div></div>
+          <div class="room-rv">11G07<div class="hosp-bed" style="right: 20px; top: 15px;"></div></div>
+          <div class="room-rv has-door door-right">11G06
+            <div class="hosp-bed" style="right: 20px; top: 10px;"></div>
+            <div class="hosp-bed" style="right: 70px; top: 10px;"></div>
+          </div> 
+          <div class="room-rv">11G05<div class="hosp-bed" style="right: 20px; top: 15px;"></div></div>
+          <div class="room-rv">11G04<div class="hosp-bed" style="right: 20px; top: 15px;"></div></div>
+          <div class="room-rv">11G03<div class="hosp-bed" style="right: 20px; top: 15px;"></div></div>
+          <div class="room-rv">11G02<div class="hosp-bed" style="right: 20px; top: 15px;"></div></div>
+          <div class="room-rv">11G01<div class="hosp-bed" style="right: 20px; top: 15px;"></div></div>
         </div>
 
         <div id="npcContainer"></div>
