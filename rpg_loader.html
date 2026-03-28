@@ -14,7 +14,7 @@
 :root {  
   --bg: #d9e1e8; --text: #37474f;  
   --safe-top: max(8px, env(safe-area-inset-top));  
-  /* ★ 暖橘色系定義 */
+  /* ★ 修改這兩行：將走廊背景改為淺橘色，牆壁核心改為暖橘色 */
   --c-floor-out: #fff3e0; 
   --c-floor-core: #ffe0b2; 
   
@@ -33,6 +33,8 @@
       linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)),
       repeating-linear-gradient(45deg, #ffe0b2 25%, transparent 25%, transparent 75%, #ffe0b2 75%, #ffe0b2),
       repeating-linear-gradient(45deg, #ffe0b2 25%, #fff3e0 25%, #fff3e0 75%, #ffe0b2 75%, #ffe0b2) !important;
+    background-position: 0 0, 40px 40px, 40px 40px !important; 
+    background-size: 80px 80px !important;
     border-color: #ffb74d !important;
 }
 /* ★ 註記：原本 css/hospital-map.css 裡的綠色寫法如下
@@ -182,7 +184,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 .btn-quit-anim { position: absolute; top: max(10px, env(safe-area-inset-top)); right: 10px; background: rgba(0,0,0,0.7); color: #fff; border: 1px solid #aaa; padding: 6px 15px; border-radius: 6px; z-index: 501; cursor: pointer; font-weight: bold; backdrop-filter: blur(4px); font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.5);}
 .btn-quit-anim:active { background: rgba(0,0,0,0.9); }
 
-/* ★ 電梯系統 UI UI */
+/* ★ 電梯系統 UI */
 .elevator-modal { position:absolute; inset:0; background:rgba(0,0,0,0.8); z-index:1000; display:none; flex-direction:column; align-items:center; justify-content:center; backdrop-filter: blur(5px);}
 .elevator-panel { background:#eceff1; padding:20px; border-radius:15px; border:4px solid #546e7a; text-align:center; width: 300px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
 .elevator-panel h2 { margin:0 0 15px 0; color:#37474f; font-size: 22px; font-weight: 900;}
@@ -219,10 +221,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
         </div>
         <div class="lobby-desk">大廳服務中心</div>
         
-        <div style="position:absolute; left:1820px; top:-1200px; font-weight:bold; color:#1565c0; text-shadow:0 0 5px #fff; z-index:3;">⬆️ 往各大樓層</div>
-        <div class="teleport-zone" style="left: 1850px; top: -1170px; width: 100px; height: 50px;"></div>
-        
-        <div id="lobby-tv" style="position:absolute; left:1800px; top:-500px; width:180px; height:100px; background:#111; border:5px solid #222; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px; font-weight:bold; box-shadow:-10px 10px 20px rgba(0,0,0,0.6), inset 0 0 15px rgba(255,255,255,0.1); z-index:2; text-align:center;">
+        <div id="lobby-tv" style="position:absolute; left:1750px; top:-480px; width:220px; height:70px; background:#111; border:4px solid #444; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:18px; font-weight:bold; box-shadow:0 8px 16px rgba(0,0,0,0.6), inset 0 0 10px rgba(255,255,255,0.2); z-index:2; text-align:center;">
             📺 亞東影音衛教
         </div>
 
@@ -231,12 +230,13 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
         <div class="corridor-pharmacy"></div><div class="room-pharmacy">門診藥局</div>
         <div class="corridor-er"></div><div class="room-er">急診室</div>
 
-       <div class="floor-box" style="left:10000px; top:-1200px;">2F 導管室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
+        <div class="floor-box" style="left:10000px; top:-1200px;">2F 導管室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
         <div class="floor-box" style="left:15000px; top:-1200px;">3F 手術室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
         <div class="floor-box" style="left:20000px; top:-1200px;">4F 復健室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
         <div class="floor-box" style="left:25000px; top:-1200px;">5F 神經加護病房<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
         <div class="floor-box" style="left:30000px; top:-1200px;">6F 教學室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
         <div class="floor-box" style="left:35000px; top:-1200px;">14F 衛教影片室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
+        
         <div class="corridor-main"></div><div class="workspace-core"></div>
         <div class="room-block room-discuss">討論室</div><div class="room-block room-soiled">污物室</div>
         <div class="room-block room-headnurse">護理長</div><div class="room-block room-pantry">茶水間</div>
@@ -252,7 +252,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
         
         <div class="room-elev-v">
           <div style="font-size:18px; font-weight:900;">病床電梯</div>
-          <div style="font-size:12px; color:#ffeb3b; margin-top:5px; background:rgba(0,0,0,0.6); padding:2px 8px; border-radius:4px; z-index:4;">往 各大樓層 ⬇️</div>
+          <div style="font-size:12px; color:#ffeb3b; margin-top:5px; background:rgba(0,0,0,0.6); padding:2px 8px; border-radius:4px; z-index:4;">往各大樓層 ⬇️</div>
         </div>
         <div class="teleport-zone" style="left: 2000px; top: 1950px; width: 250px; height: 50px;"></div>
 
@@ -268,13 +268,13 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 
         <div id="npcContainer"></div>
 
-<div class="character player" id="player" style="left:1500px;top:-600px;opacity:0;">
-  <div id="player-items" style="position:absolute; top:-55px; left:50%; transform:translateX(-50%); font-size:22px; display:flex; gap:2px; white-space:nowrap; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8)); z-index:10;"></div>
-  <div class="name" id="playerName">玩家</div>
-  <div class="head">
-    <div class="glasses"></div> </div>
-  <div class="body"></div>
-</div>
+        <div class="character player" id="player" style="left:1500px;top:-600px;opacity:0;">
+          <div id="player-items" style="position:absolute; top:-55px; left:50%; transform:translateX(-50%); font-size:22px; display:flex; gap:2px; white-space:nowrap; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8)); z-index:10;"></div>
+          <div class="name" id="playerName">玩家</div>
+          <div class="head">
+            <div class="glasses"></div> </div>
+          <div class="body"></div>
+        </div>
       </div>
     </div>
     
@@ -288,7 +288,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
     </div>
   </div>
   
-<div class="animation-screen" id="animScreen">
+  <div class="animation-screen" id="animScreen">
     <button class="btn-quit-anim" onclick="window.postMessage({type:'CLOSE_IFRAME'}, '*')">✖ 中斷任務</button>
     <iframe id="animFrame" src="about:blank"></iframe>
   </div>
@@ -307,15 +307,11 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
           <button class="floor-btn btn-close-elev" onclick="closeElevator()">離開電梯</button>
       </div>
   </div>
-
 </div>
 
 <script src="js/tasks-main.js"></script>
 
 <script>
-// ==========================================
-// 1. 載入任務與防護機制
-// ==========================================
 // ==========================================
 // 1. 載入任務與防護機制
 // ==========================================
@@ -347,7 +343,6 @@ if (!task) {
   };
 }
 
-// ★ 關鍵修復：在還沒畫出 NPC 之前，先改造 hub_world 的初始設定
 if (taskId === 'hub_world') {
     if (isFirstTask && task.npcs) {
         let docNpc = task.npcs.find(n => n.id === 'npc_continue');
@@ -365,27 +360,18 @@ if (taskId === 'hub_world') {
         };
     }
 
-// ★ 更新：電視看板的互動邏輯
-    if (!task.npcs.find(n => n.id === 'obj_tv')) {
+    if (!task.npcs.find(n => n.id === 'obj_tablet')) {
         task.npcs.push({
-            id: 'obj_tv', name: '電視看板', icon: '', color: 'transparent',
-            // 將觸發座標設定在電視的左前方
-            pos: { x: 1800, y: -450 }, 
-            action: 'ACTION_WATCH_TV', 
-            dialogs: [{
-                name: '系統提示', 
-                text: '這是一台播放著亞東紀念醫院精選影音的數位看板。\n\n你要開啟 YouTube 觀看最新的衛教影片嗎？'
-            }]
+            id: 'obj_tablet', name: '任務平板', icon: '📱', color: '#1976d2',
+            pos: { x: 1650, y: -220 }, action: 'ACTION_CHECK_TABLET', dialogs: [{name: '', text: ''}]
         });
     }
 
-    // ★ 新增：電視看板的互動邏輯 (設定在我們剛才放電視的位置附近)
+    // ★ 更新：電視看板的互動邏輯 (設定在我們剛才放電視的位置平面正前方)
     if (!task.npcs.find(n => n.id === 'obj_tv')) {
         task.npcs.push({
             id: 'obj_tv', name: '電視看板', icon: '', color: 'transparent',
-            // 座標設定在電視正前方一點點，讓玩家靠近時會觸發
-            pos: { x: 1875, y: -460 }, 
-            // 發送專屬指令給外部系統
+            pos: { x: 1860, y: -450 }, 
             action: 'ACTION_WATCH_TV', 
             dialogs: [{
                 name: '系統提示', 
@@ -417,8 +403,8 @@ if (task.npcs) {
     npcDiv.style.left = n.pos.x + 'px';
     npcDiv.style.top = n.pos.y + 'px';
     
-    // ★ 物品類：隱藏、無身體
-    if (n.id.startsWith('item_')) {
+    // ★ 物品與電視物件處理：隱藏本體，不顯示底座
+    if (n.id.startsWith('item_') || n.id === 'obj_tv') {
         npcDiv.style.display = 'none'; 
         npcDiv.setAttribute('data-interactable', 'false'); 
         npcDiv.innerHTML = `
@@ -426,8 +412,12 @@ if (task.npcs) {
           <div class="name" id="npc-name-${n.id}" style="background:${n.color || '#37474f'}; top: -50px; z-index: 10;">${n.name}</div>
           <div style="font-size: 38px; margin-top: 15px; filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6)); animation: bounce 1.5s infinite alternate ease-in-out;">${n.icon}</div>
         `;
+        // 電視直接可互動
+        if (n.id === 'obj_tv') {
+            npcDiv.style.display = 'block';
+            npcDiv.setAttribute('data-interactable', 'true');
+        }
     } 
-// ★ 任務平板：純圖示、無身體、無底座
     else if (n.id === 'obj_tablet') {
         npcDiv.setAttribute('data-interactable', 'true');
         npcDiv.innerHTML = `
@@ -436,7 +426,6 @@ if (task.npcs) {
           <div style="font-size: 35px; margin-top: -5px; filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6)); position: relative;">${n.icon}</div>
         `;
     }
-    // ★ 一般物件 (例如更衣櫃)：純圖示、無身體
     else if (n.id.startsWith('obj_')) {
         npcDiv.setAttribute('data-interactable', 'true');
         npcDiv.innerHTML = `
@@ -445,7 +434,6 @@ if (task.npcs) {
           <div style="font-size: 40px; margin-top: 5px; filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6));">${n.icon}</div>
         `;
     }
-    // 原本的人形 NPC (會長出手腳)
     else {
         npcDiv.setAttribute('data-interactable', 'true');
         let indicatorHtml = n.icon ? `<div class="npc-indicator">${n.icon}</div>` : '';
@@ -460,77 +448,48 @@ if (task.npcs) {
   });
 }
 
-// ★ 接收來自父層主系統的資料同步，以及轉發小遊戲過關通知
-// ==========================================
-// ==========================================
-// ★ 接收來自父層主系統的資料同步，以及轉發小遊戲過關通知
-// ==========================================
 window.addEventListener('message', (event) => {
   if (!event.data) return;
 
   if (event.data.type === 'SYNC_PLAYER_DATA') {
     const pData = event.data.payload;
     
-    // 1. 處理玩家名稱與特定任務對話替換
     if (pData.name) {
       let displayName = pData.name;
-      if (task.playAs) {
-        displayName = task.playAs;
-      } else if (taskId === 'beg_id_0' || taskId === 'beg_id_1') {
-        displayName = task.roleName;
-      }
+      if (task.playAs) displayName = task.playAs;
+      else if (taskId === 'beg_id_0' || taskId === 'beg_id_1') displayName = task.roleName;
       document.getElementById('playerName').innerText = displayName;
       document.getElementById('ui-role').innerText = displayName;
       
       if (taskId === 'beg_id_0') {
         const patientNameEl = document.getElementById('npc-name-patient');
         if (patientNameEl) patientNameEl.innerText = pData.name + " (你)"; 
-        
         const patientNpc = task.npcs.find(n => n.id === 'patient');
-        if (patientNpc) {
-          patientNpc.name = pData.name;
-          patientNpc.dialogs.forEach(d => {
-            if (d.name === "我 (病患)") d.name = pData.name;
-          });
-        }
+        if (patientNpc) { patientNpc.name = pData.name; patientNpc.dialogs.forEach(d => { if (d.name === "我 (病患)") d.name = pData.name; }); }
       }
     }
 
-    // 2. 接收衣服顏色並立即套用
     if (pData.clothes !== undefined) {
       const playerBody = document.querySelector('.player .body');
-      if (playerBody) {
-        playerBody.style.background = pData.clothes || '#fff';
-      }
+      if (playerBody) playerBody.style.background = pData.clothes || '#fff';
     }
     
-
-// ★ 3. 接收眼鏡樣式並立即套用
     if (pData.glasses !== undefined) {
         const playerGlasses = document.querySelector('.player .head .glasses');
         if (playerGlasses) {
-            // ★ 關鍵修復：不要一個一個移除了，直接把 class 重置為最乾淨的狀態！
             playerGlasses.className = 'glasses';
-            
-            // 如果不是 none，就加上對應的眼鏡樣式
             if (pData.glasses !== 'none' && pData.glasses !== '') {
                 playerGlasses.classList.add(`style-${pData.glasses}`);
             }
         }
     }
     
-    // 4. 接收尋寶與日常任務進度
-    if (pData.foundItems !== undefined) {
-       window.playerFoundItems = pData.foundItems;
-    }
-    if (pData.dailyExplores !== undefined) {
-       window.playerDailyExplores = pData.dailyExplores;
-    }
+    if (pData.foundItems !== undefined) window.playerFoundItems = pData.foundItems;
+    if (pData.dailyExplores !== undefined) window.playerDailyExplores = pData.dailyExplores;
     
     updateItemVisibility();
   }
   
-  // ★ 核心修復：接收內層小遊戲的過關、失敗或中斷訊號，並「轉發」給外層的主系統
   else if (event.data.type === 'GAME_CLEAR' || event.data.type === 'GAME_OVER' || event.data.type === 'CLOSE_IFRAME') {
      document.getElementById('animScreen').style.display = 'none';
      document.getElementById('animFrame').src = 'about:blank';
@@ -539,13 +498,10 @@ window.addEventListener('message', (event) => {
      missionStage = 0; 
      setTimeout(() => { gameActive = true; currentNpc = null; }, 300);
 
-     if (window.parent !== window) {
-       window.parent.postMessage(event.data, '*');
-     }
+     if (window.parent !== window) { window.parent.postMessage(event.data, '*'); }
   }
 });
 
-   // ★ 新增：根據尋寶進度，更新地圖上的寶物顯示狀態
 window.playerFoundItems = null;
 
 function updateItemVisibility() {
@@ -555,7 +511,6 @@ function updateItemVisibility() {
         { id: 'item_fork', name: '音叉', icon: '🧲' }
     ];
     
-    // 如果陣列不存在，代表根本還沒接任務
     let hasStartedQuest = Array.isArray(window.playerFoundItems);
     let isQuestActive = hasStartedQuest && !window.playerFoundItems.includes('DONE');
     let headHtml = ''; 
@@ -563,39 +518,32 @@ function updateItemVisibility() {
     items.forEach(item => {
         const el = document.getElementById(`npc-node-${item.id}`);
         if (el) {
-            // 只有在任務進行中，且還沒撿到時才顯示；否則隱藏
             if (isQuestActive && !window.playerFoundItems.includes(item.name)) {
                 el.style.display = 'block';
-                el.setAttribute('data-interactable', 'true'); // ★ 標記可互動
+                el.setAttribute('data-interactable', 'true');
             } else {
                 el.style.display = 'none'; 
-                el.setAttribute('data-interactable', 'false'); // ★ 標記不可互動
+                el.setAttribute('data-interactable', 'false');
             }
         }
         
-        // ★ 如果任務進行中，且已經撿到這個物品，就讓它飄在頭頂！
         if (isQuestActive && window.playerFoundItems.includes(item.name)) {
             headHtml += `<span style="display:inline-block; animation: bounce 1.5s infinite alternate ease-in-out;">${item.icon}</span>`;
         }
     });
     
-    // 更新玩家頭頂
     const pItems = document.getElementById('player-items');
     if (pItems) pItems.innerHTML = headHtml;
 
-    // ★ 動態修改主治醫師的對話！(修正為嚴謹判斷)
     if (typeof task !== 'undefined' && task.npcs) {
         let docNpc = task.npcs.find(n => n.id === 'npc_continue');
         if (docNpc) {
-            // 1. 如果還沒接任務 (null) 或是 已經解完 ('DONE')
             if (!hasStartedQuest || window.playerFoundItems.includes('DONE')) {
                 docNpc.dialogs[0].text = "大腦的救援從未停止。準備好接取今天的醫院任務了嗎？";
             } 
-            // 2. 任務進行中，且還有沒找齊的
             else if (window.playerFoundItems.length < 3) {
                 docNpc.dialogs[0].text = `你目前找到了 ${window.playerFoundItems.length} 樣法寶，還有遺漏的喔！去 1F急診、11F病房、6F教學室 仔細找找吧！`;
             } 
-            // 3. 找齊了！
             else if (window.playerFoundItems.length === 3) {
                 docNpc.dialogs[0].text = "太棒了！三樣法寶都找齊了，趕快點擊確認交給我吧！";
             }
@@ -603,9 +551,6 @@ function updateItemVisibility() {
     }
 }
 
-// ==========================================
-// ★ 視角與開場邏輯
-// ==========================================
 let typeIndex = 0;
 function typeWriter() {
   const introStr = task.intro || "任務準備中...";
@@ -627,21 +572,6 @@ function updateCamera() {
 }
 
 window.onload = () => {
-  // ★ 新增：動態改造初始設定與平板
-  if (taskId === 'hub_world') {
-      task.startPos = { x: 1500, y: -150 }; // 起始點改為休息室內部
-      state.x = 1500; state.y = -150;
-      
-      // 加入右上角的平板 (附帶底座)
-      if (!task.npcs.find(n => n.id === 'obj_tablet')) {
-          task.npcs.push({
-              id: 'obj_tablet', name: '任務平板', icon: '📱', color: '#1976d2',
-              pos: { x: 1650, y: -220 }, action: 'ACTION_CHECK_TABLET', dialogs: [{name: '', text: ''}]
-          });
-      }
-  }
-
-  // 原本的程式碼保持不變
   document.getElementById('player').style.left = state.x + 'px'; 
   document.getElementById('player').style.top = state.y + 'px'; 
 
@@ -651,16 +581,11 @@ window.onload = () => {
       const cx = window.innerWidth / 2 - targetNpc.pos.x;
       const cy = window.innerHeight / 2 - targetNpc.pos.y;
       document.getElementById('camera').style.transform = `translate(${cx}px, ${cy}px)`;
-    } else {
-      updateCamera();
-    }
-  } else {
-    updateCamera();
-  }
+    } else { updateCamera(); }
+  } else { updateCamera(); }
 
   if (isFsMode) document.getElementById('btnFsToggle').innerHTML = "🗗";
 
-  // ★ 判斷是否為初次進入，若不是，直接跳過開場打字機
   if (taskId === 'hub_world' && !isFirstTask) {
     document.getElementById('storyIntro').style.display = 'none';
     document.getElementById('player').style.opacity = '1';
@@ -703,9 +628,7 @@ function startExplore() {
       setTimeout(() => { document.getElementById('uiHeader').style.opacity = '1'; }, 50);
     }
     
-    missionStage = 0;
-    gameActive = true;
-    updateCamera(); 
+    missionStage = 0; gameActive = true; updateCamera(); 
   }, 500);
 }
 
@@ -721,64 +644,41 @@ function returnToLobby() {
   if (taskId !== 'hub_world') {
     window.parent.postMessage({type:'CLOSE_IFRAME'}, '*');
   } else {
-    // 1. 強制關閉可能卡住的 UI (電梯、對話框)
     document.getElementById('elevatorModal').style.display = 'none';
     document.getElementById('dialogBox').style.display = 'none';
-    
-    // 2. 停止所有移動狀態
-    velocity = {x:0, y:0};
-    isDragging = false;
+    velocity = {x:0, y:0}; isDragging = false;
     document.getElementById('joystickBase').style.display = 'none';
-    
-    // 3. 設定一樓大廳的目標座標
-    state.x = 1500;
-    state.y = -600; 
-    
-    // 4. 強制立刻把小人的 DOM 元素搬到目標位置
+    state.x = 1500; state.y = -600; 
     document.getElementById('player').style.left = state.x + 'px'; 
     document.getElementById('player').style.top = state.y + 'px'; 
-    
-    // 5. 更新攝影機並重啟遊戲引擎
-    updateCamera();
-    gameActive = true;
-    currentNpc = null;
-    missionStage = 0;
+    updateCamera(); gameActive = true; currentNpc = null; missionStage = 0;
   }
 }
 
 // ==========================================
-// ★ 互動對話與電梯邏輯
+// 互動對話與電梯邏輯
 // ==========================================
 function startNpcDialog(npc) {
-  currentNpc = npc;
-  currentDialogIndex = 0;
-  showDialog();
+  currentNpc = npc; currentDialogIndex = 0; showDialog();
 }
 
 function showDialog() {
-  gameActive = false; 
-  velocity = {x:0, y:0};
+  gameActive = false; velocity = {x:0, y:0};
   document.getElementById('joystickBase').style.display = 'none';
   document.getElementById('dialogBox').style.display = 'flex';
   
-  // ★ 動態更新任務平板的內容
   if (currentNpc.id === 'obj_tablet') {
       let dailyCount = window.playerDailyExplores ? window.playerDailyExplores.count : 0;
       let remain = 3 - dailyCount;
-      
-      if (remain > 0) {
-          currentNpc.dialogs[0].text = `今日可執行：${remain} 個任務 \n\n💡 請前往大廳找主治醫師接取！`;
-      } else {
-          currentNpc.dialogs[0].text = `今日無法任務\n\n您可以自由探索，或前往 6F教學室、14F衛教室學習！`;
-      }
-      // 這裡設定 NONE 讓系統知道對話結束後不需要發送額外的 action
+      if (remain > 0) currentNpc.dialogs[0].text = `今日可執行：${remain} 個任務 \n\n💡 請前往大廳找主治醫師接取！`;
+      else currentNpc.dialogs[0].text = `今日無法任務\n\n您可以自由探索，或前往 6F教學室、14F衛教室學習！`;
       currentNpc.action = 'NONE';
   }
-// ★ 新增：為更衣櫃補上說明對話
   else if (currentNpc.id === 'obj_wardrobe') {
       currentNpc.dialogs[0].name = '系統提示';
       currentNpc.dialogs[0].text = '這是員工專屬的更衣櫃。\n你可以在這裡換上從「1F 便利商店」購買的各種醫護服裝！\n\n要打開更衣櫃嗎？';
   }
+  
   const d = currentNpc.dialogs[currentDialogIndex];
   document.getElementById('dialogName').innerText = d.name;
   document.getElementById('dialogName').style.color = (d.name === task.roleName) ? '#4CAF50' : currentNpc.color;
@@ -787,118 +687,74 @@ function showDialog() {
   if (currentDialogIndex === currentNpc.dialogs.length - 1) {
     if (currentNpc.action === 'NONE') {
       document.getElementById('btnCancelDialog').style.display = 'none'; 
-      document.getElementById('btnNextDialog').innerText = '關閉'; // ★ 平板看完後只顯示一個「關閉」按鈕
+      document.getElementById('btnNextDialog').innerText = '關閉';
     } else {
       document.getElementById('btnCancelDialog').style.display = 'block';
-      
-      // 智慧判斷按鈕文字
       if (currentNpc.id === 'obj_wardrobe') {
-          document.getElementById('btnCancelDialog').innerText = '關閉';
-          document.getElementById('btnNextDialog').innerText = '開啟';
+          document.getElementById('btnCancelDialog').innerText = '關閉'; document.getElementById('btnNextDialog').innerText = '開啟';
       } else if (currentNpc.id === 'npc_continue') {
           document.getElementById('btnCancelDialog').innerText = '離開';
-          if (window.playerFoundItems && window.playerFoundItems.length === 3 && !window.playerFoundItems.includes('DONE')) {
-              document.getElementById('btnNextDialog').innerText = '領取獎勵';
-          } else if (window.playerFoundItems && window.playerFoundItems.length > 0 && !window.playerFoundItems.includes('DONE')) {
-              document.getElementById('btnNextDialog').innerText = '繼續尋找';
-          } else {
-              document.getElementById('btnNextDialog').innerText = '接受任務';
-          }
+          if (window.playerFoundItems && window.playerFoundItems.length === 3 && !window.playerFoundItems.includes('DONE')) document.getElementById('btnNextDialog').innerText = '領取獎勵';
+          else if (window.playerFoundItems && window.playerFoundItems.length > 0 && !window.playerFoundItems.includes('DONE')) document.getElementById('btnNextDialog').innerText = '繼續尋找';
+          else document.getElementById('btnNextDialog').innerText = '接受任務';
+      } else if (currentNpc.id === 'obj_tv') {
+          document.getElementById('btnCancelDialog').innerText = '算了'; document.getElementById('btnNextDialog').innerText = '開啟影片';
       } else {
-          document.getElementById('btnCancelDialog').innerText = '離開';
-          document.getElementById('btnNextDialog').innerText = '確認前往';
+          document.getElementById('btnCancelDialog').innerText = '離開'; document.getElementById('btnNextDialog').innerText = '確認前往';
       }
     }
   } else {
-    document.getElementById('btnCancelDialog').style.display = 'block';
-    document.getElementById('btnNextDialog').innerText = '繼續';
+    document.getElementById('btnCancelDialog').style.display = 'block'; document.getElementById('btnNextDialog').innerText = '繼續';
   }
 }
 
 function stepBackFromNpc() {
   if (currentNpc) {
-    const dx = state.x - currentNpc.pos.x;
-    const dy = state.y - currentNpc.pos.y;
-    const dist = Math.hypot(dx, dy) || 1;
-    let newX = state.x + (dx / dist) * 40;
-    let newY = state.y + (dy / dist) * 40;
-    
-    if (canMoveTo(newX, newY)) {
-      state.x = newX; state.y = newY;
-    } else {
-      state.y += 40;
-    }
+    const dx = state.x - currentNpc.pos.x; const dy = state.y - currentNpc.pos.y; const dist = Math.hypot(dx, dy) || 1;
+    let newX = state.x + (dx / dist) * 40; let newY = state.y + (dy / dist) * 40;
+    if (canMoveTo(newX, newY)) { state.x = newX; state.y = newY; } else { state.y += 40; }
     updateCamera();
   }
 }
 
 document.getElementById('btnCancelDialog').onclick = () => {
-  document.getElementById('dialogBox').style.display = 'none';
-  stepBackFromNpc();
-  missionStage = 0; 
+  document.getElementById('dialogBox').style.display = 'none'; stepBackFromNpc(); missionStage = 0; 
   setTimeout(() => { gameActive = true; currentNpc = null; }, 300);
 };
 
 document.getElementById('btnNextDialog').onclick = () => {
   currentDialogIndex++;
-  if (currentDialogIndex < currentNpc.dialogs.length) {
-    showDialog();
-  } else {
-    document.getElementById('dialogBox').style.display = 'none';
-    finishNpcDialog();
-  }
+  if (currentDialogIndex < currentNpc.dialogs.length) showDialog();
+  else { document.getElementById('dialogBox').style.display = 'none'; finishNpcDialog(); }
 };
 
 function finishNpcDialog() {
   if (currentNpc.action && currentNpc.action.startsWith('ACTION_')) {
-      
-    // ★ 新增：撿到物品時，立刻在畫面上隱藏它！
     if (currentNpc.action.startsWith('ACTION_FIND_')) {
-        const node = document.getElementById(`npc-node-${currentNpc.id}`);
-        if(node) node.style.display = 'none';
+        const node = document.getElementById(`npc-node-${currentNpc.id}`); if(node) node.style.display = 'none';
     }
-      
     window.parent.postMessage({type: currentNpc.action}, '*');
-    stepBackFromNpc();
-    missionStage = 0; 
+    stepBackFromNpc(); missionStage = 0; 
     setTimeout(() => { gameActive = true; currentNpc = null; }, 800);
   } 
   else if (currentNpc.action === 'PLAY_ANIMATION') {
     missionStage = 2; 
-    if (task.gameUrl) {
-      document.getElementById('animScreen').style.display = 'flex';
-      document.getElementById('animFrame').src = task.gameUrl;
-    } else {
-      window.parent.postMessage({ type: 'GAME_CLEAR', score: 1000 }, '*');
-    }
+    if (task.gameUrl) { document.getElementById('animScreen').style.display = 'flex'; document.getElementById('animFrame').src = task.gameUrl; } 
+    else { window.parent.postMessage({ type: 'GAME_CLEAR', score: 1000 }, '*'); }
   } 
   else {
-    stepBackFromNpc();
-    missionStage = 0; 
+    stepBackFromNpc(); missionStage = 0; 
     setTimeout(() => { gameActive = true; currentNpc = null; }, 300);
   }
 }
 
-// ★ 電梯控制功能
-function showElevatorMenu() {
-    gameActive = false;
-    velocity = {x:0, y:0};
-    document.getElementById('joystickBase').style.display = 'none';
-    document.getElementById('elevatorModal').style.display = 'flex';
-}
-
-function closeElevator() {
-    document.getElementById('elevatorModal').style.display = 'none';
-    state.y += 60; // 往下退一步，離開傳送陣
-    updateCamera();
-    setTimeout(()=> { gameActive = true; }, 300);
-}
-
+function showElevatorMenu() { gameActive = false; velocity = {x:0, y:0}; document.getElementById('joystickBase').style.display = 'none'; document.getElementById('elevatorModal').style.display = 'flex'; }
+function closeElevator() { document.getElementById('elevatorModal').style.display = 'none'; state.y += 60; updateCamera(); setTimeout(()=> { gameActive = true; }, 300); }
 function goToFloor(f) {
     document.getElementById('elevatorModal').style.display = 'none';
-    let target = {x: 1850, y: -1150}; // ★ 預設 1F (右上方電梯口)
+    let target = {x: 1850, y: -1150}; 
     if(f===14) target = {x: 35400, y: -1140};
-    if(f===11) target = {x: 2125, y: 1975}; // 11F
+    if(f===11) target = {x: 2125, y: 1975}; 
     if(f===6)  target = {x: 30400, y: -1140};
     if(f===5)  target = {x: 25400, y: -1140};
     if(f===4)  target = {x: 20400, y: -1140};
@@ -906,108 +762,44 @@ function goToFloor(f) {
     if(f===2)  target = {x: 10400, y: -1140};
     if(f===1)  target = {x: 1850, y: -1150}; 
     
-    // ★ 關鍵修復：將玩家傳送到電梯前方 80px 的位置，避免馬上又踩到傳送點卡死
-    state.x = target.x;
-    state.y = target.y + 80; 
-    updateCamera();
-    
-    setTimeout(()=> { gameActive = true; }, 300);
+    state.x = target.x; state.y = target.y + 80; updateCamera(); setTimeout(()=> { gameActive = true; }, 300);
 }
     
-
 // ==========================================
-// ★ 物理阻擋邏輯 (支援擴建區域與多樓層) ★
+// 物理阻擋邏輯
 // ==========================================
-// 實體障礙物 (櫃台與牆壁)
 const solidBlocks = [
-  // 1F 障礙物
-  {x: 1350, y: -900, w: 300, h: 100},   // 大廳服務台
-  
-  // 11F 障礙物
-  {x: 2000, y: 400, w: 320, h: 450}, {x: 2000, y: 1000, w: 320, h: 750},
-  {x: 2050, y: 850, w: 270, h: 10}, {x: 2050, y: 990, w: 270, h: 10},
-  {x: 2310, y: 850, w: 10, h: 150}, {x: 1750, y: 180, w: 250, h: 200},
-  {x: 1590, y: 825, w: 270, h: 245}, {x: 1800, y: 1140, w: 50, h: 250},
-  {x: 950, y: 1420, w: 380, h: 175}, {x: 1330, y: 1420, w: 10, h: 10},
-  {x: 1420, y: 1420, w: 320, h: 10}, {x: 1330, y: 1585, w: 410, h: 10},
-  {x: 1730, y: 1420, w: 10, h: 170}, {x: 950, y: 1590, w: 810, h: 160},
-  {x: 400, y: 1850, w: 1310, h: 350}, {x: 1710, y: 2150, w: 790, h: 50}
+  {x: 1350, y: -900, w: 300, h: 100},   
+  {x: 2000, y: 400, w: 320, h: 450}, {x: 2000, y: 1000, w: 320, h: 750}, {x: 2050, y: 850, w: 270, h: 10}, {x: 2050, y: 990, w: 270, h: 10},
+  {x: 2310, y: 850, w: 10, h: 150}, {x: 1750, y: 180, w: 250, h: 200}, {x: 1590, y: 825, w: 270, h: 245}, {x: 1800, y: 1140, w: 50, h: 250},
+  {x: 950, y: 1420, w: 380, h: 175}, {x: 1330, y: 1420, w: 10, h: 10}, {x: 1420, y: 1420, w: 320, h: 10}, {x: 1330, y: 1585, w: 410, h: 10},
+  {x: 1730, y: 1420, w: 10, h: 170}, {x: 950, y: 1590, w: 810, h: 160}, {x: 400, y: 1850, w: 1310, h: 350}, {x: 1710, y: 2150, w: 790, h: 50}
 ];
 
 function canMoveTo(x, y) {
-  const r = 20; 
-  let isWalkable = false;
-
-  // ★ 定義所有的安全行走區域，並針對「通道」增加覆蓋墊片，消除空氣牆
-// ★ 這裡定義了所有合法的「踩踏區」，包含加寬的通道與新座標
+  const r = 20; let isWalkable = false;
   const walkableZones = [
-    // 1F 主空間與房間
-    {x: 1000, y: -1200, w: 1000, h: 800}, // 1F 大廳
-    {x: 1300, y: -250,  w: 400,  h: 300}, // 1F 休息室 (位移與縮小邊界適應新位置)
-    {x: 450,  y: -1000, w: 400,  h: 400}, // 1F 便利商店
-    {x: 2150, y: -1000, w: 400,  h: 400}, // 1F 門診藥局
-    {x: 2700, y: -1100, w: 500,  h: 600}, // 1F 急診室
-
-    // 1F 連結通道 (刻意放大範圍，確保 20px 的碰撞半徑可以完美通過)
-    {x: 1425, y: -450, w: 150, h: 250},   // 大廳 <-> 休息室通道
-    {x: 800,  y: -950, w: 250, h: 200},   // 便利商店 <-> 大廳通道
-    {x: 1950, y: -950, w: 250, h: 200},   // 大廳 <-> 藥局通道
-    {x: 2500, y: -950, w: 250, h: 200},   // 藥局 <-> 急診室通道
-
-// ★ 2F ~ 14F 獨立遙遠樓層 (更新為遙遠座標)
-    {x: 10000, y: -1200, w: 800, h: 600},  // 2F
-    {x: 15000, y: -1200, w: 800, h: 600},  // 3F
-    {x: 20000, y: -1200, w: 800, h: 600},  // 4F
-    {x: 25000, y: -1200, w: 800, h: 600},  // 5F
-    {x: 30000, y: -1200, w: 800, h: 600},  // 6F
-    {x: 35000, y: -1200, w: 800, h: 600}   // 14F
+    {x: 1000, y: -1200, w: 1000, h: 800}, {x: 1300, y: -250,  w: 400,  h: 300}, {x: 450,  y: -1000, w: 400,  h: 400}, {x: 2150, y: -1000, w: 400,  h: 400}, {x: 2700, y: -1100, w: 500,  h: 600},
+    {x: 1425, y: -450, w: 150, h: 250},   {x: 800,  y: -950, w: 250, h: 200},   {x: 1950, y: -950, w: 250, h: 200},   {x: 2500, y: -950, w: 250, h: 200},
+    {x: 10000, y: -1200, w: 800, h: 600},  {x: 15000, y: -1200, w: 800, h: 600},  {x: 20000, y: -1200, w: 800, h: 600},  {x: 25000, y: -1200, w: 800, h: 600},  {x: 30000, y: -1200, w: 800, h: 600},  {x: 35000, y: -1200, w: 800, h: 600}  
   ];
 
-  // 1. 判斷是否在一般矩形安全區域內
-  for (let z of walkableZones) {
-    if (x > z.x + r && x < z.x + z.w - r && y > z.y + r && y < z.y + z.h - r) {
-      isWalkable = true; break;
-    }
-  }
-
-  // 2. 11F 特殊梯形與斜角邏輯
+  for (let z of walkableZones) { if (x > z.x + r && x < z.x + z.w - r && y > z.y + r && y < z.y + z.h - r) { isWalkable = true; break; } }
   if (!isWalkable) {
     if (x > 350+r && x < 2500-r && y > 150+r && y < 2200-r) {
       let diagLine = x + y; let distAlong = (x - y + 1300) * 0.707;
-      if (!(distAlong > 0 && distAlong < 2200 && diagLine < 2200 + r && diagLine > 1850 - r)) {
-         isWalkable = true;
-      }
+      if (!(distAlong > 0 && distAlong < 2200 && diagLine < 2200 + r && diagLine > 1850 - r)) isWalkable = true;
     }
   }
 
-  // 3. 不在任何安全區域，直接禁止移動
   if (!isWalkable) return false; 
-
-  // 4. 再判斷是否撞到區域內的實體障礙物
-  if (x > 1200 - r && x < 1400 + r && Math.abs(y - (-0.93*x + 2365)) < 40) return false; // 11F 護理站斜角牆
-  for (let b of solidBlocks) { 
-    if (x+r > b.x && x-r < b.x+b.w && y+r > b.y && y-r < b.y+b.h) return false; 
-  }
+  if (x > 1200 - r && x < 1400 + r && Math.abs(y - (-0.93*x + 2365)) < 40) return false; 
+  for (let b of solidBlocks) { if (x+r > b.x && x-r < b.x+b.w && y+r > b.y && y-r < b.y+b.h) return false; }
   
   return true;
 }
 
-// ==========================================
-// ★ 樓層電梯傳送陣座標 (用來偵測踩踏)
-// ==========================================
-// ==========================================
-// ★ 樓層電梯傳送陣座標 (用來偵測踩踏)
-// ==========================================
-const elevatorZones = [
-   {x: 1850, y: -1150},  // ★ 1F 改至右上方
-   {x: 2125, y: 1975},   // 11F
-   {x: 10400, y: -1140}, // 2F
-   {x: 15400, y: -1140}, // 3F
-   {x: 20400, y: -1140}, // 4F
-   {x: 25400, y: -1140}, // 5F
-   {x: 30400, y: -1140}, // 6F
-   {x: 35400, y: -1140}  // 14F
-];
+const elevatorZones = [ {x: 1850, y: -1150}, {x: 2125, y: 1975}, {x: 10400, y: -1140}, {x: 15400, y: -1140}, {x: 20400, y: -1140}, {x: 25400, y: -1140}, {x: 30400, y: -1140}, {x: 35400, y: -1140} ];
 
 function gameLoop() {
   if (gameActive) {
@@ -1022,36 +814,21 @@ function gameLoop() {
     
     if (velocity.x || velocity.y) {
       let touchedElevator = false;
-      
       for(let z of elevatorZones) {
-         if (Math.hypot(state.x - z.x, state.y - z.y) < 50) {
-            showElevatorMenu();
-            touchedElevator = true;
-            break; 
-         }
+         if (Math.hypot(state.x - z.x, state.y - z.y) < 50) { showElevatorMenu(); touchedElevator = true; break; }
       }
 
       if (!touchedElevator && missionStage === 0 && task.npcs) {
         for (let n of task.npcs) {
-          // ★ 新增判定：如果這個 NPC 是一個物品且目前被隱藏(不可互動)，就直接跳過不理他！
           const el = document.getElementById(`npc-node-${n.id}`);
-          if (el && el.getAttribute('data-interactable') === 'false') {
-              continue;
-          }
-
-          if (Math.hypot(state.x - n.pos.x, state.y - n.pos.y) < 70) {
-            missionStage = 1;
-            startNpcDialog(n);
-            break;
-          }
+          if (el && el.getAttribute('data-interactable') === 'false') continue;
+          if (Math.hypot(state.x - n.pos.x, state.y - n.pos.y) < 70) { missionStage = 1; startNpcDialog(n); break; }
         }
       }
     }
   }
-  
   requestAnimationFrame(gameLoop);
 }
-
 requestAnimationFrame(gameLoop);
 
 // ==========================================
@@ -1081,20 +858,14 @@ const handleMove = (e) => {
 
   const move = Math.min(dist, 50);
   document.getElementById('joystickKnob').style.transform = `translate(calc(-50% + ${dx/dist*move}px), calc(-50% + ${dy/dist*move}px))`;
-  velocity.x = (dx/dist) * speed * Math.min(dist/50, 1);
-  velocity.y = (dy/dist) * speed * Math.min(dist/50, 1);
+  velocity.x = (dx/dist) * speed * Math.min(dist/50, 1); velocity.y = (dy/dist) * speed * Math.min(dist/50, 1);
 };
 
 const handleEnd = () => { isDragging = false; velocity = {x:0, y:0}; document.getElementById('joystickBase').style.display = 'none'; };
 
 const sceneObj = document.getElementById('scene');
-sceneObj.addEventListener('mousedown', handleStart);
-window.addEventListener('mousemove', handleMove, { passive: false });
-window.addEventListener('mouseup', handleEnd);
-sceneObj.addEventListener('touchstart', handleStart, { passive: false });
-window.addEventListener('touchmove', handleMove, { passive: false });
-window.addEventListener('touchend', handleEnd);
-window.addEventListener('touchcancel', handleEnd);
+sceneObj.addEventListener('mousedown', handleStart); window.addEventListener('mousemove', handleMove, { passive: false }); window.addEventListener('mouseup', handleEnd);
+sceneObj.addEventListener('touchstart', handleStart, { passive: false }); window.addEventListener('touchmove', handleMove, { passive: false }); window.addEventListener('touchend', handleEnd); window.addEventListener('touchcancel', handleEnd);
 window.addEventListener('resize', updateCamera);
 </script>
 </body>
