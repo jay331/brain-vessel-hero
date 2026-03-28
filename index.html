@@ -20,48 +20,49 @@ input, select { font-family: inherit; background: rgba(0,0,0,0.6); border: 1px s
 input[type="checkbox"] { width: auto; }
 .app { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; }
 
-/* ===== HUD 標題列 (優化：提升質感與對稱性) ===== */
-header { display: flex; flex-direction: column; background: linear-gradient(180deg, rgba(0,0,0,0.95), rgba(0,0,0,0.85)); border-bottom: 1px solid rgba(255,255,255,0.1); z-index: 100; flex-shrink: 0; padding: 0; box-shadow: 0 4px 15px rgba(0,0,0,0.8); }
-.header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 12px 14px; }
+/* ===== HUD 標題列 (優化：第一行單列緊湊，第二行 Tabs) ===== */
+header { display: flex; flex-direction: column; background: linear-gradient(180deg, rgba(0,0,0,0.95), rgba(0,0,0,0.8)); border-bottom: 1px solid var(--theme-dim); z-index: 100; flex-shrink: 0; padding: 0; }
+.header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 8px 10px; }
 
-/* 左側：大頭貼與玩家資訊 */
-.header-left { display: flex; align-items: center; gap: 10px; flex: 1; }
-.avatar-wrap { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--theme-primary); background: #000; overflow: hidden; position: relative; cursor: pointer; box-shadow: 0 0 10px rgba(0,0,0,0.8), inset 0 0 5px rgba(255,255,255,0.5); flex-shrink: 0; transition: transform 0.2s;}
-.avatar-wrap:active { transform: scale(0.92); }
+/* 左側：頭像與玩家資訊 (同行) */
+.header-left { display: flex; align-items: center; gap: 8px; flex: 1; }
+.avatar-wrap { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--theme-primary); background: #000; overflow: hidden; position: relative; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.5); flex-shrink: 0;}
 .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
-
-.player-text-wrap { display: flex; align-items: center; gap: 8px; flex-wrap: wrap;}
-.player-name { font-size: 15px; font-weight: 900; color: #fff; cursor: pointer; transition: color 0.2s; letter-spacing: 0.5px; text-shadow: 0 2px 4px rgba(0,0,0,1);} 
+.player-text-wrap { display: flex; align-items: center; gap: 6px; flex-wrap: wrap;}
+.player-name { font-size: 14px; font-weight: bold; color: #fff; cursor: pointer; transition: color 0.2s;} 
 .player-name:active { color: var(--theme-primary); }
 
-/* 原版膠囊切換鈕 (質感升級) */
-.mode-toggle-btn { background: linear-gradient(180deg, rgba(255,255,255,0.15), rgba(0,0,0,0.6)); color: #fff; border: 1px solid var(--theme-dim); border-radius: 99px; cursor: pointer; transition: all 0.2s; padding: 4px 10px; font-size: 11px; font-weight: bold; display: flex; align-items: center; gap: 4px; box-shadow: inset 0 1px 1px rgba(255,255,255,0.2), 0 2px 5px rgba(0,0,0,0.5); }
-.mode-toggle-btn:active { transform: scale(0.95); background: rgba(0,0,0,0.8); }
-.mode-toggle-btn span.mode-text { color: var(--theme-primary); text-shadow: 0 1px 2px #000;}
-.mode-toggle-btn span.mode-icon { font-size: 12px; font-weight: bold; opacity: 0.8;}
+/* 模式切換鈕 */
+.mode-toggle-btn { background: rgba(0,0,0,0.6); color: #aaa; border: 1px solid var(--theme-dim); border-radius: 99px; cursor: pointer; transition: all 0.2s; padding: 4px 10px; font-size: 11px; font-weight: bold; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+.mode-toggle-btn:active { transform: scale(0.95); }
+.mode-toggle-btn span.mode-text { color: var(--theme-primary); text-shadow: 0 0 5px rgba(255,255,255,0.2);}
 
-/* 右側：健康幣 (全新對稱膠囊設計) */
-.header-right { display: flex; align-items: center; justify-content: flex-end; }
-.coin-pill { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.5); border: 1px solid rgba(61,255,142,0.4); border-radius: 20px; padding: 4px 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.5), inset 0 0 10px rgba(61,255,142,0.1); }
-.coin-title { color: var(--good); font-weight: 900; font-size: 11px; letter-spacing: 0.5px; }
-.coin-value { color: #fff; font-size: 16px; font-weight: 900; text-shadow: 0 0 6px rgba(255,255,255,0.4); line-height: 1; }
+/* 右側：健康幣 (呼叫綜合商城) */
+.header-right { display: flex; align-items: center; justify-content: flex-end; cursor: pointer; transition: transform 0.2s;}
+.header-right:active { transform: scale(0.95); }
+.res-item { display: flex; align-items: center; gap: 6px; font-weight: 900; font-size: 14px; white-space: nowrap; }
 
 /* 次級大頁籤 (Tabs) */
 .sub-header-tabs { display: flex; width: 100%; background: rgba(0,0,0,0.4); border-top: 1px solid rgba(255,255,255,0.05); }
 .sub-header-tabs .tab-item { flex: 1; text-align: center; padding: 10px 0; font-size: 14px; font-weight: bold; color: #888; cursor: pointer; transition: all 0.2s; border-bottom: 3px solid transparent; }
-.sub-header-tabs .tab-item.active { color: var(--theme-primary); border-bottom-color: var(--theme-primary); background: linear-gradient(to top, rgba(255,255,255,0.05), transparent); text-shadow: 0 0 8px rgba(255,255,255,0.2); }
+.sub-header-tabs .tab-item.active { color: var(--theme-primary); border-bottom-color: var(--theme-primary); background: linear-gradient(to top, rgba(255,255,255,0.05), transparent); }
 .sub-header-tabs .tab-item:active { background: rgba(255,255,255,0.1); }
 
 /* ===== 佈局與背景 ===== */
-.wrap { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0; }
-.stage { position: relative; width: 100%; height: 100%; overflow: hidden; display: flex; flex-direction: column; background: radial-gradient(circle at 50% 30%, var(--theme-bg), rgba(0,0,0,0.95)), linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.98)), url('https://images.unsplash.com/photo-1551076805-e1869033e561?q=80&w=800&auto=format&fit=crop') center/cover no-repeat; }
-@media (min-width: 481px) { .wrap { padding: 20px; background: #111; } .stage { max-width: 414px; max-height: 896px; border-radius: 16px; border: 2px solid var(--theme-dim); box-shadow: 0 0 30px var(--theme-bg); } }
+.wrap { flex: 1; display: flex; flex-direction: column; min-height: 0; position: relative;}
+.stage { position: absolute; inset: 0; display: flex; flex-direction: column; background: radial-gradient(circle at 50% 30%, var(--theme-bg), rgba(0,0,0,0.95)), linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.98)), url('https://images.unsplash.com/photo-1551076805-e1869033e561?q=80&w=800&auto=format&fit=crop') center/cover no-repeat; }
 
-/* ★ 加大 padding-bottom 避免地圖/清單被底部導覽列切掉 */
-.screen { position: absolute; inset: 0; display: none; flex-direction: column; z-index: 10; padding: 10px; padding-bottom: 95px; overflow-y: auto; }
+/* ★ 加大 padding-bottom 避免被底部導覽列切掉 */
+.screen { position: absolute; inset: 0; display: none; flex-direction: column; z-index: 10; padding: 10px; padding-bottom: 120px; overflow-y: auto; }
 .screen.show { display: flex; }
 .screen.full-view { padding-top: 10px; padding-bottom: 10px; z-index: 200; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); }
-.fullscreen-map { position: fixed !important; inset: 0 !important; z-index: 4000 !important; border-radius: 0 !important; border: none !important; padding-bottom: 0 !important; }
+
+/* 節點地圖的樣式與動畫 */
+#nodeMapContainer { scroll-behavior: smooth; }
+@keyframes pulseActiveBeg { 0% { box-shadow: 0 0 0 0 rgba(100, 181, 246, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(100, 181, 246, 0); } 100% { box-shadow: 0 0 0 0 rgba(100, 181, 246, 0); } }
+@keyframes pulseActiveAdv { 0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(212, 175, 55, 0); } 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); } }
+body.mode-beginner .node-pulse { animation: pulseActiveBeg 2s infinite; }
+body.mode-advanced .node-pulse { animation: pulseActiveAdv 2s infinite; }
 
 /* ===== 元件 ===== */
 .panel { background: var(--theme-panel); border: 1px solid var(--theme-dim); border-radius: 12px; padding: 15px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; flex: 1; min-height: 0;}
@@ -72,15 +73,9 @@ header { display: flex; flex-direction: column; background: linear-gradient(180d
 .btn-back:active { transform: scale(0.97); background: rgba(0,0,0,0.8); }
 .btn-rescue { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border: none; color: #004d26; font-weight: 900; text-shadow: 0 1px 1px rgba(255,255,255,0.4); padding: 12px; font-size: 14px; border-radius: 8px; box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4), inset 0 -3px 0 rgba(0,0,0,0.15); transition: all 0.2s; margin-bottom: 4px;}
 
-/* ===== 主畫面 ===== */
-#scrHome { justify-content: flex-start; padding: 12px 10px;} 
-.linear-standby { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center; background: rgba(0,0,0,0.4); border-radius: 12px; border: 1px solid var(--theme-dim); padding: 15px; box-shadow: inset 0 0 30px rgba(0,0,0,0.5); margin-bottom: 10px; }
-.linear-standby h2 { color: var(--theme-primary); font-size: 24px; margin: 0 0 8px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
-.linear-standby p { color: #ccc; font-size: 14px; margin: 0 0 15px 0; line-height: 1.6; }
-
-/* ★ 挑戰清單特殊卡片與下拉面板 */
-.role-list { display: flex; flex-direction: column; gap: 8px; margin: 0; flex: 1; overflow-y:auto; padding-bottom: 10px;}
-.role-card { display: flex; align-items: center; gap: 10px; padding: 0 12px; background: var(--theme-grad); border: 1px solid var(--theme-dim); border-radius: 8px; position: relative; cursor: pointer; flex-shrink: 0; min-height: 55px; transition: border-radius 0.2s;} 
+/* ===== 主畫面清單模式 ===== */
+.role-list { display: flex; flex-direction: column; gap: 8px; margin: 0; flex: 1; overflow-y:auto; padding-bottom: 120px;} 
+.role-card { display: flex; align-items: center; gap: 10px; padding: 0 12px; background: var(--theme-grad); border: 1px solid var(--theme-dim); border-radius: 8px; position: relative; cursor: pointer; flex-shrink: 0; min-height: 60px; transition: border-radius 0.2s;} 
 .role-card.expanded { border-radius: 8px 8px 0 0; background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent); border-bottom-color: transparent;}
 .role-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--theme-primary); border-radius: 8px 0 0 8px; }
 .role-card.expanded::before { border-radius: 8px 0 0 0; }
@@ -90,7 +85,6 @@ header { display: flex; flex-direction: column; background: linear-gradient(180d
 .role-task { font-size: 11px; color: #fff; font-weight: bold; margin: 0; opacity: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); line-height: 1.2;}
 .role-go-btn { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); color: var(--btn-text); display: flex; align-items: center; justify-content: center; font-size: 11px; box-shadow: 0 2px 8px rgba(0,0,0,0.8); transition: transform 0.2s; font-weight:bold;}
 
-/* 下拉式任務面板 */
 .role-tasks-accordion { display:none; background:rgba(0,0,0,0.3); border-radius:0 0 8px 8px; padding:10px; margin-top:-4px; border:1px solid var(--theme-dim); border-top:none; box-shadow:inset 0 2px 10px rgba(0,0,0,0.5); margin-bottom: 4px;}
 .role-tasks-accordion.open { display:flex; flex-direction:column; gap:6px; }
 .subtask-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-radius: 6px; border: 1px solid var(--theme-dim); font-weight: bold; font-size: 13px; transition: all 0.2s; flex-shrink: 0;}
@@ -123,14 +117,6 @@ header { display: flex; flex-direction: column; background: linear-gradient(180d
 .bc-val { flex: 1; font-weight:bold; }
 .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px;}
 .tag { background: rgba(0,0,0,0.5); border: 1px solid var(--theme-primary); padding: 3px 8px; border-radius: 10px; font-size: 11px; }
-
-.wizard-header { font-size: 16px; color: var(--theme-primary); font-weight: bold; margin-bottom: 10px; text-align: center; }
-.wizard-option { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.6); border: 1px solid var(--theme-dim); padding: 12px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; flex-shrink: 0;}
-.wizard-option:active { background: var(--theme-bg); }
-.wizard-option .icon { font-size: 20px; width: 26px; text-align: center; }
-.wizard-option .text { font-size: 14px; color: #fff; }
-.trend-card { background: rgba(0,0,0,0.5); border: 1px solid var(--theme-dim); border-radius: 8px; padding: 10px; margin-bottom: 10px; flex-shrink: 0;}
-.health-dist-title { display: flex; justify-content: space-between; font-size: 11px; color: #ccc; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 
 /* ===== ★ 底部導覽列 (最佳化比例與修復外框被切掉問題) ===== */
 .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 75px; background: rgba(10,10,10,0.95); border-top: 1px solid #333; display: flex; justify-content: space-around; padding: 0 5px; align-items: center; z-index: 100; backdrop-filter: blur(5px); padding-bottom: env(safe-area-inset-bottom); }
@@ -171,16 +157,15 @@ header { display: flex; flex-direction: column; background: linear-gradient(180d
         <div class="player-text-wrap">
           <div class="player-name" id="uiPlayerName" onclick="openSettings()">急救新星</div>
           <button class="mode-toggle-btn" onclick="toggleMode()">
-            <span class="mode-text" id="navModeText">初階版</span>
-            <span class="mode-icon">⟲</span>
+            <span class="mode-text" id="navModeText">初階版</span> 🔄
           </button>
         </div>
       </div>
       
-      <div class="header-right">
-        <div class="coin-pill" style="display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.5); border: 1px solid rgba(61,255,142,0.4); border-radius: 20px; padding: 4px 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.5), inset 0 0 8px rgba(61,255,142,0.1);">
-          <span class="coin-title" style="color:var(--good); font-weight:900; font-size:11px; letter-spacing:0.5px;">健康幣</span>
-          <span class="coin-value" id="uiCoins" style="color:#fff; font-size:16px; font-weight:900; text-shadow:0 0 5px rgba(255,255,255,0.5);">0</span>
+      <div class="header-right" onclick="openStoreUI()">
+        <div class="res-item" style="background:transparent; border:none; box-shadow:none; flex-direction: row; gap: 6px;">
+          <span style="color:var(--good); font-weight:bold; font-size: 13px;">健康幣</span>
+          <span id="uiCoins" style="color:#fff; font-size:16px;">0</span>
         </div>
       </div>
     </div>
@@ -195,21 +180,8 @@ header { display: flex; flex-direction: column; background: linear-gradient(180d
     <div class="stage">
       
       <section class="screen show" id="scrHome">
-        <div id="linearStoryContainer" class="linear-standby" style="display:none;">
-          <h2>主線任務進行中</h2>
-          <p id="linearStoryText">目前進度：第 1 關 / 共 25 關</p>
-          <button class="btn" style="background:var(--theme-primary); color:var(--btn-text); font-size:18px; padding:15px; box-shadow:0 4px 15px rgba(0,0,0,0.5);" onclick="playTaskFlat(playerState.storyProgression)">🚀 繼續主線任務</button>
-        </div>
-
-        <div id="restartStoryContainer" class="linear-standby" style="display:none;">
-          <h2>🎓 初階訓練已結業</h2>
-          <p>想再次體驗完整的引導流程嗎？<br><span style="font-size:11px;color:#888;">(進度將重置，但不影響健康幣與卡片收集)</span></p>
-          <button class="btn" style="background:var(--theme-primary); color:var(--btn-text); font-size:16px; padding:12px; box-shadow:0 4px 15px rgba(0,0,0,0.5);" onclick="restartBeginnerStory()">🔄 重新開始體驗</button>
-        </div>
-
-        <div id="homeMapContainer">
-          <iframe id="homeMapFrame" style="position:absolute; inset:0; width:100%; height:100%; border:none; background:#000;"></iframe>
-        </div>
+        
+        <div id="nodeMapContainer" style="display: none; flex: 1; flex-direction: column; overflow-y: auto; padding: 20px 10px; padding-bottom: 120px;"></div>
 
         <div class="role-list" id="roleListContainer" style="display: none;"></div>
         
@@ -244,11 +216,11 @@ header { display: flex; flex-direction: column; background: linear-gradient(180d
           <h2 style="color: var(--theme-primary); margin-top:0; border-bottom: none;" id="lbMainTitle">🏆 極限挑戰大賽</h2>
           
           <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.6); padding:10px 15px; border-radius:8px; margin-bottom:15px; border:1px solid var(--theme-dim);">
-             <div style="color:#ffb300; font-size:16px; font-weight:bold; display:flex; align-items:center; gap:8px;">
-                 <span style="font-size:24px;">🧠</span> 
-                 <span><span id="uiBrainCoins" style="font-size:20px;">0</span> 分</span>
+             <div style="color:var(--good); font-size:16px; font-weight:bold; display:flex; align-items:center; gap:8px;">
+                 <span style="font-size:20px;">💲</span> 
+                 <span><span id="lbHealthCoins" style="font-size:18px;">0</span> 幣</span>
              </div>
-             <button class="btn btn-rescue" style="width:auto; padding:8px 14px; margin:0;" onclick="openChallengeStore()">🛍️ 挑戰商城</button>
+             <button class="btn btn-rescue" style="width:auto; padding:8px 14px; margin:0;" onclick="openStoreUI()">🛍️ 綜合商城</button>
           </div>
 
           <div id="lbListTotal" style="flex: 1; overflow-y: auto; padding-right: 4px;"></div>
@@ -262,16 +234,16 @@ header { display: flex; flex-direction: column; background: linear-gradient(180d
           
           <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.6); padding:10px 15px; border-radius:8px; margin-bottom:15px; border:1px solid var(--theme-dim);">
              <div style="color:var(--good); font-size:16px; font-weight:bold; display:flex; align-items:center; gap:8px;">
-                 <span style="font-size:24px;">🏋️</span> 
-                 <span><span id="uiRehabCoins" style="font-size:20px;">0</span> 分</span>
+                 <span style="font-size:20px;">💲</span> 
+                 <span><span id="rehabHealthCoins" style="font-size:18px;">0</span> 幣</span>
              </div>
-             <button class="btn btn-rescue" style="width:auto; padding:8px 14px; margin:0;" onclick="openRehabStore()">🛍️ 復健商城</button>
+             <button class="btn btn-rescue" style="width:auto; padding:8px 14px; margin:0;" onclick="openStoreUI()">🛍️ 綜合商城</button>
           </div>
 
           <div style="flex: 1; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#aaa;">
               <div style="font-size:40px; margin-bottom:10px; opacity:0.5;">🚧</div>
               <div style="font-size:16px; font-weight:bold;">復健小遊戲積極準備中！</div>
-              <div style="font-size:13px; margin-top:8px;">每日完成「醫院探索」可獲取復健分數喔！</div>
+              <div style="font-size:13px; margin-top:8px;">每日完成「醫院探索」可獲取健康幣喔！</div>
           </div>
         </div>
         <button class="btn btn-back" onclick="showScreen('scrHome')"><span class="back-icon">🏠</span> 返回主畫面</button>
@@ -405,9 +377,9 @@ header { display: flex; flex-direction: column; background: linear-gradient(180d
        <span style="color:#aaa; font-size:13px; font-weight:bold;">目前餘額</span>
        <span style="color:var(--good); font-size:16px; font-weight:900;" id="storeCoinDisplay">$ 0 幣</span>
     </div>
-    <h3 style="color:#4caf50; margin: 0 0 5px 0;">🏪 便利商店 - 治裝區</h3>
-    <p style="font-size:12px; color:#aaa; margin-bottom:15px;">使用健康幣購買職業服裝，購買後請至「休息室」更換。</p>
-    <div id="storeList" style="display:flex; flex-direction:column; gap:8px;"></div>
+    
+    <div style="max-height: 50vh; overflow-y: auto; padding-right: 5px;" id="storeListContent">
+        </div>
   </div>
 </div>
 
@@ -416,19 +388,6 @@ header { display: flex; flex-direction: column; background: linear-gradient(180d
     <button class="close-btn" onclick="document.getElementById('wardrobeModal').style.display='none'">✖</button>
     <h3 style="color:#d7ccc8; margin: 0 0 15px 0;">🚪 員工休息室 - 更衣櫃</h3>
     <div id="wardrobeList" style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center;"></div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="challengeStoreModal">
-  <div class="modal-content" style="border-color: #ffb300;">
-    <button class="close-btn" onclick="document.getElementById('challengeStoreModal').style.display='none'">✖</button>
-    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.6); padding:10px 15px; border-radius:8px; margin-bottom:15px; border:1px solid var(--theme-dim);">
-       <span style="color:#aaa; font-size:13px; font-weight:bold;">大腦分數</span>
-       <span style="color:#ffb300; font-size:16px; font-weight:900;" id="csBrainCoinDisplay">🧠 0 分</span>
-    </div>
-    <h3 style="color:#ffb300; margin: 0 0 5px 0;">🛍️ 挑戰商城</h3>
-    <p style="font-size:12px; color:#aaa; margin-bottom:15px;">使用大腦分數兌換極限拉力賽的專屬車輛塗裝！</p>
-    <div id="challengeStoreList" style="display:flex; flex-direction:column; gap:8px;"></div>
   </div>
 </div>
 
@@ -443,9 +402,7 @@ const SAVE_KEY = 'BrainPioneer_SaveData_v9.6';
 let playerState = { 
   hasSetup: false, name: "", avatar: "https://i.pravatar.cc/150?img=11", mode: "beginner", 
   coins: 0, 
-  brainCoins: 0, 
-  rehabCoins: 0, 
-  storyMode: false, storyProgression: 0, replayProgression: 0, isReplaying: false, explorationTasksCompleted: 0, 
+  storyMode: true, storyProgression: 0, replayProgression: 0, isReplaying: false, explorationTasksCompleted: 0, 
   completedCasesBeg: new Map(), completedCasesAdv: new Map(),
   taskScoresBeg: new Map(), taskScoresAdv: new Map(), 
   clothes: '#fff', ownedClothes: ['#fff'], 
@@ -508,12 +465,9 @@ window.addEventListener('message', (event) => {
           
           customAlert(`主治醫師：\n「這裡有件事需要你幫忙：\n\n${t}」\n\n(一般探索，點擊模擬完成！)`, () => {
               playerState.explorationTasksCompleted++; playerState.dailyExplores.count++; 
-              let pointMsg = "";
-              if (playerState.mode === 'advanced') { playerState.brainCoins = (playerState.brainCoins||0) + 50; pointMsg = "🧠 50 大腦分數"; }
-              else { playerState.rehabCoins = (playerState.rehabCoins||0) + 50; pointMsg = "🏋️ 50 復健分數"; }
-              
-              if (isNew) { playerState.coins += 300; playerState.completedExplores.push(t); customAlert(`完成新探索任務！\n\n獲得 300 健康幣\n獲得 ${pointMsg}！`, null, "🏆 任務完成"); } 
-              else { customAlert(`這項任務你已經很熟練了！\n(重複任務無健康幣)\n\n但仍獲得 ${pointMsg} 作為今日探索獎勵！`, null, "🏆 複習完成"); }
+              // ★ 獎勵統一給予健康幣
+              if (isNew) { playerState.coins += 350; playerState.completedExplores.push(t); customAlert(`完成新探索任務！\n\n獲得 350 健康幣！`, null, "🏆 任務完成"); } 
+              else { playerState.coins += 50; customAlert(`這項任務你已經很熟練了！\n\n獲得 50 健康幣 作為今日探索獎勵！`, null, "🏆 複習完成"); }
               saveGameData(); updateHUD();
           }, "👨‍⚕️ 醫師的委託");
       }
@@ -545,6 +499,7 @@ window.addEventListener('message', (event) => {
   
   else if (event.data.type === 'TOGGLE_FULLSCREEN') {
       isGlobalFs = event.data.isFullscreen; const mapWrap = id('homeMapContainer');
+      // Fullscreen in 節點地圖 is just hiding UI
       if (isGlobalFs) { if(mapWrap) mapWrap.classList.add('fullscreen-map'); id('mainHeader').style.display = 'none'; id('mainNav').style.display = 'none'; } 
       else { exitFullscreenUI(); }
   }
@@ -609,40 +564,105 @@ function setHomeView(isMap) {
       else { id('segList').classList.add('active'); id('segMap').classList.remove('active'); }
   }
 
-  id('linearStoryContainer').style.display = 'none'; id('restartStoryContainer').style.display = 'none'; id('roleListContainer').style.display = 'none'; id('homeMapContainer').style.display = 'none';
+  id('nodeMapContainer').style.display = 'none'; id('roleListContainer').style.display = 'none';
   
   if (isMap) {
-    if (playerState.mode === 'beginner' && playerState.storyProgression < TOTAL_BEG_TASKS) id('linearStoryContainer').style.display = 'flex';
-    else if (playerState.mode === 'beginner') id('restartStoryContainer').style.display = 'flex';
-    else {
-        // 進階版的任務模式：地圖畫面
-        id('homeMapContainer').style.display = 'block'; 
-        id('homeMapContainer').classList.remove('fullscreen-map'); 
-        id('homeMapFrame').src = `rpg_loader.html?taskId=hub_world`;
-    }
+      id('nodeMapContainer').style.display = 'flex';
+      renderNodeMap();
   } else {
-    id('roleListContainer').style.display = 'flex';
+      id('roleListContainer').style.display = 'flex';
   }
 }
 
-function toggleViewMode() {
-    setHomeView(!playerState.storyMode);
+// ===============================================
+// ★ 節點地圖渲染 (任務模式)
+// ===============================================
+function renderNodeMap() {
+    const container = id('nodeMapContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const roles = getActiveRoles();
+    let html = '<div style="width: 100%; display: flex; flex-direction: column; align-items: center; padding-top:10px;">';
+
+    let globalIndex = 0;
+    roles.forEach((role, idx) => {
+        let doneCount = 0;
+        for(let i=0; i<role.totalTasks; i++) {
+            if (playerState.mode === 'beginner' && playerState.taskScoresBeg.has(`${role.id}_${i}`)) doneCount++;
+            else if (playerState.mode === 'advanced' && playerState.taskScoresAdv.has(`${role.id}_${i}`)) doneCount++;
+        }
+
+        let status = 'locked';
+        let roleStartIndex = globalIndex;
+
+        if (playerState.mode === 'beginner') {
+            if (doneCount === role.totalTasks) status = 'cleared';
+            else if (playerState.storyProgression >= roleStartIndex && playerState.storyProgression < roleStartIndex + role.totalTasks) status = 'active';
+        } else {
+            // 進階版解鎖邏輯 (前一個通關即可解鎖下一個)
+            if (doneCount === role.totalTasks) status = 'cleared';
+            else if (idx === 0 || (roles[idx-1].currentTask > roles[idx-1].totalTasks)) status = 'active';
+        }
+
+        // 連接線
+        let lineHtml = '';
+        if (idx < roles.length - 1) {
+            let lineColor = status === 'cleared' ? 'var(--good)' : '#444';
+            lineHtml = `<div style="width: 4px; height: 35px; background: ${lineColor}; margin: 5px 0;"></div>`;
+        }
+
+        let icon = '🔒', bgColor = '#333', borderColor = '#555', pulse = '';
+        if (status === 'cleared') { icon = '⭐'; bgColor = 'var(--good)'; borderColor = '#fff'; }
+        else if (status === 'active') { icon = '🎯'; bgColor = 'var(--theme-primary)'; borderColor = '#fff'; pulse = 'node-pulse'; }
+
+        html += `
+        <div style="display: flex; flex-direction: column; align-items: center; width: 100%;" onclick="handleNodeClick(${idx}, '${status}', ${roleStartIndex})">
+            <div class="${pulse}" style="width: 64px; height: 64px; border-radius: 50%; background: ${bgColor}; border: 3px solid ${borderColor}; display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); cursor: pointer; z-index: 2;">
+                ${icon}
+            </div>
+            <div style="margin-top: 8px; font-weight: bold; color: ${status==='locked'?'#888':'#fff'}; text-shadow: 1px 1px 2px #000; text-align: center;">
+                ${role.name}<br><span style="font-size:11px; opacity:0.8;">${doneCount}/${role.totalTasks}</span>
+            </div>
+            ${lineHtml}
+        </div>
+        `;
+        globalIndex += role.totalTasks;
+    });
+
+    html += '</div>';
+    container.innerHTML = html;
 }
 
-function showScreen(screenId) {
-  document.querySelectorAll('.screen').forEach(s => { s.classList.remove('show'); s.classList.remove('full-view'); });
-  const target = id(screenId); if(target) target.classList.add('show');
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  
-  if (screenId === 'scrHome') { 
-    if (!isGlobalFs) { id('mainHeader').style.display = 'flex'; id('mainNav').style.display = 'flex'; }
-  } else { 
-    id('mainHeader').style.display = 'none'; id('mainNav').style.display = 'none'; target.classList.add('full-view'); 
-  }
-}
+function handleNodeClick(roleIdx, status, startIndex) {
+    if (status === 'locked') {
+        return customAlert('此區域尚未解鎖，請先完成前面的任務！', null, '🔒 區域未解鎖');
+    }
 
-function exitFullscreenUI() { isGlobalFs = false; id('mainHeader').style.display = 'flex'; id('mainNav').style.display = 'flex'; id('homeMapContainer').classList.remove('fullscreen-map'); updateModeUI(); }
-function toggleMode() { playerState.mode = playerState.mode === 'beginner' ? 'advanced' : 'beginner'; saveGameData(); updateModeUI(); }
+    const roles = getActiveRoles();
+    const role = roles[roleIdx];
+
+    if (playerState.mode === 'advanced') {
+        // 進階版：點擊後切換至清單模式並展開
+        setHomeView(false);
+        setTimeout(() => {
+            toggleAccordion(role.id);
+            const cardEl = document.getElementById(`card-${role.id}`);
+            if (cardEl) cardEl.scrollIntoView({behavior: 'smooth', block: 'center'});
+        }, 100);
+    } else {
+        // 初階版：點擊後直接進入劇情任務
+        if (status === 'cleared') {
+            customConfirm(`【${role.name}】已通關！\n是否要重新回顧此區域的劇情演練？`, () => {
+                playerState.isReplaying = true;
+                playerState.replayProgression = startIndex;
+                playTaskFlat(startIndex);
+            }, null, '🎬 回顧劇情', '開始回顧');
+        } else if (status === 'active') {
+            playTaskFlat(playerState.storyProgression);
+        }
+    }
+}
 
 // ===============================================
 // UI 更新機制
@@ -661,11 +681,12 @@ function updateModeUI() {
   if(id('navSlot6Text')) id('navSlot6Text').textContent = isBeg ? '復健挑戰' : '極限挑戰';
   
   // 初階與進階皆保留次級導覽列 Tabs，並維持原本的選擇狀態
-  if (isBeg && playerState.storyProgression >= TOTAL_BEG_TASKS && playerState.storyMode) playerState.storyMode = false;
   setHomeView(playerState.storyMode);
   
   updateHUD(); renderHomeRoles(); showScreen('scrHome');
 }
+
+function toggleMode() { playerState.mode = playerState.mode === 'beginner' ? 'advanced' : 'beginner'; saveGameData(); updateModeUI(); }
 
 function handleNavSlot2() {
   if(playerState.mode === 'beginner') { showScreen('scrStrokeCard'); renderStrokeCard(); } 
@@ -680,9 +701,8 @@ function handleNavSlot6() {
 function updateHUD() { 
   id('uiCoins').textContent = playerState.coins.toLocaleString(); 
   if(id('storeCoinDisplay')) id('storeCoinDisplay').textContent = `$ ${playerState.coins.toLocaleString()} 幣`;
-  if(id('uiBrainCoins')) id('uiBrainCoins').textContent = (playerState.brainCoins || 0).toLocaleString();
-  if(id('csBrainCoinDisplay')) id('csBrainCoinDisplay').textContent = `🧠 ${(playerState.brainCoins || 0).toLocaleString()} 分`;
-  if(id('uiRehabCoins')) id('uiRehabCoins').textContent = (playerState.rehabCoins || 0).toLocaleString();
+  if(id('lbHealthCoins')) id('lbHealthCoins').textContent = playerState.coins.toLocaleString();
+  if(id('rehabHealthCoins')) id('rehabHealthCoins').textContent = playerState.coins.toLocaleString();
 
   const isUnlocked = playerState.mode === 'beginner' ? ROLES_DATA_BEG.every(r => r.currentTask > 1) : ROLES_DATA_ADV.every(r => r.currentTask > 1);
   const drillBtn = id('navSlot1');
@@ -714,6 +734,7 @@ function updateHUD() {
   if (exploreBadge) { if (uncompletedExploreCount > 0) { exploreBadge.style.display = 'flex'; exploreBadge.textContent = uncompletedExploreCount; } else { exploreBadge.style.display = 'none'; } }
   
   renderHomeRoles();
+  if (playerState.storyMode) renderNodeMap();
 }
 
 // ★ 手風琴式類別與任務渲染
@@ -800,7 +821,6 @@ function saveProfile(m) {
       ROLES_DATA_ADV.forEach(r => { r.currentTask = 6; r.subTasks.forEach((st, i) => playerState.taskScoresAdv.set(`${r.id}_${i}`, 1000)); });
       playerState.completedCasesBeg.set("11111", 5000); playerState.completedCasesAdv.set("11111", 5000);
       playerState.unlockedPuzzles = Array.from({length: 20}, (_, i) => i + 1); playerState.pendingPuzzles = [];
-      playerState.brainCoins = 9999; playerState.rehabCoins = 9999;
       customAlert("已解鎖全部任務與拼圖！", null, "🔓 開發者模式");
     }
 
@@ -824,7 +844,6 @@ function launchExplore() {
 function saveGameData() {
   const dataToSave = {
     hasSetup: playerState.hasSetup, name: playerState.name, avatar: playerState.avatar, mode: playerState.mode, coins: playerState.coins, 
-    brainCoins: playerState.brainCoins, rehabCoins: playerState.rehabCoins,
     storyMode: playerState.storyMode, storyProgression: playerState.storyProgression, replayProgression: playerState.replayProgression,
     explorationTasksCompleted: playerState.explorationTasksCompleted, clothes: playerState.clothes, ownedClothes: playerState.ownedClothes,
     glasses: playerState.glasses, ownedGlasses: playerState.ownedGlasses, carSkin: playerState.carSkin, ownedCarSkins: playerState.ownedCarSkins,
@@ -851,8 +870,6 @@ function loadGameData() {
       if(parsed.avatar) playerState.avatar = parsed.avatar;
       if(parsed.mode) playerState.mode = parsed.mode;
       if(parsed.coins !== undefined) playerState.coins = parsed.coins;
-      if(parsed.brainCoins !== undefined) playerState.brainCoins = parsed.brainCoins;
-      if(parsed.rehabCoins !== undefined) playerState.rehabCoins = parsed.rehabCoins;
       if(parsed.storyMode !== undefined) playerState.storyMode = parsed.storyMode;
       if(parsed.storyProgression !== undefined) playerState.storyProgression = parsed.storyProgression;
       if(parsed.replayProgression !== undefined) playerState.replayProgression = parsed.replayProgression;
@@ -905,8 +922,13 @@ function playTaskFlat(index) {
   }
 
   id('linearStoryContainer').style.display = 'none'; id('restartStoryContainer').style.display = 'none'; id('roleListContainer').style.display = 'none';
-  id('homeMapContainer').style.display = 'block'; id('homeMapContainer').classList.remove('fullscreen-map'); id('mainHeader').style.display = 'flex'; id('mainNav').style.display = 'flex';
-  isGlobalFs = false; id('homeMapFrame').src = `rpg_loader.html?taskId=${flatTask.gameId}`;
+  id('nodeMapContainer').style.display = 'none'; id('mainHeader').style.display = 'flex'; id('mainNav').style.display = 'flex';
+  isGlobalFs = false; 
+  
+  // 開啟 B 風格的 rpg_loader 地圖
+  id('mapOverlayTitle').textContent = `🎯 模擬演練：${flatTask.role.subTasks[flatTask.taskIndex].substring(3)}`; 
+  id('mapOverlay').style.display = 'flex'; 
+  id('mapFrame').src = `rpg_loader.html?taskId=${flatTask.gameId}`;
 }
 
 function playTask(taskIndex) {
@@ -1225,15 +1247,15 @@ function handleChallengeClear(chId, score) {
     
     if (isNewRecord) {
         playerState.challengeRecords[chId] = score; playerState.extremeAttempts.count += 3;
-        playerState.brainCoins = (playerState.brainCoins || 0) + 150; // ★ 破紀錄額外加 150 腦幣
         saveGameData(); updateHUD();
-        customAlert(`太神了！打破個人紀錄！\n\n新紀錄：${score} ${chInfo.unit}\n🎉 獲得 150 大腦分數！\n🎁 額外獲得 3 次極限挑戰機會！`, () => {
+        customAlert(`太神了！打破個人紀錄！\n\n新紀錄：${score} ${chInfo.unit}\n🎉 獲得 150 健康幣！\n🎁 額外獲得 3 次極限挑戰機會！`, () => {
+            playerState.coins += 150; saveGameData(); updateHUD();
             if (playerState.mode === 'advanced') { renderTotalScoreLeaderboard(); showScreen('scrLeaderboard'); }
         }, "🏆 突破極限");
     } else {
-        playerState.brainCoins = (playerState.brainCoins || 0) + 100; // ★ 通關獲得 100 腦幣
         saveGameData(); updateHUD();
-        customAlert(`挑戰完成！\n\n本次成績：${score} ${chInfo.unit}\n最佳紀錄：${currentBest} ${chInfo.unit}\n🎉 獲得 100 大腦分數！\n再接再厲突破自我吧！`, () => {
+        customAlert(`挑戰完成！\n\n本次成績：${score} ${chInfo.unit}\n最佳紀錄：${currentBest} ${chInfo.unit}\n🎉 獲得 100 健康幣！\n再接再厲突破自我吧！`, () => {
+            playerState.coins += 100; saveGameData(); updateHUD();
             if (playerState.mode === 'advanced') { renderTotalScoreLeaderboard(); showScreen('scrLeaderboard'); }
         }, "🏁 挑戰結束");
     }
@@ -1333,6 +1355,7 @@ const CAR_SKINS_DB = [
 
 function openStoreUI() {
   let html = ''; const ownedC = playerState.ownedClothes || ['#fff']; const ownedG = playerState.ownedGlasses || ['none']; 
+  const ownedSkins = playerState.ownedCarSkins || ['default']; const currentSkin = playerState.carSkin || 'default';
   
   html += `<h4 style="color:#81c784; margin:0 0 10px 0; border-bottom:1px solid #555; padding-bottom:4px; text-align:left;">職業服裝</h4>`;
   CLOTHES_DB.forEach(c => {
@@ -1346,7 +1369,20 @@ function openStoreUI() {
       const btnHtml = ownedG.includes(g.style) ? `<button class="btn" style="width:auto; background:#555; pointer-events:none; padding:8px 12px; font-size:12px;">已擁有</button>` : `<button class="btn btn-rescue" style="width:auto; padding:8px 12px; font-size:12px;" onclick="buyGlasses('${g.style}', ${g.price})">💰 ${g.price}</button>`;
       html += `<div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.5); padding:10px; border-radius:8px; border:1px solid var(--theme-dim); margin-bottom:5px;"><div style="display:flex; align-items:center; gap:10px;"><div style="font-size:24px; display:flex; align-items:center; justify-content:center; width:24px; height:24px;">👓</div><span style="color:#fff; font-weight:bold; font-size:13px;">${g.name}</span></div>${btnHtml}</div>`;
   });
-  id('storeList').innerHTML = html; id('storeModal').style.display = 'flex';
+
+  html += `<h4 style="color:#ffb300; margin:15px 0 10px 0; border-bottom:1px solid #555; padding-bottom:4px; text-align:left;">極限車輛塗裝</h4>`;
+  CAR_SKINS_DB.forEach(s => {
+    let btnHtml = '';
+    if (ownedSkins.includes(s.color)) {
+        if (currentSkin === s.color) btnHtml = `<button class="btn" style="width:auto; background:var(--good); color:#000; pointer-events:none; padding:8px 12px; font-size:12px;">使用中</button>`;
+        else btnHtml = `<button class="btn" style="width:auto; background:#333; color:#fff; border:1px solid #555; padding:8px 12px; font-size:12px;" onclick="equipCarSkin('${s.color}')">更換</button>`;
+    } else {
+        btnHtml = `<button class="btn btn-rescue" style="width:auto; padding:8px 12px; font-size:12px; background:linear-gradient(135deg, #ffb300, #ff8f00); color:#000; text-shadow:none; box-shadow:0 2px 8px rgba(255,179,0,0.5);" onclick="buyCarSkin('${s.color}', ${s.price})">💰 ${s.price}</button>`;
+    }
+    html += `<div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.5); padding:10px; border-radius:8px; border:1px solid var(--theme-dim); margin-bottom:5px;"><div style="display:flex; align-items:center; gap:10px;"><div style="font-size:24px; display:flex; align-items:center; justify-content:center; width:24px; height:24px;">🏎️</div><span style="color:#fff; font-weight:bold; font-size:13px;">${s.name}</span></div>${btnHtml}</div>`;
+  });
+
+  id('storeListContent').innerHTML = html; id('storeModal').style.display = 'flex';
 }
 
 function buyClothes(color, price) {
@@ -1363,36 +1399,16 @@ function buyGlasses(style, price) {
   } else { customAlert(`健康幣不足！還差 ${price - playerState.coins} 幣。`, null, '❌ 餘額不足'); }
 }
 
-function openChallengeStore() {
-  let html = ''; const ownedSkins = playerState.ownedCarSkins || ['default']; 
-  const currentSkin = playerState.carSkin || 'default';
-  
-  CAR_SKINS_DB.forEach(s => {
-    let btnHtml = '';
-    if (ownedSkins.includes(s.color)) {
-        if (currentSkin === s.color) btnHtml = `<button class="btn" style="width:auto; background:var(--good); color:#000; pointer-events:none; padding:8px 12px; font-size:12px;">使用中</button>`;
-        else btnHtml = `<button class="btn" style="width:auto; background:#333; color:#fff; border:1px solid #555; padding:8px 12px; font-size:12px;" onclick="equipCarSkin('${s.color}')">更換</button>`;
-    } else {
-        btnHtml = `<button class="btn btn-rescue" style="width:auto; padding:8px 12px; font-size:12px; background:linear-gradient(135deg, #ffb300, #ff8f00); color:#000; text-shadow:none; box-shadow:0 2px 8px rgba(255,179,0,0.5);" onclick="buyCarSkin('${s.color}', ${s.price})">🧠 ${s.price}</button>`;
-    }
-    
-    html += `<div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.5); padding:10px; border-radius:8px; border:1px solid var(--theme-dim); margin-bottom:5px;"><div style="display:flex; align-items:center; gap:10px;"><div style="font-size:24px; display:flex; align-items:center; justify-content:center; width:24px; height:24px;">🏎️</div><span style="color:#fff; font-weight:bold; font-size:13px;">${s.name}</span></div>${btnHtml}</div>`;
-  });
-  id('challengeStoreList').innerHTML = html; 
-  if(id('csBrainCoinDisplay')) id('csBrainCoinDisplay').textContent = `🧠 ${(playerState.brainCoins || 0).toLocaleString()} 分`;
-  id('challengeStoreModal').style.display = 'flex';
-}
-
 function buyCarSkin(color, price) {
-  if ((playerState.brainCoins || 0) >= price) {
-    playerState.brainCoins -= price; if (!playerState.ownedCarSkins) playerState.ownedCarSkins = ['default']; playerState.ownedCarSkins.push(color);
+  if (playerState.coins >= price) {
+    playerState.coins -= price; if (!playerState.ownedCarSkins) playerState.ownedCarSkins = ['default']; playerState.ownedCarSkins.push(color);
     playerState.carSkin = color; // 買完自動裝備
-    saveGameData(); updateHUD(); openChallengeStore(); customAlert('購買成功！已為您自動裝備專屬塗裝！', null, '🛍️ 交易成功');
-  } else { customAlert(`大腦分數不足！還差 ${price - (playerState.brainCoins || 0)} 分。再去挑戰吧！`, null, '❌ 餘額不足'); }
+    saveGameData(); updateHUD(); openStoreUI(); customAlert('購買成功！已為您自動裝備專屬塗裝！', null, '🛍️ 交易成功');
+  } else { customAlert(`健康幣不足！還差 ${price - playerState.coins} 幣。再去挑戰吧！`, null, '❌ 餘額不足'); }
 }
 
 function equipCarSkin(color) {
-  playerState.carSkin = color; saveGameData(); openChallengeStore(); 
+  playerState.carSkin = color; saveGameData(); openStoreUI(); 
 }
 
 function openRehabStore() {
