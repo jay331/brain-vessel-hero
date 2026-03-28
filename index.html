@@ -2,8 +2,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
-<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <title>腦脈先鋒 - 雙軌訓練系統</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
@@ -67,10 +66,7 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .subtask-item.active { background: linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); border: 2px solid #fff; color: var(--btn-text); text-shadow: var(--btn-shadow); cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5), 0 0 15px var(--theme-primary); transform: scale(1.02); z-index:2; }
 .subtask-item.locked { background: rgba(0, 0, 0, 0.6); border-color: #333; color: #666; pointer-events: none; }
 
-.boss-banner { background: linear-gradient(135deg, var(--theme-dim), #0a0a0a); border: 2px solid var(--theme-primary); border-radius: 8px; padding: 0; display:flex; flex-direction: column; justify-content: center; text-align: center; margin: 0; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.8); flex-shrink:0; min-height:55px;}
-.boss-banner h3 { margin: 0; color: #fff; font-size: 15px; text-shadow: 1px 1px 3px rgba(0,0,0,0.9); }
-.boss-banner p { margin: 2px 0 0; font-size: 11px; color: var(--text-main); text-shadow: 1px 1px 2px rgba(0,0,0,0.9); }
-.boss-banner.locked { filter: grayscale(100%); opacity: 0.6; border-color: #555; box-shadow: none; }
+/* ★ 這裡的 boss-banner 原本是按鈕，但因為已經移到導覽列了，這裡就不需要這段 CSS，保留以防萬一 */
 
 /* 挑戰清單特殊卡片與下拉面板 (手風琴) */
 .role-list { display: flex; flex-direction: column; gap: 6px; margin: 0; flex: 1; overflow-y:auto; padding-bottom: 10px;}
@@ -194,11 +190,7 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
 
         <div class="role-list" id="roleListContainer" style="display: none;"></div>
         
-        <div class="boss-banner locked" id="bossBanner" onclick="openBossPrep()" style="display:flex; margin-bottom:10px;">
-          <h3 id="bossTitleText">🛡️ 居家演練 - 綜合情境驗收</h3>
-          <p id="bossStatusText">需完成探索任務以解鎖</p>
-        </div>
-      </section>
+        </section>
 
       <section class="screen" id="scrCaseDex">
         <div class="panel" style="display: flex; flex-direction: column;">
@@ -272,22 +264,22 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
       </section>
 
       <nav class="bottom-nav" id="mainNav">
-        <div class="nav-item" id="navSlot1" onclick="handleNavSlot1()">
-          <div class="icon" id="navSlot1Icon">📖</div><span style="font-size:10px;" id="navSlot1Text">中風歷程</span>
+        <div class="nav-item" id="navSlot1" onclick="openBossPrep()" style="position: relative;">
+          <div class="icon" id="navSlot1Icon">🛡️</div><span style="font-size:10px;" id="navSlot1Text">知識演練</span>
+          <div id="drillBadge" style="position:absolute; top:-2px; right:5px; background:var(--accent-red); color:#fff; border-radius:50%; width:16px; height:16px; font-size:10px; font-weight:bold; display:none; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.5); z-index:10;">!</div>
         </div>
-        
-        <div class="nav-item" id="navCaseDex" onclick="showScreen('scrCaseDex'); renderCaseDex();" style="position: relative;">
-          <div class="icon">🗂️</div><span style="font-size:10px;">健康圖卡</span>
-          <div id="casedexBadge" style="position:absolute; top:-2px; right:5px; background:var(--accent-red); color:#fff; border-radius:50%; width:16px; height:16px; font-size:10px; font-weight:bold; display:none; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.5); z-index:10;"></div>
+
+        <div class="nav-item" id="navSlot2" onclick="handleNavSlot2()">
+          <div class="icon" id="navSlot2Icon">📖</div><span style="font-size:10px;" id="navSlot2Text">中風歷程</span>
         </div>
         
         <div class="mode-toggle-sq" onclick="toggleMode()">
           <div class="icon">❖</div><span id="navModeText" style="font-size:10px;">初階版</span>
         </div>
 
-        <div class="nav-item" id="navExplore" onclick="launchExplore()" style="position: relative;">
-          <div class="icon">🏥</div><span style="font-size:10px;">醫院探索</span>
-          <div id="exploreBadge" style="position:absolute; top:-2px; right:5px; background:var(--accent-red); color:#fff; border-radius:50%; width:16px; height:16px; font-size:10px; font-weight:bold; display:none; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.5); z-index:10;"></div>
+        <div class="nav-item" id="navCaseDex" onclick="showScreen('scrCaseDex'); renderCaseDex();" style="position: relative;">
+          <div class="icon">🗂️</div><span style="font-size:10px;">健康圖卡</span>
+          <div id="casedexBadge" style="position:absolute; top:-2px; right:5px; background:var(--accent-red); color:#fff; border-radius:50%; width:16px; height:16px; font-size:10px; font-weight:bold; display:none; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.5); z-index:10;"></div>
         </div>
         
         <div class="nav-item" id="navSlot5" onclick="handleNavSlot5()" style="position: relative;">
@@ -390,8 +382,8 @@ let playerState = {
   scaleRecords: [], strokeCard: null, unlockedPuzzles: [], boughtPuzzles: 0,
   pendingPuzzles: [], foundItems: [], completedExplores: [], 
   dailyExplores: { date: "", count: 0 },
-  extremeAttempts: { date: "", count: 5 }, // 極限挑戰次數
-  challengeRecords: {} // 個人最佳紀錄
+  extremeAttempts: { date: "", count: 5 }, 
+  challengeRecords: {} 
 };
 
 let isGlobalFs = false; 
@@ -537,7 +529,7 @@ function checkExtremeAttempts() {
 
 function setHomeView(isMap) {
   playerState.storyMode = isMap; saveGameData();
-  id('linearStoryContainer').style.display = 'none'; id('restartStoryContainer').style.display = 'none'; id('roleListContainer').style.display = 'none'; id('homeMapContainer').style.display = 'none'; id('bossBanner').style.display = 'flex'; 
+  id('linearStoryContainer').style.display = 'none'; id('restartStoryContainer').style.display = 'none'; id('roleListContainer').style.display = 'none'; id('homeMapContainer').style.display = 'none';
   
   if (isMap && playerState.mode === 'beginner') {
     id('segMap').classList.add('active'); id('segList').classList.remove('active');
@@ -572,8 +564,9 @@ function updateModeUI() {
   document.body.className = `mode-${playerState.mode}`;
   id('uiPlayerName').textContent = playerState.name; id('hudAvatar').src = playerState.avatar; id('navModeText').textContent = isBeg ? '初階版' : '進階版';
   
-  id('navSlot1Icon').innerHTML = isBeg ? '📖' : '<span style="filter: brightness(1.5) drop-shadow(0 0 2px #4fc3f7);">🩺</span>';
-  id('navSlot1Text').textContent = isBeg ? '中風歷程' : '臨床工具';
+  id('navSlot1Text').textContent = isBeg ? '知識演練' : '個案演練';
+  id('navSlot2Icon').innerHTML = isBeg ? '📖' : '<span style="filter: brightness(1.5) drop-shadow(0 0 2px #4fc3f7);">🩺</span>';
+  id('navSlot2Text').textContent = isBeg ? '中風歷程' : '臨床工具';
   
   id('navSlot5Icon').innerHTML = isBeg ? '💪' : '🏆';
   id('navSlot5Text').textContent = isBeg ? '復健挑戰' : '極限挑戰';
@@ -588,7 +581,7 @@ function updateModeUI() {
   updateHUD(); renderHomeRoles(); showScreen('scrHome');
 }
 
-function handleNavSlot1() {
+function handleNavSlot2() {
   if(playerState.mode === 'beginner') { showScreen('scrStrokeCard'); renderStrokeCard(); } 
   else { customAlert('此功能積極開發中，將為您提供實用的進階臨床評估工具！', null, '🚧 敬請期待'); }
 }
@@ -603,11 +596,10 @@ function updateHUD() {
   if(id('storeCoinDisplay')) id('storeCoinDisplay').textContent = `$ ${playerState.coins.toLocaleString()} 幣`;
   
   const isUnlocked = playerState.mode === 'beginner' ? ROLES_DATA_BEG.every(r => r.currentTask > 1) : ROLES_DATA_ADV.every(r => r.currentTask > 1);
-  const banner = id('bossBanner');
-  if(banner) {
-    if(id('bossTitleText')) id('bossTitleText').innerHTML = playerState.mode === 'beginner' ? '🛡️ 中風知識演練 - 綜合情境驗收' : '🛡️ 中風個案演練 - 綜合情境驗收';
-    if (isUnlocked) { banner.classList.remove('locked'); if(id('bossStatusText')) id('bossStatusText').textContent = '🟢 已解鎖 (點擊進入演練)'; } 
-    else { banner.classList.add('locked'); if(id('bossStatusText')) id('bossStatusText').textContent = '需五大類別皆通關至少一項任務以解鎖'; }
+  const badge = id('drillBadge');
+  if (badge) {
+      if (isUnlocked) { badge.style.display = 'none'; }
+      else { badge.style.display = 'flex'; badge.style.background = 'var(--theme-dim)'; badge.innerText = '🔒'; }
   }
   
   const tickets = typeof getAvailableTickets === 'function' ? getAvailableTickets() : 0;
@@ -814,7 +806,7 @@ function playTaskFlat(index) {
       return customAlert(`【${flatTask.role.subTasks[flatTask.taskIndex].substring(3)}】\n此主線任務的情境演練正在建置中...\n點擊「確定」直接模擬通關！`, () => { handleGameClear(1000); }, "🚧 任務建置中");
   }
 
-  id('linearStoryContainer').style.display = 'none'; id('restartStoryContainer').style.display = 'none'; id('roleListContainer').style.display = 'none'; id('bossBanner').style.display = 'none';
+  id('linearStoryContainer').style.display = 'none'; id('restartStoryContainer').style.display = 'none'; id('roleListContainer').style.display = 'none';
   id('homeMapContainer').style.display = 'block'; id('homeMapContainer').classList.remove('fullscreen-map'); id('mainHeader').style.display = 'flex'; id('mainNav').style.display = 'flex';
   isGlobalFs = false; id('homeMapFrame').src = `rpg_loader.html?taskId=${flatTask.gameId}`;
 }
@@ -1315,4 +1307,4 @@ window.onload = () => {
 };
 </script>
 </body>
-</html>
+</html> 
