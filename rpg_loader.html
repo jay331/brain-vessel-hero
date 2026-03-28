@@ -11,16 +11,44 @@
 /* =========================================
    遊戲引擎與 UI 核心樣式 (不隨樓層地圖改變)
    ========================================= */
-:root{  
+:root {  
   --bg: #d9e1e8; --text: #37474f;  
   --safe-top: max(8px, env(safe-area-inset-top));  
-  /* ★ 修改這兩行：將走廊背景改為淺橘色，牆壁核心改為暖橘色 */
+  /* ★ 暖橘色系定義 */
   --c-floor-out: #fff3e0; 
   --c-floor-core: #ffe0b2; 
   
   --c-room: #d2b48c; --c-wall: #546e7a; 
   --c-desk: #81d4fa; --gold: #ffb300;
 }
+
+/* ★ 強制覆蓋外部 CSS，讓 1F 的主要空間變成橘色 */
+.corridor-main, .corridor-rest, .corridor-store, .corridor-pharmacy, .corridor-er {
+    background: var(--c-floor-core) !important;
+}
+
+/* ★ 強制覆蓋外部 CSS，徹底消除綠色大草皮，改為橘色系菱格紋 */
+.lobby-main {
+    background: 
+      linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)),
+      repeating-linear-gradient(45deg, #ffe0b2 25%, transparent 25%, transparent 75%, #ffe0b2 75%, #ffe0b2),
+      repeating-linear-gradient(45deg, #ffe0b2 25%, #fff3e0 25%, #fff3e0 75%, #ffe0b2 75%, #ffe0b2) !important;
+    border-color: #ffb74d !important;
+}
+/* ★ 註記：原本 css/hospital-map.css 裡的綠色寫法如下
+  background: 
+    linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)),
+    repeating-linear-gradient(45deg, #c8e6c9 25%, transparent 25%, transparent 75%, #c8e6c9 75%, #c8e6c9),
+    repeating-linear-gradient(45deg, #c8e6c9 25%, #e8f5e9 25%, #e8f5e9 75%, #c8e6c9 75%, #c8e6c9);
+*/
+
+/* ★ 同步將大廳中央的地毯名稱與外框改為橘色系 */
+.lobby-main::before {
+    border-color: #ffa726 !important;
+    color: #e65100 !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1), inset 0 0 20px rgba(255, 167, 38, 0.3) !important;
+}
+
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:none;}
 html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:"PingFang TC","Noto Sans TC",sans-serif;color:var(--text)}
 .app{position:relative;width:100%;height:100%;overflow:hidden;}
@@ -191,10 +219,10 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
         </div>
         <div class="lobby-desk">大廳服務中心</div>
         
-        <div style="position:absolute; left:1820px; top:-1200px; font-weight:bold; color:#1565c0; text-shadow:0 0 5px #fff; z-index:3;">⬆️ 往 各大樓層</div>
+        <div style="position:absolute; left:1820px; top:-1200px; font-weight:bold; color:#1565c0; text-shadow:0 0 5px #fff; z-index:3;">⬆️ 往各大樓層</div>
         <div class="teleport-zone" style="left: 1850px; top: -1170px; width: 100px; height: 50px;"></div>
         
-        <div id="lobby-tv" style="position:absolute; left:1800px; top:-500px; width:180px; height:100px; background:#111; border:5px solid #222; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px; font-weight:bold; box-shadow:-10px 10px 20px rgba(0,0,0,0.6), inset 0 0 15px rgba(255,255,255,0.1); z-index:2; text-align:center; transform: perspective(600px) rotateY(-35deg);">
+        <div id="lobby-tv" style="position:absolute; left:1800px; top:-500px; width:180px; height:100px; background:#111; border:5px solid #222; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px; font-weight:bold; box-shadow:-10px 10px 20px rgba(0,0,0,0.6), inset 0 0 15px rgba(255,255,255,0.1); z-index:2; text-align:center;">
             📺 亞東影音衛教
         </div>
 
