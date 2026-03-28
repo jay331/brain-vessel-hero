@@ -804,4 +804,4 @@ sceneObj.addEventListener('touchstart', handleStart, { passive: false }); window
 window.addEventListener('resize', updateCamera);
 </script>
 </body>
-</html> 我發現這份檔裡大廳的綠色沒有完全消除，有三塊方形大草皮(一大兩小，上面有個透明框)，麻煩改成與大廳相符的顏色，還有原本綠色的那兩行不要刪掉，用註記寫起來，還有"亞東影音衛教"請保持原來樣式只拔掉括號及文字，電視也大約保持原本樣貌就可以，不要那麼3D，然後放在右邊轉角處，有種鑲在上面的感覺
+</html> 
