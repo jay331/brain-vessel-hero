@@ -20,31 +20,31 @@ input, select { font-family: inherit; background: rgba(0,0,0,0.6); border: 1px s
 input[type="checkbox"] { width: auto; }
 .app { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; }
 
-/* ===== HUD 標題列 (恢復單行排版) ===== */
+/* ===== HUD 標題列 (優化：第一行加高，第二行降低) ===== */
 header { display: flex; flex-direction: column; background: linear-gradient(180deg, rgba(0,0,0,0.95), rgba(0,0,0,0.8)); border-bottom: 1px solid var(--theme-dim); z-index: 100; flex-shrink: 0; padding: 0; }
-.header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 8px 10px; }
+.header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 12px 10px; }
 
-/* 左側：頭像、姓名、模式切換鈕並排 */
-.header-left { display: flex; align-items: center; gap: 8px; }
-.avatar-wrap { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--theme-primary); background: #000; overflow: hidden; position: relative; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.5); flex-shrink: 0;}
+/* 左側：頭像與玩家資訊 */
+.header-left { display: flex; align-items: center; gap: 12px; flex: 1; }
+.avatar-wrap { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--theme-primary); background: #000; overflow: hidden; position: relative; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.5); flex-shrink: 0;}
 .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
-.player-text-wrap { display: flex; align-items: center; gap: 6px; flex-wrap: wrap;}
-.player-name { font-size: 13px; font-weight: bold; color: #fff; cursor: pointer; transition: color 0.2s;} 
+.player-text-wrap { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
+.player-name { font-size: 16px; font-weight: 900; color: #fff; cursor: pointer; transition: color 0.2s; letter-spacing: 1px;} 
 .player-name:active { color: var(--theme-primary); }
 
-/* 原版膠囊切換鈕 */
-.mode-toggle-btn { background: rgba(0,0,0,0.6); color: #aaa; border: 1px solid var(--theme-dim); border-radius: 99px; cursor: pointer; transition: all 0.2s; padding: 4px 10px; font-size: 11px; font-weight: bold; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
-.mode-toggle-btn:active { transform: scale(0.95); }
-.mode-toggle-btn span.mode-text { color: var(--theme-primary); text-shadow: 0 0 5px rgba(255,255,255,0.2);}
+/* 中央：膠囊模式切換鈕 */
+.header-center { display: flex; justify-content: center; align-items: center; flex: 1; }
+.mode-toggle-btn { background: rgba(0,0,0,0.6); color: var(--theme-primary); border: 1px solid var(--theme-dim); border-radius: 99px; cursor: pointer; transition: transform 0.2s; padding: 4px 14px; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+.mode-toggle-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.1); }
 
-/* 右側：健康幣 (單行顯示) */
-.header-right { display: flex; align-items: center; justify-content: flex-end; }
-.res-item { display: flex; align-items: center; gap: 4px; font-weight: 900; font-size: 12px; background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 99px; border: 1px solid var(--theme-dim); box-shadow: 0 2px 5px rgba(0,0,0,0.5); white-space: nowrap; }
-.green-coin { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; background: linear-gradient(180deg, #3dff8e, #0eb855); border-radius: 50%; color: #000; font-size: 9px; font-weight: bold;}
+/* 右側：健康幣 (上下排列) */
+.header-right { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; flex: 1; }
+.coin-title { color: var(--good); font-weight: 900; font-size: 12px; margin-bottom: 2px; letter-spacing: 1px; }
+.coin-value { color: #fff; font-size: 18px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.8); line-height: 1; }
 
-/* 次級大頁籤 (Tabs) */
+/* 次級大頁籤 (Tabs - 降低高度) */
 .sub-header-tabs { display: flex; width: 100%; background: rgba(0,0,0,0.4); border-top: 1px solid rgba(255,255,255,0.05); }
-.sub-header-tabs .tab-item { flex: 1; text-align: center; padding: 10px 0; font-size: 14px; font-weight: bold; color: #888; cursor: pointer; transition: all 0.2s; border-bottom: 3px solid transparent; }
+.sub-header-tabs .tab-item { flex: 1; text-align: center; padding: 8px 0; font-size: 14px; font-weight: bold; color: #888; cursor: pointer; transition: all 0.2s; border-bottom: 3px solid transparent; }
 .sub-header-tabs .tab-item.active { color: var(--theme-primary); border-bottom-color: var(--theme-primary); background: linear-gradient(to top, rgba(255,255,255,0.05), transparent); }
 .sub-header-tabs .tab-item:active { background: rgba(255,255,255,0.1); }
 
@@ -52,10 +52,12 @@ header { display: flex; flex-direction: column; background: linear-gradient(180d
 .wrap { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0; }
 .stage { position: relative; width: 100%; height: 100%; overflow: hidden; display: flex; flex-direction: column; background: radial-gradient(circle at 50% 30%, var(--theme-bg), rgba(0,0,0,0.95)), linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.98)), url('https://images.unsplash.com/photo-1551076805-e1869033e561?q=80&w=800&auto=format&fit=crop') center/cover no-repeat; }
 @media (min-width: 481px) { .wrap { padding: 20px; background: #111; } .stage { max-width: 414px; max-height: 896px; border-radius: 16px; border: 2px solid var(--theme-dim); box-shadow: 0 0 30px var(--theme-bg); } }
-.screen { position: absolute; inset: 0; display: none; flex-direction: column; z-index: 10; padding: 10px; padding-bottom: 85px; overflow-y: auto; }
+
+/* ★ 加大 padding-bottom 避免地圖/清單被底部導覽列切掉 */
+.screen { position: absolute; inset: 0; display: none; flex-direction: column; z-index: 10; padding: 10px; padding-bottom: 95px; overflow-y: auto; }
 .screen.show { display: flex; }
 .screen.full-view { padding-top: 10px; padding-bottom: 10px; z-index: 200; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); }
-.fullscreen-map { position: fixed !important; inset: 0 !important; z-index: 4000 !important; border-radius: 0 !important; border: none !important; }
+.fullscreen-map { position: fixed !important; inset: 0 !important; z-index: 4000 !important; border-radius: 0 !important; border: none !important; padding-bottom: 0 !important; }
 
 /* ===== 元件 ===== */
 .panel { background: var(--theme-panel); border: 1px solid var(--theme-dim); border-radius: 12px; padding: 15px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; flex: 1; min-height: 0;}
@@ -72,7 +74,7 @@ header { display: flex; flex-direction: column; background: linear-gradient(180d
 .linear-standby h2 { color: var(--theme-primary); font-size: 24px; margin: 0 0 8px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
 .linear-standby p { color: #ccc; font-size: 14px; margin: 0 0 15px 0; line-height: 1.6; }
 
-/* ★ 挑戰清單特殊卡片與下拉面板 (優化間距) */
+/* ★ 挑戰清單特殊卡片與下拉面板 */
 .role-list { display: flex; flex-direction: column; gap: 8px; margin: 0; flex: 1; overflow-y:auto; padding-bottom: 10px;}
 .role-card { display: flex; align-items: center; gap: 10px; padding: 0 12px; background: var(--theme-grad); border: 1px solid var(--theme-dim); border-radius: 8px; position: relative; cursor: pointer; flex-shrink: 0; min-height: 55px; transition: border-radius 0.2s;} 
 .role-card.expanded { border-radius: 8px 8px 0 0; background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent); border-bottom-color: transparent;}
@@ -84,7 +86,7 @@ header { display: flex; flex-direction: column; background: linear-gradient(180d
 .role-task { font-size: 11px; color: #fff; font-weight: bold; margin: 0; opacity: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); line-height: 1.2;}
 .role-go-btn { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); color: var(--btn-text); display: flex; align-items: center; justify-content: center; font-size: 11px; box-shadow: 0 2px 4px rgba(0,0,0,0.8); transition: transform 0.2s; font-weight:bold;}
 
-/* ★ 下拉式任務面板 */
+/* 下拉式任務面板 */
 .role-tasks-accordion { display:none; background:rgba(0,0,0,0.3); border-radius:0 0 8px 8px; padding:10px; margin-top:-4px; border:1px solid var(--theme-dim); border-top:none; box-shadow:inset 0 2px 10px rgba(0,0,0,0.5); margin-bottom: 4px;}
 .role-tasks-accordion.open { display:flex; flex-direction:column; gap:6px; }
 .subtask-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-radius: 6px; border: 1px solid var(--theme-dim); font-weight: bold; font-size: 13px; transition: all 0.2s; flex-shrink: 0;}
@@ -126,7 +128,7 @@ header { display: flex; flex-direction: column; background: linear-gradient(180d
 .trend-card { background: rgba(0,0,0,0.5); border: 1px solid var(--theme-dim); border-radius: 8px; padding: 10px; margin-bottom: 10px; flex-shrink: 0;}
 .health-dist-title { display: flex; justify-content: space-between; font-size: 11px; color: #ccc; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 
-/* ===== ★ 底部導覽列 (最佳化比例與居中加底色按鈕) ===== */
+/* ===== ★ 底部導覽列 (最佳化比例與修復外框被切掉問題) ===== */
 .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 75px; background: rgba(10,10,10,0.95); border-top: 1px solid #333; display: flex; justify-content: space-around; padding: 0 5px; align-items: center; z-index: 100; backdrop-filter: blur(5px); padding-bottom: env(safe-area-inset-bottom); }
 .nav-item { color: #888; font-weight: bold; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; flex: 1; transition: color 0.2s; height: 100%;}
 .nav-item .icon { font-size: 24px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); transition: transform 0.2s; margin-bottom: 2px;}
@@ -134,12 +136,13 @@ header { display: flex; flex-direction: column; background: linear-gradient(180d
 .nav-item.active { color: var(--theme-primary); }
 .nav-item.active .icon { transform: translateY(-2px); }
 
-/* 中央高亮按鈕 (有底色、無上突) */
+/* 中央高亮按鈕 (修復 cutoff：使用 calc 確保 margin 不會讓元素超出父容器) */
 .nav-item.highlight-action { 
     background: linear-gradient(180deg, var(--theme-dim), rgba(0,0,0,0.6));
     border: 1px solid var(--theme-primary);
     border-radius: 12px;
-    margin: 8px 4px; 
+    margin: 6px 4px; 
+    height: calc(100% - 12px); 
     flex: 1.1; 
     box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
 }
@@ -171,7 +174,7 @@ header { display: flex; flex-direction: column; background: linear-gradient(180d
       
       <div class="header-right">
         <div class="res-item">
-          <span style="color:#aaa; font-weight:bold;">健康幣</span>
+          <span style="color:var(--good); font-weight:bold;">健康幣</span>
           <span id="uiCoins" style="color:#fff; font-size:14px;">0</span>
         </div>
       </div>
@@ -320,7 +323,7 @@ header { display: flex; flex-direction: column; background: linear-gradient(180d
         </div>
         
         <div class="nav-item highlight-action" id="navSlot1" onclick="openBossPrep()" style="position: relative;">
-          <div class="icon" id="navSlot1Icon">🛡️</div><span id="navSlot1Text">知識演練</span>
+          <div class="icon" id="navSlot1Icon">🛡️</div><span id="navSlot1Text">初階演練</span>
           <div id="drillBadge" style="position:absolute; top:0px; right:0px; background:var(--accent-red); color:#fff; border-radius:50%; width:18px; height:18px; font-size:12px; font-weight:bold; display:none; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.8); z-index:10;">!</div>
         </div>
 
@@ -616,6 +619,10 @@ function setHomeView(isMap) {
   }
 }
 
+function toggleViewMode() {
+    setHomeView(!playerState.storyMode);
+}
+
 function showScreen(screenId) {
   document.querySelectorAll('.screen').forEach(s => { s.classList.remove('show'); s.classList.remove('full-view'); });
   const target = id(screenId); if(target) target.classList.add('show');
@@ -640,7 +647,7 @@ function updateModeUI() {
   id('uiPlayerName').textContent = playerState.name; id('hudAvatar').src = playerState.avatar; 
   if (id('navModeText')) id('navModeText').textContent = isBeg ? '初階版' : '進階版';
   
-  if(id('navSlot1Text')) id('navSlot1Text').textContent = isBeg ? '知識演練' : '個案演練';
+  if(id('navSlot1Text')) id('navSlot1Text').textContent = isBeg ? '初階演練' : '進階演練';
   if(id('navSlot2Icon')) id('navSlot2Icon').innerHTML = isBeg ? '📖' : '<span style="filter: brightness(1.5) drop-shadow(0 0 2px #4fc3f7);">🩺</span>';
   if(id('navSlot2Text')) id('navSlot2Text').textContent = isBeg ? '中風歷程' : '臨床工具';
   
@@ -993,7 +1000,7 @@ function openBossPrep() {
   
   const isFirstClear = !completed.has(selectedComboStr);
   const rewardCoins = playerState.mode === 'beginner' ? 300 : 500;
-  const drillName = playerState.mode === 'beginner' ? '知識演練' : '個案演練';
+  const drillName = playerState.mode === 'beginner' ? '初階演練' : '進階演練';
   
   customConfirm(`即將執行連續 5 項任務的綜合演練...\n本次目標編號：#C-${selectedComboStr}\n\n按「確定」模擬順利過關！`, 
     () => {
