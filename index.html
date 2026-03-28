@@ -20,44 +20,49 @@ input, select { font-family: inherit; background: rgba(0,0,0,0.6); border: 1px s
 input[type="checkbox"] { width: auto; }
 .app { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; }
 
-/* ===== HUD 標題列 (優化：第一行單列緊湊，第二行 Tabs) ===== */
-header { display: flex; flex-direction: column; background: linear-gradient(180deg, rgba(0,0,0,0.95), rgba(0,0,0,0.8)); border-bottom: 1px solid var(--theme-dim); z-index: 100; flex-shrink: 0; padding: 0; }
-.header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 12px 10px; }
+/* ===== HUD 標題列 (優化：左側玩家資訊與錢幣堆疊，右側模式切換鈕) ===== */
+header { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(180deg, rgba(0,0,0,0.95), rgba(0,0,0,0.85)); border-bottom: 1px solid rgba(255,255,255,0.1); z-index: 100; flex-shrink: 0; padding: 10px 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.8); }
 
-/* 左側：頭像與玩家資訊 (同行) */
-.header-left { display: flex; align-items: center; gap: 8px; flex: 1; }
-.avatar-wrap { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--theme-primary); background: #000; overflow: hidden; position: relative; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.5); flex-shrink: 0;}
+/* 左側區塊：包含頭像、名稱、初/進階切換、健康幣 */
+.header-left { display: flex; align-items: center; gap: 10px; flex: 1; }
+.avatar-wrap { width: 46px; height: 46px; border-radius: 50%; border: 2px solid var(--theme-primary); background: #000; overflow: hidden; position: relative; cursor: pointer; box-shadow: 0 0 10px rgba(0,0,0,0.8), inset 0 0 5px rgba(255,255,255,0.5); flex-shrink: 0; transition: transform 0.2s;}
+.avatar-wrap:active { transform: scale(0.92); }
 .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
-.player-text-wrap { display: flex; align-items: center; gap: 6px; flex-wrap: wrap;}
-.player-name { font-size: 14px; font-weight: bold; color: #fff; cursor: pointer; transition: color 0.2s;} 
+
+.player-info-col { display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+.player-name-row { display: flex; align-items: center; gap: 6px; }
+
+.player-name { font-size: 14px; font-weight: 900; color: #fff; cursor: pointer; transition: color 0.2s; letter-spacing: 0.5px; text-shadow: 0 2px 4px rgba(0,0,0,1);} 
 .player-name:active { color: var(--theme-primary); }
 
-/* 模式切換鈕 (放在姓名右側) */
-.mode-toggle-btn { background: rgba(0,0,0,0.6); color: #aaa; border: 1px solid var(--theme-dim); border-radius: 99px; cursor: pointer; transition: all 0.2s; padding: 4px 10px; font-size: 11px; font-weight: bold; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
-.mode-toggle-btn:active { transform: scale(0.95); }
-.mode-toggle-btn span.mode-text { color: var(--theme-primary); text-shadow: 0 0 5px rgba(255,255,255,0.2);}
+.mode-toggle-btn { background: linear-gradient(180deg, rgba(255,255,255,0.15), rgba(0,0,0,0.6)); color: #fff; border: 1px solid var(--theme-dim); border-radius: 99px; cursor: pointer; transition: all 0.2s; padding: 2px 8px; font-size: 10px; font-weight: bold; display: flex; align-items: center; gap: 4px; box-shadow: inset 0 1px 1px rgba(255,255,255,0.2), 0 2px 5px rgba(0,0,0,0.5); }
+.mode-toggle-btn:active { transform: scale(0.95); background: rgba(0,0,0,0.8); }
+.mode-toggle-btn span.mode-text { color: var(--theme-primary); text-shadow: 0 1px 2px #000;}
+.mode-toggle-btn span.mode-icon { font-size: 10px; font-weight: bold; opacity: 0.8;}
 
-/* 右側：健康幣 (同行顯示) */
-.header-right { display: flex; align-items: center; justify-content: flex-end; }
-.res-item { display: flex; align-items: center; gap: 6px; font-weight: 900; font-size: 14px; white-space: nowrap; cursor: pointer; transition: transform 0.2s;}
-.res-item:active { transform: scale(0.95); }
+/* 健康幣顯示 (置於姓名下方) */
+.coin-row { display: flex; align-items: center; gap: 6px; cursor: pointer; transition: transform 0.2s;}
+.coin-row:active { transform: scale(0.95); }
+.coin-title { color: var(--good); font-weight: 900; font-size: 11px; letter-spacing: 0.5px; text-shadow: 0 1px 2px rgba(0,0,0,1);}
+.coin-value { color: #fff; font-size: 14px; font-weight: 900; text-shadow: 0 0 6px rgba(255,255,255,0.4); line-height: 1; }
 
-/* 次級大頁籤 (Tabs) */
-.sub-header-tabs { display: flex; width: 100%; background: rgba(0,0,0,0.4); border-top: 1px solid rgba(255,255,255,0.05); }
-.sub-header-tabs .tab-item { flex: 1; text-align: center; padding: 10px 0; font-size: 14px; font-weight: bold; color: #888; cursor: pointer; transition: all 0.2s; border-bottom: 3px solid transparent; }
-.sub-header-tabs .tab-item.active { color: var(--theme-primary); border-bottom-color: var(--theme-primary); background: linear-gradient(to top, rgba(255,255,255,0.05), transparent); }
-.sub-header-tabs .tab-item:active { background: rgba(255,255,255,0.1); }
+/* 右側區塊：任務/清單 膠囊切換鈕 */
+.header-right { display: flex; justify-content: flex-end; align-items: center; }
+.view-toggle-wrap { display: flex; background: rgba(0,0,0,0.6); border-radius: 20px; padding: 3px; border: 1px solid #444; box-shadow: inset 0 2px 5px rgba(0,0,0,0.8); }
+.view-toggle-btn { padding: 6px 12px; font-size: 12px; font-weight: bold; color: #888; border-radius: 18px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.view-toggle-btn.active { background: linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); color: var(--btn-text); box-shadow: 0 2px 8px rgba(0,0,0,0.6); text-shadow: var(--btn-shadow); }
 
 /* ===== 佈局與背景 ===== */
 .wrap { flex: 1; display: flex; flex-direction: column; min-height: 0; position: relative;}
 .stage { position: absolute; inset: 0; display: flex; flex-direction: column; background: radial-gradient(circle at 50% 30%, var(--theme-bg), rgba(0,0,0,0.95)), linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.98)), url('https://images.unsplash.com/photo-1551076805-e1869033e561?q=80&w=800&auto=format&fit=crop') center/cover no-repeat; }
 
 /* ★ 加大 padding-bottom 避免地圖/清單被底部導覽列切掉 */
-.screen { position: absolute; inset: 0; display: none; flex-direction: column; z-index: 10; padding: 10px; padding-bottom: 120px; overflow-y: auto; }
+.screen { position: absolute; inset: 0; display: none; flex-direction: column; z-index: 10; padding: 10px; padding-bottom: 95px; overflow-y: auto; }
 .screen.show { display: flex; }
 .screen.full-view { padding-top: 10px; padding-bottom: 10px; z-index: 200; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); }
 
-/* ★ 25節點地圖的呼吸燈特效與連線 */
+/* 節點地圖的樣式與動畫 */
+#nodeMapContainer { scroll-behavior: smooth; }
 @keyframes pulseActiveBeg { 0% { box-shadow: 0 0 0 0 rgba(100, 181, 246, 0.7); } 70% { box-shadow: 0 0 0 12px rgba(100, 181, 246, 0); } 100% { box-shadow: 0 0 0 0 rgba(100, 181, 246, 0); } }
 @keyframes pulseActiveAdv { 0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); } 70% { box-shadow: 0 0 0 12px rgba(212, 175, 55, 0); } 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); } }
 body.mode-beginner .node-pulse { animation: pulseActiveBeg 2s infinite; }
@@ -135,7 +140,7 @@ body.mode-advanced .node-pulse { animation: pulseActiveAdv 2s infinite; }
 .nav-item.active { color: var(--theme-primary); }
 .nav-item.active .icon { transform: translateY(-2px); }
 
-/* 中央高亮按鈕 (修復 cutoff) */
+/* 中央高亮按鈕 */
 .nav-item.highlight-action { 
     background: linear-gradient(180deg, var(--theme-dim), rgba(0,0,0,0.6));
     border: 1px solid var(--theme-primary);
@@ -158,31 +163,35 @@ body.mode-advanced .node-pulse { animation: pulseActiveAdv 2s infinite; }
 
 <div class="app">
   <header id="mainHeader">
-    <div class="header-top">
+      
       <div class="header-left">
         <div class="avatar-wrap" onclick="document.getElementById('profileModal').style.display='flex'">
           <img id="hudAvatar" src="https://i.pravatar.cc/150?img=11">
         </div>
-        <div class="player-text-wrap">
-          <div class="player-name" id="uiPlayerName" onclick="openSettings()">急救新星</div>
-          <button class="mode-toggle-btn" onclick="toggleMode()">
-            <span class="mode-text" id="navModeText">初階版</span> <span style="font-size:10px; opacity:0.8;">🔄</span>
-          </button>
+        
+        <div class="player-info-col">
+            <div class="player-name-row">
+                <div class="player-name" id="uiPlayerName" onclick="openSettings()">急救新星</div>
+                <button class="mode-toggle-btn" onclick="toggleMode()">
+                  <span class="mode-text" id="navModeText">初階版</span> 
+                  <span class="mode-icon">⟲</span>
+                </button>
+            </div>
+            
+            <div class="coin-row" onclick="openStoreUI()">
+                <span class="coin-title">健康幣</span>
+                <span class="coin-value" id="uiCoins">0</span>
+            </div>
         </div>
       </div>
       
-      <div class="header-right" onclick="openStoreUI()">
-        <div class="res-item" style="background:transparent; border:none; box-shadow:none; flex-direction: row; gap: 6px;">
-          <span style="color:var(--good); font-weight:bold; font-size: 13px;">健康幣</span>
-          <span id="uiCoins" style="color:#fff; font-size:16px;">0</span>
-        </div>
+      <div class="header-right" id="uiStoryToggleWrap">
+          <div class="view-toggle-wrap">
+              <div class="view-toggle-btn active" id="segMap" onclick="setHomeView(true)">任務模式</div>
+              <div class="view-toggle-btn" id="segList" onclick="setHomeView(false)">清單模式</div>
+          </div>
       </div>
-    </div>
-
-    <div class="sub-header-tabs" id="uiStoryToggleWrap">
-      <div class="tab-item active" id="segMap" onclick="setHomeView(true)">任務模式</div>
-      <div class="tab-item" id="segList" onclick="setHomeView(false)">清單模式</div>
-    </div>
+      
   </header>
 
   <div class="wrap">
@@ -1515,6 +1524,11 @@ function buyCarSkin(color, price) {
     playerState.carSkin = color; // 買完自動裝備
     saveGameData(); updateHUD(); openStoreUI(); customAlert('購買成功！已為您自動裝備專屬塗裝！', null, '🛍️ 交易成功');
   } else { customAlert(`健康幣不足！還差 ${price - playerState.coins} 幣。再去挑戰吧！`, null, '❌ 餘額不足'); }
+}
+
+function openChallengeStore() {
+    // 已整合進 openStoreUI，此函數保留避免報錯
+    openStoreUI();
 }
 
 function equipCarSkin(color) {
