@@ -20,26 +20,27 @@ input, select { font-family: inherit; background: rgba(0,0,0,0.6); border: 1px s
 input[type="checkbox"] { width: auto; }
 .app { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; }
 
-/* ===== HUD 標題列 (優化：第一行加高單列，第二行降低) ===== */
+/* ===== HUD 標題列 (優化：第一行加高，第二行降低) ===== */
 header { display: flex; flex-direction: column; background: linear-gradient(180deg, rgba(0,0,0,0.95), rgba(0,0,0,0.8)); border-bottom: 1px solid var(--theme-dim); z-index: 100; flex-shrink: 0; padding: 0; }
 .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 12px 10px; }
 
-/* 左側：頭像與玩家資訊 (姓名與模式切換鈕同行) */
+/* 左側：頭像與玩家資訊 */
 .header-left { display: flex; align-items: center; gap: 12px; flex: 1; }
 .avatar-wrap { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--theme-primary); background: #000; overflow: hidden; position: relative; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.5); flex-shrink: 0;}
 .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
-.player-text-wrap { display: flex; align-items: center; gap: 8px; flex-wrap: wrap;}
-.player-name { font-size: 16px; font-weight: 900; color: #fff; cursor: pointer; transition: color 0.2s; letter-spacing: 1px; padding-left: 2px;} 
+.player-text-wrap { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
+.player-name { font-size: 16px; font-weight: 900; color: #fff; cursor: pointer; transition: color 0.2s; letter-spacing: 1px;} 
 .player-name:active { color: var(--theme-primary); }
 
-/* 原版膠囊切換鈕 (緊跟在名字右邊) */
-.mode-toggle-btn { background: rgba(0,0,0,0.6); color: #aaa; border: 1px solid var(--theme-dim); border-radius: 99px; cursor: pointer; transition: all 0.2s; padding: 4px 10px; font-size: 11px; font-weight: bold; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
-.mode-toggle-btn:active { transform: scale(0.95); }
-.mode-toggle-btn span.mode-text { color: var(--theme-primary); text-shadow: 0 0 5px rgba(255,255,255,0.2);}
+/* 中央：膠囊模式切換鈕 */
+.header-center { display: flex; justify-content: center; align-items: center; flex: 1; }
+.mode-toggle-btn { background: rgba(0,0,0,0.6); color: var(--theme-primary); border: 1px solid var(--theme-dim); border-radius: 99px; cursor: pointer; transition: transform 0.2s; padding: 4px 14px; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+.mode-toggle-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.1); }
 
-/* 右側：健康幣 (同行顯示，綠字標題 + 數字) */
-.header-right { display: flex; align-items: center; justify-content: flex-end; flex: 1; }
-.res-item { display: flex; align-items: center; gap: 6px; font-weight: 900; font-size: 14px; background: rgba(0,0,0,0.6); padding: 6px 12px; border-radius: 99px; border: 1px solid var(--theme-dim); box-shadow: 0 2px 5px rgba(0,0,0,0.5); white-space: nowrap; }
+/* 右側：健康幣 (上下排列) */
+.header-right { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; flex: 1; }
+.coin-title { color: var(--good); font-weight: 900; font-size: 12px; margin-bottom: 2px; letter-spacing: 1px; }
+.coin-value { color: #fff; font-size: 18px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.8); line-height: 1; }
 
 /* 次級大頁籤 (Tabs - 降低高度) */
 .sub-header-tabs { display: flex; width: 100%; background: rgba(0,0,0,0.4); border-top: 1px solid rgba(255,255,255,0.05); }
@@ -52,7 +53,7 @@ header { display: flex; flex-direction: column; background: linear-gradient(180d
 .stage { position: relative; width: 100%; height: 100%; overflow: hidden; display: flex; flex-direction: column; background: radial-gradient(circle at 50% 30%, var(--theme-bg), rgba(0,0,0,0.95)), linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.98)), url('https://images.unsplash.com/photo-1551076805-e1869033e561?q=80&w=800&auto=format&fit=crop') center/cover no-repeat; }
 @media (min-width: 481px) { .wrap { padding: 20px; background: #111; } .stage { max-width: 414px; max-height: 896px; border-radius: 16px; border: 2px solid var(--theme-dim); box-shadow: 0 0 30px var(--theme-bg); } }
 
-/* ★ 加大 padding-bottom 避免被底部導覽列切掉 */
+/* ★ 加大 padding-bottom 避免地圖/清單被底部導覽列切掉 */
 .screen { position: absolute; inset: 0; display: none; flex-direction: column; z-index: 10; padding: 10px; padding-bottom: 95px; overflow-y: auto; }
 .screen.show { display: flex; }
 .screen.full-view { padding-top: 10px; padding-bottom: 10px; z-index: 200; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); }
@@ -127,7 +128,7 @@ header { display: flex; flex-direction: column; background: linear-gradient(180d
 .trend-card { background: rgba(0,0,0,0.5); border: 1px solid var(--theme-dim); border-radius: 8px; padding: 10px; margin-bottom: 10px; flex-shrink: 0;}
 .health-dist-title { display: flex; justify-content: space-between; font-size: 11px; color: #ccc; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 
-/* ===== ★ 底部導覽列 (最佳化高度與比例防裁切) ===== */
+/* ===== ★ 底部導覽列 (最佳化比例與修復外框被切掉問題) ===== */
 .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 75px; background: rgba(10,10,10,0.95); border-top: 1px solid #333; display: flex; justify-content: space-around; padding: 0 5px; align-items: center; z-index: 100; backdrop-filter: blur(5px); padding-bottom: env(safe-area-inset-bottom); }
 .nav-item { color: #888; font-weight: bold; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; flex: 1; transition: color 0.2s; height: 100%;}
 .nav-item .icon { font-size: 24px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); transition: transform 0.2s; margin-bottom: 2px;}
