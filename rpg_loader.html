@@ -11,10 +11,13 @@
 /* =========================================
    遊戲引擎與 UI 核心樣式 (不隨樓層地圖改變)
    ========================================= */
+/* =========================================
+   遊戲引擎與 UI 核心樣式 (不隨樓層地圖改變)
+   ========================================= */
 :root {  
   --bg: #d9e1e8; --text: #37474f;  
   --safe-top: max(8px, env(safe-area-inset-top));  
-  /* ★ 修改這兩行：將走廊背景改為淺橘色，牆壁核心改為暖橘色 */
+  /* ★ 暖橘色系定義 */
   --c-floor-out: #fff3e0; 
   --c-floor-core: #ffe0b2; 
   
@@ -22,13 +25,14 @@
   --c-desk: #81d4fa; --gold: #ffb300;
 }
 
-/* ★ 強制覆蓋外部 CSS，讓 1F 的主要空間變成橘色 */
+/* ★ 強制覆蓋外部 CSS，讓 1F 的主要空間變成橘色 (保留原本的幾何形狀設定，只改變顏色) */
 .corridor-main, .corridor-rest, .corridor-store, .corridor-pharmacy, .corridor-er {
-    background: var(--c-floor-core) !important;
+    background-color: var(--c-floor-core) !important;
 }
 
 /* ★ 強制覆蓋外部 CSS，徹底消除綠色大草皮，改為橘色系菱格紋 */
 .lobby-main {
+    /* 這裡必須用 !important 強制覆蓋，確保不會被外部 css 蓋掉 */
     background: 
       linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)),
       repeating-linear-gradient(45deg, #ffe0b2 25%, transparent 25%, transparent 75%, #ffe0b2 75%, #ffe0b2),
@@ -37,12 +41,6 @@
     background-size: 80px 80px !important;
     border-color: #ffb74d !important;
 }
-/* ★ 註記：原本 css/hospital-map.css 裡的綠色寫法如下
-  background: 
-    linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)),
-    repeating-linear-gradient(45deg, #c8e6c9 25%, transparent 25%, transparent 75%, #c8e6c9 75%, #c8e6c9),
-    repeating-linear-gradient(45deg, #c8e6c9 25%, #e8f5e9 25%, #e8f5e9 75%, #c8e6c9 75%, #c8e6c9);
-*/
 
 /* ★ 同步將大廳中央的地毯名稱與外框改為橘色系 */
 .lobby-main::before {
