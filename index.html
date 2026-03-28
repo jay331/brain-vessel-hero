@@ -22,7 +22,7 @@ input[type="checkbox"] { width: auto; }
 
 /* ===== HUD 標題列 (優化：第一行單列緊湊，第二行 Tabs) ===== */
 header { display: flex; flex-direction: column; background: linear-gradient(180deg, rgba(0,0,0,0.95), rgba(0,0,0,0.8)); border-bottom: 1px solid var(--theme-dim); z-index: 100; flex-shrink: 0; padding: 0; }
-.header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 8px 10px; }
+.header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 12px 10px; }
 
 /* 左側：頭像與玩家資訊 (同行) */
 .header-left { display: flex; align-items: center; gap: 8px; flex: 1; }
@@ -56,10 +56,6 @@ header { display: flex; flex-direction: column; background: linear-gradient(180d
 .screen { position: absolute; inset: 0; display: none; flex-direction: column; z-index: 10; padding: 10px; padding-bottom: 120px; overflow-y: auto; }
 .screen.show { display: flex; }
 .screen.full-view { padding-top: 10px; padding-bottom: 10px; z-index: 200; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); }
-
-/* ★ 針對 iframe 容器的防切割設定 */
-#homeMapContainer { display: none; flex: 1; border-radius: 8px; overflow: hidden; border: 1px solid var(--theme-dim); position: absolute; top: 10px; left: 10px; right: 10px; bottom: 85px; transition: all 0.3s; }
-.fullscreen-map { position: fixed !important; inset: 0 !important; z-index: 4000 !important; border-radius: 0 !important; border: none !important; padding-bottom: 0 !important; margin: 0 !important;}
 
 /* ★ 25節點地圖的呼吸燈特效與連線 */
 @keyframes pulseActiveBeg { 0% { box-shadow: 0 0 0 0 rgba(100, 181, 246, 0.7); } 70% { box-shadow: 0 0 0 12px rgba(100, 181, 246, 0); } 100% { box-shadow: 0 0 0 0 rgba(100, 181, 246, 0); } }
@@ -176,8 +172,8 @@ body.mode-advanced .node-pulse { animation: pulseActiveAdv 2s infinite; }
       </div>
       
       <div class="header-right" onclick="openStoreUI()">
-        <div class="res-item" style="background:transparent; border:none; box-shadow:none; gap:6px;">
-          <span style="color:var(--good); font-weight:bold; font-size:13px;">健康幣</span>
+        <div class="res-item" style="background:transparent; border:none; box-shadow:none; flex-direction: row; gap: 6px;">
+          <span style="color:var(--good); font-weight:bold; font-size: 13px;">健康幣</span>
           <span id="uiCoins" style="color:#fff; font-size:16px;">0</span>
         </div>
       </div>
@@ -430,7 +426,7 @@ let playerState = {
   coins: 0, 
   brainCoins: 0, 
   rehabCoins: 0, 
-  storyMode: false, storyProgression: 0, replayProgression: 0, isReplaying: false, explorationTasksCompleted: 0, 
+  storyMode: true, storyProgression: 0, replayProgression: 0, isReplaying: false, explorationTasksCompleted: 0, 
   completedCasesBeg: new Map(), completedCasesAdv: new Map(),
   taskScoresBeg: new Map(), taskScoresAdv: new Map(), 
   clothes: '#fff', ownedClothes: ['#fff'], 
@@ -493,12 +489,9 @@ window.addEventListener('message', (event) => {
           
           customAlert(`主治醫師：\n「這裡有件事需要你幫忙：\n\n${t}」\n\n(一般探索，點擊模擬完成！)`, () => {
               playerState.explorationTasksCompleted++; playerState.dailyExplores.count++; 
-              let pointMsg = "";
-              if (playerState.mode === 'advanced') { playerState.brainCoins = (playerState.brainCoins||0) + 50; pointMsg = "🧠 50 大腦分數"; }
-              else { playerState.rehabCoins = (playerState.rehabCoins||0) + 50; pointMsg = "🏋️ 50 復健分數"; }
-              
-              if (isNew) { playerState.coins += 300; playerState.completedExplores.push(t); customAlert(`完成新探索任務！\n\n獲得 300 健康幣\n獲得 ${pointMsg}！`, null, "🏆 任務完成"); } 
-              else { customAlert(`這項任務你已經很熟練了！\n(重複任務無健康幣)\n\n但仍獲得 ${pointMsg} 作為今日探索獎勵！`, null, "🏆 複習完成"); }
+              // ★ 獎勵統一給予健康幣
+              if (isNew) { playerState.coins += 350; playerState.completedExplores.push(t); customAlert(`完成新探索任務！\n\n獲得 350 健康幣！`, null, "🏆 任務完成"); } 
+              else { playerState.coins += 50; customAlert(`這項任務你已經很熟練了！\n\n獲得 50 健康幣 作為今日探索獎勵！`, null, "🏆 複習完成"); }
               saveGameData(); updateHUD();
           }, "👨‍⚕️ 醫師的委託");
       }
@@ -530,6 +523,7 @@ window.addEventListener('message', (event) => {
   
   else if (event.data.type === 'TOGGLE_FULLSCREEN') {
       isGlobalFs = event.data.isFullscreen; const mapWrap = id('homeMapContainer');
+      // Fullscreen in 節點地圖 is just hiding UI
       if (isGlobalFs) { if(mapWrap) mapWrap.classList.add('fullscreen-map'); id('mainHeader').style.display = 'none'; id('mainNav').style.display = 'none'; } 
       else { exitFullscreenUI(); }
   }
@@ -558,6 +552,9 @@ window.addEventListener('message', (event) => {
           setTimeout(() => { customAlert(`拼圖 #${pid} 挑戰成功！已為您正式加入收藏！`, null, "🎉 拼圖收藏成功"); }, 500);
       }
   }
+  else if (event.data.type === 'ACTION_STORE') openStoreUI();
+  else if (event.data.type === 'ACTION_WARDROBE') openWardrobeUI();
+  else if (event.data.type === 'ACTION_WATCH_TV') window.open('https://www.youtube.com/@femhospital4347/videos', '_blank');
 });
 
 // ===============================================
@@ -594,13 +591,18 @@ function setHomeView(isMap) {
       else { id('segList').classList.add('active'); id('segMap').classList.remove('active'); }
   }
 
-  id('nodeMapContainer').style.display = 'none'; id('roleListContainer').style.display = 'none';
+  // 安全隱藏所有容器
+  if(id('linearStoryContainer')) id('linearStoryContainer').style.display = 'none'; 
+  if(id('restartStoryContainer')) id('restartStoryContainer').style.display = 'none'; 
+  if(id('roleListContainer')) id('roleListContainer').style.display = 'none'; 
+  if(id('homeMapContainer')) id('homeMapContainer').style.display = 'none';
+  if(id('nodeMapContainer')) id('nodeMapContainer').style.display = 'none';
   
   if (isMap) {
-      id('nodeMapContainer').style.display = 'flex';
+      if(id('nodeMapContainer')) id('nodeMapContainer').style.display = 'flex';
       renderNodeMap();
   } else {
-      id('roleListContainer').style.display = 'flex';
+      if(id('roleListContainer')) id('roleListContainer').style.display = 'flex';
   }
 }
 
@@ -679,7 +681,9 @@ function renderNodeMap() {
         let statusStr = isLocked ? 'locked' : (isCleared ? 'cleared' : 'active');
 
         // ★ 交錯排版設計 (左-右-左-右)
+        let flexAlign = i % 2 === 0 ? 'flex-start' : 'flex-end';
         let textPadding = i % 2 === 0 ? 'padding-left: 15px; text-align: left;' : 'padding-right: 15px; text-align: right;';
+        
         let leftText = i % 2 !== 0 ? `<div style="flex: 1; ${textPadding}">${textHtml}</div>` : `<div style="flex: 1;"></div>`;
         let rightText = i % 2 === 0 ? `<div style="flex: 1; ${textPadding}">${textHtml}</div>` : `<div style="flex: 1;"></div>`;
 
@@ -746,13 +750,13 @@ function showScreen(screenId) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   
   if (screenId === 'scrHome') { 
-    if (!isGlobalFs) { id('mainHeader').style.display = 'flex'; id('mainNav').style.display = 'flex'; }
+    if (!isGlobalFs) { if(id('mainHeader')) id('mainHeader').style.display = 'flex'; if(id('mainNav')) id('mainNav').style.display = 'flex'; }
   } else { 
-    id('mainHeader').style.display = 'none'; id('mainNav').style.display = 'none'; target.classList.add('full-view'); 
+    if(id('mainHeader')) id('mainHeader').style.display = 'none'; if(id('mainNav')) id('mainNav').style.display = 'none'; target.classList.add('full-view'); 
   }
 }
 
-function exitFullscreenUI() { isGlobalFs = false; id('mainHeader').style.display = 'flex'; id('mainNav').style.display = 'flex'; id('homeMapContainer').classList.remove('fullscreen-map'); updateModeUI(); }
+function exitFullscreenUI() { isGlobalFs = false; if(id('mainHeader')) id('mainHeader').style.display = 'flex'; if(id('mainNav')) id('mainNav').style.display = 'flex'; if(id('homeMapContainer')) id('homeMapContainer').classList.remove('fullscreen-map'); updateModeUI(); }
 
 function toggleMode() { playerState.mode = playerState.mode === 'beginner' ? 'advanced' : 'beginner'; saveGameData(); updateModeUI(); }
 
@@ -762,7 +766,8 @@ function toggleMode() { playerState.mode = playerState.mode === 'beginner' ? 'ad
 function updateModeUI() {
   const isBeg = playerState.mode === 'beginner';
   document.body.className = `mode-${playerState.mode}`;
-  id('uiPlayerName').textContent = playerState.name; id('hudAvatar').src = playerState.avatar; 
+  if (id('uiPlayerName')) id('uiPlayerName').textContent = playerState.name; 
+  if (id('hudAvatar')) id('hudAvatar').src = playerState.avatar; 
   if (id('navModeText')) id('navModeText').textContent = isBeg ? '初階版' : '進階版';
   
   if(id('navSlot1Text')) id('navSlot1Text').textContent = isBeg ? '初階演練' : '進階演練';
@@ -788,7 +793,7 @@ function handleNavSlot6() {
 }
 
 function updateHUD() { 
-  id('uiCoins').textContent = playerState.coins.toLocaleString(); 
+  if(id('uiCoins')) id('uiCoins').textContent = playerState.coins.toLocaleString(); 
   if(id('storeCoinDisplay')) id('storeCoinDisplay').textContent = `$ ${playerState.coins.toLocaleString()} 幣`;
   if(id('lbHealthCoins')) id('lbHealthCoins').textContent = playerState.coins.toLocaleString();
   if(id('rehabHealthCoins')) id('rehabHealthCoins').textContent = playerState.coins.toLocaleString();
@@ -892,7 +897,7 @@ function startTaskFromAccordion(roleId, taskIndex) {
     activeRoleId = roleId; playTask(taskIndex);
 }
 
-function closeAllIframes() { id('gameOverlay').style.display = 'none'; id('gameFrame').src = ''; id('mapOverlay').style.display = 'none'; id('mapFrame').src = ''; }
+function closeAllIframes() { if(id('gameOverlay')) id('gameOverlay').style.display = 'none'; if(id('gameFrame')) id('gameFrame').src = ''; if(id('mapOverlay')) id('mapOverlay').style.display = 'none'; if(id('mapFrame')) id('mapFrame').src = ''; }
 function closeExplore() { closeAllIframes(); updateModeUI(); }
 
 // ===============================================
@@ -928,12 +933,15 @@ function restartBeginnerStory() {
 
 function launchExplore() {
     if (playerState.mode === 'beginner' && playerState.storyProgression < TOTAL_BEG_TASKS) { return customAlert("請先完成初階版的 25 個引導任務，才能解鎖醫院探索模式喔！", null, "🔒 尚未解鎖"); }
-    id('mapOverlayTitle').textContent = '🏥 醫院探索模式'; id('mapOverlay').style.display = 'flex'; id('mapFrame').src = `rpg_loader.html?taskId=hub_world`;
+    if(id('mapOverlayTitle')) id('mapOverlayTitle').textContent = '🏥 醫院探索模式'; 
+    if(id('mapOverlay')) id('mapOverlay').style.display = 'flex'; 
+    if(id('mapFrame')) id('mapFrame').src = `rpg_loader.html?taskId=hub_world`;
 }
 
 function saveGameData() {
   const dataToSave = {
     hasSetup: playerState.hasSetup, name: playerState.name, avatar: playerState.avatar, mode: playerState.mode, coins: playerState.coins, 
+    brainCoins: playerState.brainCoins, rehabCoins: playerState.rehabCoins,
     storyMode: playerState.storyMode, storyProgression: playerState.storyProgression, replayProgression: playerState.replayProgression,
     explorationTasksCompleted: playerState.explorationTasksCompleted, clothes: playerState.clothes, ownedClothes: playerState.ownedClothes,
     glasses: playerState.glasses, ownedGlasses: playerState.ownedGlasses, carSkin: playerState.carSkin, ownedCarSkins: playerState.ownedCarSkins,
@@ -960,6 +968,8 @@ function loadGameData() {
       if(parsed.avatar) playerState.avatar = parsed.avatar;
       if(parsed.mode) playerState.mode = parsed.mode;
       if(parsed.coins !== undefined) playerState.coins = parsed.coins;
+      if(parsed.brainCoins !== undefined) playerState.brainCoins = parsed.brainCoins;
+      if(parsed.rehabCoins !== undefined) playerState.rehabCoins = parsed.rehabCoins;
       if(parsed.storyMode !== undefined) playerState.storyMode = parsed.storyMode;
       if(parsed.storyProgression !== undefined) playerState.storyProgression = parsed.storyProgression;
       if(parsed.replayProgression !== undefined) playerState.replayProgression = parsed.replayProgression;
@@ -1011,14 +1021,18 @@ function playTaskFlat(index) {
       return customAlert(`【${flatTask.role.subTasks[flatTask.taskIndex].substring(3)}】\n此主線任務的情境演練正在建置中...\n點擊「確定」直接模擬通關！`, () => { handleGameClear(1000); }, "🚧 任務建置中");
   }
 
-  id('linearStoryContainer').style.display = 'none'; id('restartStoryContainer').style.display = 'none'; id('roleListContainer').style.display = 'none';
-  id('nodeMapContainer').style.display = 'none'; id('mainHeader').style.display = 'flex'; id('mainNav').style.display = 'flex';
+  if(id('linearStoryContainer')) id('linearStoryContainer').style.display = 'none'; 
+  if(id('restartStoryContainer')) id('restartStoryContainer').style.display = 'none'; 
+  if(id('roleListContainer')) id('roleListContainer').style.display = 'none';
+  if(id('nodeMapContainer')) id('nodeMapContainer').style.display = 'none'; 
+  if(id('mainHeader')) id('mainHeader').style.display = 'flex'; 
+  if(id('mainNav')) id('mainNav').style.display = 'flex';
   isGlobalFs = false; 
   
   // 開啟 B 風格的 rpg_loader 地圖
-  id('mapOverlayTitle').textContent = `🎯 模擬演練：${flatTask.role.subTasks[flatTask.taskIndex].substring(3)}`; 
-  id('mapOverlay').style.display = 'flex'; 
-  id('mapFrame').src = `rpg_loader.html?taskId=${flatTask.gameId}`;
+  if(id('mapOverlayTitle')) id('mapOverlayTitle').textContent = `🎯 模擬演練：${flatTask.role.subTasks[flatTask.taskIndex].substring(3)}`; 
+  if(id('mapOverlay')) id('mapOverlay').style.display = 'flex'; 
+  if(id('mapFrame')) id('mapFrame').src = `rpg_loader.html?taskId=${flatTask.gameId}`;
 }
 
 function playTask(taskIndex) {
@@ -1030,8 +1044,8 @@ function playTask(taskIndex) {
       return customAlert(`【${role.subTasks[taskIndex].substring(3)}】\n此任務的情境演練正在建置中...\n點擊「確定」直接模擬通關！`, () => { handleGameClear(1000); }, "🚧 任務建置中");
   }
 
-  if (gameUrl) { id('gameFrame').src = gameUrl; id('gameTitle').textContent = role.subTasks[taskIndex].substring(3); id('gameOverlay').style.display = 'flex'; } 
-  else { id('mapOverlayTitle').textContent = `🎯 模擬演練：${role.subTasks[taskIndex].substring(3)}`; id('mapOverlay').style.display = 'flex'; id('mapFrame').src = `rpg_loader.html?taskId=${gameId}`; }
+  if (gameUrl) { if(id('gameFrame')) id('gameFrame').src = gameUrl; if(id('gameTitle')) id('gameTitle').textContent = role.subTasks[taskIndex].substring(3); if(id('gameOverlay')) id('gameOverlay').style.display = 'flex'; } 
+  else { if(id('mapOverlayTitle')) id('mapOverlayTitle').textContent = `🎯 模擬演練：${role.subTasks[taskIndex].substring(3)}`; if(id('mapOverlay')) id('mapOverlay').style.display = 'flex'; if(id('mapFrame')) id('mapFrame').src = `rpg_loader.html?taskId=${gameId}`; }
 }
 
 function customConfirm(msg, onConfirm, onCancel, title="請確認", confirmTxt="確定", cancelTxt="取消") {
@@ -1145,10 +1159,15 @@ function renderCaseDex() {
   const avail = getAvailableTickets(); 
   const unlockedCount = (playerState.unlockedPuzzles || []).length;
   
-  id('uiPuzzleAvail').textContent = avail; id('uiPuzzleCollected').textContent = unlockedCount;
-  if (avail > 0) id('btnDrawPuzzle').style.display = 'inline-block'; else id('btnDrawPuzzle').style.display = 'none';
+  if(id('uiPuzzleAvail')) id('uiPuzzleAvail').textContent = avail; 
+  if(id('uiPuzzleCollected')) id('uiPuzzleCollected').textContent = unlockedCount;
+  if(id('btnDrawPuzzle')) {
+      if (avail > 0) id('btnDrawPuzzle').style.display = 'inline-block'; else id('btnDrawPuzzle').style.display = 'none';
+  }
 
-  const gallery = id('puzzleGallery'); gallery.innerHTML = '';
+  const gallery = id('puzzleGallery'); 
+  if(!gallery) return;
+  gallery.innerHTML = '';
   let unlockedArr = playerState.unlockedPuzzles || []; let pendingArr = playerState.pendingPuzzles || [];
   let displayItems = [];
   unlockedArr.forEach(pid => displayItems.push({id: pid, status: 'unlocked'}));
@@ -1319,7 +1338,7 @@ function launchChallenge(chId, url, title) {
   if (id('lbListTotal')) renderTotalScoreLeaderboard(); 
   
   currentGameInfo = { isChallenge: true, id: chId, title: title };
-  id('gameTitle').textContent = title; id('gameFrame').src = url; id('gameOverlay').style.display = 'flex'; 
+  if(id('gameTitle')) id('gameTitle').textContent = title; if(id('gameFrame')) id('gameFrame').src = url; if(id('gameOverlay')) id('gameOverlay').style.display = 'flex'; 
 }
 
 function handleChallengeClear(chId, score) {
@@ -1337,16 +1356,15 @@ function handleChallengeClear(chId, score) {
     
     if (isNewRecord) {
         playerState.challengeRecords[chId] = score; playerState.extremeAttempts.count += 3;
-        // ★ 統一獎勵為健康幣
-        playerState.coins += 300; 
+        playerState.brainCoins = (playerState.brainCoins || 0) + 150; // ★ 破紀錄額外加 150 腦幣
         saveGameData(); updateHUD();
-        customAlert(`太神了！打破個人紀錄！\n\n新紀錄：${score} ${chInfo.unit}\n🎉 獲得 300 健康幣！\n🎁 額外獲得 3 次極限挑戰機會！`, () => {
+        customAlert(`太神了！打破個人紀錄！\n\n新紀錄：${score} ${chInfo.unit}\n🎉 獲得 150 大腦分數！\n🎁 額外獲得 3 次極限挑戰機會！`, () => {
             if (playerState.mode === 'advanced') { renderTotalScoreLeaderboard(); showScreen('scrLeaderboard'); }
         }, "🏆 突破極限");
     } else {
-        playerState.coins += 100;
+        playerState.brainCoins = (playerState.brainCoins || 0) + 100; // ★ 通關獲得 100 腦幣
         saveGameData(); updateHUD();
-        customAlert(`挑戰完成！\n\n本次成績：${score} ${chInfo.unit}\n最佳紀錄：${currentBest} ${chInfo.unit}\n🎉 獲得 100 健康幣！\n再接再厲突破自我吧！`, () => {
+        customAlert(`挑戰完成！\n\n本次成績：${score} ${chInfo.unit}\n最佳紀錄：${currentBest} ${chInfo.unit}\n🎉 獲得 100 大腦分數！\n再接再厲突破自我吧！`, () => {
             if (playerState.mode === 'advanced') { renderTotalScoreLeaderboard(); showScreen('scrLeaderboard'); }
         }, "🏁 挑戰結束");
     }
@@ -1473,7 +1491,8 @@ function openStoreUI() {
     html += `<div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.5); padding:10px; border-radius:8px; border:1px solid var(--theme-dim); margin-bottom:5px;"><div style="display:flex; align-items:center; gap:10px;"><div style="font-size:24px; display:flex; align-items:center; justify-content:center; width:24px; height:24px;">🏎️</div><span style="color:#fff; font-weight:bold; font-size:13px;">${s.name}</span></div>${btnHtml}</div>`;
   });
 
-  id('storeListContent').innerHTML = html; id('storeModal').style.display = 'flex';
+  if(id('storeListContent')) id('storeListContent').innerHTML = html; 
+  if(id('storeModal')) id('storeModal').style.display = 'flex';
 }
 
 function buyClothes(color, price) {
@@ -1498,11 +1517,6 @@ function buyCarSkin(color, price) {
   } else { customAlert(`健康幣不足！還差 ${price - playerState.coins} 幣。再去挑戰吧！`, null, '❌ 餘額不足'); }
 }
 
-function openChallengeStore() {
-    // 已整合進 openStoreUI，此函數保留避免報錯
-    openStoreUI();
-}
-
 function equipCarSkin(color) {
   playerState.carSkin = color; saveGameData(); openStoreUI(); 
 }
@@ -1514,8 +1528,8 @@ function openRehabStore() {
 function equipGlasses(style) {
   playerState.glasses = style; saveGameData(); openWardrobeUI(); 
   const payload = { name: playerState.name, glasses: playerState.glasses };
-  if(id('homeMapFrame').contentWindow) id('homeMapFrame').contentWindow.postMessage({ type: 'SYNC_PLAYER_DATA', payload }, '*');
-  if(id('mapFrame').contentWindow) id('mapFrame').contentWindow.postMessage({ type: 'SYNC_PLAYER_DATA', payload }, '*');
+  if(id('homeMapFrame') && id('homeMapFrame').contentWindow) id('homeMapFrame').contentWindow.postMessage({ type: 'SYNC_PLAYER_DATA', payload }, '*');
+  if(id('mapFrame') && id('mapFrame').contentWindow) id('mapFrame').contentWindow.postMessage({ type: 'SYNC_PLAYER_DATA', payload }, '*');
 }
 
 function openWardrobeUI() {
@@ -1546,14 +1560,15 @@ function openWardrobeUI() {
   });
   html += `</div>`;
   
-  id('wardrobeList').innerHTML = html; id('wardrobeModal').style.display = 'flex';
+  if(id('wardrobeList')) id('wardrobeList').innerHTML = html; 
+  if(id('wardrobeModal')) id('wardrobeModal').style.display = 'flex';
 }
 
 function equipClothes(color) {
   playerState.clothes = color; saveGameData(); openWardrobeUI(); 
   const payload = { name: playerState.name, clothes: playerState.clothes };
-  if(document.getElementById('homeMapFrame').contentWindow) document.getElementById('homeMapFrame').contentWindow.postMessage({ type: 'SYNC_PLAYER_DATA', payload }, '*');
-  if(document.getElementById('mapFrame').contentWindow) document.getElementById('mapFrame').contentWindow.postMessage({ type: 'SYNC_PLAYER_DATA', payload }, '*');
+  if(id('homeMapFrame') && id('homeMapFrame').contentWindow) id('homeMapFrame').contentWindow.postMessage({ type: 'SYNC_PLAYER_DATA', payload }, '*');
+  if(id('mapFrame') && id('mapFrame').contentWindow) id('mapFrame').contentWindow.postMessage({ type: 'SYNC_PLAYER_DATA', payload }, '*');
 }  
 
 window.onload = () => {
