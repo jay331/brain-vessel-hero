@@ -5,84 +5,135 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <title>腦脈先鋒｜大廳與地圖引擎</title>
 
+<link rel="stylesheet" href="css/hospital-map.css" />
+
 <style>
 /* =========================================
-   遊戲引擎與 UI 核心樣式
-   ========================================= */
-:root {  
-  --bg: #111; 
-  --text: #37474f;  
-  --safe-top: max(8px, env(safe-area-inset-top));  
-  --gold: #ffb300;
+   遊戲引擎與 UI 核心樣式 (不隨樓層地圖改變)
+   ========================================= */
+:root {  
+  --bg: #d9e1e8; --text: #37474f;  
+  --safe-top: max(8px, env(safe-area-inset-top));  
+  /* ★ 暖橘色系定義 */
+  --c-floor-out: #fff3e0; 
+  --c-floor-core: #ffe0b2; 
+  
+  --c-room: #d2b48c; --c-wall: #546e7a; 
+  --c-desk: #81d4fa; --gold: #ffb300;
 }
 
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: none; }
-html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); font-family: "PingFang TC", "Noto Sans TC", sans-serif; color: var(--text); }
-.app { position: relative; width: 100%; height: 100%; overflow: hidden; }
+/* ★ 強制覆蓋外部 CSS，讓 1F 的主要空間變成橘色 */
+.corridor-main, .corridor-rest, .corridor-store, .corridor-pharmacy, .corridor-er {
+    background-color: var(--c-floor-core) !important;
+}
+
+/* ★ 強制覆蓋外部 CSS，徹底消除綠色大草皮，改為橘色系菱格紋 */
+.lobby-main {
+    background: 
+      linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)),
+      repeating-linear-gradient(45deg, #ffe0b2 25%, transparent 25%, transparent 75%, #ffe0b2 75%, #ffe0b2),
+      repeating-linear-gradient(45deg, #ffe0b2 25%, #fff3e0 25%, #fff3e0 75%, #ffe0b2 75%, #ffe0b2) !important;
+    background-position: 0 0, 40px 40px, 40px 40px !important; 
+    background-size: 80px 80px !important;
+    border-color: #ffb74d !important;
+}
+
+/* ★ 同步將大廳中央的地毯名稱與外框改為橘色系 */
+.lobby-main::before {
+    border-color: #ffa726 !important;
+    color: #e65100 !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1), inset 0 0 20px rgba(255, 167, 38, 0.3) !important;
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:none;}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:"PingFang TC","Noto Sans TC",sans-serif;color:var(--text)}
+.app{position:relative;width:100%;height:100%;overflow:hidden;}
 
 /* ★ 任務列底框樣式 */
-.header { position: absolute; top: max(15px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); background: rgba(20, 30, 40, 0.85); padding: 8px 16px; border-radius: 30px; color: #fff; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 15px; z-index: 2000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.1); white-space: nowrap; backdrop-filter: blur(4px); transition: opacity 0.3s; }
+.header { position: absolute; top: max(15px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); background: rgba(20, 30, 40, 0.85); padding: 8px 16px; border-radius: 30px; color: #fff; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 15px; z-index: 2000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.1); white-space: nowrap; backdrop-filter: blur(4px); }
 .mission-text { color: #ffca28; flex: 1; text-align: center; }
 .btn-cancel { padding: 4px 10px; border-radius: 6px; color: #fff; border: none; font-weight: bold; font-size: 11px; cursor: pointer; background: #78909c; }
 
-/* =========================================
-   地圖與攝影機系統
-   ========================================= */
-.scene { position: absolute; inset: 0; top: 0; overflow: hidden; } 
-.camera { position: absolute; left: 0; top: 0; width: 100%; height: 100%; transition: transform 0.05s linear; } 
+/* ★ 強制隱藏地圖背景預設的衣櫃，避免跟新的可互動衣櫃重疊 */
+.room-rest::before { display: none !important; }
+.scene{position:absolute;inset:0;top:0;overflow:hidden;} 
+.camera { position: absolute; left: 0; top: 0; width: 100%; height: 100%; transition: transform 0.05s ease-out; }
 
-/* ★ 背景地圖圖層 */
-.game-world { 
-    position: absolute; 
-    left: 0; top: 0; 
-    width: 4000px; 
-    height: 3000px; 
-    background-image: url('assets/hospital_map_bg.png'); 
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
+/* ★ 擴大地圖世界邊界，容納所有的樓層 */
+.game-world { position: absolute; left: 0; top: 0; width: 40000px; height: 3500px; }
+
+/* =========================================
+   ★ 玩家眼鏡系統 (支架精確定位 & 橢圓墨鏡版)
+   ========================================= */
+.character .head .glasses {
+    position: absolute;
+    inset: 0; 
+    opacity: 0; 
+    z-index: 5; 
+    pointer-events: none;
+}
+.character .head .glasses::before, 
+.character .head .glasses::after {
+    content: ''; 
+    position: absolute;
+    box-sizing: border-box;
 }
 
-/* =========================================
-   玩家與物件樣式 
-   ========================================= */
-.character { position: absolute; display: flex; flex-direction: column; align-items: center; z-index: 100; pointer-events: none; transition: opacity 0.5s ease; }
-.character .name { background: rgba(0,0,0,0.6); color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-bottom: 2px; font-weight: bold; white-space: nowrap; text-shadow: 1px 1px 0 #000; }
-.character .head { width: 24px; height: 24px; background: #ffcc80; border-radius: 5px; border: 2px solid #333; position: relative; z-index: 2; box-shadow: inset -2px -2px 0 rgba(0,0,0,0.1); }
-.character .body { width: 20px; height: 20px; background: #fff; border-radius: 4px; border: 2px solid #333; margin-top: -2px; z-index: 1; box-shadow: inset -2px -2px 0 rgba(0,0,0,0.1); }
-.player { z-index: 110; } 
+.character .head .glasses.style-black,
+.character .head .glasses.style-red,
+.character .head .glasses.style-sun,
+.character .head .glasses.style-square,
+.character .head .glasses.style-half {
+    opacity: 1;
+    background: linear-gradient(to bottom, transparent 15px, currentColor 15px, currentColor 16.5px, transparent 16.5px) no-repeat center / 6px 100%;
+}
 
-/* ★ 眼鏡系統 */
-.character .head .glasses { position: absolute; inset: 0; opacity: 0; z-index: 5; pointer-events: none; }
-.character .head .glasses::before, .character .head .glasses::after { content: ''; position: absolute; box-sizing: border-box; }
-.character .head .glasses.style-black, .character .head .glasses.style-red, .character .head .glasses.style-sun, .character .head .glasses.style-square, .character .head .glasses.style-half { opacity: 1; background: linear-gradient(to bottom, transparent 15px, currentColor 15px, currentColor 16.5px, transparent 16.5px) no-repeat center / 6px 100%; }
 .character .head .glasses::before { box-shadow: -4px 15.5px 0 -14.5px currentColor; }
 .character .head .glasses::after { box-shadow: 4px 15.5px 0 -14.5px currentColor; }
 
 .character .head .glasses.style-black { color: #333; }
 .character .head .glasses.style-red { color: #c62828; }
-.character .head .glasses.style-black::before, .character .head .glasses.style-black::after, .character .head .glasses.style-red::before, .character .head .glasses.style-red::after { top: 11.5px; width: 13px; height: 13px; border-radius: 50%; border: 2px solid currentColor; background: rgba(255,255,255,0.2); }
+.character .head .glasses.style-black::before, .character .head .glasses.style-black::after,
+.character .head .glasses.style-red::before, .character .head .glasses.style-red::after {
+    top: 11.5px; width: 13px; height: 13px;
+    border-radius: 50%; border: 2px solid currentColor; background: rgba(255,255,255,0.2);
+}
 .character .head .glasses.style-black::before, .character .head .glasses.style-red::before { left: 2.5px; }
 .character .head .glasses.style-black::after, .character .head .glasses.style-red::after { right: 2.5px; }
 
 .character .head .glasses.style-sun { color: #1a1a1a; }
-.character .head .glasses.style-sun::before, .character .head .glasses.style-sun::after { top: 11.5px; width: 14px; height: 16px; border-radius: 40% 40% 50% 50% / 40% 40% 70% 70%; border: 1.5px solid #444; background: linear-gradient(135deg, #111 0%, #333 100%); box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+.character .head .glasses.style-sun::before, 
+.character .head .glasses.style-sun::after {
+    top: 11.5px; width: 14px; height: 16px; 
+    border-radius: 40% 40% 50% 50% / 40% 40% 70% 70%; 
+    border: 1.5px solid #444; 
+    background: linear-gradient(135deg, #111 0%, #333 100%); 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
 .character .head .glasses.style-sun::before { left: 1.5px; }
 .character .head .glasses.style-sun::after { right: 1.5px; }
 
 .character .head .glasses.style-square { color: #222; }
-.character .head .glasses.style-square::before, .character .head .glasses.style-square::after { top: 12px; width: 15px; height: 11px; border-radius: 2px; border: 2.5px solid currentColor; background: rgba(255,255,255,0.15); }
+.character .head .glasses.style-square::before, 
+.character .head .glasses.style-square::after {
+    top: 12px; width: 15px; height: 11px;
+    border-radius: 2px; border: 2.5px solid currentColor; background: rgba(255,255,255,0.15);
+}
 .character .head .glasses.style-square::before { left: 1px; }
 .character .head .glasses.style-square::after { right: 1px; }
 
 .character .head .glasses.style-half { color: #111; }
-.character .head .glasses.style-half::before, .character .head .glasses.style-half::after { top: 11px; width: 15px; height: 13px; border-radius: 4px 4px 10px 10px; border: 1px solid #555; border-top: 4px solid currentColor; background: rgba(255,255,255,0.15); }
+.character .head .glasses.style-half::before, 
+.character .head .glasses.style-half::after {
+    top: 11px; width: 15px; height: 13px;
+    border-radius: 4px 4px 10px 10px; border: 1px solid #555; border-top: 4px solid currentColor; background: rgba(255,255,255,0.15);
+}
 .character .head .glasses.style-half::before { left: 1px; }
 .character .head .glasses.style-half::after { right: 1px; }
 
 /* 虛擬搖桿 */
 .joystick-base { position: absolute; width: 140px; height: 140px; background: rgba(255,255,255,0.3); border: 3px solid rgba(255,255,255,0.6); border-radius: 50%; display: none; z-index: 50; transform: translate(-50%, -50%);}
-.joystick-knob { position: absolute; width: 60px; height: 60px; background: var(--gold); border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%); box-shadow: inset 0 -4px 0 rgba(0,0,0,0.3), 0 4px 10px rgba(0,0,0,0.5);}
+.joystick-knob { position: absolute; width: 60px; height: 60px; background: var(--gold); border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%);}
 
 /* 開場黑幕與 UI */
 .story-intro { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.98) 80%); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; color: white; text-align: center; transition: opacity 0.8s ease-out;}
@@ -90,18 +141,10 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); f
 .btn-start { padding: 14px 50px; font-size: 18px; background: rgba(33, 150, 243, 0.9); color: white; border: 2px solid #64b5f6; border-radius: 30px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(4px); transition: transform 0.2s, background 0.2s; opacity: 0; transform: translateY(20px);}
 .btn-start.show { opacity: 1; transform: translateY(0); }
 .btn-start:active { transform: scale(0.95); background: #1976d2; }
-.btn-fs-toggle { position: absolute; top: max(10px, env(safe-area-inset-top)); right: 10px; background: rgba(0,0,0,0.4); color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.2); width: 40px; height: 40px; border-radius: 8px; z-index: 101; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 20px; backdrop-filter: blur(2px); transition: all 0.2s;}
-.btn-fs-toggle:active { background: rgba(0,0,0,0.7); }
-.btn-return-lobby { position: absolute; top: max(10px, env(safe-area-inset-top)); left: 10px; background: rgba(255,255,255,0.9); color: #1976d2; border: 2px solid #64b5f6; padding: 8px 16px; border-radius: 8px; z-index: 101; cursor: pointer; font-weight: bold; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: all 0.2s;}
+.btn-fs-toggle { position: absolute; top: max(10px, env(safe-area-inset-top)); right: 10px; background: rgba(0,0,0,0.2); color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.2); width: 36px; height: 36px; border-radius: 8px; z-index: 101; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 20px; backdrop-filter: blur(2px); transition: all 0.2s;}
+.btn-fs-toggle:active { background: rgba(0,0,0,0.5); }
+.btn-return-lobby { position: absolute; top: max(10px, env(safe-area-inset-top)); left: 10px; background: rgba(255,255,255,0.85); color: #1976d2; border: 2px solid #64b5f6; padding: 6px 12px; border-radius: 8px; z-index: 101; cursor: pointer; font-weight: bold; display: none; box-shadow: 0 2px 10px rgba(0,0,0,0.2); transition: all 0.2s;}
 .btn-return-lobby:active { background: #e3f2fd; transform: scale(0.95); }
-
-/* 互動目標樣式 */
-.target-npc { position: absolute; transform: translate(-50%, -100%); cursor: pointer; z-index: 10; display: flex; flex-direction: column; align-items: center;}
-.target-npc.is-object .head, .target-npc.is-object .body { display: none; }
-.target-npc.is-object .npc-indicator { display: block; font-size: 38px; filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6)); animation: bounce 1.5s infinite alternate ease-in-out;}
-.target-npc .name { background: #37474f; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-bottom: 2px; font-weight: bold; text-shadow: 1px 1px 0px #000; white-space: nowrap; pointer-events: none;}
-.npc-indicator { font-size: 20px; margin-bottom: 2px; animation: bounce 1s infinite alternate ease-in-out; pointer-events: none;}
-@keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-8px); } }
 
 /* 對話框與動畫畫面 */
 .dialog-box { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 600px; background: rgba(255,255,255,0.95); border: 4px solid #4CAF50; border-radius: 15px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 200; display: none; flex-direction: column;}
@@ -128,63 +171,180 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); f
 </head>
 <body>
 <div class="app">
-  
-  <div class="story-intro" id="storyIntro">
-    <div class="typewriter" id="typewriterText"></div>
-    <button class="btn-start" id="btnStartGame" onclick="startExplore()">開始</button>
-  </div>
+  
+  <div class="story-intro" id="storyIntro">
+    <div class="typewriter" id="typewriterText"></div>
+    <button class="btn-start" id="btnStartGame" onclick="startExplore()">開始</button>
+  </div>
 
-  <button class="btn-fs-toggle" id="btnFsToggle" onclick="toggleFs()">⛶</button>
-  <button class="btn-return-lobby" id="btnReturnLobby" onclick="returnToLobby()">🏠 返回大廳</button>
+  <button class="btn-fs-toggle" id="btnFsToggle" onclick="toggleFs()">⛶</button>
+  <button class="btn-return-lobby" id="btnReturnLobby" onclick="returnToLobby()">🏠 返回大廳</button>
 
-  <div class="header" id="uiHeader" style="opacity:0; display:none;">
-    <div id="ui-role">玩家</div>
-    <div class="mission-text" id="ui-mission">任務：</div>
-    <button class="btn-cancel" onclick="parent.postMessage({type:'CLOSE_IFRAME'}, '*')">✖ 中斷</button>
-  </div>
+  <div class="header" id="uiHeader" style="opacity:0; display:none;">
+    <div id="ui-role">玩家</div>
+    <div class="mission-text" id="ui-mission">任務：</div>
+    <button class="btn-cancel" onclick="parent.postMessage({type:'CLOSE_IFRAME'}, '*')">✖ 中斷</button>
+  </div>
 
-  <div class="scene" id="scene">
-    <div class="joystick-base" id="joystickBase"><div class="joystick-knob" id="joystickKnob"></div></div>
-    
-    <div class="camera" id="camera">
-      <div class="game-world" id="gameWorld">
-        
-        <div id="npcContainer"></div>
+  <div class="scene" id="scene">
+    <div class="joystick-base" id="joystickBase"><div class="joystick-knob" id="joystickKnob"></div></div>
+    
+    <div class="camera" id="camera">
+      <div class="game-world" id="gameWorld">
+        
+        <div class="lobby-main tile-luxury">
+          <div style="position:absolute; left:10%; right:10%; top:20%; bottom:20%; border:2px solid rgba(0,0,0,0.05); border-radius:20px;"></div>
+        </div>
+        <div class="lobby-desk">大廳服務中心</div>
+        
+        <div id="lobby-tv" style="position:absolute; left:1750px; top:-480px; width:220px; height:70px; background:#111; border:4px solid #444; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:18px; font-weight:bold; box-shadow:0 8px 16px rgba(0,0,0,0.6), inset 0 0 10px rgba(255,255,255,0.2); z-index:2; text-align:center;">
+            📺 亞東影音衛教
+        </div>
 
-        <div class="character player" id="player" style="left:800px;top:600px;opacity:0;"> 
-          <div id="player-items" style="position:absolute; top:-55px; left:50%; transform:translateX(-50%); font-size:22px; display:flex; gap:2px; white-space:nowrap; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8)); z-index:10;"></div>
-          <div class="name" id="playerName">玩家</div>
-          <div class="head">
-            <div class="glasses"></div> </div>
-          <div class="body"></div>
-        </div>
+        <div class="corridor-rest"></div><div class="room-rest">休息室</div>
+        <div class="corridor-store"></div><div class="room-store">便利商店<br>(外觀購買)</div>
+        <div class="corridor-pharmacy"></div>
+<div class="room-pharmacy"></div>
 
-      </div>
-    </div>
-    
-    <div class="dialog-box" id="dialogBox">
-      <div class="dialog-name" id="dialogName">我</div>
-      <div class="dialog-text" id="dialogText"></div>
-      <div class="dialog-actions">
-        <button class="btn-dialog btn-cancel" id="btnCancelDialog">離開</button>
-        <button class="btn-dialog btn-confirm" id="btnNextDialog">繼續</button>
-      </div>
-    </div>
-  </div>
-  
-  <div class="animation-screen" id="animScreen">
-    <button class="btn-quit-anim" onclick="window.postMessage({type:'CLOSE_IFRAME'}, '*')">✖ 中斷任務</button>
-    <iframe id="animFrame" src="about:blank"></iframe>
-  </div>
+<div class="corridor-er-link-top"></div>
+<div class="corridor-er-link-bottom"></div>
 
-  <div class="elevator-modal" id="elevatorModal">
-      <div class="elevator-panel">
-          <h2>🛗 電梯樓層選擇</h2>
-          <button class="floor-btn" onclick="goToFloor(11)">11F 病房區</button>
-          <button class="floor-btn" onclick="goToFloor(1)">1F 大廳 / 急診</button>
-          <button class="floor-btn btn-close-elev" onclick="closeElevator()">離開電梯</button>
-      </div>
-  </div>
+<div class="room-er-expanded">
+    
+    <div class="er-zone er-mri">
+        <div class="zone-label">核磁共振 (MRI)</div>
+        <div class="ct-scanner" style="width:160px; height:120px; border-radius:30px;"></div> </div>
+    <div class="er-zone er-ct">
+        <div class="zone-label">電腦斷層 (CT)</div>
+        <div class="ct-scanner"></div>
+    </div>
+
+    <div class="er-zone er-vert-corridor"></div>
+    
+    <div class="er-zone er-bottom-corridor"></div>
+
+    <div class="er-zone er-trauma">
+        <div class="zone-label" style="background:#ffebee; color:#d32f2f;">急救區 (Trauma)</div>
+        <div class="er-warning-light"></div>
+        <div class="er-trauma-bay" style="left: 20px; top: 60px;"><div class="er-monitor"></div><div class="hosp-bed" style="left: 50px; top: 40px;"></div></div>
+        <div class="er-trauma-bay" style="left: 180px; top: 60px;"><div class="er-monitor"></div><div class="hosp-bed" style="left: 50px; top: 40px;"></div></div>
+        <div class="er-trauma-bay" style="left: 340px; top: 60px;"><div class="er-monitor"></div><div class="hosp-bed" style="left: 50px; top: 40px;"></div></div>
+        <div class="er-trauma-bay" style="left: 20px; top: 250px;"><div class="er-monitor"></div><div class="hosp-bed" style="left: 50px; top: 40px;"></div></div>
+        <div class="er-trauma-bay" style="left: 180px; top: 250px;"><div class="er-monitor"></div><div class="hosp-bed" style="left: 50px; top: 40px;"></div></div>
+        <div class="er-trauma-bay" style="left: 340px; top: 250px;"><div class="er-monitor"></div><div class="hosp-bed" style="left: 50px; top: 40px;"></div></div>
+    </div>
+
+    <div class="er-trauma-wall-bottom">
+        <div class="er-auto-door" style="left: 10px;"></div>
+        <div class="er-auto-door" style="right: 10px;"></div>
+    </div>
+
+    <div class="er-zone er-pharm">
+        <div class="zone-label">急診藥局</div>
+    </div>
+    <div class="er-zone er-obs">
+        <div class="zone-label">留觀區</div>
+        <div class="hosp-bed" style="left: 50px; top: 80px;"></div>
+        <div class="hosp-bed" style="left: 130px; top: 80px;"></div>
+        <div class="hosp-bed" style="left: 210px; top: 80px;"></div>
+        <div class="hosp-bed" style="left: 50px; top: 180px;"></div>
+        <div class="hosp-bed" style="left: 130px; top: 180px;"></div>
+        <div class="hosp-bed" style="left: 210px; top: 180px;"></div>
+    </div>
+    <div class="er-zone er-triage">
+        <div class="zone-label">檢傷護理站</div>
+        <div class="er-triage-desk">Triage</div>
+    </div>
+
+</div>
+
+        <div class="floor-box tile-tech" style="left:10000px; top:-1200px;">2F 導管室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
+        <div class="floor-box tile-tech" style="left:15000px; top:-1200px;">3F 手術室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
+        <div class="floor-box tile-tech" style="left:20000px; top:-1200px;">4F 復健室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
+        <div class="floor-box tile-tech" style="left:25000px; top:-1200px;">5F 神經加護病房<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
+        <div class="floor-box tile-tech" style="left:30000px; top:-1200px;">6F 教學室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
+        <div class="floor-box tile-tech" style="left:35000px; top:-1200px;">14F 衛教影片室<div class="floor-elevator">電梯 ⬇️</div><div class="teleport-zone" style="left:350px; top:40px; width:100px; height:40px;"></div></div>
+        
+        <div class="corridor-main tile-clinical"></div><div class="workspace-core"></div>
+        <div class="room-block room-discuss">討論室</div><div class="room-block room-soiled">污物室</div>
+        <div class="room-block room-headnurse">護理長</div><div class="room-block room-pantry">茶水間</div>
+        <div class="room-block room-office">辦公室</div><div class="room-block room-prep">準備室</div>
+        <div class="room-block room-treatment has-door door-top">治療室</div>
+        <div class="room-block room-supply">備物區</div><div class="room-block room-toilet">廁所</div>
+        <div class="room-block room-oncall1">值班 A</div><div class="room-block room-treatment2">治療室2</div>
+        <div class="room-block room-oncall2">值班 B</div><div class="room-block room-talkroom">衛教室</div>
+        <div class="ward-entrance"></div>
+        <div class="room-block room-stair-l">逃生梯</div><div class="room-block room-elec">配電室</div>
+        <div class="room-block room-ac">空調室</div><div class="room-block room-sun">日光室</div>
+        <div class="room-block room-dress">護士更衣室</div><div class="room-block room-stair-c">逃生梯</div>
+        
+        <div class="room-elev-v">
+          <div style="font-size:18px; font-weight:900;">病床電梯</div>
+          <div style="font-size:12px; color:#ffeb3b; margin-top:5px; background:rgba(0,0,0,0.6); padding:2px 8px; border-radius:4px; z-index:4;">往各大樓層 ⬇️</div>
+        </div>
+        <div class="teleport-zone" style="left: 2000px; top: 1950px; width: 250px; height: 50px;"></div>
+
+        <div class="room-elev-b">病床電梯</div>
+        <div class="desk-island desk-front">前櫃台</div><div class="desk-island desk-back">後護理站</div>
+        <div class="ward-diag"><div class="room-d">11G23</div><div class="room-d">11G22</div><div class="room-d">11G21</div><div class="room-d">11G20</div><div class="room-d">11G19</div><div class="room-d">11G18</div><div class="room-d">11G17</div><div class="room-d">11G16</div><div class="room-d">11G15</div><div class="room-d">11G14</div><div class="room-d">11G13</div><div class="room-d">11G12</div></div>
+        <div class="ward-top"><div>11G10</div><div style="margin-top: 30px;">11G11</div></div>
+        
+        <div class="ward-right">
+          <div class="room-rv">11G09<div class="hosp-bed" style="right: 20px; top: 15px;"></div></div>
+          <div class="room-rv">11G08<div class="hosp-bed" style="right: 20px; top: 15px;"></div></div>
+          <div class="room-rv">11G07<div class="hosp-bed" style="right: 20px; top: 15px;"></div></div>
+          <div class="room-rv has-door door-right">11G06
+            <div class="hosp-bed" style="right: 20px; top: 10px;"></div>
+            <div class="hosp-bed" style="right: 70px; top: 10px;"></div>
+          </div> 
+          <div class="room-rv">11G05<div class="hosp-bed" style="right: 20px; top: 15px;"></div></div>
+          <div class="room-rv">11G04<div class="hosp-bed" style="right: 20px; top: 15px;"></div></div>
+          <div class="room-rv">11G03<div class="hosp-bed" style="right: 20px; top: 15px;"></div></div>
+          <div class="room-rv">11G02<div class="hosp-bed" style="right: 20px; top: 15px;"></div></div>
+          <div class="room-rv">11G01<div class="hosp-bed" style="right: 20px; top: 15px;"></div></div>
+        </div>
+
+        <div id="npcContainer"></div>
+
+        <div class="character player" id="player" style="left:1500px;top:-600px;opacity:0;">
+          <div id="player-items" style="position:absolute; top:-55px; left:50%; transform:translateX(-50%); font-size:22px; display:flex; gap:2px; white-space:nowrap; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8)); z-index:10;"></div>
+          <div class="name" id="playerName">玩家</div>
+          <div class="head">
+            <div class="glasses"></div> </div>
+          <div class="body"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="dialog-box" id="dialogBox">
+      <div class="dialog-name" id="dialogName">我</div>
+      <div class="dialog-text" id="dialogText"></div>
+      <div class="dialog-actions">
+        <button class="btn-dialog btn-cancel" id="btnCancelDialog">離開</button>
+        <button class="btn-dialog btn-confirm" id="btnNextDialog">繼續</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="animation-screen" id="animScreen">
+    <button class="btn-quit-anim" onclick="window.postMessage({type:'CLOSE_IFRAME'}, '*')">✖ 中斷任務</button>
+    <iframe id="animFrame" src="about:blank"></iframe>
+  </div>
+
+  <div class="elevator-modal" id="elevatorModal">
+      <div class="elevator-panel">
+          <h2>🛗 電梯樓層選擇</h2>
+          <button class="floor-btn" onclick="goToFloor(14)">14F 衛教影片室</button>
+          <button class="floor-btn" onclick="goToFloor(11)">11F 11G病房</button>
+          <button class="floor-btn" onclick="goToFloor(6)">6F 教學室</button>
+          <button class="floor-btn" onclick="goToFloor(5)">5F 神經加護病房</button>
+          <button class="floor-btn" onclick="goToFloor(4)">4F 復健室</button>
+          <button class="floor-btn" onclick="goToFloor(3)">3F 手術室</button>
+          <button class="floor-btn" onclick="goToFloor(2)">2F 導管室</button>
+          <button class="floor-btn" onclick="goToFloor(1)">1F 大廳 / 急診</button>
+          <button class="floor-btn btn-close-elev" onclick="closeElevator()">離開電梯</button>
+      </div>
+  </div>
 </div>
 
 <script src="js/tasks-main.js"></script>
@@ -195,9 +355,9 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); f
 // ==========================================
 let RPG_TASKS = {};
 if (typeof MAIN_TASKS !== 'undefined') {
-    RPG_TASKS = Object.assign({}, MAIN_TASKS);
+    RPG_TASKS = Object.assign({}, MAIN_TASKS);
 } else {
-    console.error("無法載入任務資料庫，可能是 js/tasks-main.js 檔案遺失或有語法錯誤。");
+    console.error("無法載入任務資料庫，可能是 js/tasks-main.js 檔案遺失或有語法錯誤。");
 }
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -207,494 +367,556 @@ let isFirstTask = urlParams.get('first') === '1';
 
 let task = RPG_TASKS[taskId];
 if (!task) {
-  task = {
-    roleName: "系統管理員",
-    intro: `【系統警告】\n\n無法讀取外部任務資料（${taskId}）！\n請確認您的 js/tasks-main.js 檔案。`,
-    missionText: "尋找並修復外部 JS 檔案",
-    startPos: { x: 800, y: 600 },
-    npcs: [],
-    gameUrl: "" 
-  };
+  task = {
+    roleName: "系統管理員",
+    intro: `【系統警告】\n\n無法讀取外部任務資料（${taskId}）！\n請確認您的 js/tasks-main.js 是否有上傳到 GitHub，並且沒有拼寫錯誤。\n\n目前載入的是備用安全場景。`,
+    missionText: "尋找並修復外部 JS 檔案",
+    startPos: { x: 2125, y: 1900 },
+    npcs: [
+      { id: 'nurse', name: '工程師', color: '#ff9800', head: '#ffcc80', body: '#fff', pos: { x: 1350, y: 1280 }, icon: '⚠️', dialogs: [
+        { name: "工程師", text: "嗨！看到我代表你的 js/tasks-main.js 沒有被瀏覽器正確讀取到喔！去檢查一下 GitHub 吧！" }
+      ], action: 'NONE' }
+    ],
+    gameUrl: "" 
+  };
 }
 
 if (taskId === 'hub_world') {
-    if (isFirstTask && task.npcs) {
-        let docNpc = task.npcs.find(n => n.id === 'npc_continue');
-        if(docNpc) docNpc.dialogs[0].text = "歡迎來到腦脈先鋒的行列！準備好接受第一項訓練了嗎？";
-        task.intro = "歡迎來到醫院！\n\n戰勝腦中風不靠運氣\n靠的是不斷累積的知識與能力 💪\n\n出發吧！前往尋找主治醫師的指引";
-    }
+    if (isFirstTask && task.npcs) {
+        let docNpc = task.npcs.find(n => n.id === 'npc_continue');
+        if(docNpc) docNpc.dialogs[0].text = "歡迎來到腦脈先鋒的行列！我是主治醫師。守護大腦的旅程即將開始，準備好接受第一項訓練了嗎？";
+        task.intro = "歡迎來到遙遠的東方醫院！\n\n戰勝腦中風不靠運氣\n靠的是不斷累積的知識與能力 💪\n\n出發吧！前往大廳尋找主治醫師的指引";
+    }
 
-    // ★ 更新：設置玩家在大地圖中的初始位置 
-    task.startPos = { x: 800, y: 600 }; 
+    task.startPos = { x: 1500, y: -150 };
 
-    // ★ 重新定義 NPC 和物件的坐標 (適應新的正數坐標系統)
-    let newNpcs = [
-        {
-            id: 'npc_continue', name: '主治醫師', icon: '👨‍⚕️', color: '#4CAF50', head: '#ffe0b2', body: '#fff',
-            pos: { x: 1000, y: 800 }, action: 'ACTION_CONTINUE', dialogs: [{name: '主治醫師', text: '準備好接取今天的醫院任務了嗎？'}]
-        },
-        {
-            id: 'obj_wardrobe', name: '更衣櫃', icon: '🚪', color: '#37474f', isObject: true,
-            pos: { x: 600, y: 300 }, action: 'ACTION_WARDROBE', dialogs: [{name: '系統提示', text: '要打開更衣櫃嗎？'}]
-        },
-        {
-            id: 'obj_tablet', name: '任務平板', icon: '📱', color: '#1976d2', isObject: true,
-            pos: { x: 1200, y: 500 }, action: 'ACTION_CHECK_TABLET', dialogs: [{name: '', text: ''}]
-        },
-        {
-            id: 'obj_tv', name: '電視看板', icon: '📺', color: '#333', isObject: true,
-            pos: { x: 1500, y: 200 }, action: 'ACTION_WATCH_TV', dialogs: [{name: '系統提示', text: '要開啟 YouTube 觀看衛教影片嗎？'}]
-        }
-    ];
+    let oldWardrobeIndex = task.npcs.findIndex(n => n.action === 'ACTION_WARDROBE' || n.name.includes('更衣'));
+    if (oldWardrobeIndex !== -1) {
+        task.npcs[oldWardrobeIndex] = {
+            id: 'obj_wardrobe', name: '更衣櫃', icon: '🚪', color: '#37474f',
+            pos: { x: 1350, y: -220 }, action: 'ACTION_WARDROBE', dialogs: [{name: '', text: ''}]
+        };
+    }
 
-    // 將神內三寶也加進去 (隱藏狀態，根據任務邏輯顯示)
-    const items = [
-        { id: 'item_penlight', name: '筆燈', icon: '🔦', pos: {x: 700, y: 900} },
-        { id: 'item_hammer', name: '扣診錘', icon: '🔨', pos: {x: 1800, y: 700} },
-        { id: 'item_fork', name: '音叉', icon: '🧲', pos: {x: 1300, y: 1200} }
-    ];
-    items.forEach(i => {
-         newNpcs.push({
-             id: i.id, name: i.name, icon: i.icon, color: '#f57c00', isObject: true,
-             pos: i.pos, action: `ACTION_FIND_${i.id.split('_')[1].toUpperCase()}`, dialogs: [{name: '', text: ''}]
-         });
-    });
+    if (!task.npcs.find(n => n.id === 'obj_tablet')) {
+        task.npcs.push({
+            id: 'obj_tablet', name: '任務平板', icon: '📱', color: '#1976d2',
+            pos: { x: 1650, y: -220 }, action: 'ACTION_CHECK_TABLET', dialogs: [{name: '', text: ''}]
+        });
+    }
 
-    task.npcs = newNpcs;
+    // ★ 更新：電視看板的互動邏輯 (設定在我們剛才放電視的位置平面正前方)
+    if (!task.npcs.find(n => n.id === 'obj_tv')) {
+        task.npcs.push({
+            id: 'obj_tv', name: '電視看板', icon: '', color: 'transparent',
+            pos: { x: 1860, y: -450 }, 
+            action: 'ACTION_WATCH_TV', 
+            dialogs: [{
+                name: '系統提示', 
+                text: '這是一台播放著亞東紀念醫院精選影音的數位看板。\n\n你要開啟 YouTube 觀看最新的衛教影片嗎？'
+            }]
+        });
+    }
 }
 
 let state = { x: task.startPos.x, y: task.startPos.y };
 let velocity = { x: 0, y: 0 };
-const speed = 5; 
-let missionStage = -1; 
-let gameActive = false; 
+const speed = 5; 
+let missionStage = -1; 
+let gameActive = false; 
 let currentNpc = null;
 
 // UI 動態綁定
 document.getElementById('btnStartGame').innerText = (taskId === 'hub_world') ? "出發探索" : "任務開始";
 document.getElementById('playerName').innerText = task.roleName;
-if(document.getElementById('ui-role')) document.getElementById('ui-role').innerText = task.roleName;
-if(document.getElementById('ui-mission')) document.getElementById('ui-mission').innerText = "任務：" + task.missionText;
+document.getElementById('ui-role').innerText = task.roleName;
+document.getElementById('ui-mission').innerText = "任務：" + task.missionText;
 
 const npcContainer = document.getElementById('npcContainer');
 if (task.npcs) {
-  task.npcs.forEach(n => {
-    let npcDiv = document.createElement('div');
-    npcDiv.className = 'target-npc' + (n.isObject ? ' is-object' : '');
-    npcDiv.id = `npc-node-${n.id}`; 
-    npcDiv.style.left = n.pos.x + 'px';
-    npcDiv.style.top = n.pos.y + 'px';
-    
-    if (n.isObject) {
-        if (n.id.startsWith('item_')) {
-            npcDiv.style.display = 'none'; 
-            npcDiv.setAttribute('data-interactable', 'false'); 
-        } else {
-            npcDiv.setAttribute('data-interactable', 'true');
-        }
-        npcDiv.innerHTML = `
-          <div class="name" style="background:${n.color || '#37474f'};">${n.name}</div>
-          <div class="npc-indicator">${n.icon}</div>
-        `;
-    } else {
-        npcDiv.setAttribute('data-interactable', 'true');
-        let indicatorHtml = n.icon ? `<div class="npc-indicator">${n.icon}</div>` : '';
-        npcDiv.innerHTML = `
-          ${indicatorHtml}
-          <div class="name" style="background:${n.color || '#37474f'}">${n.name}</div>
-          <div class="head" style="background:${n.head || '#e57373'}"></div>
-          <div class="body" style="background:${n.body || '#bbdefb'}"></div>
-        `;
-    }
-    npcContainer.appendChild(npcDiv);
-  });
+  task.npcs.forEach(n => {
+    let npcDiv = document.createElement('div');
+    npcDiv.className = 'target-npc';
+    npcDiv.id = `npc-node-${n.id}`; 
+    npcDiv.style.left = n.pos.x + 'px';
+    npcDiv.style.top = n.pos.y + 'px';
+    
+    // ★ 物品與電視物件處理：隱藏本體，不顯示底座
+    if (n.id.startsWith('item_') || n.id === 'obj_tv') {
+        npcDiv.style.display = 'none'; 
+        npcDiv.setAttribute('data-interactable', 'false'); 
+        npcDiv.innerHTML = `
+          <style>#npc-node-${n.id}::before { display: none !important; }</style>
+          <div class="name" id="npc-name-${n.id}" style="background:${n.color || '#37474f'}; top: -50px; z-index: 10;">${n.name}</div>
+          <div style="font-size: 38px; margin-top: 15px; filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6)); animation: bounce 1.5s infinite alternate ease-in-out;">${n.icon}</div>
+        `;
+        // 電視直接可互動
+        if (n.id === 'obj_tv') {
+            npcDiv.style.display = 'block';
+            npcDiv.setAttribute('data-interactable', 'true');
+        }
+    } 
+    else if (n.id === 'obj_tablet') {
+        npcDiv.setAttribute('data-interactable', 'true');
+        npcDiv.innerHTML = `
+          <style>#npc-node-${n.id}::before { display: none !important; }</style>
+          <div class="name" id="npc-name-${n.id}" style="background:${n.color || '#37474f'}; top: -35px; z-index: 10;">${n.name}</div>
+          <div style="font-size: 35px; margin-top: -5px; filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6)); position: relative;">${n.icon}</div>
+        `;
+    }
+    else if (n.id.startsWith('obj_')) {
+        npcDiv.setAttribute('data-interactable', 'true');
+        npcDiv.innerHTML = `
+          <style>#npc-node-${n.id}::before { display: none !important; }</style>
+          <div class="name" id="npc-name-${n.id}" style="background:${n.color || '#37474f'}; top: -35px; z-index: 10;">${n.name}</div>
+          <div style="font-size: 40px; margin-top: 5px; filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6));">${n.icon}</div>
+        `;
+    }
+    else {
+        npcDiv.setAttribute('data-interactable', 'true');
+        let indicatorHtml = n.icon ? `<div class="npc-indicator">${n.icon}</div>` : '';
+        npcDiv.innerHTML = `
+          ${indicatorHtml}
+          <div class="name" id="npc-name-${n.id}" style="background:${n.color || '#37474f'}">${n.name}</div>
+          <div class="head" style="background:${n.head || '#e57373'}"></div>
+          <div class="body" style="background:${n.body || '#bbdefb'}"></div>
+        `;
+    }
+    npcContainer.appendChild(npcDiv);
+  });
 }
 
 window.addEventListener('message', (event) => {
-  if (!event.data) return;
+  if (!event.data) return;
 
-  if (event.data.type === 'SYNC_PLAYER_DATA') {
-    const pData = event.data.payload;
-    
-    if (pData.name) {
-      let displayName = pData.name;
-      if (task.playAs) displayName = task.playAs;
-      else if (taskId === 'beg_id_0' || taskId === 'beg_id_1') displayName = task.roleName;
-      document.getElementById('playerName').innerText = displayName;
-      if(document.getElementById('ui-role')) document.getElementById('ui-role').innerText = displayName;
-      
-      if (taskId === 'beg_id_0') {
-        const patientNameEl = document.querySelector('#npc-node-patient .name');
-        if (patientNameEl) patientNameEl.innerText = pData.name + " (你)"; 
-        const patientNpc = task.npcs.find(n => n.id === 'patient');
-        if (patientNpc) { patientNpc.name = pData.name; patientNpc.dialogs.forEach(d => { if (d.name === "我 (病患)") d.name = pData.name; }); }
-      }
-    }
+  if (event.data.type === 'SYNC_PLAYER_DATA') {
+    const pData = event.data.payload;
+    
+    if (pData.name) {
+      let displayName = pData.name;
+      if (task.playAs) displayName = task.playAs;
+      else if (taskId === 'beg_id_0' || taskId === 'beg_id_1') displayName = task.roleName;
+      document.getElementById('playerName').innerText = displayName;
+      document.getElementById('ui-role').innerText = displayName;
+      
+      if (taskId === 'beg_id_0') {
+        const patientNameEl = document.getElementById('npc-name-patient');
+        if (patientNameEl) patientNameEl.innerText = pData.name + " (你)"; 
+        const patientNpc = task.npcs.find(n => n.id === 'patient');
+        if (patientNpc) { patientNpc.name = pData.name; patientNpc.dialogs.forEach(d => { if (d.name === "我 (病患)") d.name = pData.name; }); }
+      }
+    }
 
-    if (pData.clothes !== undefined) {
-      const playerBody = document.querySelector('.player .body');
-      if (playerBody) playerBody.style.background = pData.clothes || '#fff';
-    }
-    
-    if (pData.glasses !== undefined) {
-        const playerGlasses = document.querySelector('.player .head .glasses');
-        if (playerGlasses) {
-            playerGlasses.className = 'glasses';
-            if (pData.glasses !== 'none' && pData.glasses !== '') {
-                playerGlasses.classList.add(`style-${pData.glasses}`);
-            }
-        }
-    }
-    
-    if (pData.foundItems !== undefined) window.playerFoundItems = pData.foundItems;
-    if (pData.dailyExplores !== undefined) window.playerDailyExplores = pData.dailyExplores;
-    
-    updateItemVisibility();
-  }
-  
-  else if (event.data.type === 'GAME_CLEAR' || event.data.type === 'GAME_OVER' || event.data.type === 'CLOSE_IFRAME') {
-     document.getElementById('animScreen').style.display = 'none';
-     document.getElementById('animFrame').src = 'about:blank';
-     
-     stepBackFromNpc();
-     missionStage = 0; 
-     setTimeout(() => { gameActive = true; currentNpc = null; }, 300);
+    if (pData.clothes !== undefined) {
+      const playerBody = document.querySelector('.player .body');
+      if (playerBody) playerBody.style.background = pData.clothes || '#fff';
+    }
+    
+    if (pData.glasses !== undefined) {
+        const playerGlasses = document.querySelector('.player .head .glasses');
+        if (playerGlasses) {
+            playerGlasses.className = 'glasses';
+            if (pData.glasses !== 'none' && pData.glasses !== '') {
+                playerGlasses.classList.add(`style-${pData.glasses}`);
+            }
+        }
+    }
+    
+    if (pData.foundItems !== undefined) window.playerFoundItems = pData.foundItems;
+    if (pData.dailyExplores !== undefined) window.playerDailyExplores = pData.dailyExplores;
+    
+    updateItemVisibility();
+  }
+  
+  else if (event.data.type === 'GAME_CLEAR' || event.data.type === 'GAME_OVER' || event.data.type === 'CLOSE_IFRAME') {
+     document.getElementById('animScreen').style.display = 'none';
+     document.getElementById('animFrame').src = 'about:blank';
+     
+     stepBackFromNpc();
+     missionStage = 0; 
+     setTimeout(() => { gameActive = true; currentNpc = null; }, 300);
 
-     if (window.parent !== window) { window.parent.postMessage(event.data, '*'); }
-  }
+     if (window.parent !== window) { window.parent.postMessage(event.data, '*'); }
+  }
 });
 
 window.playerFoundItems = null;
 
 function updateItemVisibility() {
-    const items = [ { id: 'item_penlight', name: '筆燈', icon: '🔦' }, { id: 'item_hammer', name: '扣診錘', icon: '🔨' }, { id: 'item_fork', name: '音叉', icon: '🧲' } ];
-    
-    let hasStartedQuest = Array.isArray(window.playerFoundItems);
-    let isQuestActive = hasStartedQuest && !window.playerFoundItems.includes('DONE');
-    let headHtml = ''; 
+    const items = [
+        { id: 'item_penlight', name: '筆燈', icon: '🔦' },
+        { id: 'item_hammer', name: '扣診錘', icon: '🔨' },
+        { id: 'item_fork', name: '音叉', icon: '🧲' }
+    ];
+    
+    let hasStartedQuest = Array.isArray(window.playerFoundItems);
+    let isQuestActive = hasStartedQuest && !window.playerFoundItems.includes('DONE');
+    let headHtml = ''; 
 
-    items.forEach(item => {
-        const el = document.getElementById(`npc-node-${item.id}`);
-        if (el) {
-            if (isQuestActive && !window.playerFoundItems.includes(item.name)) {
-                el.style.display = 'flex';
-                el.setAttribute('data-interactable', 'true');
-            } else {
-                el.style.display = 'none'; 
-                el.setAttribute('data-interactable', 'false');
-            }
-        }
-        
-        if (isQuestActive && window.playerFoundItems.includes(item.name)) {
-            headHtml += `<span style="display:inline-block; animation: bounce 1.5s infinite alternate ease-in-out;">${item.icon}</span>`;
-        }
-    });
-    
-    const pItems = document.getElementById('player-items');
-    if (pItems) pItems.innerHTML = headHtml;
+    items.forEach(item => {
+        const el = document.getElementById(`npc-node-${item.id}`);
+        if (el) {
+            if (isQuestActive && !window.playerFoundItems.includes(item.name)) {
+                el.style.display = 'block';
+                el.setAttribute('data-interactable', 'true');
+            } else {
+                el.style.display = 'none'; 
+                el.setAttribute('data-interactable', 'false');
+            }
+        }
+        
+        if (isQuestActive && window.playerFoundItems.includes(item.name)) {
+            headHtml += `<span style="display:inline-block; animation: bounce 1.5s infinite alternate ease-in-out;">${item.icon}</span>`;
+        }
+    });
+    
+    const pItems = document.getElementById('player-items');
+    if (pItems) pItems.innerHTML = headHtml;
 
-    if (typeof task !== 'undefined' && task.npcs) {
-        let docNpc = task.npcs.find(n => n.id === 'npc_continue');
-        if (docNpc) {
-            if (!hasStartedQuest || window.playerFoundItems.includes('DONE')) {
-                docNpc.dialogs[0].text = "大腦的救援從未停止。準備好接取今天的醫院任務了嗎？";
-            } 
-            else if (window.playerFoundItems.length < 3) {
-                docNpc.dialogs[0].text = `你目前找到了 ${window.playerFoundItems.length} 樣法寶，還有遺漏的喔！去 1F急診、11F病房、6F教學室 仔細找找吧！`;
-            } 
-            else if (window.playerFoundItems.length === 3) {
-                docNpc.dialogs[0].text = "太棒了！三樣法寶都找齊了，趕快點擊確認交給我吧！";
-            }
-        }
-    }
+    if (typeof task !== 'undefined' && task.npcs) {
+        let docNpc = task.npcs.find(n => n.id === 'npc_continue');
+        if (docNpc) {
+            if (!hasStartedQuest || window.playerFoundItems.includes('DONE')) {
+                docNpc.dialogs[0].text = "大腦的救援從未停止。準備好接取今天的醫院任務了嗎？";
+            } 
+            else if (window.playerFoundItems.length < 3) {
+                docNpc.dialogs[0].text = `你目前找到了 ${window.playerFoundItems.length} 樣法寶，還有遺漏的喔！去 1F急診、11F病房、6F教學室 仔細找找吧！`;
+            } 
+            else if (window.playerFoundItems.length === 3) {
+                docNpc.dialogs[0].text = "太棒了！三樣法寶都找齊了，趕快點擊確認交給我吧！";
+            }
+        }
+    }
 }
 
 let typeIndex = 0;
 function typeWriter() {
-  const introStr = task.intro || "任務準備中...";
-  if (typeIndex < introStr.length) {
-    let char = introStr.charAt(typeIndex);
-    document.getElementById('typewriterText').innerHTML += (char === '\n') ? '<br>' : char;
-    typeIndex++;
-    setTimeout(typeWriter, 80); 
-  } else {
-    document.getElementById('btnStartGame').classList.add('show');
-  }
+  const introStr = task.intro || "任務準備中...";
+  if (typeIndex < introStr.length) {
+    let char = introStr.charAt(typeIndex);
+    document.getElementById('typewriterText').innerHTML += (char === '\n') ? '<br>' : char;
+    typeIndex++;
+    setTimeout(typeWriter, 80); 
+  } else {
+    document.getElementById('btnStartGame').classList.add('show');
+  }
 }
 
 function updateCamera() {
-  const yOffset = (missionStage >= 0 && taskId !== 'hub_world') ? 50 : 0; 
-  const cx = window.innerWidth / 2 - state.x;
-  const cy = window.innerHeight / 2 + yOffset - state.y;
-  document.getElementById('camera').style.transform = `translate(${cx}px, ${cy}px)`;
+  const yOffset = (missionStage >= 0 && taskId !== 'hub_world') ? 50 : 0; 
+  const cx = window.innerWidth / 2 - state.x;
+  const cy = window.innerHeight / 2 + yOffset - state.y;
+  document.getElementById('camera').style.transform = `translate(${cx}px, ${cy}px)`;
 }
 
 window.onload = () => {
-  document.getElementById('player').style.left = state.x + 'px'; 
-  document.getElementById('player').style.top = state.y + 'px'; 
+  document.getElementById('player').style.left = state.x + 'px'; 
+  document.getElementById('player').style.top = state.y + 'px'; 
 
-  if (taskId === 'beg_id_0' && task.npcs) {
-    const targetNpc = task.npcs.find(n => n.id === 'patient');
-    if (targetNpc) {
-      const cx = window.innerWidth / 2 - targetNpc.pos.x;
-      const cy = window.innerHeight / 2 - targetNpc.pos.y;
-      document.getElementById('camera').style.transform = `translate(${cx}px, ${cy}px)`;
-    } else { updateCamera(); }
-  } else { updateCamera(); }
+  if (taskId === 'beg_id_0' && task.npcs) {
+    const targetNpc = task.npcs.find(n => n.id === 'patient');
+    if (targetNpc) {
+      const cx = window.innerWidth / 2 - targetNpc.pos.x;
+      const cy = window.innerHeight / 2 - targetNpc.pos.y;
+      document.getElementById('camera').style.transform = `translate(${cx}px, ${cy}px)`;
+    } else { updateCamera(); }
+  } else { updateCamera(); }
 
-  if (isFsMode) document.getElementById('btnFsToggle').innerHTML = "🗗";
+  if (isFsMode) document.getElementById('btnFsToggle').innerHTML = "🗗";
 
-  if (taskId === 'hub_world' && !isFirstTask) {
-    document.getElementById('storyIntro').style.display = 'none';
-    document.getElementById('player').style.opacity = '1';
-    document.getElementById('btnFsToggle').style.display = 'flex';
-    document.getElementById('btnReturnLobby').style.display = 'block';
-    missionStage = 0;
-    gameActive = true;
-  } else {
-    setTimeout(typeWriter, 600); 
-  }
+  if (taskId === 'hub_world' && !isFirstTask) {
+    document.getElementById('storyIntro').style.display = 'none';
+    document.getElementById('player').style.opacity = '1';
+    document.getElementById('btnFsToggle').style.display = 'flex';
+    document.getElementById('btnReturnLobby').style.display = 'block';
+    missionStage = 0;
+    gameActive = true;
+  } else {
+    setTimeout(typeWriter, 600); 
+  }
 
-  if (window.parent !== window) {
-    window.parent.postMessage({ type: 'MAP_READY' }, '*');
-  }
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'MAP_READY' }, '*');
+  }
 };
 
 function startExplore() {
-  document.getElementById('storyIntro').style.opacity = '0';
-  
-  if (taskId !== 'hub_world' && !isFsMode) {
-    isFsMode = true;
-    document.getElementById('btnFsToggle').innerHTML = "🗗";
-    window.parent.postMessage({type: 'TOGGLE_FULLSCREEN', isFullscreen: true}, '*');
-  }
+  document.getElementById('storyIntro').style.opacity = '0';
+  
+  if (taskId !== 'hub_world' && !isFsMode) {
+    isFsMode = true;
+    document.getElementById('btnFsToggle').innerHTML = "🗗";
+    window.parent.postMessage({type: 'TOGGLE_FULLSCREEN', isFullscreen: true}, '*');
+  }
 
-  setTimeout(() => {
-    document.getElementById('storyIntro').style.display = 'none';
-    document.getElementById('player').style.opacity = '1';
-    
-    if (taskId === 'hub_world') {
-      document.getElementById('btnFsToggle').style.display = 'flex';
-      document.getElementById('btnReturnLobby').style.display = 'block';
-    } else {
-      document.getElementById('btnFsToggle').style.display = 'none';
-      document.getElementById('btnReturnLobby').style.display = 'none';
-    }
-    
-    if (taskId !== 'hub_world') {
-      document.getElementById('uiHeader').style.display = 'flex';
-      setTimeout(() => { document.getElementById('uiHeader').style.opacity = '1'; }, 50);
-    }
-    
-    missionStage = 0; gameActive = true; updateCamera(); 
-  }, 500);
+  setTimeout(() => {
+    document.getElementById('storyIntro').style.display = 'none';
+    document.getElementById('player').style.opacity = '1';
+    
+    if (taskId === 'hub_world') {
+      document.getElementById('btnFsToggle').style.display = 'flex';
+      document.getElementById('btnReturnLobby').style.display = 'block';
+    } else {
+      document.getElementById('btnFsToggle').style.display = 'none';
+      document.getElementById('btnReturnLobby').style.display = 'none';
+    }
+    
+    if (taskId !== 'hub_world') {
+      document.getElementById('uiHeader').style.display = 'flex';
+      setTimeout(() => { document.getElementById('uiHeader').style.opacity = '1'; }, 50);
+    }
+    
+    missionStage = 0; gameActive = true; updateCamera(); 
+  }, 500);
 }
 
 function toggleFs() {
-  isFsMode = !isFsMode;
-  const btn = document.getElementById('btnFsToggle');
-  btn.innerHTML = isFsMode ? "🗗" : "⛶";
-  window.parent.postMessage({type: 'TOGGLE_FULLSCREEN', isFullscreen: isFsMode}, '*');
-  handleEnd();
+  isFsMode = !isFsMode;
+  const btn = document.getElementById('btnFsToggle');
+  btn.innerHTML = isFsMode ? "🗗" : "⛶";
+  window.parent.postMessage({type: 'TOGGLE_FULLSCREEN', isFullscreen: isFsMode}, '*');
+  handleEnd();
 }
 
 function returnToLobby() {
-  if (taskId !== 'hub_world') {
-    window.parent.postMessage({type:'CLOSE_IFRAME'}, '*');
-  } else {
-    document.getElementById('elevatorModal').style.display = 'none';
-    document.getElementById('dialogBox').style.display = 'none';
-    velocity = {x:0, y:0}; isDragging = false;
-    document.getElementById('joystickBase').style.display = 'none';
-    state.x = 800; state.y = 600; 
-    document.getElementById('player').style.left = state.x + 'px'; 
-    document.getElementById('player').style.top = state.y + 'px'; 
-    updateCamera(); gameActive = true; currentNpc = null; missionStage = 0;
-  }
+  if (taskId !== 'hub_world') {
+    window.parent.postMessage({type:'CLOSE_IFRAME'}, '*');
+  } else {
+    document.getElementById('elevatorModal').style.display = 'none';
+    document.getElementById('dialogBox').style.display = 'none';
+    velocity = {x:0, y:0}; isDragging = false;
+    document.getElementById('joystickBase').style.display = 'none';
+    state.x = 1500; state.y = -600; 
+    document.getElementById('player').style.left = state.x + 'px'; 
+    document.getElementById('player').style.top = state.y + 'px'; 
+    updateCamera(); gameActive = true; currentNpc = null; missionStage = 0;
+  }
 }
 
 // ==========================================
 // 互動對話與電梯邏輯
 // ==========================================
 function startNpcDialog(npc) {
-  currentNpc = npc; currentDialogIndex = 0; showDialog();
+  currentNpc = npc; currentDialogIndex = 0; showDialog();
 }
 
 function showDialog() {
-  gameActive = false; velocity = {x:0, y:0};
-  document.getElementById('joystickBase').style.display = 'none';
-  document.getElementById('dialogBox').style.display = 'flex';
-  
-  if (currentNpc.id === 'obj_tablet') {
-      let dailyCount = window.playerDailyExplores ? window.playerDailyExplores.count : 0;
-      let remain = 3 - dailyCount;
-      if (remain > 0) currentNpc.dialogs[0].text = `今日可執行：${remain} 個任務 \n\n💡 請前往大廳找主治醫師接取！`;
-      else currentNpc.dialogs[0].text = `今日無法任務\n\n您可以自由探索，或前往 6F教學室、14F衛教室學習！`;
-      currentNpc.action = 'NONE';
-  }
-  else if (currentNpc.id === 'obj_wardrobe') {
-      currentNpc.dialogs[0].name = '系統提示';
-      currentNpc.dialogs[0].text = '這是員工專屬的更衣櫃。\n你可以在這裡換上從「1F 便利商店」購買的各種醫護服裝！\n\n要打開更衣櫃嗎？';
-  }
-  
-  const d = currentNpc.dialogs[currentDialogIndex];
-  document.getElementById('dialogName').innerText = d.name;
-  document.getElementById('dialogName').style.color = (d.name === task.roleName) ? '#4CAF50' : currentNpc.color;
-  document.getElementById('dialogText').innerText = d.text;
+  gameActive = false; velocity = {x:0, y:0};
+  document.getElementById('joystickBase').style.display = 'none';
+  document.getElementById('dialogBox').style.display = 'flex';
+  
+  if (currentNpc.id === 'obj_tablet') {
+      let dailyCount = window.playerDailyExplores ? window.playerDailyExplores.count : 0;
+      let remain = 3 - dailyCount;
+      if (remain > 0) currentNpc.dialogs[0].text = `今日可執行：${remain} 個任務 \n\n💡 請前往大廳找主治醫師接取！`;
+      else currentNpc.dialogs[0].text = `今日無法任務\n\n您可以自由探索，或前往 6F教學室、14F衛教室學習！`;
+      currentNpc.action = 'NONE';
+  }
+  else if (currentNpc.id === 'obj_wardrobe') {
+      currentNpc.dialogs[0].name = '系統提示';
+      currentNpc.dialogs[0].text = '這是員工專屬的更衣櫃。\n你可以在這裡換上從「1F 便利商店」購買的各種醫護服裝！\n\n要打開更衣櫃嗎？';
+  }
+  
+  const d = currentNpc.dialogs[currentDialogIndex];
+  document.getElementById('dialogName').innerText = d.name;
+  document.getElementById('dialogName').style.color = (d.name === task.roleName) ? '#4CAF50' : currentNpc.color;
+  document.getElementById('dialogText').innerText = d.text;
 
-  if (currentDialogIndex === currentNpc.dialogs.length - 1) {
-    if (currentNpc.action === 'NONE') {
-      document.getElementById('btnCancelDialog').style.display = 'none'; 
-      document.getElementById('btnNextDialog').innerText = '關閉';
-    } else {
-      document.getElementById('btnCancelDialog').style.display = 'block';
-      if (currentNpc.id === 'obj_wardrobe') {
-          document.getElementById('btnCancelDialog').innerText = '關閉'; document.getElementById('btnNextDialog').innerText = '開啟';
-      } else if (currentNpc.id === 'npc_continue') {
-          document.getElementById('btnCancelDialog').innerText = '離開';
-          if (window.playerFoundItems && window.playerFoundItems.length === 3 && !window.playerFoundItems.includes('DONE')) document.getElementById('btnNextDialog').innerText = '領取獎勵';
-          else if (window.playerFoundItems && window.playerFoundItems.length > 0 && !window.playerFoundItems.includes('DONE')) document.getElementById('btnNextDialog').innerText = '繼續尋找';
-          else document.getElementById('btnNextDialog').innerText = '接受任務';
-      } else if (currentNpc.id === 'obj_tv') {
-          document.getElementById('btnCancelDialog').innerText = '算了'; document.getElementById('btnNextDialog').innerText = '開啟影片';
-      } else {
-          document.getElementById('btnCancelDialog').innerText = '離開'; document.getElementById('btnNextDialog').innerText = '確認前往';
-      }
-    }
-  } else {
-    document.getElementById('btnCancelDialog').style.display = 'block'; document.getElementById('btnNextDialog').innerText = '繼續';
-  }
+  if (currentDialogIndex === currentNpc.dialogs.length - 1) {
+    if (currentNpc.action === 'NONE') {
+      document.getElementById('btnCancelDialog').style.display = 'none'; 
+      document.getElementById('btnNextDialog').innerText = '關閉';
+    } else {
+      document.getElementById('btnCancelDialog').style.display = 'block';
+      if (currentNpc.id === 'obj_wardrobe') {
+          document.getElementById('btnCancelDialog').innerText = '關閉'; document.getElementById('btnNextDialog').innerText = '開啟';
+      } else if (currentNpc.id === 'npc_continue') {
+          document.getElementById('btnCancelDialog').innerText = '離開';
+          if (window.playerFoundItems && window.playerFoundItems.length === 3 && !window.playerFoundItems.includes('DONE')) document.getElementById('btnNextDialog').innerText = '領取獎勵';
+          else if (window.playerFoundItems && window.playerFoundItems.length > 0 && !window.playerFoundItems.includes('DONE')) document.getElementById('btnNextDialog').innerText = '繼續尋找';
+          else document.getElementById('btnNextDialog').innerText = '接受任務';
+      } else if (currentNpc.id === 'obj_tv') {
+          document.getElementById('btnCancelDialog').innerText = '算了'; document.getElementById('btnNextDialog').innerText = '開啟影片';
+      } else {
+          document.getElementById('btnCancelDialog').innerText = '離開'; document.getElementById('btnNextDialog').innerText = '確認前往';
+      }
+    }
+  } else {
+    document.getElementById('btnCancelDialog').style.display = 'block'; document.getElementById('btnNextDialog').innerText = '繼續';
+  }
 }
 
 function stepBackFromNpc() {
-  if (currentNpc) {
-    const dx = state.x - currentNpc.pos.x; const dy = state.y - currentNpc.pos.y; const dist = Math.hypot(dx, dy) || 1;
-    let newX = state.x + (dx / dist) * 40; let newY = state.y + (dy / dist) * 40;
-    if (canMoveTo(newX, newY)) { state.x = newX; state.y = newY; } else { state.y += 40; }
-    updateCamera();
-  }
+  if (currentNpc) {
+    const dx = state.x - currentNpc.pos.x; const dy = state.y - currentNpc.pos.y; const dist = Math.hypot(dx, dy) || 1;
+    let newX = state.x + (dx / dist) * 40; let newY = state.y + (dy / dist) * 40;
+    if (canMoveTo(newX, newY)) { state.x = newX; state.y = newY; } else { state.y += 40; }
+    updateCamera();
+  }
 }
 
 document.getElementById('btnCancelDialog').onclick = () => {
-  document.getElementById('dialogBox').style.display = 'none'; stepBackFromNpc(); missionStage = 0; 
-  setTimeout(() => { gameActive = true; currentNpc = null; }, 300);
+  document.getElementById('dialogBox').style.display = 'none'; stepBackFromNpc(); missionStage = 0; 
+  setTimeout(() => { gameActive = true; currentNpc = null; }, 300);
 };
 
 document.getElementById('btnNextDialog').onclick = () => {
-  currentDialogIndex++;
-  if (currentDialogIndex < currentNpc.dialogs.length) showDialog();
-  else { document.getElementById('dialogBox').style.display = 'none'; finishNpcDialog(); }
+  currentDialogIndex++;
+  if (currentDialogIndex < currentNpc.dialogs.length) showDialog();
+  else { document.getElementById('dialogBox').style.display = 'none'; finishNpcDialog(); }
 };
 
 function finishNpcDialog() {
-  if (currentNpc.action && currentNpc.action.startsWith('ACTION_')) {
-    if (currentNpc.action.startsWith('ACTION_FIND_')) {
-        const node = document.getElementById(`npc-node-${currentNpc.id}`); if(node) node.style.display = 'none';
-    }
-    window.parent.postMessage({type: currentNpc.action}, '*');
-    stepBackFromNpc(); missionStage = 0; 
-    setTimeout(() => { gameActive = true; currentNpc = null; }, 800);
-  } 
-  else if (currentNpc.action === 'PLAY_ANIMATION') {
-    missionStage = 2; 
-    if (task.gameUrl) { document.getElementById('animScreen').style.display = 'flex'; document.getElementById('animFrame').src = task.gameUrl; } 
-    else { window.parent.postMessage({ type: 'GAME_CLEAR', score: 1000 }, '*'); }
-  } 
-  else {
-    stepBackFromNpc(); missionStage = 0; 
-    setTimeout(() => { gameActive = true; currentNpc = null; }, 300);
-  }
+  if (currentNpc.action && currentNpc.action.startsWith('ACTION_')) {
+    if (currentNpc.action.startsWith('ACTION_FIND_')) {
+        const node = document.getElementById(`npc-node-${currentNpc.id}`); if(node) node.style.display = 'none';
+    }
+    window.parent.postMessage({type: currentNpc.action}, '*');
+    stepBackFromNpc(); missionStage = 0; 
+    setTimeout(() => { gameActive = true; currentNpc = null; }, 800);
+  } 
+  else if (currentNpc.action === 'PLAY_ANIMATION') {
+    missionStage = 2; 
+    if (task.gameUrl) { document.getElementById('animScreen').style.display = 'flex'; document.getElementById('animFrame').src = task.gameUrl; } 
+    else { window.parent.postMessage({ type: 'GAME_CLEAR', score: 1000 }, '*'); }
+  } 
+  else {
+    stepBackFromNpc(); missionStage = 0; 
+    setTimeout(() => { gameActive = true; currentNpc = null; }, 300);
+  }
 }
 
 function showElevatorMenu() { gameActive = false; velocity = {x:0, y:0}; document.getElementById('joystickBase').style.display = 'none'; document.getElementById('elevatorModal').style.display = 'flex'; }
 function closeElevator() { document.getElementById('elevatorModal').style.display = 'none'; state.y += 60; updateCamera(); setTimeout(()=> { gameActive = true; }, 300); }
 function goToFloor(f) {
-    document.getElementById('elevatorModal').style.display = 'none';
-    
-    // 這裡可以根據你新地圖的樓層設定傳送坐標
-    let target = {x: 800, y: 600}; 
-    
-    state.x = target.x; state.y = target.y + 80; updateCamera(); setTimeout(()=> { gameActive = true; }, 300);
+    document.getElementById('elevatorModal').style.display = 'none';
+    let target = {x: 1850, y: -1150}; 
+    if(f===14) target = {x: 35400, y: -1140};
+    if(f===11) target = {x: 2125, y: 1975}; 
+    if(f===6)  target = {x: 30400, y: -1140};
+    if(f===5)  target = {x: 25400, y: -1140};
+    if(f===4)  target = {x: 20400, y: -1140};
+    if(f===3)  target = {x: 15400, y: -1140};
+    if(f===2)  target = {x: 10400, y: -1140};
+    if(f===1)  target = {x: 1850, y: -1150}; 
+    
+    state.x = target.x; state.y = target.y + 80; updateCamera(); setTimeout(()=> { gameActive = true; }, 300);
 }
-    
+    
 // ==========================================
-// ★ 物理阻擋邏輯 (已全面解禁)
+// 物理阻擋邏輯
 // ==========================================
+const solidBlocks = [
+  {x: 1350, y: -900, w: 300, h: 100},   
+  {x: 2000, y: 400, w: 320, h: 450}, {x: 2000, y: 1000, w: 320, h: 750}, {x: 2050, y: 850, w: 270, h: 10}, {x: 2050, y: 990, w: 270, h: 10},
+  {x: 2310, y: 850, w: 10, h: 150}, {x: 1750, y: 180, w: 250, h: 200}, {x: 1590, y: 825, w: 270, h: 245}, {x: 1800, y: 1140, w: 50, h: 250},
+  {x: 950, y: 1420, w: 380, h: 175}, {x: 1330, y: 1420, w: 10, h: 10}, {x: 1420, y: 1420, w: 320, h: 10}, {x: 1330, y: 1585, w: 410, h: 10},
+  {x: 1730, y: 1420, w: 10, h: 170}, {x: 950, y: 1590, w: 810, h: 160}, {x: 400, y: 1850, w: 1310, h: 350}, {x: 1710, y: 2150, w: 790, h: 50}
+   // ★ 新增：急診 Trauma 區下方的實體牆 (中間 300px，擋住不讓走)
+  // 左門在 x=3500~3600 (不擋)，右門在 x=3800~3900 (不擋)
+  {x: 3600, y: -610, w: 300, h: 20}
+];
+
 function canMoveTo(x, y) {
-  const r = 20; 
-  
-  // 因為地圖已經改為整張圖片 (4000x3000)，
-  // 所以先把整個畫布範圍都設定為「可行走」，避免卡在牆壁裡無法移動。
-  // 若之後需要設定精確的障礙物，可以再把 solidBlocks 加回來。
-  
-  if (x > r && x < 4000 - r && y > r && y < 3000 - r) {
-      return true;
-  }
-  
-  return false;
+  const r = 20; let isWalkable = false;
+  
+  const walkableZones = [
+    {x: 1000, y: -1200, w: 1000, h: 800}, {x: 1300, y: -250,  w: 400,  h: 300}, 
+    {x: 450,  y: -1000, w: 400,  h: 400}, 
+    
+    // ★ 更新：門診藥局 (高度擴展至 800)
+    {x: 2150, y: -1200, w: 400, h: 800}, 
+
+    // ★ 更新：超大型急診室 (1200x800)
+    {x: 2700, y: -1200, w: 1200, h: 800}, 
+
+    // ★ 新增：連接門診藥局與急診室的雙通道
+    {x: 2534, y: -1100, w: 182, h: 120},  // 上方通道 (MRI旁)
+    {x: 2534, y: -550, w: 182, h: 150},   // 下方通道 (CT旁)
+
+    {x: 1425, y: -450, w: 150, h: 250},   {x: 800,  y: -950, w: 250, h: 200},   
+    {x: 1950, y: -950, w: 250, h: 200},   {x: 2500, y: -950, w: 250, h: 200},
+    // ... 其餘的高樓層區塊保持不變 ...
+    {x: 1000, y: -1200, w: 1000, h: 800}, {x: 1300, y: -250,  w: 400,  h: 300}, {x: 450,  y: -1000, w: 400,  h: 400}, {x: 2150, y: -1000, w: 400,  h: 400}, {x: 2700, y: -1100, w: 500,  h: 600},
+    {x: 1425, y: -450, w: 150, h: 250},   {x: 800,  y: -950, w: 250, h: 200},   {x: 1950, y: -950, w: 250, h: 200},   {x: 2500, y: -950, w: 250, h: 200},
+    {x: 10000, y: -1200, w: 800, h: 600},  {x: 15000, y: -1200, w: 800, h: 600},  {x: 20000, y: -1200, w: 800, h: 600},  {x: 25000, y: -1200, w: 800, h: 600},  {x: 30000, y: -1200, w: 800, h: 600},  {x: 35000, y: -1200, w: 800, h: 600}  
+  ];
+
+  for (let z of walkableZones) { if (x > z.x + r && x < z.x + z.w - r && y > z.y + r && y < z.y + z.h - r) { isWalkable = true; break; } }
+  if (!isWalkable) {
+    if (x > 350+r && x < 2500-r && y > 150+r && y < 2200-r) {
+      let diagLine = x + y; let distAlong = (x - y + 1300) * 0.707;
+      if (!(distAlong > 0 && distAlong < 2200 && diagLine < 2200 + r && diagLine > 1850 - r)) isWalkable = true;
+    }
+  }
+
+  if (!isWalkable) return false; 
+  if (x > 1200 - r && x < 1400 + r && Math.abs(y - (-0.93*x + 2365)) < 40) return false; 
+  for (let b of solidBlocks) { if (x+r > b.x && x-r < b.x+b.w && y+r > b.y && y-r < b.y+b.h) return false; }
+  
+  return true;
 }
 
-// 暫時在起點附近放一個電梯觸發點供測試 (原本都是舊的負數坐標)
-const elevatorZones = [ {x: 900, y: 500} ]; 
+const elevatorZones = [ {x: 1850, y: -1150}, {x: 2125, y: 1975}, {x: 10400, y: -1140}, {x: 15400, y: -1140}, {x: 20400, y: -1140}, {x: 25400, y: -1140}, {x: 30400, y: -1140}, {x: 35400, y: -1140} ];
 
 function gameLoop() {
-  if (gameActive) {
-    if (velocity.x || velocity.y) {
-      if (canMoveTo(state.x + velocity.x, state.y)) state.x += velocity.x;
-      if (canMoveTo(state.x, state.y + velocity.y)) state.y += velocity.y;
-    }
-    
-    document.getElementById('player').style.left = state.x + 'px'; 
-    document.getElementById('player').style.top = state.y + 'px'; 
-    updateCamera();
-    
-    if (velocity.x || velocity.y) {
-      let touchedElevator = false;
-      for(let z of elevatorZones) {
-         if (Math.hypot(state.x - z.x, state.y - z.y) < 50) { showElevatorMenu(); touchedElevator = true; break; }
-      }
+  if (gameActive) {
+    if (velocity.x || velocity.y) {
+      if (canMoveTo(state.x + velocity.x, state.y)) state.x += velocity.x;
+      if (canMoveTo(state.x, state.y + velocity.y)) state.y += velocity.y;
+    }
+    
+    document.getElementById('player').style.left = state.x + 'px'; 
+    document.getElementById('player').style.top = state.y + 'px'; 
+    updateCamera();
+    
+    if (velocity.x || velocity.y) {
+      let touchedElevator = false;
+      for(let z of elevatorZones) {
+         if (Math.hypot(state.x - z.x, state.y - z.y) < 50) { showElevatorMenu(); touchedElevator = true; break; }
+      }
 
-      if (!touchedElevator && missionStage === 0 && task.npcs) {
-        for (let n of task.npcs) {
-          const el = document.getElementById(`npc-node-${n.id}`);
-          if (el && el.getAttribute('data-interactable') === 'false') continue;
-          if (Math.hypot(state.x - n.pos.x, state.y - n.pos.y) < 70) { missionStage = 1; startNpcDialog(n); break; }
-        }
-      }
-    }
-  }
-  requestAnimationFrame(gameLoop);
+      if (!touchedElevator && missionStage === 0 && task.npcs) {
+        for (let n of task.npcs) {
+          const el = document.getElementById(`npc-node-${n.id}`);
+          if (el && el.getAttribute('data-interactable') === 'false') continue;
+          if (Math.hypot(state.x - n.pos.x, state.y - n.pos.y) < 70) { missionStage = 1; startNpcDialog(n); break; }
+        }
+      }
+    }
+  }
+  requestAnimationFrame(gameLoop);
 }
 requestAnimationFrame(gameLoop);
 
 // ==========================================
-// 搖桿控制 
+// 搖桿控制 
 // ==========================================
 let isDragging = false, startT = {x:0, y:0};
 
 const handleStart = (e) => {
-  if (!gameActive) return;
-  if(e.target.tagName.toLowerCase() === 'button' || e.target.closest('button')) return;
-  let clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-  let clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-  isDragging = true; startT = {x: clientX, y: clientY};
-  
-  const jBase = document.getElementById('joystickBase');
-  jBase.style.left = startT.x + 'px'; jBase.style.top = startT.y + 'px'; jBase.style.display = 'block';
-  document.getElementById('joystickKnob').style.transform = `translate(-50%, -50%)`;
+  if (!gameActive) return;
+  if(e.target.tagName.toLowerCase() === 'button' || e.target.closest('button')) return;
+  let clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+  let clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+  isDragging = true; startT = {x: clientX, y: clientY};
+  
+  const jBase = document.getElementById('joystickBase');
+  jBase.style.left = startT.x + 'px'; jBase.style.top = startT.y + 'px'; jBase.style.display = 'block';
+  document.getElementById('joystickKnob').style.transform = `translate(-50%, -50%)`;
 };
 
 const handleMove = (e) => {
-  if (!isDragging || !gameActive) return;
-  e.preventDefault(); 
-  let clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-  let clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-  const dx = clientX - startT.x, dy = clientY - startT.y, dist = Math.hypot(dx, dy);
-  if (dist === 0) return;
+  if (!isDragging || !gameActive) return;
+  e.preventDefault(); 
+  let clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+  let clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+  const dx = clientX - startT.x, dy = clientY - startT.y, dist = Math.hypot(dx, dy);
+  if (dist === 0) return;
 
-  const move = Math.min(dist, 50);
-  document.getElementById('joystickKnob').style.transform = `translate(calc(-50% + ${dx/dist*move}px), calc(-50% + ${dy/dist*move}px))`;
-  velocity.x = (dx/dist) * speed * Math.min(dist/50, 1); velocity.y = (dy/dist) * speed * Math.min(dist/50, 1);
+  const move = Math.min(dist, 50);
+  document.getElementById('joystickKnob').style.transform = `translate(calc(-50% + ${dx/dist*move}px), calc(-50% + ${dy/dist*move}px))`;
+  velocity.x = (dx/dist) * speed * Math.min(dist/50, 1); velocity.y = (dy/dist) * speed * Math.min(dist/50, 1);
 };
 
 const handleEnd = () => { isDragging = false; velocity = {x:0, y:0}; document.getElementById('joystickBase').style.display = 'none'; };
