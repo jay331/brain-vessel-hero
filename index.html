@@ -20,72 +20,75 @@ input, select { font-family: inherit; background: rgba(0,0,0,0.6); border: 1px s
 input[type="checkbox"] { width: auto; }
 .app { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; }
 
-/* ===== HUD 標題列 ===== */
-header { padding: 4px 8px; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(180deg, rgba(0,0,0,0.9), rgba(0,0,0,0.5)); border-bottom: 1px solid var(--theme-dim); z-index: 100; flex-shrink: 0; backdrop-filter: blur(4px); }
-.player-info { display: flex; align-items: center; gap: 8px; }
-.avatar-wrap { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--theme-primary); background: #000; overflow: hidden; position: relative; cursor: pointer;}
+/* ===== HUD 標題列 (優化排版) ===== */
+header { padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(180deg, rgba(0,0,0,0.9), rgba(0,0,0,0.5)); border-bottom: 1px solid var(--theme-dim); z-index: 100; flex-shrink: 0; backdrop-filter: blur(4px); }
+.player-info { display: flex; align-items: center; gap: 10px; }
+.avatar-wrap { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--theme-primary); background: #000; overflow: hidden; position: relative; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.5);}
 .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
-.player-text-wrap { display: flex; flex-direction: column; justify-content: center; gap: 2px; }
-.player-name { font-size: 11px; font-weight: bold; color: #fff; cursor: pointer; padding: 2px 4px; border-radius: 4px; transition: background 0.2s;} 
-.player-name:active { background: rgba(255,255,255,0.1); }
-.segment-ctrl { display: flex; background: rgba(0,0,0,0.6); border-radius: 6px; padding: 2px; border: 1px solid var(--theme-dim); margin-left: 6px; }
-.segment-btn { padding: 2px 8px; font-size: 10px; color: #aaa; border-radius: 4px; cursor: pointer; transition: all 0.2s; font-weight: bold; }
+.player-text-wrap { display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+.player-name { font-size: 14px; font-weight: bold; color: #fff; cursor: pointer; transition: color 0.2s;} 
+.player-name:active { color: var(--theme-primary); }
+.segment-ctrl { display: flex; background: rgba(0,0,0,0.6); border-radius: 6px; padding: 3px; border: 1px solid var(--theme-dim); }
+.segment-btn { padding: 3px 12px; font-size: 11px; color: #aaa; border-radius: 4px; cursor: pointer; transition: all 0.2s; font-weight: bold; }
 .segment-btn.active { background: var(--theme-primary); color: var(--btn-text); box-shadow: 0 1px 3px rgba(0,0,0,0.5); }
-.resources { display: flex; flex-direction: row; align-items: center; gap: 4px; flex-shrink: 0; }
-.res-item { display: flex; align-items: center; gap: 4px; font-weight: 900; font-size: 11px; background: rgba(0,0,0,0.6); padding: 4px 6px; border-radius: 99px; border: 1px solid var(--theme-dim); box-shadow: 0 2px 5px rgba(0,0,0,0.5); white-space: nowrap; }
-.green-coin { display: inline-flex; align-items: center; justify-content: center; width: 12px; height: 12px; background: linear-gradient(180deg, #3dff8e, #0eb855); border-radius: 50%; color: #000; font-size: 9px; }
+.resources { display: flex; flex-direction: row; align-items: center; gap: 6px; flex-shrink: 0; }
+.res-item { display: flex; align-items: center; gap: 4px; font-weight: 900; font-size: 12px; background: rgba(0,0,0,0.6); padding: 5px 10px; border-radius: 99px; border: 1px solid var(--theme-dim); box-shadow: 0 2px 5px rgba(0,0,0,0.5); white-space: nowrap; }
+.green-coin { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; background: linear-gradient(180deg, #3dff8e, #0eb855); border-radius: 50%; color: #000; font-size: 10px; }
+
+/* 模式切換按鈕 (移至 Header 內) */
+.mode-toggle-btn { background: linear-gradient(135deg, var(--theme-dim), #111); color: var(--theme-primary); border-color: var(--theme-primary); cursor: pointer; transition: transform 0.2s; }
+.mode-toggle-btn:active { transform: scale(0.95); }
 
 /* ===== 佈局與背景 ===== */
 .wrap { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0; }
 .stage { position: relative; width: 100%; height: 100%; overflow: hidden; display: flex; flex-direction: column; background: radial-gradient(circle at 50% 30%, var(--theme-bg), rgba(0,0,0,0.95)), linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.98)), url('https://images.unsplash.com/photo-1551076805-e1869033e561?q=80&w=800&auto=format&fit=crop') center/cover no-repeat; }
 @media (min-width: 481px) { .wrap { padding: 20px; background: #111; } .stage { max-width: 414px; max-height: 896px; border-radius: 16px; border: 2px solid var(--theme-dim); box-shadow: 0 0 30px var(--theme-bg); } }
-.screen { position: absolute; inset: 0; display: none; flex-direction: column; z-index: 10; padding: 10px; padding-bottom: 75px; overflow-y: auto; }
+.screen { position: absolute; inset: 0; display: none; flex-direction: column; z-index: 10; padding: 12px; padding-bottom: 85px; overflow-y: auto; }
 .screen.show { display: flex; }
 .screen.full-view { padding-top: 10px; padding-bottom: 10px; z-index: 200; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); }
 .fullscreen-map { position: fixed !important; inset: 0 !important; z-index: 4000 !important; border-radius: 0 !important; border: none !important; }
 
 /* ===== 元件 ===== */
-.panel { background: var(--theme-panel); border: 1px solid var(--theme-dim); border-radius: 10px; padding: 12px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; flex: 1; min-height: 0;}
-.panel h2 { color: var(--theme-primary); margin: 0 0 10px 0; font-size: 16px; text-align: center; border-bottom: 1px dashed var(--theme-dim); padding-bottom: 6px; flex-shrink: 0;}
-.btn { padding: 12px; border-radius: 6px; font-weight: 900; font-size: 15px; text-align: center; background: linear-gradient(180deg, #444, #222); color: #fff; border: 1px solid #666; width: 100%; cursor:pointer; flex-shrink: 0; transition: transform 0.1s;}
+.panel { background: var(--theme-panel); border: 1px solid var(--theme-dim); border-radius: 12px; padding: 15px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; flex: 1; min-height: 0;}
+.panel h2 { color: var(--theme-primary); margin: 0 0 12px 0; font-size: 18px; text-align: center; border-bottom: 1px dashed var(--theme-dim); padding-bottom: 8px; flex-shrink: 0;}
+.btn { padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; text-align: center; background: linear-gradient(180deg, #444, #222); color: #fff; border: 1px solid #666; width: 100%; cursor:pointer; flex-shrink: 0; transition: transform 0.1s;}
 .btn:active { transform: scale(0.95); }
 .btn-back { background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.6)); border: 1px solid var(--theme-dim); color: #fff; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 10px rgba(0,0,0,0.5); border-radius: 8px; transition: all 0.2s; flex-shrink: 0; }
 .btn-back:active { transform: scale(0.97); background: rgba(0,0,0,0.8); }
-.btn-rescue { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border: none; color: #004d26; font-weight: 900; text-shadow: 0 1px 1px rgba(255,255,255,0.4); padding: 12px; font-size: 13px; border-radius: 8px; box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4), inset 0 -3px 0 rgba(0,0,0,0.15); transition: all 0.2s; margin-bottom: 4px;}
+.btn-rescue { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border: none; color: #004d26; font-weight: 900; text-shadow: 0 1px 1px rgba(255,255,255,0.4); padding: 12px; font-size: 14px; border-radius: 8px; box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4), inset 0 -3px 0 rgba(0,0,0,0.15); transition: all 0.2s; margin-bottom: 4px;}
 
 /* ===== 主畫面 ===== */
 #scrHome { justify-content: flex-start; } 
 .linear-standby { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center; background: rgba(0,0,0,0.4); border-radius: 12px; border: 1px solid var(--theme-dim); padding: 15px; box-shadow: inset 0 0 30px rgba(0,0,0,0.5); margin-bottom: 10px; }
-.linear-standby h2 { color: var(--theme-primary); font-size: 22px; margin: 0 0 8px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
-.linear-standby p { color: #ccc; font-size: 13px; margin: 0 0 15px 0; line-height: 1.6; }
+.linear-standby h2 { color: var(--theme-primary); font-size: 24px; margin: 0 0 8px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+.linear-standby p { color: #ccc; font-size: 14px; margin: 0 0 15px 0; line-height: 1.6; }
 
 .subtask-list { display: flex; flex-direction: column; gap: 8px;}
-.subtask-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-radius: 8px; border: 1px solid var(--theme-dim); font-weight: bold; font-size: 14px; transition: all 0.2s; flex-shrink: 0;}
+.subtask-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 12px; border-radius: 8px; border: 1px solid var(--theme-dim); font-weight: bold; font-size: 15px; transition: all 0.2s; flex-shrink: 0;}
 .subtask-item.completed { background: rgba(255, 255, 255, 0.05); border-color: #444; color: #aaa; }
-.subtask-item.completed .status-text { color: var(--theme-primary); filter: drop-shadow(0 0 2px rgba(0,0,0,0.8)); font-size: 15px;}
+.subtask-item.completed .status-text { color: var(--theme-primary); filter: drop-shadow(0 0 2px rgba(0,0,0,0.8)); font-size: 16px;}
 .subtask-item.active { background: linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); border: 2px solid #fff; color: var(--btn-text); text-shadow: var(--btn-shadow); cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5), 0 0 15px var(--theme-primary); transform: scale(1.02); z-index:2; }
 .subtask-item.locked { background: rgba(0, 0, 0, 0.6); border-color: #333; color: #666; pointer-events: none; }
 
-/* 挑戰清單特殊卡片與下拉面板 (手風琴) */
-.role-list { display: flex; flex-direction: column; gap: 6px; margin: 0; flex: 1; overflow-y:auto; padding-bottom: 10px;}
-.role-card { display: flex; align-items: center; gap: 10px; padding: 0 12px; background: var(--theme-grad); border: 1px solid var(--theme-dim); border-radius: 8px; position: relative; cursor: pointer; flex-shrink: 0; min-height:60px; transition: border-radius 0.2s;} 
-.role-card.expanded { border-radius: 8px 8px 0 0; background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent); border-bottom-color: transparent;}
-.role-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--theme-primary); border-radius: 8px 0 0 8px; }
-.role-card.expanded::before { border-radius: 8px 0 0 0; }
-.role-avatar { width: 38px; height: 38px; border-radius: 6px; border: 1px solid var(--theme-dim); background: #000; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink: 0;}
+/* 挑戰清單特殊卡片與下拉面板 (手風琴 - 優化間距) */
+.role-list { display: flex; flex-direction: column; gap: 10px; margin: 0; flex: 1; overflow-y:auto; padding-bottom: 10px;}
+.role-card { display: flex; align-items: center; gap: 12px; padding: 0 16px; background: var(--theme-grad); border: 1px solid var(--theme-dim); border-radius: 10px; position: relative; cursor: pointer; flex-shrink: 0; min-height: 75px; transition: border-radius 0.2s;} 
+.role-card.expanded { border-radius: 10px 10px 0 0; background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent); border-bottom-color: transparent;}
+.role-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--theme-primary); border-radius: 10px 0 0 10px; }
+.role-card.expanded::before { border-radius: 10px 0 0 0; }
+.role-avatar { width: 46px; height: 46px; border-radius: 8px; border: 1px solid var(--theme-dim); background: #000; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.5);}
 .role-info { flex: 1; display: flex; flex-direction: column; justify-content: center;}
-.role-name { font-size: 15px; font-weight: 900; color: var(--theme-primary); margin: 0 0 2px 0; text-shadow: 1px 1px 2px #000; line-height: 1.2;}
-.role-task { font-size: 11px; color: #fff; font-weight: bold; margin: 0; opacity: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); line-height: 1.2;}
-.role-go-btn { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); color: var(--btn-text); display: flex; align-items: center; justify-content: center; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.8); transition: transform 0.2s; font-weight:bold;}
+.role-name { font-size: 17px; font-weight: 900; color: var(--theme-primary); margin: 0 0 4px 0; text-shadow: 1px 1px 2px #000; line-height: 1.2;}
+.role-task { font-size: 13px; color: #fff; font-weight: bold; margin: 0; opacity: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); line-height: 1.2;}
+.role-go-btn { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); color: var(--btn-text); display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.8); transition: transform 0.2s; font-weight:bold;}
 
-/* ★ 下拉式任務面板 */
-.role-tasks-accordion { display:none; background:rgba(0,0,0,0.3); border-radius:0 0 8px 8px; padding:10px; margin-top:-4px; border:1px solid var(--theme-dim); border-top:none; box-shadow:inset 0 2px 10px rgba(0,0,0,0.5); margin-bottom: 4px;}
+.role-tasks-accordion { display:none; background:rgba(0,0,0,0.3); border-radius:0 0 10px 10px; padding:12px; margin-top:-4px; border:1px solid var(--theme-dim); border-top:none; box-shadow:inset 0 2px 10px rgba(0,0,0,0.5); margin-bottom: 4px;}
 .role-tasks-accordion.open { display:flex; flex-direction:column; gap:8px; }
 
 /* 卡匣等其餘 UI */
 .pokedex-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 6px; flex-wrap: nowrap; scrollbar-width: none; justify-content:center; flex-shrink: 0;}
 .pokedex-tabs::-webkit-scrollbar { display: none; }
-.tab-btn { flex-shrink: 0; padding: 6px 12px; border-radius: 20px; border: 1px solid var(--theme-dim); background: rgba(0,0,0,0.8); color: #ccc; font-weight: bold; font-size: 12px; cursor:pointer; white-space: nowrap; }
+.tab-btn { flex-shrink: 0; padding: 8px 14px; border-radius: 20px; border: 1px solid var(--theme-dim); background: rgba(0,0,0,0.8); color: #ccc; font-weight: bold; font-size: 13px; cursor:pointer; white-space: nowrap; }
 .tab-btn.active { background: var(--theme-primary); color: var(--btn-text); border-color: #fff; text-shadow: var(--btn-shadow); box-shadow: 0 0 10px rgba(212,175,55,0.5); }
 .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; overflow-y: auto; overflow-x: hidden; padding: 4px; align-content: flex-start;}
 .card-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 15px; scrollbar-width: none; }
@@ -100,38 +103,45 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 
 .business-card { background: linear-gradient(135deg, var(--theme-dim), #000); border-radius: 12px; padding: 15px; color: #fff; box-shadow: 0 8px 16px rgba(0,0,0,0.8); position: relative; overflow: hidden; border: 1px solid var(--theme-primary); flex-shrink: 0;}
 .business-card::after { content: '🏥'; position: absolute; right: -10px; bottom: -20px; font-size: 80px; opacity: 0.05; }
-.bc-title { font-size: 15px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 6px; margin-bottom: 10px; display:flex; justify-content:space-between; color:var(--theme-primary);}
-.bc-row { display: flex; margin-bottom: 6px; font-size: 12px;}
-.bc-label { width: 70px; color: #ccc; }
+.bc-title { font-size: 16px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 6px; margin-bottom: 10px; display:flex; justify-content:space-between; color:var(--theme-primary);}
+.bc-row { display: flex; margin-bottom: 8px; font-size: 13px;}
+.bc-label { width: 75px; color: #ccc; }
 .bc-val { flex: 1; font-weight:bold; }
-.tag-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;}
-.tag { background: rgba(0,0,0,0.5); border: 1px solid var(--theme-primary); padding: 2px 6px; border-radius: 10px; font-size: 10px; }
+.tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px;}
+.tag { background: rgba(0,0,0,0.5); border: 1px solid var(--theme-primary); padding: 3px 8px; border-radius: 10px; font-size: 11px; }
 
-.wizard-header { font-size: 15px; color: var(--theme-primary); font-weight: bold; margin-bottom: 8px; text-align: center; }
-.wizard-option { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.6); border: 1px solid var(--theme-dim); padding: 10px 12px; border-radius: 8px; margin-bottom: 6px; cursor: pointer; flex-shrink: 0;}
+.wizard-header { font-size: 16px; color: var(--theme-primary); font-weight: bold; margin-bottom: 10px; text-align: center; }
+.wizard-option { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.6); border: 1px solid var(--theme-dim); padding: 12px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; flex-shrink: 0;}
 .wizard-option:active { background: var(--theme-bg); }
-.wizard-option .icon { font-size: 18px; width: 22px; text-align: center; }
-.wizard-option .text { font-size: 13px; color: #fff; }
-.trend-card { background: rgba(0,0,0,0.5); border: 1px solid var(--theme-dim); border-radius: 8px; padding: 10px; margin-bottom: 8px; flex-shrink: 0;}
-.health-dist-title { display: flex; justify-content: space-between; font-size: 10px; color: #ccc; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+.wizard-option .icon { font-size: 20px; width: 26px; text-align: center; }
+.wizard-option .text { font-size: 14px; color: #fff; }
+.trend-card { background: rgba(0,0,0,0.5); border: 1px solid var(--theme-dim); border-radius: 8px; padding: 10px; margin-bottom: 10px; flex-shrink: 0;}
+.health-dist-title { display: flex; justify-content: space-between; font-size: 11px; color: #ccc; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 
-/* ===== ★ 新版底部導覽列 (中央突起演練按鈕) ===== */
-.bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 65px; background: rgba(10,10,10,0.95); border-top: 1px solid #333; display: flex; justify-content: space-around; padding: 0 4px; align-items: center; z-index: 100; backdrop-filter: blur(5px); }
-.nav-item { color: #888; font-weight: bold; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; width: 55px; transition: color 0.2s;}
-.nav-item .icon { font-size: 20px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); transition: transform 0.2s; }
+/* ===== ★ 底部導覽列 (最佳化比例與居中加底色按鈕) ===== */
+.bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 75px; background: rgba(10,10,10,0.95); border-top: 1px solid #333; display: flex; justify-content: space-around; padding: 0 5px; align-items: center; z-index: 100; backdrop-filter: blur(5px); padding-bottom: env(safe-area-inset-bottom); }
+.nav-item { color: #888; font-weight: bold; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; flex: 1; transition: color 0.2s; height: 100%;}
+.nav-item .icon { font-size: 24px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); transition: transform 0.2s; margin-bottom: 2px;}
+.nav-item span:not(.icon) { font-size: 11px; }
 .nav-item.active { color: var(--theme-primary); }
 .nav-item.active .icon { transform: translateY(-2px); }
 
-/* 中央凸起設計 */
-.nav-item.center-action { position: relative; top: -15px; width: 65px; height: 65px; background: linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); border-radius: 50%; border: 4px solid #111; box-shadow: 0 4px 10px rgba(0,0,0,0.5); color: var(--btn-text); z-index: 105; justify-content: center; gap: 0;}
-.nav-item.center-action .icon { font-size: 24px; margin-bottom: 2px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3)); }
-.nav-item.center-action span:not(.icon) { font-size: 10px; font-weight: 900; text-shadow: var(--btn-shadow); }
-.nav-item.center-action:active { transform: scale(0.95); }
+/* 中央高亮按鈕 (有底色、無上突) */
+.nav-item.highlight-action { 
+    background: linear-gradient(180deg, var(--theme-dim), rgba(0,0,0,0.6));
+    border: 1px solid var(--theme-primary);
+    border-radius: 12px;
+    margin: 8px 4px; 
+    flex: 1.1; 
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+}
+.nav-item.highlight-action .icon { color: var(--text-main); }
+.nav-item.highlight-action span:not(.icon) { color: var(--text-main); }
 
 /* 彈出視窗 */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 50000; padding: 15px;}
 .modal-content { background: var(--theme-panel); border: 1px solid var(--theme-primary); border-radius: 12px; width: 100%; max-width: 320px; padding: 20px; position: relative; text-align: center; max-height: 90vh; overflow-y:auto; }
-.close-btn { position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: #aaa; font-size: 18px; cursor:pointer;}
+.close-btn { position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: #aaa; font-size: 20px; cursor:pointer;}
 </style>
 </head>
 <body class="mode-beginner">
@@ -143,7 +153,7 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
         <img id="hudAvatar" src="https://i.pravatar.cc/150?img=11">
       </div>
       <div class="player-text-wrap">
-        <div style="display:flex; align-items:center; gap:4px;">
+        <div style="display:flex; align-items:center; gap:6px;">
           <div class="player-name" id="uiPlayerName" onclick="openSettings()">急救新星</div>
           <div id="uiStoryToggleWrap" class="segment-ctrl" style="display:flex;">
             <div class="segment-btn active" id="segMap" onclick="setHomeView(true)">地圖</div>
@@ -159,8 +169,8 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
         <span id="uiCases" style="color:#fff;">0</span>
       </div>
       
-      <button class="res-item" style="background: linear-gradient(135deg, var(--theme-dim), #0a0a0a); color: var(--theme-primary); border: 1px solid var(--theme-primary); cursor: pointer; padding: 4px 8px; margin-right: 4px;" onclick="toggleMode()">
-        <span style="font-size:10px;">❖</span>
+      <button class="res-item mode-toggle-btn" onclick="toggleMode()">
+        <span style="font-size:12px; margin-right:2px;">❖</span>
         <span id="navModeText">初階版</span>
       </button>
 
@@ -188,7 +198,7 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
           <button class="btn" style="background:var(--theme-primary); color:var(--btn-text); font-size:16px; padding:12px; box-shadow:0 4px 15px rgba(0,0,0,0.5);" onclick="restartBeginnerStory()">🔄 重新開始體驗</button>
         </div>
 
-        <div id="homeMapContainer" style="display: none; flex: 1; border-radius: 8px; overflow: hidden; border: 1px solid var(--theme-dim); position: relative; transition: all 0.3s; margin-bottom: 10px;">
+        <div id="homeMapContainer" style="display: none; flex: 1; border-radius: 12px; overflow: hidden; border: 1px solid var(--theme-dim); position: relative; transition: all 0.3s; margin-bottom: 10px;">
           <iframe id="homeMapFrame" style="position:absolute; inset:0; width:100%; height:100%; border:none; background:#000;"></iframe>
         </div>
 
@@ -225,11 +235,11 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
           <h2 style="color: var(--theme-primary); margin-top:0; border-bottom: none;" id="lbMainTitle">🏆 極限挑戰大賽</h2>
           
           <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.6); padding:10px 15px; border-radius:8px; margin-bottom:15px; border:1px solid var(--theme-dim);">
-             <div style="color:#ffb300; font-size:15px; font-weight:bold; display:flex; align-items:center; gap:6px;">
-                 <span style="font-size:22px;">🧠</span> 
-                 <span><span id="uiBrainCoins" style="font-size:18px;">0</span> 分</span>
+             <div style="color:#ffb300; font-size:16px; font-weight:bold; display:flex; align-items:center; gap:8px;">
+                 <span style="font-size:24px;">🧠</span> 
+                 <span><span id="uiBrainCoins" style="font-size:20px;">0</span> 分</span>
              </div>
-             <button class="btn btn-rescue" style="width:auto; padding:6px 12px; margin:0;" onclick="openChallengeStore()">🛍️ 挑戰商城</button>
+             <button class="btn btn-rescue" style="width:auto; padding:8px 14px; margin:0;" onclick="openChallengeStore()">🛍️ 挑戰商城</button>
           </div>
 
           <div id="lbListTotal" style="flex: 1; overflow-y: auto; padding-right: 4px;"></div>
@@ -242,17 +252,17 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
           <h2 style="color: var(--theme-primary); margin-top:0; border-bottom: none;">💪 居家復健挑戰</h2>
           
           <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.6); padding:10px 15px; border-radius:8px; margin-bottom:15px; border:1px solid var(--theme-dim);">
-             <div style="color:var(--good); font-size:15px; font-weight:bold; display:flex; align-items:center; gap:6px;">
-                 <span style="font-size:22px;">🏋️</span> 
-                 <span><span id="uiRehabCoins" style="font-size:18px;">0</span> 分</span>
+             <div style="color:var(--good); font-size:16px; font-weight:bold; display:flex; align-items:center; gap:8px;">
+                 <span style="font-size:24px;">🏋️</span> 
+                 <span><span id="uiRehabCoins" style="font-size:20px;">0</span> 分</span>
              </div>
-             <button class="btn btn-rescue" style="width:auto; padding:6px 12px; margin:0;" onclick="openRehabStore()">🛍️ 復健商城</button>
+             <button class="btn btn-rescue" style="width:auto; padding:8px 14px; margin:0;" onclick="openRehabStore()">🛍️ 復健商城</button>
           </div>
 
           <div style="flex: 1; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#aaa;">
               <div style="font-size:40px; margin-bottom:10px; opacity:0.5;">🚧</div>
               <div style="font-size:16px; font-weight:bold;">復健小遊戲積極準備中！</div>
-              <div style="font-size:12px; margin-top:8px;">每日完成「醫院探索」可獲取復健分數喔！</div>
+              <div style="font-size:13px; margin-top:8px;">每日完成「醫院探索」可獲取復健分數喔！</div>
           </div>
         </div>
         <button class="btn btn-back" onclick="showScreen('scrHome')"><span class="back-icon">🏠</span> 返回主畫面</button>
@@ -267,14 +277,14 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
               <button class="btn" style="margin-top: 15px; background:transparent; border:1px solid var(--theme-primary); color:var(--theme-primary);" onclick="toggleScEdit(true)">✏️ 編輯歷程資訊</button>
             </div>
             <div id="scEditMode">
-              <div style="font-size:12px; color:#aaa; margin-bottom:10px;">記錄重要資訊，方便就醫交接</div>
-              <input type="date" id="scDate" style="margin-bottom:8px;">
-              <select id="scType" style="margin-bottom:8px;"><option value="" disabled selected>中風類型...</option><option value="缺血性中風 (腦梗塞)">缺血性中風 (腦梗塞)</option><option value="出血性中風 (腦溢血)">出血性中風 (腦溢血)</option><option value="暫時性腦缺血 (TIA)">暫時性腦缺血 (TIA)</option></select>
-              <input type="text" id="scLocation" placeholder="阻塞/出血部位 (選填)" style="margin-bottom:8px;">
-              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; font-size:12px; color:#fff; background:rgba(0,0,0,0.4); padding:10px; border-radius:6px; border:1px solid #444;">
+              <div style="font-size:13px; color:#aaa; margin-bottom:12px;">記錄重要資訊，方便就醫交接</div>
+              <input type="date" id="scDate" style="margin-bottom:10px;">
+              <select id="scType" style="margin-bottom:10px;"><option value="" disabled selected>中風類型...</option><option value="缺血性中風 (腦梗塞)">缺血性中風 (腦梗塞)</option><option value="出血性中風 (腦溢血)">出血性中風 (腦溢血)</option><option value="暫時性腦缺血 (TIA)">暫時性腦缺血 (TIA)</option></select>
+              <input type="text" id="scLocation" placeholder="阻塞/出血部位 (選填)" style="margin-bottom:10px;">
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:13px; color:#fff; background:rgba(0,0,0,0.4); padding:12px; border-radius:8px; border:1px solid #444;">
                 <label><input type="checkbox" name="scRisk" value="高血壓"> 高血壓</label><label><input type="checkbox" name="scRisk" value="糖尿病"> 糖尿病</label><label><input type="checkbox" name="scRisk" value="高血脂"> 高血脂</label><label><input type="checkbox" name="scRisk" value="心房顫動"> 心房顫動</label><label><input type="checkbox" name="scRisk" value="抽菸"> 抽菸</label><label><input type="checkbox" name="scRisk" value="家族病史"> 家族病史</label>
               </div>
-              <button class="btn" style="background:var(--theme-primary); color:var(--btn-text); text-shadow:var(--btn-shadow); border:none; margin-top:12px;" onclick="saveStrokeCard()">💾 儲存歷程</button>
+              <button class="btn" style="background:var(--theme-primary); color:var(--btn-text); text-shadow:var(--btn-shadow); border:none; margin-top:15px;" onclick="saveStrokeCard()">💾 儲存歷程</button>
             </div>
             <button class="btn" style="margin-top: 15px; background: linear-gradient(180deg, #1976d2, #115293); color: #fff; border: 1px solid #4fc3f7;" onclick="navScaleAction()">📋 中風自評量表</button>
           </div>
@@ -298,27 +308,28 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
       </section>
 
       <nav class="bottom-nav" id="mainNav">
+        
         <div class="nav-item" id="navSlot2" onclick="handleNavSlot2()">
-          <div class="icon" id="navSlot2Icon">📖</div><span style="font-size:10px;" id="navSlot2Text">中風歷程</span>
+          <div class="icon" id="navSlot2Icon">📖</div><span id="navSlot2Text">中風歷程</span>
         </div>
         
         <div class="nav-item" id="navCaseDex" onclick="showScreen('scrCaseDex'); renderCaseDex();" style="position: relative;">
-          <div class="icon">🗂️</div><span style="font-size:10px;">健康圖卡</span>
+          <div class="icon">🗂️</div><span>健康圖卡</span>
           <div id="casedexBadge" style="position:absolute; top:-2px; right:5px; background:var(--accent-red); color:#fff; border-radius:50%; width:16px; height:16px; font-size:10px; font-weight:bold; display:none; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.5); z-index:10;"></div>
         </div>
         
-        <div class="nav-item center-action" id="navSlot1" onclick="openBossPrep()" style="position: relative;">
-          <div class="icon" id="navSlot1Icon">🛡️</div><span style="font-size:10px; margin-top:2px;" id="navSlot1Text">知識演練</span>
+        <div class="nav-item highlight-action" id="navSlot1" onclick="openBossPrep()" style="position: relative;">
+          <div class="icon" id="navSlot1Icon">🛡️</div><span id="navSlot1Text">知識演練</span>
           <div id="drillBadge" style="position:absolute; top:0px; right:0px; background:var(--accent-red); color:#fff; border-radius:50%; width:18px; height:18px; font-size:12px; font-weight:bold; display:none; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.8); z-index:10;">!</div>
         </div>
 
         <div class="nav-item" id="navExplore" onclick="launchExplore()" style="position: relative;">
-          <div class="icon">🏥</div><span style="font-size:10px;">醫院探索</span>
+          <div class="icon">🏥</div><span>醫院探索</span>
           <div id="exploreBadge" style="position:absolute; top:-2px; right:5px; background:var(--accent-red); color:#fff; border-radius:50%; width:16px; height:16px; font-size:10px; font-weight:bold; display:none; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.5); z-index:10;"></div>
         </div>
 
         <div class="nav-item" id="navSlot6" onclick="handleNavSlot6()" style="position: relative;">
-          <div class="icon" id="navSlot6Icon">💪</div><span style="font-size:10px;" id="navSlot6Text">復健挑戰</span>
+          <div class="icon" id="navSlot6Icon">💪</div><span id="navSlot6Text">復健挑戰</span>
           <div id="extremeBadge" style="position:absolute; top:-2px; right:5px; background:var(--theme-primary); color:#000; border-radius:50%; width:16px; height:16px; font-size:10px; font-weight:bold; display:none; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.5); z-index:10;"></div>
         </div>
       </nav>
@@ -652,10 +663,16 @@ function updateHUD() {
   if(id('uiRehabCoins')) id('uiRehabCoins').textContent = (playerState.rehabCoins || 0).toLocaleString();
 
   const isUnlocked = playerState.mode === 'beginner' ? ROLES_DATA_BEG.every(r => r.currentTask > 1) : ROLES_DATA_ADV.every(r => r.currentTask > 1);
-  const badge = id('drillBadge');
-  if (badge) {
-      if (isUnlocked) { badge.style.display = 'none'; }
-      else { badge.style.display = 'flex'; badge.style.background = 'var(--theme-dim)'; badge.innerText = '🔒'; }
+  const drillBtn = id('navSlot1');
+  const drillBadge = id('drillBadge');
+  if (drillBtn) {
+      if (isUnlocked) { 
+          drillBtn.style.opacity = '1'; drillBtn.style.filter = 'none'; 
+          if(drillBadge) drillBadge.style.display = 'none'; 
+      } else { 
+          drillBtn.style.opacity = '0.7'; drillBtn.style.filter = 'grayscale(80%)'; 
+          if(drillBadge) { drillBadge.style.display = 'flex'; drillBadge.style.background = '#555'; drillBadge.innerText = '🔒'; } 
+      }
   }
   
   const tickets = typeof getAvailableTickets === 'function' ? getAvailableTickets() : 0;
