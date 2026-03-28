@@ -203,51 +203,57 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 
         <div class="corridor-rest"></div><div class="room-rest">休息室</div>
         <div class="corridor-store"></div><div class="room-store">便利商店<br>(外觀購買)</div>
-        <div class="corridor-pharmacy"></div><div class="room-pharmacy">門診藥局</div>
-       <div class="corridor-er-link" style="top: -900px;"></div>
-<div class="corridor-er-link" style="top: -650px;"></div>
+        <div class="corridor-pharmacy"></div>
+<div class="room-pharmacy"></div>
+
+<div class="corridor-er-link-top"></div>
+<div class="corridor-er-link-bottom"></div>
 
 <div class="room-er-expanded">
     
+    <div class="er-zone er-mri">
+        <div class="zone-label">核磁共振 (MRI)</div>
+        <div class="ct-scanner" style="width:160px; height:120px; border-radius:30px;"></div> </div>
     <div class="er-zone er-ct">
-        <div class="zone-label">電腦斷層室 (CT)</div>
+        <div class="zone-label">電腦斷層 (CT)</div>
         <div class="ct-scanner"></div>
     </div>
 
-    <div class="er-zone er-mri">
-        <div class="zone-label">核磁共振室 (MRI)</div>
-        <div class="mri-scanner"></div>
+    <div class="er-zone er-vert-corridor"></div>
+    
+    <div class="er-zone er-bottom-corridor"></div>
+
+    <div class="er-zone er-trauma">
+        <div class="zone-label" style="background:#ffebee; color:#d32f2f;">急救區 (Trauma)</div>
+        <div class="er-warning-light"></div>
+        <div class="er-trauma-bay" style="left: 20px; top: 60px;"><div class="er-monitor"></div><div class="hosp-bed" style="left: 50px; top: 40px;"></div></div>
+        <div class="er-trauma-bay" style="left: 180px; top: 60px;"><div class="er-monitor"></div><div class="hosp-bed" style="left: 50px; top: 40px;"></div></div>
+        <div class="er-trauma-bay" style="left: 340px; top: 60px;"><div class="er-monitor"></div><div class="hosp-bed" style="left: 50px; top: 40px;"></div></div>
+        <div class="er-trauma-bay" style="left: 20px; top: 250px;"><div class="er-monitor"></div><div class="hosp-bed" style="left: 50px; top: 40px;"></div></div>
+        <div class="er-trauma-bay" style="left: 180px; top: 250px;"><div class="er-monitor"></div><div class="hosp-bed" style="left: 50px; top: 40px;"></div></div>
+        <div class="er-trauma-bay" style="left: 340px; top: 250px;"><div class="er-monitor"></div><div class="hosp-bed" style="left: 50px; top: 40px;"></div></div>
+    </div>
+
+    <div class="er-trauma-wall-bottom">
+        <div class="er-auto-door" style="left: 10px;"></div>
+        <div class="er-auto-door" style="right: 10px;"></div>
     </div>
 
     <div class="er-zone er-pharm">
         <div class="zone-label">急診藥局</div>
-        <div class="er-pharm-shelves"></div>
-        <div class="er-pharm-counter"></div>
     </div>
-
-    <div class="er-zone er-trauma">
-        <div class="zone-label" style="background:#ffebee; color:#d32f2f;">急救區 (Trauma)</div>
-        <div class="er-trauma-bay" style="left: 20px; top: 60px;"><div class="er-monitor"></div><div class="hosp-bed" style="left: 40px; top: 40px;"></div></div>
-        <div class="er-trauma-bay" style="left: 180px; top: 60px;"><div class="er-monitor"></div><div class="hosp-bed" style="left: 40px; top: 40px;"></div></div>
-        <div class="er-trauma-bay" style="left: 20px; top: 250px;"><div class="er-monitor"></div><div class="hosp-bed" style="left: 40px; top: 40px;"></div></div>
-        <div class="er-trauma-bay" style="left: 180px; top: 250px;"><div class="er-monitor"></div><div class="hosp-bed" style="left: 40px; top: 40px;"></div></div>
-        <div class="er-warning-light"></div>
-    </div>
-
     <div class="er-zone er-obs">
-        <div class="zone-label">留觀區 (Observation)</div>
-        <div class="hosp-bed" style="left: 40px; top: 80px;"></div>
-        <div class="hosp-bed" style="left: 120px; top: 80px;"></div>
-        <div class="hosp-bed" style="left: 200px; top: 80px;"></div>
-        <div class="hosp-bed" style="left: 40px; top: 180px;"></div>
-        <div class="hosp-bed" style="left: 120px; top: 180px;"></div>
-        <div class="hosp-bed" style="left: 200px; top: 180px;"></div>
+        <div class="zone-label">留觀區</div>
+        <div class="hosp-bed" style="left: 50px; top: 80px;"></div>
+        <div class="hosp-bed" style="left: 130px; top: 80px;"></div>
+        <div class="hosp-bed" style="left: 210px; top: 80px;"></div>
+        <div class="hosp-bed" style="left: 50px; top: 180px;"></div>
+        <div class="hosp-bed" style="left: 130px; top: 180px;"></div>
+        <div class="hosp-bed" style="left: 210px; top: 180px;"></div>
     </div>
-
     <div class="er-zone er-triage">
         <div class="zone-label">檢傷護理站</div>
         <div class="er-triage-desk">Triage</div>
-        <div class="er-entrance-doors">EMERGENCY ENTRANCE 🚑</div>
     </div>
 
 </div>
@@ -806,24 +812,31 @@ const solidBlocks = [
   {x: 2310, y: 850, w: 10, h: 150}, {x: 1750, y: 180, w: 250, h: 200}, {x: 1590, y: 825, w: 270, h: 245}, {x: 1800, y: 1140, w: 50, h: 250},
   {x: 950, y: 1420, w: 380, h: 175}, {x: 1330, y: 1420, w: 10, h: 10}, {x: 1420, y: 1420, w: 320, h: 10}, {x: 1330, y: 1585, w: 410, h: 10},
   {x: 1730, y: 1420, w: 10, h: 170}, {x: 950, y: 1590, w: 810, h: 160}, {x: 400, y: 1850, w: 1310, h: 350}, {x: 1710, y: 2150, w: 790, h: 50}
+   // ★ 新增：急診 Trauma 區下方的實體牆 (中間 300px，擋住不讓走)
+  // 左門在 x=3500~3600 (不擋)，右門在 x=3800~3900 (不擋)
+  {x: 3600, y: -610, w: 300, h: 20}
 ];
 
 function canMoveTo(x, y) {
   const r = 20; let isWalkable = false;
   
   const walkableZones = [
-    // ... 保留你原本的大廳、走廊、病房等區域 ...
     {x: 1000, y: -1200, w: 1000, h: 800}, {x: 1300, y: -250,  w: 400,  h: 300}, 
-    {x: 450,  y: -1000, w: 400,  h: 400}, {x: 2150, y: -1000, w: 400,  h: 400}, 
+    {x: 450,  y: -1000, w: 400,  h: 400}, 
     
-    // ★ 更新：新版超大急診室 (取代原本的 2700, -1100, 500, 600)
-    {x: 2650, y: -1200, w: 950, h: 800}, 
+    // ★ 更新：門診藥局 (高度擴展至 800)
+    {x: 2150, y: -1200, w: 400, h: 800}, 
 
-    // ★ 新增：急診室連接門診藥局的左上與左下通道
-    {x: 2550, y: -900, w: 100, h: 80},
-    {x: 2550, y: -650, w: 100, h: 80},
-    
-    // ... 其餘保持不變 ...
+    // ★ 更新：超大型急診室 (1200x800)
+    {x: 2700, y: -1200, w: 1200, h: 800}, 
+
+    // ★ 新增：連接門診藥局與急診室的雙通道
+    {x: 2534, y: -1100, w: 182, h: 120},  // 上方通道 (MRI旁)
+    {x: 2534, y: -550, w: 182, h: 150},   // 下方通道 (CT旁)
+
+    {x: 1425, y: -450, w: 150, h: 250},   {x: 800,  y: -950, w: 250, h: 200},   
+    {x: 1950, y: -950, w: 250, h: 200},   {x: 2500, y: -950, w: 250, h: 200},
+    // ... 其餘的高樓層區塊保持不變 ...
     {x: 1000, y: -1200, w: 1000, h: 800}, {x: 1300, y: -250,  w: 400,  h: 300}, {x: 450,  y: -1000, w: 400,  h: 400}, {x: 2150, y: -1000, w: 400,  h: 400}, {x: 2700, y: -1100, w: 500,  h: 600},
     {x: 1425, y: -450, w: 150, h: 250},   {x: 800,  y: -950, w: 250, h: 200},   {x: 1950, y: -950, w: 250, h: 200},   {x: 2500, y: -950, w: 250, h: 200},
     {x: 10000, y: -1200, w: 800, h: 600},  {x: 15000, y: -1200, w: 800, h: 600},  {x: 20000, y: -1200, w: 800, h: 600},  {x: 25000, y: -1200, w: 800, h: 600},  {x: 30000, y: -1200, w: 800, h: 600},  {x: 35000, y: -1200, w: 800, h: 600}  
