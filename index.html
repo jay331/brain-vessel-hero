@@ -20,28 +20,31 @@ input, select { font-family: inherit; background: rgba(0,0,0,0.6); border: 1px s
 input[type="checkbox"] { width: auto; }
 .app { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; }
 
-/* ===== HUD 標題列 (全新：雙層分離與次級導覽列) ===== */
+/* ===== HUD 標題列 (恢復單行排版) ===== */
 header { display: flex; flex-direction: column; background: linear-gradient(180deg, rgba(0,0,0,0.95), rgba(0,0,0,0.8)); border-bottom: 1px solid var(--theme-dim); z-index: 100; flex-shrink: 0; padding: 0; }
-.header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 10px 15px; }
+.header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 8px 10px; }
 
-/* 左側：頭像與玩家資訊 */
-.header-left { display: flex; align-items: center; gap: 12px; }
-.avatar-wrap { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--theme-primary); background: #000; overflow: hidden; position: relative; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.5); flex-shrink: 0;}
+/* 左側：頭像、姓名、模式切換鈕並排 */
+.header-left { display: flex; align-items: center; gap: 8px; }
+.avatar-wrap { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--theme-primary); background: #000; overflow: hidden; position: relative; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.5); flex-shrink: 0;}
 .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
-.player-text-wrap { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 4px; }
-.player-name { font-size: 15px; font-weight: 900; color: #fff; cursor: pointer; transition: color 0.2s; letter-spacing: 1px;} 
+.player-text-wrap { display: flex; align-items: center; gap: 6px; flex-wrap: wrap;}
+.player-name { font-size: 13px; font-weight: bold; color: #fff; cursor: pointer; transition: color 0.2s;} 
 .player-name:active { color: var(--theme-primary); }
-.mode-toggle-btn { background: rgba(0,0,0,0.4); color: var(--theme-primary); border: 1px solid var(--theme-primary); border-radius: 4px; cursor: pointer; transition: transform 0.2s; padding: 2px 6px; font-size: 11px; font-weight: bold; display: flex; align-items: center; gap: 4px; }
-.mode-toggle-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.1); }
 
-/* 右側：健康幣 (上下排列) */
-.header-right { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; }
-.coin-title { color: var(--good); font-weight: 900; font-size: 11px; margin-bottom: 2px; letter-spacing: 1px; }
-.coin-value { color: #fff; font-size: 18px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.8); line-height: 1; }
+/* 原版膠囊切換鈕 */
+.mode-toggle-btn { background: rgba(0,0,0,0.6); color: #aaa; border: 1px solid var(--theme-dim); border-radius: 99px; cursor: pointer; transition: all 0.2s; padding: 4px 10px; font-size: 11px; font-weight: bold; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+.mode-toggle-btn:active { transform: scale(0.95); }
+.mode-toggle-btn span.mode-text { color: var(--theme-primary); text-shadow: 0 0 5px rgba(255,255,255,0.2);}
+
+/* 右側：健康幣 (單行顯示) */
+.header-right { display: flex; align-items: center; justify-content: flex-end; }
+.res-item { display: flex; align-items: center; gap: 4px; font-weight: 900; font-size: 12px; background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 99px; border: 1px solid var(--theme-dim); box-shadow: 0 2px 5px rgba(0,0,0,0.5); white-space: nowrap; }
+.green-coin { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; background: linear-gradient(180deg, #3dff8e, #0eb855); border-radius: 50%; color: #000; font-size: 9px; font-weight: bold;}
 
 /* 次級大頁籤 (Tabs) */
 .sub-header-tabs { display: flex; width: 100%; background: rgba(0,0,0,0.4); border-top: 1px solid rgba(255,255,255,0.05); }
-.sub-header-tabs .tab-item { flex: 1; text-align: center; padding: 12px 0; font-size: 14px; font-weight: bold; color: #888; cursor: pointer; transition: all 0.2s; border-bottom: 3px solid transparent; }
+.sub-header-tabs .tab-item { flex: 1; text-align: center; padding: 10px 0; font-size: 14px; font-weight: bold; color: #888; cursor: pointer; transition: all 0.2s; border-bottom: 3px solid transparent; }
 .sub-header-tabs .tab-item.active { color: var(--theme-primary); border-bottom-color: var(--theme-primary); background: linear-gradient(to top, rgba(255,255,255,0.05), transparent); }
 .sub-header-tabs .tab-item:active { background: rgba(255,255,255,0.1); }
 
@@ -69,7 +72,7 @@ header { display: flex; flex-direction: column; background: linear-gradient(180d
 .linear-standby h2 { color: var(--theme-primary); font-size: 24px; margin: 0 0 8px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
 .linear-standby p { color: #ccc; font-size: 14px; margin: 0 0 15px 0; line-height: 1.6; }
 
-/* ★ 挑戰清單特殊卡片與下拉面板 (優化：極度緊湊排版，確保 5 個一目了然) */
+/* ★ 挑戰清單特殊卡片與下拉面板 (優化間距) */
 .role-list { display: flex; flex-direction: column; gap: 8px; margin: 0; flex: 1; overflow-y:auto; padding-bottom: 10px;}
 .role-card { display: flex; align-items: center; gap: 10px; padding: 0 12px; background: var(--theme-grad); border: 1px solid var(--theme-dim); border-radius: 8px; position: relative; cursor: pointer; flex-shrink: 0; min-height: 55px; transition: border-radius 0.2s;} 
 .role-card.expanded { border-radius: 8px 8px 0 0; background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent); border-bottom-color: transparent;}
@@ -161,14 +164,16 @@ header { display: flex; flex-direction: column; background: linear-gradient(180d
         <div class="player-text-wrap">
           <div class="player-name" id="uiPlayerName" onclick="openSettings()">急救新星</div>
           <button class="mode-toggle-btn" onclick="toggleMode()">
-            <span id="navModeText">初階版</span> 🔄
+            <span class="mode-text" id="navModeText">初階版</span> 🔄
           </button>
         </div>
       </div>
       
       <div class="header-right">
-        <div class="coin-title">健康幣</div>
-        <div class="coin-value" id="uiCoins">0</div>
+        <div class="res-item">
+          <span style="color:#aaa; font-weight:bold;">健康幣</span>
+          <span id="uiCoins" style="color:#fff; font-size:14px;">0</span>
+        </div>
       </div>
     </div>
 
@@ -560,9 +565,6 @@ window.addEventListener('message', (event) => {
           setTimeout(() => { customAlert(`拼圖 #${pid} 挑戰成功！已為您正式加入收藏！`, null, "🎉 拼圖收藏成功"); }, 500);
       }
   }
-  else if (event.data.type === 'ACTION_STORE') openStoreUI();
-  else if (event.data.type === 'ACTION_WARDROBE') openWardrobeUI();
-  else if (event.data.type === 'ACTION_WATCH_TV') window.open('https://www.youtube.com/@femhospital4347/videos', '_blank');
 });
 
 // ===============================================
@@ -601,9 +603,14 @@ function setHomeView(isMap) {
 
   id('linearStoryContainer').style.display = 'none'; id('restartStoryContainer').style.display = 'none'; id('roleListContainer').style.display = 'none'; id('homeMapContainer').style.display = 'none';
   
-  if (isMap && playerState.mode === 'beginner') {
-    if (playerState.storyProgression < TOTAL_BEG_TASKS) id('linearStoryContainer').style.display = 'flex';
-    else id('restartStoryContainer').style.display = 'flex';
+  if (isMap) {
+    if (playerState.mode === 'beginner' && playerState.storyProgression < TOTAL_BEG_TASKS) id('linearStoryContainer').style.display = 'flex';
+    else if (playerState.mode === 'beginner') id('restartStoryContainer').style.display = 'flex';
+    else {
+        // 進階版的任務模式：暫時顯示敬請期待
+        id('linearStoryContainer').style.display = 'flex';
+        id('linearStoryContainer').innerHTML = `<h2>進階版任務模式</h2><p>全新挑戰關卡積極準備中...</p>`;
+    }
   } else {
     id('roleListContainer').style.display = 'flex';
   }
@@ -630,7 +637,8 @@ function toggleMode() { playerState.mode = playerState.mode === 'beginner' ? 'ad
 function updateModeUI() {
   const isBeg = playerState.mode === 'beginner';
   document.body.className = `mode-${playerState.mode}`;
-  id('uiPlayerName').textContent = playerState.name; id('hudAvatar').src = playerState.avatar; id('navModeText').textContent = isBeg ? '初階版' : '進階版';
+  id('uiPlayerName').textContent = playerState.name; id('hudAvatar').src = playerState.avatar; 
+  if (id('navModeText')) id('navModeText').textContent = isBeg ? '初階版' : '進階版';
   
   if(id('navSlot1Text')) id('navSlot1Text').textContent = isBeg ? '知識演練' : '個案演練';
   if(id('navSlot2Icon')) id('navSlot2Icon').innerHTML = isBeg ? '📖' : '<span style="filter: brightness(1.5) drop-shadow(0 0 2px #4fc3f7);">🩺</span>';
@@ -639,13 +647,10 @@ function updateModeUI() {
   if(id('navSlot6Icon')) id('navSlot6Icon').innerHTML = isBeg ? '💪' : '🏆';
   if(id('navSlot6Text')) id('navSlot6Text').textContent = isBeg ? '復健挑戰' : '極限挑戰';
   
-  if (isBeg) {
-    id('uiStoryToggleWrap').style.display = 'flex';
-    if (playerState.storyProgression >= TOTAL_BEG_TASKS && playerState.storyMode) playerState.storyMode = false;
-    setHomeView(playerState.storyMode);
-  } else {
-    id('uiStoryToggleWrap').style.display = 'none'; setHomeView(false); 
-  }
+  // 初階與進階皆保留次級導覽列 Tabs，並維持原本的選擇狀態
+  if (isBeg && playerState.storyProgression >= TOTAL_BEG_TASKS && playerState.storyMode) playerState.storyMode = false;
+  setHomeView(playerState.storyMode);
+  
   updateHUD(); renderHomeRoles(); showScreen('scrHome');
 }
 
@@ -701,7 +706,7 @@ function updateHUD() {
 // ★ 手風琴式類別與任務渲染
 function renderHomeRoles() {
   const container = id('roleListContainer'); if(!container) return;
-  if (playerState.storyMode && playerState.mode === 'beginner') { container.style.display = 'none'; return; }
+  if (playerState.storyMode) { container.style.display = 'none'; return; }
   
   container.style.display = 'flex';
   container.innerHTML = '';
