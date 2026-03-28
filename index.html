@@ -20,22 +20,24 @@ input, select { font-family: inherit; background: rgba(0,0,0,0.6); border: 1px s
 input[type="checkbox"] { width: auto; }
 .app { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; }
 
-/* ===== HUD 標題列 (優化排版) ===== */
+/* ===== HUD 標題列 (優化：雙層堆疊排版) ===== */
 header { padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(180deg, rgba(0,0,0,0.9), rgba(0,0,0,0.5)); border-bottom: 1px solid var(--theme-dim); z-index: 100; flex-shrink: 0; backdrop-filter: blur(4px); }
 .player-info { display: flex; align-items: center; gap: 10px; }
-.avatar-wrap { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--theme-primary); background: #000; overflow: hidden; position: relative; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.5);}
+.avatar-wrap { width: 46px; height: 46px; border-radius: 50%; border: 2px solid var(--theme-primary); background: #000; overflow: hidden; position: relative; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.5); flex-shrink: 0;}
 .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
-.player-text-wrap { display: flex; flex-direction: column; justify-content: center; gap: 4px; }
-.player-name { font-size: 14px; font-weight: bold; color: #fff; cursor: pointer; transition: color 0.2s;} 
+
+/* ★ 名字與切換鈕改為上下堆疊 */
+.player-text-wrap { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 5px; }
+.player-name { font-size: 14px; font-weight: bold; color: #fff; cursor: pointer; transition: color 0.2s; padding-left: 2px;} 
 .player-name:active { color: var(--theme-primary); }
 .segment-ctrl { display: flex; background: rgba(0,0,0,0.6); border-radius: 6px; padding: 3px; border: 1px solid var(--theme-dim); }
-.segment-btn { padding: 3px 12px; font-size: 11px; color: #aaa; border-radius: 4px; cursor: pointer; transition: all 0.2s; font-weight: bold; }
+.segment-btn { padding: 4px 14px; font-size: 11px; color: #aaa; border-radius: 4px; cursor: pointer; transition: all 0.2s; font-weight: bold; white-space: nowrap; }
 .segment-btn.active { background: var(--theme-primary); color: var(--btn-text); box-shadow: 0 1px 3px rgba(0,0,0,0.5); }
-.resources { display: flex; flex-direction: row; align-items: center; gap: 6px; flex-shrink: 0; }
-.res-item { display: flex; align-items: center; gap: 4px; font-weight: 900; font-size: 12px; background: rgba(0,0,0,0.6); padding: 5px 10px; border-radius: 99px; border: 1px solid var(--theme-dim); box-shadow: 0 2px 5px rgba(0,0,0,0.5); white-space: nowrap; }
-.green-coin { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; background: linear-gradient(180deg, #3dff8e, #0eb855); border-radius: 50%; color: #000; font-size: 10px; }
 
-/* 模式切換按鈕 (移至 Header 內) */
+/* ★ 右側資源區也改為上下堆疊 */
+.resources { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+.res-item { display: flex; align-items: center; gap: 6px; font-weight: 900; font-size: 12px; background: rgba(0,0,0,0.6); padding: 4px 12px; border-radius: 99px; border: 1px solid var(--theme-dim); box-shadow: 0 2px 5px rgba(0,0,0,0.5); white-space: nowrap; height: 26px;}
+.green-coin { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; background: linear-gradient(180deg, #3dff8e, #0eb855); border-radius: 50%; color: #000; font-size: 10px; }
 .mode-toggle-btn { background: linear-gradient(135deg, var(--theme-dim), #111); color: var(--theme-primary); border-color: var(--theme-primary); cursor: pointer; transition: transform 0.2s; }
 .mode-toggle-btn:active { transform: scale(0.95); }
 
@@ -153,30 +155,21 @@ header { padding: 8px 12px; display: flex; justify-content: space-between; align
         <img id="hudAvatar" src="https://i.pravatar.cc/150?img=11">
       </div>
       <div class="player-text-wrap">
-        <div style="display:flex; align-items:center; gap:6px;">
-          <div class="player-name" id="uiPlayerName" onclick="openSettings()">急救新星</div>
-          <div id="uiStoryToggleWrap" class="segment-ctrl" style="display:flex;">
-            <div class="segment-btn active" id="segMap" onclick="setHomeView(true)">地圖</div>
-            <div class="segment-btn" id="segList" onclick="setHomeView(false)">清單</div>
-          </div>
+        <div class="player-name" id="uiPlayerName" onclick="openSettings()">急救新星</div>
+        <div id="uiStoryToggleWrap" class="segment-ctrl">
+          <div class="segment-btn active" id="segMap" onclick="setHomeView(true)">地圖</div>
+          <div class="segment-btn" id="segList" onclick="setHomeView(false)">清單</div>
         </div>
       </div>
     </div>
+    
     <div class="resources">
-      <div class="res-item" id="hudCasesWrap" style="display:none;">
-        <span class="icon">👤</span> 
-        <span style="color:#aaa; font-weight:normal;">救治數</span>
-        <span id="uiCases" style="color:#fff;">0</span>
-      </div>
-      
       <button class="res-item mode-toggle-btn" onclick="toggleMode()">
         <span style="font-size:12px; margin-right:2px;">❖</span>
         <span id="navModeText">初階版</span>
       </button>
-
       <div class="res-item">
         <span class="green-coin">$</span> 
-        <span style="color:#aaa; font-weight:normal;">健康幣</span>
         <span id="uiCoins" style="color:#fff;">0</span>
       </div>
     </div>
