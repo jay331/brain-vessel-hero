@@ -20,32 +20,31 @@ input, select { font-family: inherit; background: rgba(0,0,0,0.6); border: 1px s
 input[type="checkbox"] { width: auto; }
 .app { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; }
 
-/* ===== HUD 標題列 (優化：雙層堆疊排版) ===== */
-header { padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(180deg, rgba(0,0,0,0.9), rgba(0,0,0,0.5)); border-bottom: 1px solid var(--theme-dim); z-index: 100; flex-shrink: 0; backdrop-filter: blur(4px); }
-.player-info { display: flex; align-items: center; gap: 10px; }
-.avatar-wrap { width: 46px; height: 46px; border-radius: 50%; border: 2px solid var(--theme-primary); background: #000; overflow: hidden; position: relative; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.5); flex-shrink: 0;}
+/* ===== HUD 標題列 (全新三分區排版) ===== */
+header { padding: 6px 12px; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(180deg, rgba(0,0,0,0.9), rgba(0,0,0,0.5)); border-bottom: 1px solid var(--theme-dim); z-index: 100; flex-shrink: 0; backdrop-filter: blur(4px); }
+.header-left { display: flex; align-items: center; gap: 8px; flex: 1; }
+.avatar-wrap { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--theme-primary); background: #000; overflow: hidden; position: relative; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.5); flex-shrink: 0;}
 .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
-
-/* ★ 名字與切換鈕改為上下堆疊 */
-.player-text-wrap { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 5px; }
-.player-name { font-size: 14px; font-weight: bold; color: #fff; cursor: pointer; transition: color 0.2s; padding-left: 2px;} 
+.player-text-wrap { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 3px; }
+.player-name { font-size: 13px; font-weight: bold; color: #fff; cursor: pointer; padding-left: 2px; transition: color 0.2s;} 
 .player-name:active { color: var(--theme-primary); }
-.segment-ctrl { display: flex; background: rgba(0,0,0,0.6); border-radius: 6px; padding: 3px; border: 1px solid var(--theme-dim); }
-.segment-btn { padding: 4px 14px; font-size: 11px; color: #aaa; border-radius: 4px; cursor: pointer; transition: all 0.2s; font-weight: bold; white-space: nowrap; }
-.segment-btn.active { background: var(--theme-primary); color: var(--btn-text); box-shadow: 0 1px 3px rgba(0,0,0,0.5); }
-
-/* ★ 右側資源區也改為上下堆疊 */
-.resources { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
-.res-item { display: flex; align-items: center; gap: 6px; font-weight: 900; font-size: 12px; background: rgba(0,0,0,0.6); padding: 4px 12px; border-radius: 99px; border: 1px solid var(--theme-dim); box-shadow: 0 2px 5px rgba(0,0,0,0.5); white-space: nowrap; height: 26px;}
-.green-coin { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; background: linear-gradient(180deg, #3dff8e, #0eb855); border-radius: 50%; color: #000; font-size: 10px; }
-.mode-toggle-btn { background: linear-gradient(135deg, var(--theme-dim), #111); color: var(--theme-primary); border-color: var(--theme-primary); cursor: pointer; transition: transform 0.2s; }
+.mode-toggle-btn { background: linear-gradient(135deg, var(--theme-dim), #111); color: var(--theme-primary); border: 1px solid var(--theme-primary); border-radius: 4px; cursor: pointer; transition: transform 0.2s; padding: 2px 6px; font-size: 10px; font-weight: bold; line-height: 1; display: flex; align-items: center; gap: 4px;}
 .mode-toggle-btn:active { transform: scale(0.95); }
+
+.header-center { display: flex; justify-content: center; flex: 1; }
+.view-toggle-btn { background: linear-gradient(135deg, #1976d2, #0d47a1); border: 1px solid #64b5f6; border-radius: 8px; color: #fff; font-weight: bold; padding: 4px 16px; display: flex; flex-direction: column; align-items: center; line-height: 1.2; box-shadow: 0 2px 5px rgba(0,0,0,0.5); cursor: pointer; transition: transform 0.1s;}
+.view-toggle-btn:active { transform: scale(0.95); }
+
+.header-right { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; flex: 1; }
+.coin-label { font-size: 10px; color: #aaa; font-weight: bold; margin-bottom: 2px; }
+.coin-box { display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.6); padding: 2px 8px; border-radius: 12px; border: 1px solid var(--theme-dim); }
+.green-coin { display: inline-flex; align-items: center; justify-content: center; width: 12px; height: 12px; background: linear-gradient(180deg, #3dff8e, #0eb855); border-radius: 50%; color: #000; font-size: 9px; font-weight: 900;}
 
 /* ===== 佈局與背景 ===== */
 .wrap { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0; }
 .stage { position: relative; width: 100%; height: 100%; overflow: hidden; display: flex; flex-direction: column; background: radial-gradient(circle at 50% 30%, var(--theme-bg), rgba(0,0,0,0.95)), linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.98)), url('https://images.unsplash.com/photo-1551076805-e1869033e561?q=80&w=800&auto=format&fit=crop') center/cover no-repeat; }
 @media (min-width: 481px) { .wrap { padding: 20px; background: #111; } .stage { max-width: 414px; max-height: 896px; border-radius: 16px; border: 2px solid var(--theme-dim); box-shadow: 0 0 30px var(--theme-bg); } }
-.screen { position: absolute; inset: 0; display: none; flex-direction: column; z-index: 10; padding: 12px; padding-bottom: 85px; overflow-y: auto; }
+.screen { position: absolute; inset: 0; display: none; flex-direction: column; z-index: 10; padding: 10px; padding-bottom: 85px; overflow-y: auto; }
 .screen.show { display: flex; }
 .screen.full-view { padding-top: 10px; padding-bottom: 10px; z-index: 200; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); }
 .fullscreen-map { position: fixed !important; inset: 0 !important; z-index: 4000 !important; border-radius: 0 !important; border: none !important; }
@@ -65,32 +64,31 @@ header { padding: 8px 12px; display: flex; justify-content: space-between; align
 .linear-standby h2 { color: var(--theme-primary); font-size: 24px; margin: 0 0 8px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
 .linear-standby p { color: #ccc; font-size: 14px; margin: 0 0 15px 0; line-height: 1.6; }
 
-.subtask-list { display: flex; flex-direction: column; gap: 8px;}
-.subtask-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 12px; border-radius: 8px; border: 1px solid var(--theme-dim); font-weight: bold; font-size: 15px; transition: all 0.2s; flex-shrink: 0;}
+/* ★ 挑戰清單特殊卡片與下拉面板 (手風琴 - 極致瘦身版，確保畫面塞得下 5 張) */
+.role-list { display: flex; flex-direction: column; gap: 6px; margin: 0; flex: 1; overflow-y:auto; padding-bottom: 10px;}
+.role-card { display: flex; align-items: center; gap: 10px; padding: 0 12px; background: var(--theme-grad); border: 1px solid var(--theme-dim); border-radius: 8px; position: relative; cursor: pointer; flex-shrink: 0; min-height: 52px; transition: border-radius 0.2s;} 
+.role-card.expanded { border-radius: 8px 8px 0 0; background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent); border-bottom-color: transparent;}
+.role-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--theme-primary); border-radius: 8px 0 0 8px; }
+.role-card.expanded::before { border-radius: 8px 0 0 0; }
+.role-avatar { width: 36px; height: 36px; border-radius: 6px; border: 1px solid var(--theme-dim); background: #000; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.5);}
+.role-info { flex: 1; display: flex; flex-direction: column; justify-content: center;}
+.role-name { font-size: 14px; font-weight: 900; color: var(--theme-primary); margin: 0 0 2px 0; text-shadow: 1px 1px 2px #000; line-height: 1.2;}
+.role-task { font-size: 11px; color: #fff; font-weight: bold; margin: 0; opacity: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); line-height: 1.2;}
+.role-go-btn { width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); color: var(--btn-text); display: flex; align-items: center; justify-content: center; font-size: 11px; box-shadow: 0 2px 4px rgba(0,0,0,0.8); transition: transform 0.2s; font-weight:bold;}
+
+/* ★ 下拉式任務面板 */
+.role-tasks-accordion { display:none; background:rgba(0,0,0,0.3); border-radius:0 0 8px 8px; padding:8px; margin-top:-4px; border:1px solid var(--theme-dim); border-top:none; box-shadow:inset 0 2px 10px rgba(0,0,0,0.5); margin-bottom: 4px;}
+.role-tasks-accordion.open { display:flex; flex-direction:column; gap:6px; }
+.subtask-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: 6px; border: 1px solid var(--theme-dim); font-weight: bold; font-size: 13px; transition: all 0.2s; flex-shrink: 0;}
 .subtask-item.completed { background: rgba(255, 255, 255, 0.05); border-color: #444; color: #aaa; }
-.subtask-item.completed .status-text { color: var(--theme-primary); filter: drop-shadow(0 0 2px rgba(0,0,0,0.8)); font-size: 16px;}
+.subtask-item.completed .status-text { color: var(--theme-primary); filter: drop-shadow(0 0 2px rgba(0,0,0,0.8)); font-size: 13px;}
 .subtask-item.active { background: linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); border: 2px solid #fff; color: var(--btn-text); text-shadow: var(--btn-shadow); cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5), 0 0 15px var(--theme-primary); transform: scale(1.02); z-index:2; }
 .subtask-item.locked { background: rgba(0, 0, 0, 0.6); border-color: #333; color: #666; pointer-events: none; }
-
-/* 挑戰清單特殊卡片與下拉面板 (手風琴 - 優化間距) */
-.role-list { display: flex; flex-direction: column; gap: 10px; margin: 0; flex: 1; overflow-y:auto; padding-bottom: 10px;}
-.role-card { display: flex; align-items: center; gap: 12px; padding: 0 16px; background: var(--theme-grad); border: 1px solid var(--theme-dim); border-radius: 10px; position: relative; cursor: pointer; flex-shrink: 0; min-height: 75px; transition: border-radius 0.2s;} 
-.role-card.expanded { border-radius: 10px 10px 0 0; background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent); border-bottom-color: transparent;}
-.role-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--theme-primary); border-radius: 10px 0 0 10px; }
-.role-card.expanded::before { border-radius: 10px 0 0 0; }
-.role-avatar { width: 46px; height: 46px; border-radius: 8px; border: 1px solid var(--theme-dim); background: #000; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.5);}
-.role-info { flex: 1; display: flex; flex-direction: column; justify-content: center;}
-.role-name { font-size: 17px; font-weight: 900; color: var(--theme-primary); margin: 0 0 4px 0; text-shadow: 1px 1px 2px #000; line-height: 1.2;}
-.role-task { font-size: 13px; color: #fff; font-weight: bold; margin: 0; opacity: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); line-height: 1.2;}
-.role-go-btn { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); color: var(--btn-text); display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.8); transition: transform 0.2s; font-weight:bold;}
-
-.role-tasks-accordion { display:none; background:rgba(0,0,0,0.3); border-radius:0 0 10px 10px; padding:12px; margin-top:-4px; border:1px solid var(--theme-dim); border-top:none; box-shadow:inset 0 2px 10px rgba(0,0,0,0.5); margin-bottom: 4px;}
-.role-tasks-accordion.open { display:flex; flex-direction:column; gap:8px; }
 
 /* 卡匣等其餘 UI */
 .pokedex-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 6px; flex-wrap: nowrap; scrollbar-width: none; justify-content:center; flex-shrink: 0;}
 .pokedex-tabs::-webkit-scrollbar { display: none; }
-.tab-btn { flex-shrink: 0; padding: 8px 14px; border-radius: 20px; border: 1px solid var(--theme-dim); background: rgba(0,0,0,0.8); color: #ccc; font-weight: bold; font-size: 13px; cursor:pointer; white-space: nowrap; }
+.tab-btn { flex-shrink: 0; padding: 6px 12px; border-radius: 20px; border: 1px solid var(--theme-dim); background: rgba(0,0,0,0.8); color: #ccc; font-weight: bold; font-size: 12px; cursor:pointer; white-space: nowrap; }
 .tab-btn.active { background: var(--theme-primary); color: var(--btn-text); border-color: #fff; text-shadow: var(--btn-shadow); box-shadow: 0 0 10px rgba(212,175,55,0.5); }
 .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; overflow-y: auto; overflow-x: hidden; padding: 4px; align-content: flex-start;}
 .card-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 15px; scrollbar-width: none; }
@@ -150,27 +148,30 @@ header { padding: 8px 12px; display: flex; justify-content: space-between; align
 
 <div class="app">
   <header id="mainHeader">
-    <div class="player-info">
+    <div class="header-left">
       <div class="avatar-wrap" onclick="document.getElementById('profileModal').style.display='flex'">
         <img id="hudAvatar" src="https://i.pravatar.cc/150?img=11">
       </div>
       <div class="player-text-wrap">
         <div class="player-name" id="uiPlayerName" onclick="openSettings()">急救新星</div>
-        <div id="uiStoryToggleWrap" class="segment-ctrl">
-          <div class="segment-btn active" id="segMap" onclick="setHomeView(true)">地圖</div>
-          <div class="segment-btn" id="segList" onclick="setHomeView(false)">清單</div>
-        </div>
+        <button class="mode-toggle-btn" onclick="toggleMode()">
+          <span id="navModeText">初階版</span> <span style="font-size:8px; opacity:0.8;">🔄</span>
+        </button>
       </div>
     </div>
-    
-    <div class="resources">
-      <button class="res-item mode-toggle-btn" onclick="toggleMode()">
-        <span style="font-size:12px; margin-right:2px;">❖</span>
-        <span id="navModeText">初階版</span>
+
+    <div class="header-center" id="uiStoryToggleWrap">
+      <button class="view-toggle-btn" onclick="toggleViewMode()">
+        <span id="viewModeText1" style="font-size:12px;">任務</span>
+        <span id="viewModeText2" style="font-size:12px;">模式</span>
       </button>
-      <div class="res-item">
+    </div>
+
+    <div class="header-right">
+      <div class="coin-label">健康幣</div>
+      <div class="coin-box">
         <span class="green-coin">$</span> 
-        <span id="uiCoins" style="color:#fff;">0</span>
+        <span id="uiCoins" style="color:#fff; font-size:13px; font-weight:bold;">0</span>
       </div>
     </div>
   </header>
@@ -438,8 +439,8 @@ let playerState = {
   scaleRecords: [], strokeCard: null, unlockedPuzzles: [], boughtPuzzles: 0,
   pendingPuzzles: [], foundItems: [], completedExplores: [], 
   dailyExplores: { date: "", count: 0 },
-  extremeAttempts: { date: "", count: 5 }, 
-  challengeRecords: {} 
+  extremeAttempts: { date: "", count: 5 }, // 極限挑戰次數
+  challengeRecords: {} // 個人最佳紀錄
 };
 
 let isGlobalFs = false; 
@@ -589,13 +590,19 @@ function setHomeView(isMap) {
   id('linearStoryContainer').style.display = 'none'; id('restartStoryContainer').style.display = 'none'; id('roleListContainer').style.display = 'none'; id('homeMapContainer').style.display = 'none';
   
   if (isMap && playerState.mode === 'beginner') {
-    id('segMap').classList.add('active'); id('segList').classList.remove('active');
+    if(id('viewModeText1')) { id('viewModeText1').textContent = '任務'; id('viewModeText2').textContent = '模式'; }
     if (playerState.storyProgression < TOTAL_BEG_TASKS) id('linearStoryContainer').style.display = 'flex';
     else id('restartStoryContainer').style.display = 'flex';
   } else {
-    if(playerState.mode === 'beginner'){ id('segList').classList.add('active'); id('segMap').classList.remove('active'); }
+    if(playerState.mode === 'beginner') {
+        if(id('viewModeText1')) { id('viewModeText1').textContent = '清單'; id('viewModeText2').textContent = '模式'; }
+    }
     id('roleListContainer').style.display = 'flex';
   }
+}
+
+function toggleViewMode() {
+    setHomeView(!playerState.storyMode);
 }
 
 function showScreen(screenId) {
