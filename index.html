@@ -66,7 +66,7 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .subtask-item.active { background: linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); border: 2px solid #fff; color: var(--btn-text); text-shadow: var(--btn-shadow); cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5), 0 0 15px var(--theme-primary); transform: scale(1.02); z-index:2; }
 .subtask-item.locked { background: rgba(0, 0, 0, 0.6); border-color: #333; color: #666; pointer-events: none; }
 
-/* 挑戰清單特殊卡片與下拉面板 (手風琴) */
+/* ★ 手風琴式清單卡片 */
 .role-list { display: flex; flex-direction: column; gap: 6px; margin: 0; flex: 1; overflow-y:auto; padding-bottom: 10px;}
 .role-card { display: flex; align-items: center; gap: 10px; padding: 0 12px; background: var(--theme-grad); border: 1px solid var(--theme-dim); border-radius: 8px; position: relative; cursor: pointer; flex-shrink: 0; min-height:60px; transition: border-radius 0.2s;} 
 .role-card.expanded { border-radius: 8px 8px 0 0; background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent); border-bottom-color: transparent;}
@@ -78,7 +78,6 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .role-task { font-size: 11px; color: #fff; font-weight: bold; margin: 0; opacity: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); line-height: 1.2;}
 .role-go-btn { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); color: var(--btn-text); display: flex; align-items: center; justify-content: center; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.8); transition: transform 0.2s; font-weight:bold;}
 
-/* ★ 下拉式任務面板 */
 .role-tasks-accordion { display:none; background:rgba(0,0,0,0.3); border-radius:0 0 8px 8px; padding:10px; margin-top:-4px; border:1px solid var(--theme-dim); border-top:none; box-shadow:inset 0 2px 10px rgba(0,0,0,0.5); margin-bottom: 4px;}
 .role-tasks-accordion.open { display:flex; flex-direction:column; gap:8px; }
 
@@ -117,7 +116,7 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 
 /* ===== ★ 底部導覽列 (瘦身至支援6格) ===== */
 .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 65px; background: rgba(10,10,10,0.95); border-top: 1px solid #333; display: flex; justify-content: space-around; padding: 0 2px; align-items: center; z-index: 100; backdrop-filter: blur(5px); }
-.nav-item { color: #888; font-weight: bold; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; width: 48px; /* 縮小寬度以塞入 6 格 */ transition: color 0.2s;}
+.nav-item { color: #888; font-weight: bold; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; width: 48px; transition: color 0.2s;}
 .nav-item .icon { font-size: 20px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); transition: transform 0.2s; }
 .nav-item.active { color: var(--theme-primary); }
 .nav-item.active .icon { transform: translateY(-2px); }
@@ -187,7 +186,6 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
         </div>
 
         <div class="role-list" id="roleListContainer" style="display: none;"></div>
-        
       </section>
 
       <section class="screen" id="scrCaseDex">
@@ -421,19 +419,19 @@ const SAVE_KEY = 'BrainPioneer_SaveData_v9.6';
 let playerState = { 
   hasSetup: false, name: "", avatar: "https://i.pravatar.cc/150?img=11", mode: "beginner", 
   coins: 0, 
-  brainCoins: 0, // ★ 新增：大腦分數
-  rehabCoins: 0, // ★ 新增：復健分數
+  brainCoins: 0, 
+  rehabCoins: 0, 
   storyMode: false, storyProgression: 0, replayProgression: 0, isReplaying: false, explorationTasksCompleted: 0, 
   completedCasesBeg: new Map(), completedCasesAdv: new Map(),
   taskScoresBeg: new Map(), taskScoresAdv: new Map(), 
   clothes: '#fff', ownedClothes: ['#fff'], 
   glasses: 'none', ownedGlasses: ['none'], 
-  carSkin: 'default', ownedCarSkins: ['default'], // ★ 新增：車子塗裝
+  carSkin: 'default', ownedCarSkins: ['default'], 
   scaleRecords: [], strokeCard: null, unlockedPuzzles: [], boughtPuzzles: 0,
   pendingPuzzles: [], foundItems: [], completedExplores: [], 
   dailyExplores: { date: "", count: 0 },
-  extremeAttempts: { date: "", count: 5 }, // 極限挑戰次數
-  challengeRecords: {} // 個人最佳紀錄
+  extremeAttempts: { date: "", count: 5 }, 
+  challengeRecords: {} 
 };
 
 let isGlobalFs = false; 
@@ -486,7 +484,6 @@ window.addEventListener('message', (event) => {
           
           customAlert(`主治醫師：\n「這裡有件事需要你幫忙：\n\n${t}」\n\n(一般探索，點擊模擬完成！)`, () => {
               playerState.explorationTasksCompleted++; playerState.dailyExplores.count++; 
-              // ★ 每日探索任務給予 50 點大腦分數 (進階) 或 復健分數 (初階)
               let pointMsg = "";
               if (playerState.mode === 'advanced') { playerState.brainCoins = (playerState.brainCoins||0) + 50; pointMsg = "🧠 50 大腦分數"; }
               else { playerState.rehabCoins = (playerState.rehabCoins||0) + 50; pointMsg = "🏋️ 50 復健分數"; }
@@ -616,12 +613,12 @@ function updateModeUI() {
   document.body.className = `mode-${playerState.mode}`;
   id('uiPlayerName').textContent = playerState.name; id('hudAvatar').src = playerState.avatar; id('navModeText').textContent = isBeg ? '初階版' : '進階版';
   
-  id('navSlot1Text').textContent = isBeg ? '知識演練' : '個案演練';
-  id('navSlot2Icon').innerHTML = isBeg ? '📖' : '<span style="filter: brightness(1.5) drop-shadow(0 0 2px #4fc3f7);">🩺</span>';
-  id('navSlot2Text').textContent = isBeg ? '中風歷程' : '臨床工具';
+  if(id('navSlot1Text')) id('navSlot1Text').textContent = isBeg ? '知識演練' : '個案演練';
+  if(id('navSlot2Icon')) id('navSlot2Icon').innerHTML = isBeg ? '📖' : '<span style="filter: brightness(1.5) drop-shadow(0 0 2px #4fc3f7);">🩺</span>';
+  if(id('navSlot2Text')) id('navSlot2Text').textContent = isBeg ? '中風歷程' : '臨床工具';
   
-  id('navSlot5Icon').innerHTML = isBeg ? '💪' : '🏆';
-  id('navSlot5Text').textContent = isBeg ? '復健挑戰' : '極限挑戰';
+  if(id('navSlot6Icon')) id('navSlot6Icon').innerHTML = isBeg ? '💪' : '🏆';
+  if(id('navSlot6Text')) id('navSlot6Text').textContent = isBeg ? '復健挑戰' : '極限挑戰';
   
   if (isBeg) {
     id('uiStoryToggleWrap').style.display = 'flex';
@@ -638,7 +635,7 @@ function handleNavSlot2() {
   else { customAlert('此功能積極開發中，將為您提供實用的進階臨床評估工具！', null, '🚧 敬請期待'); }
 }
 
-function handleNavSlot5() {
+function handleNavSlot6() {
   if(playerState.mode === 'beginner') { showScreen('scrRehab'); } 
   else { showScreen('scrLeaderboard'); renderTotalScoreLeaderboard(); }
 }
@@ -1099,6 +1096,21 @@ function showGachaAnimation(newId, availableIds) {
 
 function playPendingPuzzle(pid) { window.currentChallengePuzzleId = pid; id('gameTitle').textContent = `🧩 挑戰拼圖 #${pid}`; id('gameFrame').src = `game_jigsaw.html?imgId=${pid}&isReplay=false`; id('gameOverlay').style.display = 'flex'; }
 function replayPuzzle(pid) { window.currentChallengePuzzleId = null; id('gameTitle').textContent = `🧩 欣賞拼圖 #${pid}`; id('gameFrame').src = `game_jigsaw.html?imgId=${pid}&isReplay=true`; id('gameOverlay').style.display = 'flex'; }
+
+function tryLaunchFreeCell() {
+  const isBegMaster = playerState.taskScoresBeg.size >= 25; const isAdvMaster = playerState.taskScoresAdv.size >= 25;
+  if (isBegMaster && isAdvMaster) {
+    if(id('gameTitle')) id('gameTitle').textContent = '🃏 腦脈新接龍'; if(id('gameFrame')) id('gameFrame').src = 'game_freecell.html'; if(id('gameOverlay')) id('gameOverlay').style.display = 'flex';
+  } else {
+    const avail = getAvailableTickets();
+    if (avail > 0) {
+        customConfirm(`挑戰接龍將扣除 1 張通用票券（目前剩餘：${avail} 張）。\n確定要挑戰嗎？`, () => {
+            playerState.usedFreecellTickets = (playerState.usedFreecellTickets || 0) + 1; saveGameData(); updateHUD(); renderCaseDex();
+            if(id('gameTitle')) id('gameTitle').textContent = '🃏 腦脈新接龍'; if(id('gameFrame')) id('gameFrame').src = 'game_freecell.html'; if(id('gameOverlay')) id('gameOverlay').style.display = 'flex';
+        }, null, "🃏 消耗票券");
+    } else { customAlert("票券不足！每完成 5 項任務或演練可獲得 1 張票券", null, "🎟️ 票券不足"); }
+  }
+}
 
 // ===============================================
 // ★ 極限挑戰賽
