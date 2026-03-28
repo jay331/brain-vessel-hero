@@ -62,76 +62,89 @@
 /* ★ 商店通道 */
 .corridor-store { position: absolute; left: 834px; top: -900px; width: 182px; height: 150px; background: #eceff1; border-top: 16px solid #90a4ae; border-bottom: 16px solid #90a4ae; z-index:3; }
 
-/* 門診藥局 */
-.room-pharmacy { position: absolute; left: 2150px; top: -1000px; width: 400px; height: 400px; background: #fff8e1; border: 16px solid #4fc3f7; border-radius: 12px; z-index:1; box-shadow: inset 0 0 50px rgba(0,0,0,0.15); }
-.room-pharmacy::before { content: '取藥櫃台'; position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); width: 300px; height: 50px; background: linear-gradient(180deg, #0288d1, #0277bd); color: white; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 20px; border-radius: 25px; border: 4px solid #01579b; box-shadow: 0 15px 25px rgba(0,0,0,0.3); }
+/* =========================================
+   🏥 擴大版：門診藥局 (與急診同高)
+   ========================================= */
+.room-pharmacy { 
+    position: absolute; left: 2150px; top: -1200px; width: 400px; height: 800px; 
+    background: #fff8e1; border: 16px solid #4fc3f7; border-radius: 12px; z-index:1; 
+    box-shadow: inset 0 0 50px rgba(0,0,0,0.15); 
+}
+.room-pharmacy::before { 
+    content: '門診領藥櫃台'; position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); 
+    width: 300px; height: 50px; background: linear-gradient(180deg, #0288d1, #0277bd); color: white; 
+    display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 20px; 
+    border-radius: 25px; border: 4px solid #01579b; box-shadow: 0 15px 25px rgba(0,0,0,0.3); 
+}
+
 /* ★ 藥局通道 */
 .corridor-pharmacy { position: absolute; left: 1984px; top: -900px; width: 182px; height: 150px; background: #eceff1; border-top: 16px solid #90a4ae; border-bottom: 16px solid #90a4ae; z-index:3; }
 
 /* =========================================
-   🚑 擴建版：急診醫學中心 (ER Expanded)
+   🚑 終極版：急診醫學中心 (ER Expanded)
    ========================================= */
 
-/* 通用連接通道 (連接電腦斷層與門診藥局) */
-.corridor-er-link {
-    position: absolute; left: 2550px; width: 100px; height: 80px;
-    background: #eceff1; border-top: 10px solid #d32f2f; border-bottom: 10px solid #d32f2f; z-index: 3;
+/* 1. 雙通道：連接門診藥局(左)與急診室(右) */
+.corridor-er-link-top {
+    position: absolute; left: 2534px; top: -1100px; width: 182px; height: 120px;
+    background: #eceff1; border-top: 16px solid #90a4ae; border-bottom: 16px solid #90a4ae; z-index: 3;
+}
+.corridor-er-link-bottom {
+    position: absolute; left: 2534px; top: -550px; width: 182px; height: 150px;
+    background: #eceff1; border-top: 16px solid #90a4ae; border-bottom: 16px solid #90a4ae; z-index: 3;
 }
 
-/* 急診室外框大底盤 */
+/* 2. 急診大底盤 (1200 x 800) */
 .room-er-expanded {
-    position: absolute; left: 2650px; top: -1200px; width: 950px; height: 800px;
+    position: absolute; left: 2700px; top: -1200px; width: 1200px; height: 800px;
     background-color: #fafafa;
     border: 16px solid #d32f2f; border-radius: 12px; z-index: 1;
-    box-shadow: inset 0 0 80px rgba(211, 47, 47, 0.15), 0 20px 50px rgba(0,0,0,0.3);
+    box-shadow: inset 0 0 80px rgba(211, 47, 47, 0.15);
     overflow: hidden;
 }
 
 /* 內部各區塊通用設定 */
-.er-zone {
-    position: absolute; box-sizing: border-box;
-    background: rgba(255, 255, 255, 0.6);
-    border: 4px solid #b0bec5; /* 輕微的隔間牆 */
-}
+.er-zone { position: absolute; box-sizing: border-box; }
 .zone-label {
-    position: absolute; top: 10px; left: 15px;
-    font-size: 16px; font-weight: 900; color: #546e7a;
+    position: absolute; top: 10px; left: 15px; font-size: 16px; font-weight: 900; color: #546e7a;
     background: rgba(255,255,255,0.8); padding: 4px 10px; border-radius: 6px; z-index: 10;
 }
 
-/* 1. 急診大門 & 檢傷區 (右下) */
-.er-triage { right: 0; bottom: 0; width: 300px; height: 250px; background: repeating-linear-gradient(45deg, #ffebee 0, #ffebee 10px, transparent 10px, transparent 20px); }
-.er-entrance-doors { position: absolute; bottom: -4px; right: 50px; width: 150px; height: 16px; background: #90a4ae; border: 2px solid #546e7a; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 10px; box-shadow: 0 0 10px rgba(211, 47, 47, 0.8); }
+/* --- 右側區 (寬 300px) --- */
+.er-pharm { right: 0; top: 0; width: 300px; height: 250px; background: #fff8e1; border-bottom: 4px solid #b0bec5; border-left: 4px solid #b0bec5;}
+.er-obs { right: 0; top: 250px; width: 300px; height: 300px; background: #e3f2fd; border-bottom: 4px solid #b0bec5; border-left: 4px solid #b0bec5;}
+.er-triage { right: 0; bottom: 0; width: 300px; height: 250px; background: repeating-linear-gradient(45deg, #ffebee 0, #ffebee 10px, transparent 10px, transparent 20px); border-left: 4px solid #b0bec5;}
 .er-triage-desk { position: absolute; top: 80px; left: 30px; width: 120px; height: 80px; background: linear-gradient(135deg, #ffffff, #cfd8dc); border: 4px solid #90a4ae; border-radius: 8px; border-right: 10px solid #d32f2f; display: flex; align-items: center; justify-content: center; color: #d32f2f; font-weight: 900; }
 
-/* 2. 留觀區 (右中) */
-.er-obs { right: 0; bottom: 250px; width: 300px; height: 300px; background: #e3f2fd; }
+/* --- 中央區：急救 Trauma (寬 500px) --- */
+.er-trauma { right: 300px; top: 0; width: 500px; height: 600px; border-left: 8px dashed #b0bec5; background: rgba(255, 235, 238, 0.4); }
+.er-trauma-bay { position: absolute; width: 140px; height: 160px; border-top: 4px dashed #90a4ae; border-right: 4px dashed #90a4ae; background: rgba(255,255,255,0.8); }
+/* 實體牆與雙電動門 */
+.er-trauma-wall-bottom {
+    position: absolute; right: 300px; top: 600px; width: 500px; height: 16px;
+    background: linear-gradient(90deg, transparent 0, transparent 100px, #90a4ae 100px, #90a4ae 400px, transparent 400px, transparent 500px);
+}
+.er-auto-door { position: absolute; top: 4px; width: 80px; height: 8px; background: rgba(144, 202, 249, 0.6); border: 2px solid #1976d2; border-radius: 4px; }
 
-/* 3. 急診藥局 (右上) */
-.er-pharm { right: 0; top: 0; width: 300px; height: 250px; background: #fff8e1; }
-.er-pharm-counter { position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%); width: 180px; height: 16px; background: #81d4fa; border: 2px solid #0288d1; border-radius: 8px; }
-.er-pharm-shelves { position: absolute; top: 60px; left: 20px; width: 260px; height: 40px; background: repeating-linear-gradient(90deg, #ffcc80 0, #ffcc80 20px, #ffa726 20px, #ffa726 25px); border: 2px solid #ef6c00; box-shadow: inset 0 10px 10px rgba(0,0,0,0.1); }
+/* --- 垂直通道 (寬 100px) --- */
+.er-vert-corridor { right: 800px; top: 0; width: 100px; height: 650px; background: #eceff1; }
 
-/* 4. 急救區 Trauma (中下) */
-.er-trauma { left: 300px; bottom: 0; width: 350px; height: 550px; border-left: 8px dashed #b0bec5; border-right: 8px dashed #b0bec5; }
-.er-trauma-bay { position: absolute; width: 120px; height: 140px; border-top: 4px dashed #90a4ae; border-right: 4px dashed #90a4ae; background: rgba(255,255,255,0.8); }
+/* --- 左側區 (寬 300px) --- */
+.er-mri { left: 0; top: 0; width: 300px; height: 350px; background: #eceff1; border-right: 8px solid #b0bec5; border-bottom: 8px solid #b0bec5; }
+.er-ct { left: 0; top: 350px; width: 300px; height: 300px; background: #f5f5f5; border-right: 8px solid #b0bec5; border-bottom: 8px solid #b0bec5; }
 
-/* 5. MRI 室 (中上) */
-.er-mri { left: 300px; top: 0; width: 350px; height: 250px; background: #eceff1; }
-.mri-scanner { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 160px; height: 120px; background: #fff; border-radius: 30px; border: 12px solid #cfd8dc; box-shadow: 0 15px 25px rgba(0,0,0,0.2); }
-.mri-scanner::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70px; height: 70px; background: #111; border-radius: 50%; box-shadow: inset 0 0 20px #000, 0 0 15px #4fc3f7; border: 4px solid #81d4fa; }
+/* --- 底部水平大通道 --- */
+.er-bottom-corridor { left: 0; bottom: 0; width: 900px; height: 150px; background: #eceff1; }
 
-/* 6. 電腦斷層 CT 室 (左側) */
-.er-ct { left: 0; top: 250px; width: 300px; height: 400px; background: #f5f5f5; border-right: 8px solid #b0bec5; }
+/* 儀器、設備與警示燈 */
+.er-monitor { position: absolute; top: 10px; left: 10px; width: 20px; height: 15px; background: #111; border: 2px solid #424242; border-radius: 4px; animation: ecgPulse 1.2s infinite; }
+@keyframes ecgPulse { 0%, 70% { box-shadow: 0 0 2px #00e676; background-color: #111; } 80% { box-shadow: 0 0 15px #00e676; background-color: #00e676; } 100% { box-shadow: 0 0 2px #00e676; background-color: #111; } }
+.er-warning-light { position: absolute; bottom: 20px; right: 20px; width: 30px; height: 30px; background: #d32f2f; border-radius: 50%; border: 4px solid #b71c1c; animation: sirenPulse 1s infinite alternate ease-in-out; }
+@keyframes sirenPulse { from { opacity: 0.5; transform: scale(0.9); } to { opacity: 1; transform: scale(1.15); box-shadow: 0 0 30px #ff5252, 0 0 80px #ff5252; } }
 .ct-scanner { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100px; height: 160px; background: #e0e0e0; border-radius: 20px; border: 8px solid #9e9e9e; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
 .ct-scanner::before { content: ''; position: absolute; top: 40px; left: 50%; transform: translateX(-50%); width: 70px; height: 70px; background: #212121; border-radius: 50%; box-shadow: inset 0 0 20px #000; }
 .ct-scanner::after { content: ''; position: absolute; bottom: -50px; left: 50%; transform: translateX(-50%); width: 36px; height: 70px; background: #cfd8dc; border-radius: 4px; border: 2px solid #78909c; }
 
-/* 儀器與警示燈 */
-.er-monitor { position: absolute; top: 10px; left: 10px; width: 20px; height: 15px; background: #111; border: 2px solid #424242; border-radius: 4px; animation: ecgPulse 1.2s infinite; }
-@keyframes ecgPulse { 0%, 70% { box-shadow: 0 0 2px #00e676; background-color: #111; } 80% { box-shadow: 0 0 15px #00e676; background-color: #00e676; } 100% { box-shadow: 0 0 2px #00e676; background-color: #111; } }
-.er-warning-light { position: absolute; bottom: 40px; right: 20px; width: 30px; height: 30px; background: #d32f2f; border-radius: 50%; border: 4px solid #b71c1c; animation: sirenPulse 1s infinite alternate ease-in-out; }
-@keyframes sirenPulse { from { opacity: 0.5; transform: scale(0.9); } to { opacity: 1; transform: scale(1.15); box-shadow: 0 0 30px #ff5252, 0 0 80px #ff5252; } }
 /* --- 高樓層通用模組 --- */
 .floor-box { position: absolute; width: 800px; height: 600px; background: #f0f4f8; border: 12px solid #b0bec5; border-radius: 20px; display:flex; align-items:center; justify-content:center; font-size: 40px; font-weight: 900; color: #78909c; z-index:1; box-shadow: inset 0 0 50px rgba(0,0,0,0.05);}
 .floor-elevator { position: absolute; left: 350px; top: 0; width: 100px; height: 40px; background: #cfd8dc; border: 6px solid #546e7a; border-top:none; border-radius: 0 0 8px 8px; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:14px; color:#37474f;}
