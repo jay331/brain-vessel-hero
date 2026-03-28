@@ -20,44 +20,45 @@ input, select { font-family: inherit; background: rgba(0,0,0,0.6); border: 1px s
 input[type="checkbox"] { width: auto; }
 .app { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; }
 
-/* ===== HUD 標題列 (優化：第一行加高，第二行降低) ===== */
+/* ===== HUD 標題列 (優化：第一行單列緊湊，第二行 Tabs) ===== */
 header { display: flex; flex-direction: column; background: linear-gradient(180deg, rgba(0,0,0,0.95), rgba(0,0,0,0.8)); border-bottom: 1px solid var(--theme-dim); z-index: 100; flex-shrink: 0; padding: 0; }
-.header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 12px 10px; }
+.header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 8px 10px; }
 
-/* 左側：頭像與玩家資訊 */
-.header-left { display: flex; align-items: center; gap: 12px; flex: 1; }
-.avatar-wrap { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--theme-primary); background: #000; overflow: hidden; position: relative; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.5); flex-shrink: 0;}
+/* 左側：頭像與玩家資訊 (同行) */
+.header-left { display: flex; align-items: center; gap: 8px; flex: 1; }
+.avatar-wrap { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--theme-primary); background: #000; overflow: hidden; position: relative; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.5); flex-shrink: 0;}
 .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
-.player-text-wrap { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
-.player-name { font-size: 16px; font-weight: 900; color: #fff; cursor: pointer; transition: color 0.2s; letter-spacing: 1px;} 
+.player-text-wrap { display: flex; align-items: center; gap: 6px; flex-wrap: wrap;}
+.player-name { font-size: 14px; font-weight: bold; color: #fff; cursor: pointer; transition: color 0.2s;} 
 .player-name:active { color: var(--theme-primary); }
 
-/* 中央：膠囊模式切換鈕 */
-.header-center { display: flex; justify-content: center; align-items: center; flex: 1; }
-.mode-toggle-btn { background: rgba(0,0,0,0.6); color: var(--theme-primary); border: 1px solid var(--theme-dim); border-radius: 99px; cursor: pointer; transition: transform 0.2s; padding: 4px 14px; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
-.mode-toggle-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.1); }
+/* 模式切換鈕 (放在姓名右側) */
+.mode-toggle-btn { background: rgba(0,0,0,0.6); color: #aaa; border: 1px solid var(--theme-dim); border-radius: 99px; cursor: pointer; transition: all 0.2s; padding: 4px 10px; font-size: 11px; font-weight: bold; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+.mode-toggle-btn:active { transform: scale(0.95); }
+.mode-toggle-btn span.mode-text { color: var(--theme-primary); text-shadow: 0 0 5px rgba(255,255,255,0.2);}
 
-/* 右側：健康幣 (上下排列) */
-.header-right { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; flex: 1; }
-.coin-title { color: var(--good); font-weight: 900; font-size: 12px; margin-bottom: 2px; letter-spacing: 1px; }
-.coin-value { color: #fff; font-size: 18px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.8); line-height: 1; }
+/* 右側：健康幣 (同行顯示) */
+.header-right { display: flex; align-items: center; justify-content: flex-end; }
+.res-item { display: flex; align-items: center; gap: 6px; font-weight: 900; font-size: 14px; white-space: nowrap; }
 
-/* 次級大頁籤 (Tabs - 降低高度) */
+/* 次級大頁籤 (Tabs) */
 .sub-header-tabs { display: flex; width: 100%; background: rgba(0,0,0,0.4); border-top: 1px solid rgba(255,255,255,0.05); }
-.sub-header-tabs .tab-item { flex: 1; text-align: center; padding: 8px 0; font-size: 14px; font-weight: bold; color: #888; cursor: pointer; transition: all 0.2s; border-bottom: 3px solid transparent; }
+.sub-header-tabs .tab-item { flex: 1; text-align: center; padding: 10px 0; font-size: 14px; font-weight: bold; color: #888; cursor: pointer; transition: all 0.2s; border-bottom: 3px solid transparent; }
 .sub-header-tabs .tab-item.active { color: var(--theme-primary); border-bottom-color: var(--theme-primary); background: linear-gradient(to top, rgba(255,255,255,0.05), transparent); }
 .sub-header-tabs .tab-item:active { background: rgba(255,255,255,0.1); }
 
 /* ===== 佈局與背景 ===== */
-.wrap { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0; }
-.stage { position: relative; width: 100%; height: 100%; overflow: hidden; display: flex; flex-direction: column; background: radial-gradient(circle at 50% 30%, var(--theme-bg), rgba(0,0,0,0.95)), linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.98)), url('https://images.unsplash.com/photo-1551076805-e1869033e561?q=80&w=800&auto=format&fit=crop') center/cover no-repeat; }
-@media (min-width: 481px) { .wrap { padding: 20px; background: #111; } .stage { max-width: 414px; max-height: 896px; border-radius: 16px; border: 2px solid var(--theme-dim); box-shadow: 0 0 30px var(--theme-bg); } }
+.wrap { flex: 1; display: flex; flex-direction: column; min-height: 0; position: relative;}
+.stage { position: absolute; inset: 0; display: flex; flex-direction: column; background: radial-gradient(circle at 50% 30%, var(--theme-bg), rgba(0,0,0,0.95)), linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.98)), url('https://images.unsplash.com/photo-1551076805-e1869033e561?q=80&w=800&auto=format&fit=crop') center/cover no-repeat; }
 
 /* ★ 加大 padding-bottom 避免地圖/清單被底部導覽列切掉 */
-.screen { position: absolute; inset: 0; display: none; flex-direction: column; z-index: 10; padding: 10px; padding-bottom: 95px; overflow-y: auto; }
+.screen { position: absolute; inset: 0; display: none; flex-direction: column; z-index: 10; padding: 10px; padding-bottom: 120px; overflow-y: auto; }
 .screen.show { display: flex; }
 .screen.full-view { padding-top: 10px; padding-bottom: 10px; z-index: 200; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); }
-.fullscreen-map { position: fixed !important; inset: 0 !important; z-index: 4000 !important; border-radius: 0 !important; border: none !important; padding-bottom: 0 !important; }
+
+/* ★ 針對 iframe 容器的防切割設定 */
+#homeMapContainer { display: none; flex: 1; border-radius: 8px; overflow: hidden; border: 1px solid var(--theme-dim); position: absolute; top: 10px; left: 10px; right: 10px; bottom: 85px; transition: all 0.3s; }
+.fullscreen-map { position: fixed !important; inset: 0 !important; z-index: 4000 !important; border-radius: 0 !important; border: none !important; padding-bottom: 0 !important; margin: 0 !important;}
 
 /* ===== 元件 ===== */
 .panel { background: var(--theme-panel); border: 1px solid var(--theme-dim); border-radius: 12px; padding: 15px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; flex: 1; min-height: 0;}
@@ -75,8 +76,8 @@ header { display: flex; flex-direction: column; background: linear-gradient(180d
 .linear-standby p { color: #ccc; font-size: 14px; margin: 0 0 15px 0; line-height: 1.6; }
 
 /* ★ 挑戰清單特殊卡片與下拉面板 */
-.role-list { display: flex; flex-direction: column; gap: 8px; margin: 0; flex: 1; overflow-y:auto; padding-bottom: 10px;}
-.role-card { display: flex; align-items: center; gap: 10px; padding: 0 12px; background: var(--theme-grad); border: 1px solid var(--theme-dim); border-radius: 8px; position: relative; cursor: pointer; flex-shrink: 0; min-height: 55px; transition: border-radius 0.2s;} 
+.role-list { display: flex; flex-direction: column; gap: 8px; margin: 0; flex: 1; overflow-y:auto; padding-bottom: 120px;} /* 增加 padding-bottom 確保最後一項能捲動出來 */
+.role-card { display: flex; align-items: center; gap: 10px; padding: 0 12px; background: var(--theme-grad); border: 1px solid var(--theme-dim); border-radius: 8px; position: relative; cursor: pointer; flex-shrink: 0; min-height: 60px; transition: border-radius 0.2s;} 
 .role-card.expanded { border-radius: 8px 8px 0 0; background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent); border-bottom-color: transparent;}
 .role-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--theme-primary); border-radius: 8px 0 0 8px; }
 .role-card.expanded::before { border-radius: 8px 0 0 0; }
@@ -84,7 +85,7 @@ header { display: flex; flex-direction: column; background: linear-gradient(180d
 .role-info { flex: 1; display: flex; flex-direction: column; justify-content: center;}
 .role-name { font-size: 15px; font-weight: 900; color: var(--theme-primary); margin: 0 0 2px 0; text-shadow: 1px 1px 2px #000; line-height: 1.2;}
 .role-task { font-size: 11px; color: #fff; font-weight: bold; margin: 0; opacity: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); line-height: 1.2;}
-.role-go-btn { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); color: var(--btn-text); display: flex; align-items: center; justify-content: center; font-size: 11px; box-shadow: 0 2px 4px rgba(0,0,0,0.8); transition: transform 0.2s; font-weight:bold;}
+.role-go-btn { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); color: var(--btn-text); display: flex; align-items: center; justify-content: center; font-size: 11px; box-shadow: 0 2px 8px rgba(0,0,0,0.8); transition: transform 0.2s; font-weight:bold;}
 
 /* 下拉式任務面板 */
 .role-tasks-accordion { display:none; background:rgba(0,0,0,0.3); border-radius:0 0 8px 8px; padding:10px; margin-top:-4px; border:1px solid var(--theme-dim); border-top:none; box-shadow:inset 0 2px 10px rgba(0,0,0,0.5); margin-bottom: 4px;}
@@ -128,7 +129,7 @@ header { display: flex; flex-direction: column; background: linear-gradient(180d
 .trend-card { background: rgba(0,0,0,0.5); border: 1px solid var(--theme-dim); border-radius: 8px; padding: 10px; margin-bottom: 10px; flex-shrink: 0;}
 .health-dist-title { display: flex; justify-content: space-between; font-size: 11px; color: #ccc; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 
-/* ===== ★ 底部導覽列 (最佳化比例與修復外框被切掉問題) ===== */
+/* ===== ★ 底部導覽列 ===== */
 .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 75px; background: rgba(10,10,10,0.95); border-top: 1px solid #333; display: flex; justify-content: space-around; padding: 0 5px; align-items: center; z-index: 100; backdrop-filter: blur(5px); padding-bottom: env(safe-area-inset-bottom); }
 .nav-item { color: #888; font-weight: bold; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; flex: 1; transition: color 0.2s; height: 100%;}
 .nav-item .icon { font-size: 24px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); transition: transform 0.2s; margin-bottom: 2px;}
@@ -173,9 +174,9 @@ header { display: flex; flex-direction: column; background: linear-gradient(180d
       </div>
       
       <div class="header-right">
-        <div class="res-item">
-          <span style="color:var(--good); font-weight:bold;">健康幣</span>
-          <span id="uiCoins" style="color:#fff; font-size:14px;">0</span>
+        <div class="res-item" style="background:transparent; border:none; box-shadow:none; flex-direction: row; gap: 6px;">
+          <span style="color:var(--good); font-weight:bold; font-size: 13px;">健康幣</span>
+          <span id="uiCoins" style="color:#fff; font-size:16px;">0</span>
         </div>
       </div>
     </div>
@@ -202,7 +203,7 @@ header { display: flex; flex-direction: column; background: linear-gradient(180d
           <button class="btn" style="background:var(--theme-primary); color:var(--btn-text); font-size:16px; padding:12px; box-shadow:0 4px 15px rgba(0,0,0,0.5);" onclick="restartBeginnerStory()">🔄 重新開始體驗</button>
         </div>
 
-        <div id="homeMapContainer" style="display: none; flex: 1; border-radius: 12px; overflow: hidden; border: 1px solid var(--theme-dim); position: relative; transition: all 0.3s; margin-bottom: 10px;">
+        <div id="homeMapContainer">
           <iframe id="homeMapFrame" style="position:absolute; inset:0; width:100%; height:100%; border:none; background:#000;"></iframe>
         </div>
 
@@ -610,9 +611,10 @@ function setHomeView(isMap) {
     if (playerState.mode === 'beginner' && playerState.storyProgression < TOTAL_BEG_TASKS) id('linearStoryContainer').style.display = 'flex';
     else if (playerState.mode === 'beginner') id('restartStoryContainer').style.display = 'flex';
     else {
-        // 進階版的任務模式：暫時顯示敬請期待
-        id('linearStoryContainer').style.display = 'flex';
-        id('linearStoryContainer').innerHTML = `<h2>進階版任務模式</h2><p>全新挑戰關卡積極準備中...</p>`;
+        // 進階版的任務模式：地圖畫面
+        id('homeMapContainer').style.display = 'block'; 
+        id('homeMapContainer').classList.remove('fullscreen-map'); 
+        id('homeMapFrame').src = `rpg_loader.html?taskId=hub_world`;
     }
   } else {
     id('roleListContainer').style.display = 'flex';
@@ -1444,4 +1446,4 @@ window.onload = () => {
 };
 </script>
 </body>
-</html>
+</html>)
