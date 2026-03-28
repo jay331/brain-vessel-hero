@@ -66,8 +66,6 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .subtask-item.active { background: linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); border: 2px solid #fff; color: var(--btn-text); text-shadow: var(--btn-shadow); cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5), 0 0 15px var(--theme-primary); transform: scale(1.02); z-index:2; }
 .subtask-item.locked { background: rgba(0, 0, 0, 0.6); border-color: #333; color: #666; pointer-events: none; }
 
-/* ★ 這裡的 boss-banner 原本是按鈕，但因為已經移到導覽列了，這裡就不需要這段 CSS，保留以防萬一 */
-
 /* 挑戰清單特殊卡片與下拉面板 (手風琴) */
 .role-list { display: flex; flex-direction: column; gap: 6px; margin: 0; flex: 1; overflow-y:auto; padding-bottom: 10px;}
 .role-card { display: flex; align-items: center; gap: 10px; padding: 0 12px; background: var(--theme-grad); border: 1px solid var(--theme-dim); border-radius: 8px; position: relative; cursor: pointer; flex-shrink: 0; min-height:60px; transition: border-radius 0.2s;} 
@@ -117,18 +115,18 @@ header { padding: 4px 8px; display: flex; justify-content: space-between; align-
 .trend-card { background: rgba(0,0,0,0.5); border: 1px solid var(--theme-dim); border-radius: 8px; padding: 10px; margin-bottom: 8px; flex-shrink: 0;}
 .health-dist-title { display: flex; justify-content: space-between; font-size: 10px; color: #ccc; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 
-/* ===== 底部導覽列 ===== */
-.bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 65px; background: rgba(10,10,10,0.95); border-top: 1px solid #333; display: flex; justify-content: space-around; padding: 0 4px; align-items: center; z-index: 100; backdrop-filter: blur(5px); }
-.nav-item { color: #888; font-weight: bold; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; width: 55px; transition: color 0.2s;}
+/* ===== ★ 底部導覽列 (瘦身至支援6格) ===== */
+.bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 65px; background: rgba(10,10,10,0.95); border-top: 1px solid #333; display: flex; justify-content: space-around; padding: 0 2px; align-items: center; z-index: 100; backdrop-filter: blur(5px); }
+.nav-item { color: #888; font-weight: bold; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; width: 48px; /* 縮小寬度以塞入 6 格 */ transition: color 0.2s;}
 .nav-item .icon { font-size: 20px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); transition: transform 0.2s; }
 .nav-item.active { color: var(--theme-primary); }
 .nav-item.active .icon { transform: translateY(-2px); }
 
-.mode-toggle-sq { width: 58px; height: 50px; border: 1px solid var(--theme-primary); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--theme-primary); font-size: 10px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.05); }
+.mode-toggle-sq { width: 50px; height: 45px; border: 1px solid var(--theme-primary); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--theme-primary); font-size: 10px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.05); margin: 0 2px;}
 body.mode-advanced .mode-toggle-sq { background: linear-gradient(135deg, var(--theme-dim), #0a0a0a); }
 body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--theme-dim), #0a0a0a); }
 .mode-toggle-sq:active { background: #000; transform: scale(0.95); }
-.mode-toggle-sq .icon { font-size: 20px; margin-bottom: 2px; text-shadow: none;}
+.mode-toggle-sq .icon { font-size: 18px; margin-bottom: 2px; text-shadow: none;}
 
 /* 彈出視窗 */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 50000; padding: 15px;}
@@ -190,7 +188,7 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
 
         <div class="role-list" id="roleListContainer" style="display: none;"></div>
         
-        </section>
+      </section>
 
       <section class="screen" id="scrCaseDex">
         <div class="panel" style="display: flex; flex-direction: column;">
@@ -218,8 +216,38 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
 
       <section class="screen" id="scrLeaderboard">
         <div class="panel" style="display:flex; flex-direction:column; overflow:hidden;">
-          <h2 style="color: var(--theme-primary); margin-top:0; border-bottom: none;" id="lbMainTitle">極限挑戰大賽</h2>
+          <h2 style="color: var(--theme-primary); margin-top:0; border-bottom: none;" id="lbMainTitle">🏆 極限挑戰大賽</h2>
+          
+          <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.6); padding:10px 15px; border-radius:8px; margin-bottom:15px; border:1px solid var(--theme-dim);">
+             <div style="color:#ffb300; font-size:15px; font-weight:bold; display:flex; align-items:center; gap:6px;">
+                 <span style="font-size:22px;">🧠</span> 
+                 <span><span id="uiBrainCoins" style="font-size:18px;">0</span> 分</span>
+             </div>
+             <button class="btn btn-rescue" style="width:auto; padding:6px 12px; margin:0;" onclick="openChallengeStore()">🛍️ 挑戰商城</button>
+          </div>
+
           <div id="lbListTotal" style="flex: 1; overflow-y: auto; padding-right: 4px;"></div>
+        </div>
+        <button class="btn btn-back" onclick="showScreen('scrHome')"><span class="back-icon">🏠</span> 返回主畫面</button>
+      </section>
+
+      <section class="screen" id="scrRehab">
+        <div class="panel" style="display:flex; flex-direction:column; overflow:hidden;">
+          <h2 style="color: var(--theme-primary); margin-top:0; border-bottom: none;">💪 居家復健挑戰</h2>
+          
+          <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.6); padding:10px 15px; border-radius:8px; margin-bottom:15px; border:1px solid var(--theme-dim);">
+             <div style="color:var(--good); font-size:15px; font-weight:bold; display:flex; align-items:center; gap:6px;">
+                 <span style="font-size:22px;">🏋️</span> 
+                 <span><span id="uiRehabCoins" style="font-size:18px;">0</span> 分</span>
+             </div>
+             <button class="btn btn-rescue" style="width:auto; padding:6px 12px; margin:0;" onclick="openRehabStore()">🛍️ 復健商城</button>
+          </div>
+
+          <div style="flex: 1; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#aaa;">
+              <div style="font-size:40px; margin-bottom:10px; opacity:0.5;">🚧</div>
+              <div style="font-size:16px; font-weight:bold;">復健小遊戲積極準備中！</div>
+              <div style="font-size:12px; margin-top:8px;">每日完成「醫院探索」可獲取復健分數喔！</div>
+          </div>
         </div>
         <button class="btn btn-back" onclick="showScreen('scrHome')"><span class="back-icon">🏠</span> 返回主畫面</button>
       </section>
@@ -282,8 +310,13 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
           <div id="casedexBadge" style="position:absolute; top:-2px; right:5px; background:var(--accent-red); color:#fff; border-radius:50%; width:16px; height:16px; font-size:10px; font-weight:bold; display:none; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.5); z-index:10;"></div>
         </div>
         
-        <div class="nav-item" id="navSlot5" onclick="handleNavSlot5()" style="position: relative;">
-          <div class="icon" id="navSlot5Icon">💪</div><span style="font-size:10px;" id="navSlot5Text">復健挑戰</span>
+        <div class="nav-item" id="navExplore" onclick="launchExplore()" style="position: relative;">
+          <div class="icon">🏥</div><span style="font-size:10px;">醫院探索</span>
+          <div id="exploreBadge" style="position:absolute; top:-2px; right:5px; background:var(--accent-red); color:#fff; border-radius:50%; width:16px; height:16px; font-size:10px; font-weight:bold; display:none; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.5); z-index:10;"></div>
+        </div>
+
+        <div class="nav-item" id="navSlot6" onclick="handleNavSlot6()" style="position: relative;">
+          <div class="icon" id="navSlot6Icon">💪</div><span style="font-size:10px;" id="navSlot6Text">復健挑戰</span>
           <div id="extremeBadge" style="position:absolute; top:-2px; right:5px; background:var(--theme-primary); color:#000; border-radius:50%; width:16px; height:16px; font-size:10px; font-weight:bold; display:none; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.5); z-index:10;"></div>
         </div>
       </nav>
@@ -364,6 +397,19 @@ body.mode-beginner .mode-toggle-sq { background: linear-gradient(135deg, var(--t
   </div>
 </div>
 
+<div class="modal-overlay" id="challengeStoreModal">
+  <div class="modal-content" style="border-color: #ffb300;">
+    <button class="close-btn" onclick="document.getElementById('challengeStoreModal').style.display='none'">✖</button>
+    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.6); padding:10px 15px; border-radius:8px; margin-bottom:15px; border:1px solid var(--theme-dim);">
+       <span style="color:#aaa; font-size:13px; font-weight:bold;">大腦分數</span>
+       <span style="color:#ffb300; font-size:16px; font-weight:900;" id="csBrainCoinDisplay">🧠 0 分</span>
+    </div>
+    <h3 style="color:#ffb300; margin: 0 0 5px 0;">🛍️ 挑戰商城</h3>
+    <p style="font-size:12px; color:#aaa; margin-bottom:15px;">使用大腦分數兌換極限拉力賽的專屬車輛塗裝！</p>
+    <div id="challengeStoreList" style="display:flex; flex-direction:column; gap:8px;"></div>
+  </div>
+</div>
+
 <script src="js/db_main.js"></script>
 <script>
 // ===============================================
@@ -375,15 +421,19 @@ const SAVE_KEY = 'BrainPioneer_SaveData_v9.6';
 let playerState = { 
   hasSetup: false, name: "", avatar: "https://i.pravatar.cc/150?img=11", mode: "beginner", 
   coins: 0, 
+  brainCoins: 0, // ★ 新增：大腦分數
+  rehabCoins: 0, // ★ 新增：復健分數
   storyMode: false, storyProgression: 0, replayProgression: 0, isReplaying: false, explorationTasksCompleted: 0, 
   completedCasesBeg: new Map(), completedCasesAdv: new Map(),
-  taskScoresBeg: new Map(), taskScoresAdv: new Map(), clothes: '#fff', 
-  ownedClothes: ['#fff'], glasses: 'none', ownedGlasses: ['none'], 
+  taskScoresBeg: new Map(), taskScoresAdv: new Map(), 
+  clothes: '#fff', ownedClothes: ['#fff'], 
+  glasses: 'none', ownedGlasses: ['none'], 
+  carSkin: 'default', ownedCarSkins: ['default'], // ★ 新增：車子塗裝
   scaleRecords: [], strokeCard: null, unlockedPuzzles: [], boughtPuzzles: 0,
   pendingPuzzles: [], foundItems: [], completedExplores: [], 
   dailyExplores: { date: "", count: 0 },
-  extremeAttempts: { date: "", count: 5 }, 
-  challengeRecords: {} 
+  extremeAttempts: { date: "", count: 5 }, // 極限挑戰次數
+  challengeRecords: {} // 個人最佳紀錄
 };
 
 let isGlobalFs = false; 
@@ -400,7 +450,7 @@ window.addEventListener('message', (event) => {
   if (event.data.type === 'MAP_READY') {
     const payload = {
       name: playerState.name, mode: playerState.mode, storyProgression: playerState.storyProgression, explorationTasksCompleted: playerState.explorationTasksCompleted,
-      clothes: playerState.clothes || '#fff', glasses: playerState.glasses || 'none', foundItems: playerState.foundItems || null
+      clothes: playerState.clothes || '#fff', glasses: playerState.glasses || 'none', carSkin: playerState.carSkin || 'default', foundItems: playerState.foundItems || null
     };
     if (event.source) event.source.postMessage({ type: 'SYNC_PLAYER_DATA', payload: payload }, '*');
   }
@@ -436,8 +486,13 @@ window.addEventListener('message', (event) => {
           
           customAlert(`主治醫師：\n「這裡有件事需要你幫忙：\n\n${t}」\n\n(一般探索，點擊模擬完成！)`, () => {
               playerState.explorationTasksCompleted++; playerState.dailyExplores.count++; 
-              if (isNew) { playerState.coins += 300; playerState.completedExplores.push(t); customAlert("完成新探索任務！獲得 300 健康幣！", null, "🏆 任務完成"); } 
-              else { customAlert("這項任務你已經很熟練了！\n(重複任務無健康幣，但已計入今日任務數)", null, "🏆 複習完成"); }
+              // ★ 每日探索任務給予 50 點大腦分數 (進階) 或 復健分數 (初階)
+              let pointMsg = "";
+              if (playerState.mode === 'advanced') { playerState.brainCoins = (playerState.brainCoins||0) + 50; pointMsg = "🧠 50 大腦分數"; }
+              else { playerState.rehabCoins = (playerState.rehabCoins||0) + 50; pointMsg = "🏋️ 50 復健分數"; }
+              
+              if (isNew) { playerState.coins += 300; playerState.completedExplores.push(t); customAlert(`完成新探索任務！\n\n獲得 300 健康幣\n獲得 ${pointMsg}！`, null, "🏆 任務完成"); } 
+              else { customAlert(`這項任務你已經很熟練了！\n(重複任務無健康幣)\n\n但仍獲得 ${pointMsg} 作為今日探索獎勵！`, null, "🏆 複習完成"); }
               saveGameData(); updateHUD();
           }, "👨‍⚕️ 醫師的委託");
       }
@@ -497,9 +552,6 @@ window.addEventListener('message', (event) => {
           setTimeout(() => { customAlert(`拼圖 #${pid} 挑戰成功！已為您正式加入收藏！`, null, "🎉 拼圖收藏成功"); }, 500);
       }
   }
-  else if (event.data.type === 'ACTION_STORE') openStoreUI();
-  else if (event.data.type === 'ACTION_WARDROBE') openWardrobeUI();
-  else if (event.data.type === 'ACTION_WATCH_TV') window.open('https://www.youtube.com/@femhospital4347/videos', '_blank');
 });
 
 // ===============================================
@@ -587,14 +639,17 @@ function handleNavSlot2() {
 }
 
 function handleNavSlot5() {
-  if(playerState.mode === 'beginner') { customAlert('此功能積極開發中，未來將提供病患居家復健挑戰與紀錄功能！', null, '🚧 敬請期待'); } 
+  if(playerState.mode === 'beginner') { showScreen('scrRehab'); } 
   else { showScreen('scrLeaderboard'); renderTotalScoreLeaderboard(); }
 }
 
 function updateHUD() { 
   id('uiCoins').textContent = playerState.coins.toLocaleString(); 
   if(id('storeCoinDisplay')) id('storeCoinDisplay').textContent = `$ ${playerState.coins.toLocaleString()} 幣`;
-  
+  if(id('uiBrainCoins')) id('uiBrainCoins').textContent = (playerState.brainCoins || 0).toLocaleString();
+  if(id('csBrainCoinDisplay')) id('csBrainCoinDisplay').textContent = `🧠 ${(playerState.brainCoins || 0).toLocaleString()} 分`;
+  if(id('uiRehabCoins')) id('uiRehabCoins').textContent = (playerState.rehabCoins || 0).toLocaleString();
+
   const isUnlocked = playerState.mode === 'beginner' ? ROLES_DATA_BEG.every(r => r.currentTask > 1) : ROLES_DATA_ADV.every(r => r.currentTask > 1);
   const badge = id('drillBadge');
   if (badge) {
@@ -638,7 +693,6 @@ function renderHomeRoles() {
     const isCompleted = playerState.mode === 'beginner' ? (doneCount === role.totalTasks) : (role.currentTask > role.totalTasks);
     const progressText = isCompleted ? '✅ 已通關' : `進度 ${playerState.mode==='beginner'?doneCount:role.currentTask-1}/${role.totalTasks}`;
 
-    // 建立任務展開清單
     let tasksHtml = '';
     for(let i=0; i<role.totalTasks; i++) {
         let statusClass = 'locked', icon = '🔒', action = '';
@@ -675,12 +729,10 @@ function toggleAccordion(roleId) {
     const acc = id(`acc-${roleId}`); const btn = id(`btn-${roleId}`); const card = id(`card-${roleId}`);
     const isOpen = acc.classList.contains('open');
 
-    // 關閉所有手風琴
     document.querySelectorAll('.role-tasks-accordion').forEach(el => el.classList.remove('open'));
     document.querySelectorAll('.role-card').forEach(el => el.classList.remove('expanded'));
     document.querySelectorAll('.role-go-btn').forEach(el => el.innerText = '▼');
 
-    // 開啟被點擊的，若原本沒開
     if (!isOpen) {
         acc.classList.add('open'); card.classList.add('expanded'); btn.innerText = '▲';
     }
@@ -708,6 +760,7 @@ function saveProfile(m) {
       ROLES_DATA_ADV.forEach(r => { r.currentTask = 6; r.subTasks.forEach((st, i) => playerState.taskScoresAdv.set(`${r.id}_${i}`, 1000)); });
       playerState.completedCasesBeg.set("11111", 5000); playerState.completedCasesAdv.set("11111", 5000);
       playerState.unlockedPuzzles = Array.from({length: 20}, (_, i) => i + 1); playerState.pendingPuzzles = [];
+      playerState.brainCoins = 9999; playerState.rehabCoins = 9999;
       customAlert("已解鎖全部任務與拼圖！", null, "🔓 開發者模式");
     }
 
@@ -731,9 +784,10 @@ function launchExplore() {
 function saveGameData() {
   const dataToSave = {
     hasSetup: playerState.hasSetup, name: playerState.name, avatar: playerState.avatar, mode: playerState.mode, coins: playerState.coins, 
+    brainCoins: playerState.brainCoins, rehabCoins: playerState.rehabCoins,
     storyMode: playerState.storyMode, storyProgression: playerState.storyProgression, replayProgression: playerState.replayProgression,
     explorationTasksCompleted: playerState.explorationTasksCompleted, clothes: playerState.clothes, ownedClothes: playerState.ownedClothes,
-    glasses: playerState.glasses, ownedGlasses: playerState.ownedGlasses,
+    glasses: playerState.glasses, ownedGlasses: playerState.ownedGlasses, carSkin: playerState.carSkin, ownedCarSkins: playerState.ownedCarSkins,
     completedCasesBeg: Array.from(playerState.completedCasesBeg.entries()), completedCasesAdv: Array.from(playerState.completedCasesAdv.entries()),
     taskScoresBeg: Array.from(playerState.taskScoresBeg.entries()), taskScoresAdv: Array.from(playerState.taskScoresAdv.entries()),
     scaleRecords: playerState.scaleRecords, strokeCard: playerState.strokeCard,
@@ -757,6 +811,8 @@ function loadGameData() {
       if(parsed.avatar) playerState.avatar = parsed.avatar;
       if(parsed.mode) playerState.mode = parsed.mode;
       if(parsed.coins !== undefined) playerState.coins = parsed.coins;
+      if(parsed.brainCoins !== undefined) playerState.brainCoins = parsed.brainCoins;
+      if(parsed.rehabCoins !== undefined) playerState.rehabCoins = parsed.rehabCoins;
       if(parsed.storyMode !== undefined) playerState.storyMode = parsed.storyMode;
       if(parsed.storyProgression !== undefined) playerState.storyProgression = parsed.storyProgression;
       if(parsed.replayProgression !== undefined) playerState.replayProgression = parsed.replayProgression;
@@ -765,6 +821,8 @@ function loadGameData() {
       if(parsed.ownedClothes) playerState.ownedClothes = parsed.ownedClothes;
       if(parsed.glasses) playerState.glasses = parsed.glasses;
       if(parsed.ownedGlasses) playerState.ownedGlasses = parsed.ownedGlasses;
+      if(parsed.carSkin) playerState.carSkin = parsed.carSkin;
+      if(parsed.ownedCarSkins) playerState.ownedCarSkins = parsed.ownedCarSkins;
       if(parsed.strokeCard) playerState.strokeCard = parsed.strokeCard;
       if(parsed.scaleRecords) playerState.scaleRecords = parsed.scaleRecords;
       if(parsed.unlockedPuzzles) playerState.unlockedPuzzles = parsed.unlockedPuzzles;
@@ -1042,21 +1100,6 @@ function showGachaAnimation(newId, availableIds) {
 function playPendingPuzzle(pid) { window.currentChallengePuzzleId = pid; id('gameTitle').textContent = `🧩 挑戰拼圖 #${pid}`; id('gameFrame').src = `game_jigsaw.html?imgId=${pid}&isReplay=false`; id('gameOverlay').style.display = 'flex'; }
 function replayPuzzle(pid) { window.currentChallengePuzzleId = null; id('gameTitle').textContent = `🧩 欣賞拼圖 #${pid}`; id('gameFrame').src = `game_jigsaw.html?imgId=${pid}&isReplay=true`; id('gameOverlay').style.display = 'flex'; }
 
-function tryLaunchFreeCell() {
-  const isBegMaster = playerState.taskScoresBeg.size >= 25; const isAdvMaster = playerState.taskScoresAdv.size >= 25;
-  if (isBegMaster && isAdvMaster) {
-    if(id('gameTitle')) id('gameTitle').textContent = '🃏 腦脈新接龍'; if(id('gameFrame')) id('gameFrame').src = 'game_freecell.html'; if(id('gameOverlay')) id('gameOverlay').style.display = 'flex';
-  } else {
-    const avail = getAvailableTickets();
-    if (avail > 0) {
-        customConfirm(`挑戰接龍將扣除 1 張通用票券（目前剩餘：${avail} 張）。\n確定要挑戰嗎？`, () => {
-            playerState.usedFreecellTickets = (playerState.usedFreecellTickets || 0) + 1; saveGameData(); updateHUD(); renderCaseDex();
-            if(id('gameTitle')) id('gameTitle').textContent = '🃏 腦脈新接龍'; if(id('gameFrame')) id('gameFrame').src = 'game_freecell.html'; if(id('gameOverlay')) id('gameOverlay').style.display = 'flex';
-        }, null, "🃏 消耗票券");
-    } else { customAlert("票券不足！每完成 5 項任務或演練可獲得 1 張票券", null, "🎟️ 票券不足"); }
-  }
-}
-
 // ===============================================
 // ★ 極限挑戰賽
 // ===============================================
@@ -1127,13 +1170,15 @@ function handleChallengeClear(chId, score) {
     
     if (isNewRecord) {
         playerState.challengeRecords[chId] = score; playerState.extremeAttempts.count += 3;
+        playerState.brainCoins = (playerState.brainCoins || 0) + 150; // ★ 破紀錄額外加 150 腦幣
         saveGameData(); updateHUD();
-        customAlert(`太神了！打破個人紀錄！\n\n新紀錄：${score} ${chInfo.unit}\n🎉 額外獲得 3 次極限挑戰機會！`, () => {
+        customAlert(`太神了！打破個人紀錄！\n\n新紀錄：${score} ${chInfo.unit}\n🎉 獲得 150 大腦分數！\n🎁 額外獲得 3 次極限挑戰機會！`, () => {
             if (playerState.mode === 'advanced') { renderTotalScoreLeaderboard(); showScreen('scrLeaderboard'); }
         }, "🏆 突破極限");
     } else {
+        playerState.brainCoins = (playerState.brainCoins || 0) + 100; // ★ 通關獲得 100 腦幣
         saveGameData(); updateHUD();
-        customAlert(`挑戰完成！\n\n本次成績：${score} ${chInfo.unit}\n最佳紀錄：${currentBest} ${chInfo.unit}\n再接再厲突破自我吧！`, () => {
+        customAlert(`挑戰完成！\n\n本次成績：${score} ${chInfo.unit}\n最佳紀錄：${currentBest} ${chInfo.unit}\n🎉 獲得 100 大腦分數！\n再接再厲突破自我吧！`, () => {
             if (playerState.mode === 'advanced') { renderTotalScoreLeaderboard(); showScreen('scrLeaderboard'); }
         }, "🏁 挑戰結束");
     }
@@ -1210,7 +1255,7 @@ function navScaleAction() {
 }
 
 // ===============================================
-// ★ 服裝系統 (商店與衣櫃)
+// ★ 服裝、眼鏡系統與挑戰商城
 // ===============================================
 const CLOTHES_DB = [
   { id: 'c_white', color: '#fff', name: '實習白袍', price: 0 }, { id: 'c_blue', color: '#64b5f6', name: '刷手服(藍)', price: 1000 },
@@ -1222,6 +1267,13 @@ const GLASSES_DB = [
   { id: 'g_none', style: 'none', name: '不戴眼鏡', price: 0 }, { id: 'g_black', style: 'black', name: '復古圓框', price: 500 },
   { id: 'g_square', style: 'square', name: '文青方框', price: 500 }, { id: 'g_half', style: 'half', name: '經典半框', price: 800 },     
   { id: 'g_red', style: 'red', name: '紅框眼鏡', price: 1000 }, { id: 'g_sun', style: 'sun', name: '帥氣墨鏡', price: 1500 }
+];
+
+const CAR_SKINS_DB = [
+  { id: 'car_red', name: '烈焰紅塗裝', color: 'red', price: 500 },
+  { id: 'car_blue', name: '極速藍塗裝', color: 'blue', price: 500 },
+  { id: 'car_orange', name: '活力橘塗裝', color: 'orange', price: 500 },
+  { id: 'car_police', name: '警車造型特仕版', color: 'police', price: 1500 }
 ];
 
 function openStoreUI() {
@@ -1254,6 +1306,42 @@ function buyGlasses(style, price) {
     playerState.coins -= price; if (!playerState.ownedGlasses) playerState.ownedGlasses = ['none']; playerState.ownedGlasses.push(style);
     saveGameData(); updateHUD(); openStoreUI(); customAlert(`購買成功！這副 ${style==='black'?'黑框':'紅框'}眼鏡很適合你喔！請前往【休息室】更換。`, null, '🛍️ 交易成功');
   } else { customAlert(`健康幣不足！還差 ${price - playerState.coins} 幣。`, null, '❌ 餘額不足'); }
+}
+
+function openChallengeStore() {
+  let html = ''; const ownedSkins = playerState.ownedCarSkins || ['default']; 
+  const currentSkin = playerState.carSkin || 'default';
+  
+  CAR_SKINS_DB.forEach(s => {
+    let btnHtml = '';
+    if (ownedSkins.includes(s.color)) {
+        if (currentSkin === s.color) btnHtml = `<button class="btn" style="width:auto; background:var(--good); color:#000; pointer-events:none; padding:8px 12px; font-size:12px;">使用中</button>`;
+        else btnHtml = `<button class="btn" style="width:auto; background:#333; color:#fff; border:1px solid #555; padding:8px 12px; font-size:12px;" onclick="equipCarSkin('${s.color}')">更換</button>`;
+    } else {
+        btnHtml = `<button class="btn btn-rescue" style="width:auto; padding:8px 12px; font-size:12px; background:linear-gradient(135deg, #ffb300, #ff8f00); color:#000; text-shadow:none; box-shadow:0 2px 8px rgba(255,179,0,0.5);" onclick="buyCarSkin('${s.color}', ${s.price})">🧠 ${s.price}</button>`;
+    }
+    
+    html += `<div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.5); padding:10px; border-radius:8px; border:1px solid var(--theme-dim); margin-bottom:5px;"><div style="display:flex; align-items:center; gap:10px;"><div style="font-size:24px; display:flex; align-items:center; justify-content:center; width:24px; height:24px;">🏎️</div><span style="color:#fff; font-weight:bold; font-size:13px;">${s.name}</span></div>${btnHtml}</div>`;
+  });
+  id('challengeStoreList').innerHTML = html; 
+  if(id('csBrainCoinDisplay')) id('csBrainCoinDisplay').textContent = `🧠 ${(playerState.brainCoins || 0).toLocaleString()} 分`;
+  id('challengeStoreModal').style.display = 'flex';
+}
+
+function buyCarSkin(color, price) {
+  if ((playerState.brainCoins || 0) >= price) {
+    playerState.brainCoins -= price; if (!playerState.ownedCarSkins) playerState.ownedCarSkins = ['default']; playerState.ownedCarSkins.push(color);
+    playerState.carSkin = color; // 買完自動裝備
+    saveGameData(); updateHUD(); openChallengeStore(); customAlert('購買成功！已為您自動裝備專屬塗裝！', null, '🛍️ 交易成功');
+  } else { customAlert(`大腦分數不足！還差 ${price - (playerState.brainCoins || 0)} 分。再去挑戰吧！`, null, '❌ 餘額不足'); }
+}
+
+function equipCarSkin(color) {
+  playerState.carSkin = color; saveGameData(); openChallengeStore(); 
+}
+
+function openRehabStore() {
+    customAlert("積極準備中！未來將開放使用復健分數兌換精美獎勵！", null, "🛍️ 復健商城");
 }
 
 function equipGlasses(style) {
@@ -1307,4 +1395,4 @@ window.onload = () => {
 };
 </script>
 </body>
-</html> 
+</html>
