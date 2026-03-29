@@ -68,19 +68,14 @@
   .level-label { position: absolute; top: -35px; white-space: nowrap; background: rgba(0,0,0,0.6); color: #fff; padding: 4px 8px; border-radius: 10px; font-size: 12px; opacity: 0; }
   .active-hit .level-label, .island-active .level-label { opacity: 1; }
 
-  /* === 優化：類別標籤底色 (溫潤的吉卜力木質/牛皮小牌) === */
   .level-category-bottom {
       position: absolute; top: 72px; left: 50%; transform: translateX(-50%);
-      font-size: 11px; color: #ffecb3; /* 暖金黃色文字 */
-      /* 深木質/牛皮色漸層 */
+      font-size: 11px; color: #ffecb3; 
       background: linear-gradient(135deg, rgba(109, 76, 65, 0.95) 0%, rgba(62, 39, 35, 0.95) 100%);
-      padding: 4px 12px; border-radius: 6px; /* 改為圓角矩形小木牌 */
+      padding: 4px 12px; border-radius: 6px; 
       white-space: nowrap; pointer-events: none; 
-      border: 1px solid rgba(188, 170, 164, 0.5);
-      border-bottom: 2px solid rgba(62, 39, 35, 1); /* 木牌厚度感 */
-      box-shadow: 0 4px 6px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.15);
-      text-shadow: 1px 1px 2px #000;
-      z-index: 5;
+      border: 1px solid rgba(188, 170, 164, 0.5); border-bottom: 2px solid rgba(62, 39, 35, 1); 
+      box-shadow: 0 4px 6px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.15); text-shadow: 1px 1px 2px #000; z-index: 5;
   }
 
   .level-title-bottom {
@@ -94,26 +89,9 @@
       animation: bounceArrow 0.8s infinite alternate ease-in-out; pointer-events: none; z-index: 20;
       display: flex; flex-direction: column; align-items: center; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));
   }
-  .arrow-stem {
-      width: 12px; height: 35px;
-      background: linear-gradient(to bottom, rgba(30, 136, 62, 0.9) 0%, rgba(61, 255, 142, 0.9) 100%);
-      border-radius: 5px 5px 0 0;
-      border: 2px solid rgba(255,255,255,0.5); border-bottom: none;
-  }
-  .arrow-point {
-      width: 0; height: 0;
-      border-left: 20px solid transparent;
-      border-right: 20px solid transparent;
-      border-top: 22px solid rgba(61, 255, 142, 0.9);
-      margin-top: -2px; 
-      position: relative;
-  }
-  .arrow-point::after {
-      content: ''; position: absolute; top: -25px; left: -20px;
-      width: 0; height: 0;
-      border-left: 20px solid transparent; border-right: 20px solid transparent;
-      border-top: 22px solid white; opacity: 0.3;
-  }
+  .arrow-stem { width: 12px; height: 35px; background: linear-gradient(to bottom, rgba(30, 136, 62, 0.9) 0%, rgba(61, 255, 142, 0.9) 100%); border-radius: 5px 5px 0 0; border: 2px solid rgba(255,255,255,0.5); border-bottom: none; }
+  .arrow-point { width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 22px solid rgba(61, 255, 142, 0.9); margin-top: -2px; position: relative; }
+  .arrow-point::after { content: ''; position: absolute; top: -25px; left: -20px; width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 22px solid white; opacity: 0.3; }
   @keyframes bounceArrow { 0% { transform: translate(-50%, 0); } 100% { transform: translate(-50%, 12px); } }
 
   #player { position: absolute; left: 150px; bottom: calc(25% + 50px); width: 40px; height: 60px; z-index: 20; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
@@ -222,11 +200,14 @@
                   <div class="level-title-bottom">${item.title || ''}</div>
               `;
           } else if (item.type === 'random') {
-              island.classList.add('random-level', 'island-active'); 
+              island.classList.add('random-level'); 
+              if (item.status === 'locked') island.classList.add('island-locked');
+              else island.classList.add('island-active');
               innerHTMLStr += `<span class="random-text">隨機</span><div class="level-label">抽籤關卡</div><div class="level-title-bottom">未知的挑戰</div>`;
               isRandom = true;
           } else if (item.type === 'comprehensive') {
-              island.classList.add('island-active'); 
+              if (item.status === 'locked') island.classList.add('island-locked');
+              else island.classList.add('island-active');
               innerHTMLStr += `綜合<div class="level-label">綜合演練</div><div class="level-title-bottom">終極考驗</div>`;
               island.style.background = 'radial-gradient(circle at 30% 30%, #ff8a65 0%, #d84315 70%, #bf360c 100%)';
           }
@@ -284,7 +265,8 @@
                   b.element.classList.add('active-hit'); 
                   hitAny = true;
                   
-                  if (b.isRandom && !b.isRollingLocked) {
+                  // 只有狀態不是 locked 時，才會觸發抽籤數字狂跳動畫
+                  if (b.isRandom && !b.isRollingLocked && b.itemData.status !== 'locked') {
                       b.isRollingLocked = true;
                       let rollCount = 0; const randomText = b.element.querySelector('.random-text'); const levelLabel = b.element.querySelector('.level-label');
                       const rollInterval = setInterval(() => {
