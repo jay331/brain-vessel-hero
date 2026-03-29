@@ -28,8 +28,9 @@
   .cloud { position: absolute; background: rgba(255,255,255,0.85); border-radius: 50px; filter: blur(2px); animation: floatCloud ease-in-out infinite alternate; }
   @keyframes floatCloud { 0% { transform: translateX(0px); } 100% { transform: translateX(50px); } }
   
-  .cliff { position: absolute; bottom: 20%; width: 100%; height: 40px; background: linear-gradient(to bottom, var(--grass-light) 0%, var(--grass-dark) 40%, var(--dirt) 40%, #4a3626 100%); border-top: 3px solid #bdf285; z-index: 10; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
-  .ocean { position: absolute; bottom: 0; width: 100%; height: 20%; background: linear-gradient(to bottom, var(--ocean-top) 0%, var(--ocean-bottom) 100%); z-index: 5; opacity: 0.85; border-top: 4px solid rgba(255,255,255,0.4); }
+  /* === 重心再微調上移：海洋拉高到 23%、陸地加厚 === */
+  .ocean { position: absolute; bottom: 0; width: 100%; height: 23%; background: linear-gradient(to bottom, var(--ocean-top) 0%, var(--ocean-bottom) 100%); z-index: 5; opacity: 0.85; border-top: 4px solid rgba(255,255,255,0.4); }
+  .cliff { position: absolute; bottom: 23%; width: 100%; height: 45px; background: linear-gradient(to bottom, var(--grass-light) 0%, var(--grass-dark) 40%, var(--dirt) 40%, #4a3626 100%); border-top: 3px solid #bdf285; z-index: 10; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
   .coral { position: absolute; bottom: -5px; z-index: 4; transform-origin: bottom center; animation: sway 8s ease-in-out infinite alternate; }
   @keyframes sway { 0% { transform: rotate(-3deg); } 100% { transform: rotate(3deg); } }
 
@@ -40,10 +41,11 @@
   .fish { position: absolute; z-index: 6; font-size: 45px; animation: swimLeft linear infinite; }
   @keyframes swimLeft { 0% { transform: translateX(10000px) scaleX(1); } 100% { transform: translateX(-200px) scaleX(1); } }
   
-  .vine { position: absolute; bottom: calc(20% + 145px); height: 40px; border-bottom: 4px solid #4a7c2a; border-radius: 50%; z-index: 9; opacity: 0.8; }
+  /* 配合陸地拉高，其餘元件高度對應加高 3% */
+  .vine { position: absolute; bottom: calc(23% + 150px); height: 40px; border-bottom: 4px solid #4a7c2a; border-radius: 50%; z-index: 9; opacity: 0.8; }
   
   .floating-island { 
-    position: absolute; bottom: calc(20% + 125px); width: 75px; height: 65px; border-radius: 45% 55% 40% 60%; 
+    position: absolute; bottom: calc(23% + 130px); width: 75px; height: 65px; border-radius: 45% 55% 40% 60%; 
     background: radial-gradient(circle at 30% 30%, #a8e6cf 0%, #3d8c40 70%, #2a592c 100%); 
     box-shadow: 0 10px 15px rgba(0,0,0,0.3), inset -6px -6px 12px rgba(0,0,0,0.4), inset 3px 3px 8px rgba(255,255,255,0.2); 
     display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; text-shadow: 1px 1px 2px #000; 
@@ -70,10 +72,8 @@
 
   .level-category-bottom {
       position: absolute; top: 72px; left: 50%; transform: translateX(-50%);
-      font-size: 11px; color: #fff; 
-      background: linear-gradient(135deg, rgba(13, 71, 161, 0.85) 0%, rgba(25, 118, 210, 0.7) 100%);
-      padding: 4px 10px; border-radius: 20px; 
-      white-space: nowrap; pointer-events: none; 
+      font-size: 11px; color: #fff; background: linear-gradient(135deg, rgba(13, 71, 161, 0.85) 0%, rgba(25, 118, 210, 0.7) 100%);
+      padding: 4px 10px; border-radius: 20px; white-space: nowrap; pointer-events: none; 
       border: 1px solid rgba(144, 202, 249, 0.4); box-shadow: 0 2px 5px rgba(0,0,0,0.3), inset 1px 1px 3px rgba(255,255,255,0.2); z-index: 5;
   }
 
@@ -93,7 +93,7 @@
   .arrow-point::after { content: ''; position: absolute; top: -20px; left: -16px; width: 0; height: 0; border-left: 16px solid transparent; border-right: 16px solid transparent; border-top: 18px solid white; opacity: 0.3; }
   @keyframes bounceArrow { 0% { transform: translate(-50%, 0); } 100% { transform: translate(-50%, 10px); } }
 
-  #player { position: absolute; left: 150px; bottom: calc(20% + 40px); width: 40px; height: 60px; z-index: 20; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); will-change: left, transform; }
+  #player { position: absolute; left: 150px; bottom: calc(23% + 45px); width: 40px; height: 60px; z-index: 20; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); will-change: left, transform; }
   .player-head { width: 30px; height: 30px; background: #ffe0b2; border: 2px solid #555; border-radius: 50%; margin: 0 auto; position: relative; }
   .player-body { width: 40px; height: 30px; background: #e3f2fd; border: 2px solid #555; border-radius: 10px 10px 5px 5px; margin-top: -2px; }
 
@@ -103,22 +103,31 @@
   .health-coin.collected { animation: collectEffect 0.5s ease-out forwards; pointer-events: none; }
   @keyframes collectEffect { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-50px) scale(1.5); opacity: 0; } }
 
-  /* === 新增：虛擬按鍵區域 (顯示於海洋) === */
+  /* === 優化：高透明、居中排版的虛擬按鍵 === */
   #virtual-controls {
-      position: absolute; bottom: 15px; width: 100%; display: flex; justify-content: space-between; 
-      padding: 0 20px; box-sizing: border-box; z-index: 50; pointer-events: none; /* 讓空白處可以穿透點擊 */
+      position: absolute; bottom: 15px; width: 100%; height: 60px; z-index: 50; pointer-events: none; 
   }
-  .v-btn-group { display: flex; gap: 15px; }
   .v-btn {
-      pointer-events: auto; /* 按鈕本身接收點擊 */
-      background: rgba(0, 0, 0, 0.4); border: 2px solid rgba(255, 255, 255, 0.5); border-radius: 50%;
-      width: 55px; height: 55px; color: white; font-size: 24px; font-weight: bold;
+      pointer-events: auto; 
+      /* 高透明水泡材質 */
+      background: rgba(255, 255, 255, 0.15); 
+      border: 1px solid rgba(255, 255, 255, 0.3); 
+      color: rgba(255, 255, 255, 0.85); 
+      border-radius: 50%;
+      width: 55px; height: 55px; font-size: 24px; font-weight: bold;
       display: flex; justify-content: center; align-items: center;
-      backdrop-filter: blur(4px); box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      backdrop-filter: blur(2px); box-shadow: 0 2px 5px rgba(0,0,0,0.2);
       touch-action: manipulation; transition: transform 0.1s, background 0.1s; cursor: pointer;
+      position: absolute; /* 絕對定位排版 */
   }
-  .v-btn:active { transform: scale(0.9); background: rgba(255, 255, 255, 0.3); }
-  #btn-jump { border-radius: 20px; width: 80px; font-size: 18px; letter-spacing: 2px; }
+  .v-btn:active { background: rgba(255, 255, 255, 0.3); }
+  
+  /* 左箭頭靠左、右箭頭靠右、JUMP 完美置中 */
+  #btn-left { left: 20px; bottom: 0; }
+  #btn-right { right: 20px; bottom: 0; }
+  #btn-jump { left: 50%; bottom: 0; transform: translateX(-50%); width: 85px; border-radius: 20px; font-size: 18px; letter-spacing: 2px; }
+  /* 特別處理置中按鈕的點擊縮放效果，避免位置偏移 */
+  #btn-jump:active { transform: translateX(-50%) scale(0.92); }
 </style>
 </head>
 <body>
@@ -132,11 +141,9 @@
   </div>
   
   <div id="virtual-controls">
-      <div class="v-btn-group">
-          <div class="v-btn" id="btn-left">◀</div>
-          <div class="v-btn" id="btn-right">▶</div>
-      </div>
+      <div class="v-btn" id="btn-left">◀</div>
       <div class="v-btn" id="btn-jump">JUMP</div>
+      <div class="v-btn" id="btn-right">▶</div>
   </div>
 </div>
 
@@ -152,7 +159,6 @@
   let isDragging = false; let startClientX = 0; let startPlayerX = 0; let isJumping = false;
   let minPlayerX = 50; 
   
-  // 虛擬按鍵狀態
   let isMovingLeft = false;
   let isMovingRight = false;
   
@@ -260,9 +266,9 @@
       coinLocations.forEach((loc, index) => {
           if (!collectedCoins.includes(index)) {
               const coin = document.createElement('div'); coin.className = 'health-coin'; coin.innerText = 'H';
-              coin.style.left = loc.x + 'px'; coin.style.bottom = `calc(20% + 55px)`;
+              coin.style.left = loc.x + 'px'; coin.style.bottom = `calc(23% + 60px)`;
               coinsContainer.appendChild(coin);
-              coinsData.push({ id: index, x: loc.x, yPx: 55, element: coin, isCollected: false });
+              coinsData.push({ id: index, x: loc.x, yPx: 60, element: coin, isCollected: false });
           }
       });
 
@@ -272,7 +278,6 @@
       playerX = targetPlayerX;
   }
 
-  // === 虛擬按鍵事件綁定 ===
   function setupVirtualControls() {
       const btnLeft = document.getElementById('btn-left');
       const btnRight = document.getElementById('btn-right');
@@ -289,16 +294,15 @@
       addHoldEvent(btnLeft, () => isMovingLeft = true, () => isMovingLeft = false);
       addHoldEvent(btnRight, () => isMovingRight = true, () => isMovingRight = false);
 
+      // 跳躍鍵專屬
       btnJump.addEventListener('touchstart', (e) => { e.preventDefault(); jump(); });
       btnJump.addEventListener('mousedown', (e) => { e.preventDefault(); jump(); });
   }
 
   function gameLoop() {
-      // 處理虛擬按鍵的連續移動
       if (isMovingLeft) targetPlayerX -= 8;
       if (isMovingRight) targetPlayerX += 8;
       
-      // 邊界防護
       if (targetPlayerX < minPlayerX) targetPlayerX = minPlayerX; 
       if (targetPlayerX > WORLD_MAX_WIDTH) targetPlayerX = WORLD_MAX_WIDTH; 
 
@@ -321,7 +325,7 @@
   function jump() {
       if (isJumping) return;
       isJumping = true;
-      let jumpHeight = -70; 
+      let jumpHeight = -80; 
       player.style.transform = `translateY(${jumpHeight}px)`;
       
       setTimeout(() => {
@@ -366,7 +370,7 @@
   }
 
   function checkCoinCollisions(playerYOffset) {
-      const playerActualY = 40 + playerYOffset; 
+      const playerActualY = 45 + playerYOffset; 
       coinsData.forEach(c => {
           if (c.isCollected) return; 
           if (Math.abs(playerX + 20 - (c.x + 17.5)) < 40 && Math.abs(playerActualY - c.yPx) < 40) {
@@ -377,15 +381,12 @@
       });
   }
 
-  // 玩家依然可以用滑動螢幕來「偷看地圖」，但「取消了點擊螢幕跳躍」，完全交給按鈕！
   const handleStart = (e) => { 
-      // 避免點擊虛擬按鍵時觸發拖曳
       if (e.target.closest('#virtual-controls')) return;
       isDragging = true; 
       startClientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX; 
       startPlayerX = targetPlayerX; 
   };
-  
   const handleMove = (e) => { 
       if (!isDragging) return; 
       if (e.cancelable) e.preventDefault(); 
@@ -395,20 +396,14 @@
       if (targetPlayerX < minPlayerX) targetPlayerX = minPlayerX; 
       if (targetPlayerX > WORLD_MAX_WIDTH) targetPlayerX = WORLD_MAX_WIDTH; 
   };
-  
   const handleEnd = (e) => { 
       isDragging = false; 
-      // 移除原有的：if (Math.abs(clientX - startClientX) < 10) jump();
-      // 現在點擊螢幕不會跳躍了，只能按鈕！
   };
 
   const interactArea = document.getElementById('game-window');
   interactArea.addEventListener('mousedown', handleStart); window.addEventListener('mousemove', handleMove); window.addEventListener('mouseup', handleEnd);
   interactArea.addEventListener('touchstart', handleStart, { passive: false }); interactArea.addEventListener('touchmove', handleMove, { passive: false }); interactArea.addEventListener('touchend', handleEnd);
-  window.addEventListener('resize', () => {
-      // 觸發重新對齊相機
-      playerX = targetPlayerX;
-  });
+  window.addEventListener('resize', () => { playerX = targetPlayerX; });
 
   function generateEnvironment() {
       const screenEffects = document.getElementById('screen-effects'); const bubblesContainer = document.getElementById('bubbles-container');
@@ -423,14 +418,12 @@
       const creaturesContainer = document.getElementById('creatures-container');
       for (let i = 0; i < 12; i++) { 
           const isFlock = Math.random() > 0.6; const flockSize = isFlock ? (Math.random() > 0.5 ? 2 : 3) : 1; 
-          const baseX = Math.random() * MAX_W; 
-          const baseY = Math.random() * 20 + 5; 
+          const baseX = Math.random() * MAX_W; const baseY = Math.random() * 20 + 5; 
           const animName = Math.random() > 0.5 ? 'flyWave' : 'flySwoop'; 
           const duration = 100 + Math.random() * 100; const delay = -(Math.random() * 200); 
           for (let j = 0; j < flockSize; j++) { 
               const bird = document.createElement('div'); bird.className = 'bird'; bird.innerText = ['🦅', '🕊️'][Math.floor(Math.random() * 2)]; 
-              bird.style.left = `${baseX + j * (80 + Math.random() * 40)}px`; 
-              bird.style.top = `calc(${baseY}% + ${j * (5 - Math.random() * 10)}px)`; 
+              bird.style.left = `${baseX + j * (80 + Math.random() * 40)}px`; bird.style.top = `calc(${baseY}% + ${j * (5 - Math.random() * 10)}px)`; 
               bird.style.animationName = animName; bird.style.animationTimingFunction = 'linear'; bird.style.animationIterationCount = 'infinite'; 
               bird.style.animationDuration = `${duration}s`; bird.style.animationDelay = `${delay}s`; creaturesContainer.appendChild(bird); 
           } 
