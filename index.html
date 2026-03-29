@@ -227,12 +227,9 @@ body.mode-advanced .node-pulse { animation: pulseActiveAdv 2s infinite; }
       
       <section class="screen show" id="scrHome">
         
-        <div id="nodeMapContainer" style="display: none;">
-            <div style="position:absolute; top:10px; left:0; right:0; text-align:center; color:rgba(255,255,255,0.7); font-size:12px; pointer-events:none; z-index:100; text-shadow:1px 1px 2px #000;">
-                💡 點擊地面左右移動，點擊上方關卡跳躍挑戰
-            </div>
-            <div id="hubWorldInner" class="hub-world"></div>
-        </div>
+        <div id="nodeMapContainer" style="display: none; height: calc(100% - 100px); border-radius: 8px; overflow: hidden; border: 1px solid var(--theme-dim);">
+    <iframe id="ghibliHubFrame" src="hub_ghibli.html" style="width: 100%; height: 100%; border: none;"></iframe>
+</div>
 
         <div class="role-list" id="roleListContainer" style="display: none;"></div>
         
@@ -564,6 +561,26 @@ window.addEventListener('message', (event) => {
           customAlert('任務模擬失敗，請再接再厲！', () => { currentGameInfo = null; }, "❌ 任務失敗");
       }
   }
+// 請在原本龐大的 if...else 判斷式中，加入以下三個判斷：
+
+  else if (event.data.type === 'GHIBLI_HUB_READY') {
+      // 當大廳載入完成時，發送資料給它畫地圖
+      if (playerState.storyMode) renderNodeMap();
+  }
+  else if (event.data.type === 'HUB_NODE_CLICK') {
+      // 處理大廳傳來的任務點擊
+      handleHubNodeClickLogic(event.data.nodeType, event.data.roleId, event.data.taskIdx, event.data.status, event.data.globalIdx);
+  }
+  else if (event.data.type === 'COLLECT_HUB_COIN') {
+      // 處理大廳傳來的吃金幣
+      if(!playerState.dailyMapCoins.collected.includes(event.data.coinIndex)) {
+          playerState.dailyMapCoins.collected.push(event.data.coinIndex);
+          playerState.coins += 50;
+          saveGameData(); updateHUD();
+          customAlert("拾取健康幣！\n\n獲得 50 幣！", null, "💰 意外收穫");
+      }
+  }
+      
   
   else if (event.data.type === 'CLOSE_IFRAME') { closeAllIframes(); exitFullscreenUI(); updateModeUI(); }
   
@@ -655,134 +672,50 @@ function getDailyCoinPositions() {
     return poses;
 }
 
+// 請將原本的 renderNodeMap() 整段取代為以下內容
 function renderNodeMap() {
-    const worldInner = id('hubWorldInner');
-    if (!worldInner) return;
     checkExtremeAttempts();
-
-    // 1. 蒐集基礎關卡陣列
     let baseSeq = [];
     let globalIndex = 0;
     const roles = getActiveRoles();
-    
+
+    // 1. 計算所有關卡狀態
     roles.forEach(role => {
         role.subTasks.forEach((subTask, idx) => {
-            baseSeq.push({ type: 'task', roleId: role.id, taskIdx: idx, globalIdx: globalIndex, icon: role.icon });
+            let isCleared = false, isActive = false, isLocked = true;
+            if (playerState.mode === 'beginner') {
+                isCleared = playerState.taskScoresBeg.has(`${role.id}_${idx}`);
+                isActive = (playerState.storyProgression === globalIndex);
+                if (isCleared) isLocked = false;
+                if (playerState.storyProgression > globalIndex) { isCleared = true; isLocked = false; isActive = false; }
+            } else {
+                isCleared = playerState.taskScoresAdv.has(`${role.id}_${idx}`);
+                let prevTaskCleared = globalIndex === 0 || playerState.taskScoresAdv.has(`${getFlatTask(globalIndex-1)?.role?.id}_${getFlatTask(globalIndex-1)?.taskIndex}`);
+                if (isCleared) { isLocked = false; }
+                else if (prevTaskCleared) { isLocked = false; isActive = true; }
+            }
+            let statusStr = isLocked ? 'locked' : (isCleared ? 'cleared' : 'active');
+            baseSeq.push({ type: 'task', roleId: role.id, taskIdx: idx, globalIdx: globalIndex, status: statusStr });
             globalIndex++;
         });
     });
 
-    // 放入隨機與綜合演練
-    baseSeq.push({ type: 'dec', icon: '🌲' });
     baseSeq.push({ type: 'random' });
     baseSeq.push({ type: 'comprehensive' });
-    
-    // 放入無作用的裝飾物
-    baseSeq.push({ type: 'dec', icon: '☁️' });
-    baseSeq.push({ type: 'dec', icon: '📦' });
-    baseSeq.push({ type: 'dec', icon: '⛰️' });
 
-    // 2. 複製多次以產生無限循環的錯覺
-    const REPEAT_COUNT = 7; 
-    let mapItems = [];
-    for(let r=0; r<REPEAT_COUNT; r++) { mapItems = mapItems.concat(baseSeq); }
-
-    let innerHtml = '<div class="horizon-line"></div><div class="sea-line"></div>';
-
-    mapItems.forEach((item, i) => {
-        const x = i * 280 + 150; // 每個節點間距 280px
-        
-        if (item.type === 'dec') {
-            innerHtml += `<div class="hub-node" style="left:${x}px; top:36%;">
-                <div style="font-size:32px; opacity:0.6; filter:grayscale(0.5);">${item.icon}</div>
-            </div>`;
-        } else if (item.type === 'random') {
-            innerHtml += `<div class="hub-node" style="left:${x}px; top:36%;" onclick="onNodeInteraction(event, ${x}, 'random')">
-                <div class="hub-node-circle" style="background:linear-gradient(135deg, #ab47bc, #7b1fa2); border-color:#fff;">🎲</div>
-                <div class="hub-node-text" style="color:#e1bee7;">隨機演練</div>
-            </div>`;
-        } else if (item.type === 'comprehensive') {
-            innerHtml += `<div class="hub-node" style="left:${x}px; top:36%;" onclick="onNodeInteraction(event, ${x}, 'comprehensive')">
-                <div class="hub-node-circle" style="background:linear-gradient(135deg, #ef5350, #c62828); border-color:#fff;">🛡️</div>
-                <div class="hub-node-text" style="color:#ffcdd2;">綜合演練</div>
-            </div>`;
-        } else if (item.type === 'task') {
-            let isCleared = false, isActive = false, isLocked = true;
-            if (playerState.mode === 'beginner') {
-                isCleared = playerState.taskScoresBeg.has(`${item.roleId}_${item.taskIdx}`);
-                isActive = (playerState.storyProgression === item.globalIdx);
-                if (isCleared) isLocked = false;
-                if (playerState.storyProgression > item.globalIdx) { isCleared = true; isLocked = false; isActive = false; }
-            } else {
-                isCleared = playerState.taskScoresAdv.has(`${item.roleId}_${item.taskIdx}`);
-                let prevTaskCleared = item.globalIdx === 0 || playerState.taskScoresAdv.has(`${getFlatTask(item.globalIdx-1)?.role?.id}_${getFlatTask(item.globalIdx-1)?.taskIndex}`);
-                if (isCleared) { isLocked = false; }
-                else if (prevTaskCleared) { isLocked = false; isActive = true; }
-            }
-
-            let bgColor = '#222', borderColor = '#555', iconOpacity = '0.4', pulseClass = '';
-            if (isCleared) { bgColor = 'var(--good)'; borderColor = '#fff'; iconOpacity = '1'; } 
-            else if (isActive) { bgColor = 'var(--theme-primary)'; borderColor = '#fff'; iconOpacity = '1'; pulseClass = 'node-pulse'; }
-
-            let statusStr = isLocked ? 'locked' : (isCleared ? 'cleared' : 'active');
-            let textCol = isCleared ? 'var(--good)' : (isActive ? 'var(--theme-primary)' : '#888');
-
-            innerHtml += `
-            <div class="hub-node" style="left:${x}px; top:36%;" onclick="onNodeInteraction(event, ${x}, 'task', '${item.roleId}', ${item.taskIdx}, '${statusStr}', ${item.globalIdx})">
-                <div class="hub-node-circle ${pulseClass}" style="background: ${bgColor}; border-color: ${borderColor}; opacity: ${isLocked ? '0.6' : '1'};">
-                    <span style="opacity: ${iconOpacity}">${item.icon}</span>
-                </div>
-                <div class="hub-node-text" style="color:${textCol};">第 ${item.globalIdx+1} 關</div>
-            </div>`;
-        }
-    });
-
-    // 每日健康幣
-    const coinPoses = getDailyCoinPositions();
-    const startCycle = Math.floor(REPEAT_COUNT / 2);
-    const cycleOffset = startCycle * baseSeq.length * 280;
-    
-    coinPoses.forEach((pos, i) => {
-        if (!playerState.dailyMapCoins.collected.includes(i)) {
-            let coinX = cycleOffset + 600 + i * 1500 + pos.x;
-            innerHtml += `<div class="hub-coin" id="hubCoin_${i}" style="left:${coinX}px; top:60%;" onclick="collectHubCoin(event, ${i}, ${coinX}, 60)">＄</div>`;
-        }
-    });
-
-    // 決定玩家初始位置 (取中間段落的當前進度)
     let playerProgressIndex = playerState.mode === 'beginner' ? playerState.storyProgression : 0;
-    if(playerProgressIndex >= 25) playerProgressIndex = 24; 
-    let startItemIndex = startCycle * baseSeq.length + playerProgressIndex;
-    let startX = startItemIndex * 280 + 150;
-    currentPlayerX = startX;
+    if(playerProgressIndex >= 25) playerProgressIndex = 24;
 
-    const avatarUrl = playerState.avatar || 'https://i.pravatar.cc/150?img=11';
-
-    // 玩家本體
-    innerHtml += `
-        <div id="hubPlayer" class="hub-player" style="left:${startX}px; top:62%;">
-            <img src="${avatarUrl}" style="width:34px; height:34px; border-radius:50%; border:2px solid #fff; box-shadow:0 4px 10px rgba(0,0,0,0.5); object-fit:cover; position:relative; z-index:2; margin-bottom:-4px;">
-            <div class="hub-player-body"></div>
-        </div>
-    `;
-
-    worldInner.innerHTML = innerHtml;
-
-    // 註冊地圖點擊行走
-    id('nodeMapContainer').onclick = (e) => {
-        if(e.target.closest('.hub-node') || e.target.closest('.hub-coin')) return;
-
-        const containerW = id('nodeMapContainer').clientWidth || window.innerWidth;
-        const rect = id('nodeMapContainer').getBoundingClientRect();
-        const clickX = e.clientX - rect.left;
-        const transformX = containerW/2 - currentPlayerX;
-        const targetX = clickX - transformX;
-
-        walkTo(targetX);
-    };
-
-    // 初始化視角
-    setTimeout(() => { updateCamera(startX, 0); }, 50);
+    // 2. 將資料發送給吉卜力 Iframe
+    const frame = document.getElementById('ghibliHubFrame');
+    if (frame && frame.contentWindow) {
+        frame.contentWindow.postMessage({
+            type: 'RENDER_MAP',
+            baseSeq: baseSeq,
+            collectedCoins: playerState.dailyMapCoins.collected,
+            progressIndex: playerProgressIndex
+        }, '*');
+    }
 }
 
 function updateCamera(targetX, duration = 0) {
