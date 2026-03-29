@@ -68,26 +68,57 @@
   .level-label { position: absolute; top: -35px; white-space: nowrap; background: rgba(0,0,0,0.6); color: #fff; padding: 4px 8px; border-radius: 10px; font-size: 12px; opacity: 0; }
   .active-hit .level-label, .island-active .level-label { opacity: 1; }
 
-  /* 類別文字 - 移到下方 */
+  /* === 優化：類別標籤底色 (琉璃藍寶石質感) === */
   .level-category-bottom {
       position: absolute; top: 72px; left: 50%; transform: translateX(-50%);
-      font-size: 11px; color: #fff; background: rgba(0,0,0,0.7); padding: 3px 6px; border-radius: 4px;
-      white-space: nowrap; pointer-events: none; border: 1px solid rgba(255,255,255,0.3); z-index: 5;
+      font-size: 11px; color: #fff; 
+      /* 深琉璃藍漸層，帶點透明 */
+      background: linear-gradient(135deg, rgba(13, 71, 161, 0.85) 0%, rgba(25, 118, 210, 0.7) 100%);
+      padding: 4px 10px; border-radius: 20px; /* 加大圓角 */
+      white-space: nowrap; pointer-events: none; 
+      /* 微亮的邊框與琉璃般的內陰影 */
+      border: 1px solid rgba(144, 202, 249, 0.4);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3), inset 1px 1px 3px rgba(255,255,255,0.2);
+      z-index: 5;
   }
 
-  /* 標題文字 - 再往更下方推 */
   .level-title-bottom {
       position: absolute; top: 98px; left: 50%; transform: translateX(-50%);
       width: 140px; text-align: center; color: #e0f7fa; font-size: 11px;
       text-shadow: 1px 1px 3px #000, 0 0 8px rgba(0,0,0,0.8); font-weight: bold; line-height: 1.2; word-break: break-word; pointer-events: none;
   }
 
-  .active-arrow {
-      position: absolute; top: -65px; left: 50%; transform: translateX(-50%);
-      font-size: 26px; color: #3dff8e; text-shadow: 0 4px 6px rgba(0,0,0,0.8);
+  /* === 優化：精緻的 CSS 繪製綠色指標 (琉璃質感箭頭) === */
+  .active-arrow-container {
+      position: absolute; top: -85px; left: 50%; transform: translateX(-50%);
       animation: bounceArrow 0.8s infinite alternate ease-in-out; pointer-events: none; z-index: 20;
+      display: flex; flex-direction: column; align-items: center; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));
   }
-  @keyframes bounceArrow { 0% { transform: translate(-50%, 0); } 100% { transform: translate(-50%, 10px); } }
+  /* 箭頭主體 */
+  .arrow-stem {
+      width: 12px; height: 35px;
+      background: linear-gradient(to bottom, rgba(30, 136, 62, 0.9) 0%, rgba(61, 255, 142, 0.9) 100%);
+      border-radius: 5px 5px 0 0;
+      border: 2px solid rgba(255,255,255,0.5); border-bottom: none;
+  }
+  /* 箭頭尖端 */
+  .arrow-point {
+      width: 0; height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-top: 22px solid rgba(61, 255, 142, 0.9);
+      margin-top: -2px; /* 消除間隙 */
+      position: relative;
+  }
+  /* 尖端邊框修飾 */
+  .arrow-point::after {
+      content: ''; position: absolute; top: -25px; left: -20px;
+      width: 0; height: 0;
+      border-left: 20px solid transparent; border-right: 20px solid transparent;
+      border-top: 22px solid white; opacity: 0.3;
+  }
+
+  @keyframes bounceArrow { 0% { transform: translate(-50%, 0); } 100% { transform: translate(-50%, 12px); } }
 
   #player { position: absolute; left: 150px; bottom: calc(25% + 50px); width: 40px; height: 60px; z-index: 20; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   .player-head { width: 30px; height: 30px; background: #ffe0b2; border: 2px solid #555; border-radius: 50%; margin: 0 auto; position: relative; }
@@ -148,8 +179,6 @@
 
       const CYCLE_LENGTH = baseSeq.length; 
       const TOTAL_LEVELS = CYCLE_LENGTH * TOTAL_CYCLES; 
-      
-      // 加入 800px 的「時空斷層」，徹底切斷循環間的連視
       const CYCLE_GAP = 800; 
       const CYCLE_WIDTH = CYCLE_LENGTH * LEVEL_SPACING + CYCLE_GAP;
       
@@ -158,14 +187,12 @@
 
       const startCycle = Math.floor(TOTAL_CYCLES / 2);
       
-      // 計算並防呆畫面邊界 (使用新的 CYCLE_WIDTH)
       minPlayerX = allCleared ? 50 : (START_OFFSET + startCycle * CYCLE_WIDTH - 50);
       if (isNaN(minPlayerX)) minPlayerX = 50;
 
       for (let i = 0; i < TOTAL_LEVELS; i++) {
           const cycleNumber = Math.floor(i / CYCLE_LENGTH);
           const cycleIndex = i % CYCLE_LENGTH; 
-          // 根據時空斷層重新計算每個方塊的 X 座標
           const bX = START_OFFSET + cycleNumber * CYCLE_WIDTH + cycleIndex * LEVEL_SPACING;
           
           const item = baseSeq[cycleIndex]; 
@@ -176,9 +203,14 @@
           
           let innerHTMLStr = '';
 
-          // 進行中關卡的綠色箭頭
+          // === 優化：更精緻的綠色指標 ===
           if (i === startCycle * CYCLE_LENGTH + activeIndex) {
-              innerHTMLStr += `<div class="active-arrow">⬇</div>`;
+              innerHTMLStr += `
+                  <div class="active-arrow-container">
+                      <div class="arrow-stem"></div>
+                      <div class="arrow-point"></div>
+                  </div>
+              `;
           }
           
           let isRandom = false;
@@ -208,12 +240,11 @@
           bricksContainer.appendChild(island);
           bricksData.push({ x: bX, element: island, itemData: item, isRandom: isRandom, isRollingLocked: false });
 
-          // 樹藤連接 (注意：每一輪的最後一關不向後連樹藤，因為後面是 800px 斷層！)
           if (cycleIndex < CYCLE_LENGTH - 1) {
               const vine = document.createElement('div');
               vine.className = 'vine';
               vine.style.left = (bX + 37) + 'px'; vine.style.width = (LEVEL_SPACING) + 'px'; 
-              vinesContainer.appendChild(vine);
+               vinesContainer.appendChild(vine);
           }
       }
 
@@ -335,11 +366,16 @@
       const creaturesContainer = document.getElementById('creatures-container');
       for (let i = 0; i < 12; i++) { 
           const isFlock = Math.random() > 0.6; const flockSize = isFlock ? (Math.random() > 0.5 ? 2 : 3) : 1; 
-          const baseX = Math.random() * MAX_W; const baseY = Math.random() * 20 + 2; const animName = Math.random() > 0.5 ? 'flyWave' : 'flySwoop'; 
+          const baseX = Math.random() * MAX_W; 
+          // === 優化：飛鳥位置提高，限制在上方 5% - 25% ===
+          const baseY = Math.random() * 20 + 5; 
+          const animName = Math.random() > 0.5 ? 'flyWave' : 'flySwoop'; 
           const duration = 100 + Math.random() * 100; const delay = -(Math.random() * 200); 
           for (let j = 0; j < flockSize; j++) { 
               const bird = document.createElement('div'); bird.className = 'bird'; bird.innerText = ['🦅', '🕊️'][Math.floor(Math.random() * 2)]; 
-              bird.style.left = `${baseX + j * (80 + Math.random() * 40)}px`; bird.style.top = `calc(${baseY}% + ${j * (10 - Math.random() * 20)}px)`; 
+              bird.style.left = `${baseX + j * (80 + Math.random() * 40)}px`; 
+              // 加上偏移，營造群體感，但整體維持在高處
+              bird.style.top = `calc(${baseY}% + ${j * (5 - Math.random() * 10)}px)`; 
               bird.style.animationName = animName; bird.style.animationTimingFunction = 'linear'; bird.style.animationIterationCount = 'infinite'; 
               bird.style.animationDuration = `${duration}s`; bird.style.animationDelay = `${delay}s`; creaturesContainer.appendChild(bird); 
           } 
