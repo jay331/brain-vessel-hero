@@ -827,7 +827,8 @@ function handleHubNodeClickLogic(type, roleId, taskIdx, status, globalIdx) {
                 activeRoleId = roleId;
                 playTask(taskIdx); 
             }, null, '🎬 回顧任務', '開始回顧');
-        } else if (status === 'active') {
+        } else if (status === 'active' || status === 'unlocked') {
+            // 加入了 status === 'unlocked' 的判斷，初階版的未完成關卡就能順利進入了！
             activeRoleId = roleId;
             playTask(taskIdx);
         }
