@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>吉卜力大廳引擎 (極致絲滑版)</title>
+<title>吉卜力大廳引擎</title>
 <style>
   :root {
     --sky-top: #5c9dd6; --sky-bottom: #d4f0ff;
@@ -15,8 +15,6 @@
   body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; touch-action: none; font-family: "PingFang TC", sans-serif; }
   
   #game-window { position: relative; width: 100%; height: 100%; background: linear-gradient(to bottom, var(--sky-top) 0%, var(--sky-bottom) 60%); overflow: hidden; }
-  
-  /* 【優化 1】移除原本的 transition，改用 JS 控制，並加入 will-change 提示瀏覽器優化 */
   #world { position: absolute; left: 0; top: 0; height: 100%; will-change: transform; }
   
   #screen-effects { position: absolute; inset: 0; pointer-events: none; z-index: 15; }
@@ -30,8 +28,10 @@
   .cloud { position: absolute; background: rgba(255,255,255,0.85); border-radius: 50px; filter: blur(2px); animation: floatCloud ease-in-out infinite alternate; }
   @keyframes floatCloud { 0% { transform: translateX(0px); } 100% { transform: translateX(50px); } }
   
-  .cliff { position: absolute; bottom: 25%; width: 100%; height: 50px; background: linear-gradient(to bottom, var(--grass-light) 0%, var(--grass-dark) 40%, var(--dirt) 40%, #4a3626 100%); border-top: 3px solid #bdf285; z-index: 10; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
-  .ocean { position: absolute; bottom: 0; width: 100%; height: 25%; background: linear-gradient(to bottom, var(--ocean-top) 0%, var(--ocean-bottom) 100%); z-index: 5; opacity: 0.85; border-top: 4px solid rgba(255,255,255,0.4); }
+  /* === 重心下移：海洋、草地高度調降 === */
+  .ocean { position: absolute; bottom: 0; width: 100%; height: 20%; background: linear-gradient(to bottom, var(--ocean-top) 0%, var(--ocean-bottom) 100%); z-index: 5; opacity: 0.85; border-top: 4px solid rgba(255,255,255,0.4); }
+  .cliff { position: absolute; bottom: 20%; width: 100%; height: 40px; background: linear-gradient(to bottom, var(--grass-light) 0%, var(--grass-dark) 40%, var(--dirt) 40%, #4a3626 100%); border-top: 3px solid #bdf285; z-index: 10; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+  
   .coral { position: absolute; bottom: -5px; z-index: 4; transform-origin: bottom center; animation: sway 8s ease-in-out infinite alternate; }
   @keyframes sway { 0% { transform: rotate(-3deg); } 100% { transform: rotate(3deg); } }
 
@@ -42,10 +42,11 @@
   .fish { position: absolute; z-index: 6; font-size: 45px; animation: swimLeft linear infinite; }
   @keyframes swimLeft { 0% { transform: translateX(10000px) scaleX(1); } 100% { transform: translateX(-200px) scaleX(1); } }
   
-  .vine { position: absolute; bottom: calc(25% + 215px); height: 40px; border-bottom: 4px solid #4a7c2a; border-radius: 50%; z-index: 9; opacity: 0.8; }
+  /* === 重心下移：浮島與樹藤高度大幅調降 === */
+  .vine { position: absolute; bottom: calc(20% + 145px); height: 40px; border-bottom: 4px solid #4a7c2a; border-radius: 50%; z-index: 9; opacity: 0.8; }
   
   .floating-island { 
-    position: absolute; bottom: calc(25% + 200px); width: 75px; height: 65px; border-radius: 45% 55% 40% 60%; 
+    position: absolute; bottom: calc(20% + 125px); width: 75px; height: 65px; border-radius: 45% 55% 40% 60%; 
     background: radial-gradient(circle at 30% 30%, #a8e6cf 0%, #3d8c40 70%, #2a592c 100%); 
     box-shadow: 0 10px 15px rgba(0,0,0,0.3), inset -6px -6px 12px rgba(0,0,0,0.4), inset 3px 3px 8px rgba(255,255,255,0.2); 
     display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; text-shadow: 1px 1px 2px #000; 
@@ -96,8 +97,8 @@
   .arrow-point::after { content: ''; position: absolute; top: -25px; left: -20px; width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 22px solid white; opacity: 0.3; }
   @keyframes bounceArrow { 0% { transform: translate(-50%, 0); } 100% { transform: translate(-50%, 12px); } }
 
-  /* 【優化 2】保留 transform 用於跳躍，加入 will-change 確保效能 */
-  #player { position: absolute; left: 150px; bottom: calc(25% + 50px); width: 40px; height: 60px; z-index: 20; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); will-change: left, transform; }
+  /* === 重心下移：玩家高度對應調降 === */
+  #player { position: absolute; left: 150px; bottom: calc(20% + 40px); width: 40px; height: 60px; z-index: 20; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); will-change: left, transform; }
   .player-head { width: 30px; height: 30px; background: #ffe0b2; border: 2px solid #555; border-radius: 50%; margin: 0 auto; position: relative; }
   .player-body { width: 40px; height: 30px; background: #e3f2fd; border: 2px solid #555; border-radius: 10px 10px 5px 5px; margin-top: -2px; }
 
@@ -126,7 +127,6 @@
   const vinesContainer = document.getElementById('vines-container');
   const coinsContainer = document.getElementById('coins-container');
   
-  // 【優化 3】新增 targetPlayerX 來實現慣性滑動 (Lerp)
   let targetPlayerX = 150; 
   let playerX = 150; 
   let isDragging = false; let startClientX = 0; let startPlayerX = 0; let isJumping = false;
@@ -149,7 +149,6 @@
   window.onload = () => {
       generateEnvironment();
       window.parent.postMessage({ type: 'GHIBLI_HUB_READY' }, '*');
-      // 啟動遊戲渲染迴圈
       requestAnimationFrame(gameLoop);
   };
 
@@ -236,23 +235,21 @@
       coinLocations.forEach((loc, index) => {
           if (!collectedCoins.includes(index)) {
               const coin = document.createElement('div'); coin.className = 'health-coin'; coin.innerText = 'H';
-              coin.style.left = loc.x + 'px'; coin.style.bottom = `calc(25% + 70px)`;
+              // 金幣高度調降
+              coin.style.left = loc.x + 'px'; coin.style.bottom = `calc(20% + 55px)`;
               coinsContainer.appendChild(coin);
-              coinsData.push({ id: index, x: loc.x, yPx: 70, element: coin, isCollected: false });
+              coinsData.push({ id: index, x: loc.x, yPx: 55, element: coin, isCollected: false });
           }
       });
 
       activeIndex = parseInt(activeIndex) || 0;
-      // 載入時將實際與目標座標直接對齊
       targetPlayerX = (START_OFFSET + startCycle * CYCLE_WIDTH + activeIndex * LEVEL_SPACING) + 17.5; 
       if (isNaN(targetPlayerX)) { targetPlayerX = START_OFFSET + 150; }
       playerX = targetPlayerX;
   }
 
-  // 【優化 4】獨立的遊戲渲染迴圈 (取代直接呼叫 updateCamera)
   function gameLoop() {
       if (!isNaN(targetPlayerX) && !isJumping) {
-          // 慣性平滑計算 (Lerp)
           playerX += (targetPlayerX - playerX) * 0.15; 
           
           let camX = window.innerWidth * 0.3 - playerX;
@@ -260,7 +257,6 @@
           const maxScroll = -(WORLD_MAX_WIDTH - window.innerWidth + 200);
           if (camX < maxScroll) camX = maxScroll;
           
-          // 強制開啟 GPU 硬體加速 (translate3d)
           world.style.transform = `translate3d(${camX}px, 0, 0)`;
           player.style.left = `${playerX}px`;
           
@@ -272,7 +268,8 @@
   function jump() {
       if (isJumping) return;
       isJumping = true;
-      let jumpHeight = -120; 
+      // 配合高度下降，跳躍高度稍微調低
+      let jumpHeight = -70; 
       player.style.transform = `translateY(${jumpHeight}px)`;
       
       setTimeout(() => {
@@ -317,7 +314,7 @@
   }
 
   function checkCoinCollisions(playerYOffset) {
-      const playerActualY = 50 + playerYOffset; 
+      const playerActualY = 40 + playerYOffset; 
       coinsData.forEach(c => {
           if (c.isCollected) return; 
           if (Math.abs(playerX + 20 - (c.x + 17.5)) < 40 && Math.abs(playerActualY - c.yPx) < 40) {
@@ -331,18 +328,16 @@
   const handleStart = (e) => { 
       isDragging = true; 
       startClientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX; 
-      startPlayerX = targetPlayerX; // 基準點改為目標位置
+      startPlayerX = targetPlayerX; 
   };
   
   const handleMove = (e) => { 
       if (!isDragging) return; 
-      // 【優化 5】強制阻擋手機瀏覽器預設的下拉或翻頁行為
       if (e.cancelable) e.preventDefault(); 
       
       let clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX; 
       let deltaX = clientX - startClientX; 
       
-      // 更新「目標座標」，讓遊戲迴圈去追趕，製造平滑手感
       targetPlayerX = startPlayerX + deltaX * 1.8; 
       
       if (targetPlayerX < minPlayerX) targetPlayerX = minPlayerX; 
@@ -353,11 +348,8 @@
 
   const interactArea = document.getElementById('game-window');
   interactArea.addEventListener('mousedown', handleStart); window.addEventListener('mousemove', handleMove); window.addEventListener('mouseup', handleEnd);
-  
-  // 加上 { passive: false } 才能讓 preventDefault 成功攔截
-  interactArea.addEventListener('touchstart', handleStart, { passive: false }); 
-  interactArea.addEventListener('touchmove', handleMove, { passive: false }); 
-  interactArea.addEventListener('touchend', handleEnd);
+  interactArea.addEventListener('touchstart', handleStart, { passive: false }); interactArea.addEventListener('touchmove', handleMove, { passive: false }); interactArea.addEventListener('touchend', handleEnd);
+  window.addEventListener('resize', updateCamera);
 
   function generateEnvironment() {
       const screenEffects = document.getElementById('screen-effects'); const bubblesContainer = document.getElementById('bubbles-container');
@@ -372,14 +364,12 @@
       const creaturesContainer = document.getElementById('creatures-container');
       for (let i = 0; i < 12; i++) { 
           const isFlock = Math.random() > 0.6; const flockSize = isFlock ? (Math.random() > 0.5 ? 2 : 3) : 1; 
-          const baseX = Math.random() * MAX_W; 
-          const baseY = Math.random() * 20 + 5; 
+          const baseX = Math.random() * MAX_W; const baseY = Math.random() * 20 + 5; 
           const animName = Math.random() > 0.5 ? 'flyWave' : 'flySwoop'; 
           const duration = 100 + Math.random() * 100; const delay = -(Math.random() * 200); 
           for (let j = 0; j < flockSize; j++) { 
               const bird = document.createElement('div'); bird.className = 'bird'; bird.innerText = ['🦅', '🕊️'][Math.floor(Math.random() * 2)]; 
-              bird.style.left = `${baseX + j * (80 + Math.random() * 40)}px`; 
-              bird.style.top = `calc(${baseY}% + ${j * (5 - Math.random() * 10)}px)`; 
+              bird.style.left = `${baseX + j * (80 + Math.random() * 40)}px`; bird.style.top = `calc(${baseY}% + ${j * (5 - Math.random() * 10)}px)`; 
               bird.style.animationName = animName; bird.style.animationTimingFunction = 'linear'; bird.style.animationIterationCount = 'infinite'; 
               bird.style.animationDuration = `${duration}s`; bird.style.animationDelay = `${delay}s`; creaturesContainer.appendChild(bird); 
           } 
