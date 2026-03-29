@@ -3,147 +3,245 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>吉卜力大廳引擎 (完美置中與降落演出版)</title>
+<title>腦脈先鋒｜微觀血管引擎</title>
 <style>
   :root {
-    --sky-top: #5c9dd6; --sky-bottom: #d4f0ff;
-    --ocean-top: #3a8fb7; --ocean-bottom: #0e3d59;
-    --grass-light: #8bcd50; --grass-dark: #62a326;
-    --dirt: #7a5c43; --stone: #9ea7a6;
+    /* 體內深處的背景色 */
+    --bg-dark: #0a0505; 
+    --bg-light: #2a0808;
+    
+    /* 血管壁的顏色 */
+    --vessel-dark: #4a1515;
+    --vessel-light: #8c2a2a;
+    --vessel-edge: #ff8a8a;
+
+    /* 血栓顏色 */
+    --thrombus-core: #3e2723;
+    --thrombus-edge: #5d4037;
+
+    /* 模式主題色 (初階藍 / 進階金) */
+    --theme-beg: #64b5f6;
+    --theme-beg-glow: rgba(100, 181, 246, 0.8);
+    --theme-adv: #ffd54f;
+    --theme-adv-glow: rgba(255, 213, 79, 0.8);
+
+    /* 預設使用初階色，可透過 JS 切換 */
+    --current-theme: var(--theme-beg);
+    --current-glow: var(--theme-beg-glow);
+
     --coin-gold: #ffd700;
   }
-  body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; touch-action: none; font-family: "PingFang TC", sans-serif; user-select: none; -webkit-user-select: none; }
+
+  body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; touch-action: none; font-family: "PingFang TC", sans-serif; user-select: none; -webkit-user-select: none; background: #000; }
   
-  #game-window { position: relative; width: 100%; height: 100%; background: linear-gradient(to bottom, var(--sky-top) 0%, var(--sky-bottom) 60%); overflow: hidden; }
-  
-  /* 固定在畫面後方的背景 */
-  .ocean-bg { position: absolute; bottom: 0; width: 100%; height: 15%; background: linear-gradient(to bottom, var(--ocean-top) 0%, var(--ocean-bottom) 100%); z-index: 1; opacity: 0.85; border-top: 4px solid rgba(255,255,255,0.4); }
-  .cliff-bg { position: absolute; bottom: 15%; width: 100%; height: 90px; background: linear-gradient(to bottom, var(--grass-light) 0%, var(--grass-dark) 40%, var(--dirt) 40%, #4a3626 100%); border-top: 3px solid #bdf285; z-index: 2; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+  /* === 背景與環境 === */
+  #game-window { 
+      position: relative; width: 100%; height: 100%; 
+      background: radial-gradient(circle at 50% 50%, var(--bg-light) 0%, var(--bg-dark) 100%); 
+      overflow: hidden; 
+  }
+
+  /* 上下血管壁 */
+  .vessel-wall {
+      position: absolute; width: 100%; height: 20%; left: 0; z-index: 5;
+      background: linear-gradient(to bottom, var(--vessel-dark) 0%, var(--vessel-light) 80%, var(--vessel-edge) 100%);
+      box-shadow: 0 0 30px rgba(0,0,0,0.8);
+  }
+  .vessel-wall.top { top: 0; border-bottom: 3px solid rgba(255,138,138,0.5); border-radius: 0 0 20px 20px; }
+  .vessel-wall.bottom { 
+      bottom: 0; 
+      background: linear-gradient(to top, var(--vessel-dark) 0%, var(--vessel-light) 80%, var(--vessel-edge) 100%);
+      border-top: 3px solid rgba(255,138,138,0.5); border-radius: 20px 20px 0 0; 
+  }
+
+  /* 血管壁上的機理紋路 */
+  .vessel-texture {
+      position: absolute; inset: 0; opacity: 0.3; pointer-events: none;
+      background-image: radial-gradient(circle at 10px 10px, rgba(255,0,0,0.2) 2px, transparent 3px);
+      background-size: 30px 30px;
+  }
 
   /* 負責捲動的世界層 */
-  #world { position: absolute; left: 0; top: 0; height: 100%; will-change: transform; z-index: 3; }
+  #world { position: absolute; left: 0; top: 0; height: 100%; will-change: transform; z-index: 10; }
   
-  #bubbles-container { position: absolute; bottom: 0; width: 100%; height: 15%; pointer-events: none; z-index: 14; overflow: hidden; }
-  .bubble { position: absolute; background: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.6); border-radius: 50%; animation: floatUp ease-in infinite; }
-  @keyframes floatUp { 0% { transform: translateY(0px) scale(0.5); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(-40px) scale(1.2); opacity: 0; } }
-
-  .cloud { position: absolute; background: rgba(255,255,255,0.85); border-radius: 50px; filter: blur(2px); animation: floatCloud ease-in-out infinite alternate; }
-  @keyframes floatCloud { 0% { transform: translateX(0px); } 100% { transform: translateX(50px); } }
+  /* === 微觀粒子與血球 === */
+  #particles-container { position: absolute; inset: 0; pointer-events: none; z-index: 2; overflow: hidden; }
   
-  /* 移上海草，讓手機看得到 */
-  .coral { position: absolute; bottom: 10%; transform-origin: bottom center; animation: sway 8s ease-in-out infinite alternate; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5)); }
-  @keyframes sway { 0% { transform: rotate(-3deg); } 100% { transform: rotate(3deg); } }
-
-  .bird { position: absolute; font-size: 35px; filter: drop-shadow(2px 5px 8px rgba(0,0,0,0.3)); }
-  @keyframes flyWave { 0% { transform: translate(-100px, 0) scaleX(-1); } 25% { transform: translate(2500px, -60px) scaleX(-1); } 50% { transform: translate(5000px, 30px) scaleX(-1); } 75% { transform: translate(7500px, -40px) scaleX(-1); } 100% { transform: translate(10000px, 0) scaleX(-1); } }
-  @keyframes flySwoop { 0% { transform: translate(-100px, -50px) scaleX(-1); } 20% { transform: translate(2000px, 80px) scaleX(-1); } 50% { transform: translate(5000px, -30px) scaleX(-1); } 80% { transform: translate(8000px, 70px) scaleX(-1); } 100% { transform: translate(10000px, -50px) scaleX(-1); } }
-  
-  .fish { position: absolute; font-size: 45px; animation: swimLeft linear infinite; }
-  @keyframes swimLeft { 0% { transform: translateX(10000px) scaleX(1); } 100% { transform: translateX(-200px) scaleX(1); } }
-  
-  /* 關卡與物件高度精準調整 */
-  .vine { position: absolute; bottom: calc(15% + 200px); height: 40px; border-bottom: 4px solid #4a7c2a; border-radius: 50%; opacity: 0.8; }
-  
-  .floating-island { 
-    position: absolute; bottom: calc(15% + 185px); width: 75px; height: 65px; border-radius: 45% 55% 40% 60%; 
-    background: radial-gradient(circle at 30% 30%, #a8e6cf 0%, #3d8c40 70%, #2a592c 100%); 
-    box-shadow: 0 10px 15px rgba(0,0,0,0.3), inset -6px -6px 12px rgba(0,0,0,0.4), inset 3px 3px 8px rgba(255,255,255,0.2); 
-    display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; text-shadow: 1px 1px 2px #000; 
-    transition: box-shadow 0.2s, background 0.2s; animation: floatUpDown 4s ease-in-out infinite alternate; text-align: center; line-height: 1.2;
+  .red-blood-cell {
+      position: absolute;
+      width: 30px; height: 30px;
+      background: radial-gradient(circle at 30% 30%, #ff5252 0%, #d32f2f 60%, #b71c1c 100%);
+      border-radius: 50%;
+      box-shadow: inset 0 0 10px rgba(100,0,0,0.8), 2px 4px 6px rgba(0,0,0,0.4);
   }
-  @keyframes floatUpDown { 0% { transform: translateY(0px); } 100% { transform: translateY(-10px); } }
-  
-  .island-locked { filter: grayscale(100%) brightness(0.6); }
-  .island-cleared {
-    background: radial-gradient(circle at 30% 30%, #fff9c4 0%, #ffd54f 70%, #f57f17 100%) !important;
-    box-shadow: 0 10px 15px rgba(0,0,0,0.3), inset -6px -6px 12px rgba(180,100,0,0.5), inset 3px 3px 8px rgba(255,255,255,0.7) !important;
-    color: #4e342e !important; text-shadow: 1px 1px 0px rgba(255,255,255,0.5) !important;
-  }
-  .island-active { animation: activePulse 2s infinite ease-in-out; }
-  @keyframes activePulse { 
-      0% { box-shadow: 0 10px 15px rgba(0,0,0,0.3), inset -6px -6px 12px rgba(0,0,0,0.4); transform: translateY(0); } 
-      50% { box-shadow: 0 0 30px #ffeb3b, inset -6px -6px 12px rgba(0,0,0,0.4); transform: translateY(-5px); border: 2px solid rgba(255,255,255,0.5); } 
-      100% { box-shadow: 0 10px 15px rgba(0,0,0,0.3), inset -6px -6px 12px rgba(0,0,0,0.4); transform: translateY(0); } 
-  }
-  .active-hit { box-shadow: 0 0 30px #ffeb3b, inset -4px -4px 10px rgba(180,120,0,0.5) !important; background: radial-gradient(circle at 30% 30%, #fff59d 0%, #fbc02d 70%, #f57f17 100%) !important; transform: translateY(-15px) !important; animation: none !important; }
-
-  .level-category-bottom {
-      position: absolute; top: 72px; left: 50%; transform: translateX(-50%);
-      font-size: 11px; color: #fff; background: linear-gradient(135deg, rgba(13, 71, 161, 0.85) 0%, rgba(25, 118, 210, 0.7) 100%);
-      padding: 4px 10px; border-radius: 20px; white-space: nowrap; pointer-events: none; 
-      border: 1px solid rgba(144, 202, 249, 0.4); box-shadow: 0 2px 5px rgba(0,0,0,0.3), inset 1px 1px 3px rgba(255,255,255,0.2); z-index: 5;
+  .red-blood-cell::after {
+      content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 12px; height: 12px; border-radius: 50%; background: rgba(150,0,0,0.4); box-shadow: inset 2px 2px 4px rgba(0,0,0,0.5);
   }
 
-  .level-title-bottom {
-      position: absolute; top: 98px; left: 50%; transform: translateX(-50%);
-      width: 140px; text-align: center; color: #e0f7fa; font-size: 11px;
-      text-shadow: 1px 1px 3px #000, 0 0 8px rgba(0,0,0,0.8); font-weight: bold; line-height: 1.2; word-break: break-word; pointer-events: none;
-  }
-
-  /* 取消明暗交替的固定神聖光束 */
-  .light-beam {
-      position: absolute; top: 60px; left: 50%; transform: translateX(-50%);
-      width: 50px; height: 130px; 
-      background: linear-gradient(to bottom, rgba(255, 235, 59, 0.65) 0%, rgba(255, 235, 59, 0) 100%);
-      pointer-events: none; z-index: -1; filter: blur(4px);
-  }
-
-  /* 加上眼睛的玩家本體 */
-  #player { position: absolute; bottom: calc(15% + 85px); width: 40px; height: 60px; z-index: 20; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); will-change: left, transform; }
-  .player-head { width: 30px; height: 30px; background: #ffe0b2; border: 2px solid #555; border-radius: 50%; margin: 0 auto; position: relative; }
-  /* 新增：人物眼睛 */
-  .player-head::before { content: ''; position: absolute; top: 10px; left: 6px; width: 4px; height: 6px; background: #333; border-radius: 50%; }
-  .player-head::after { content: ''; position: absolute; top: 10px; right: 6px; width: 4px; height: 6px; background: #333; border-radius: 50%; }
-  .player-body { width: 40px; height: 30px; background: #e3f2fd; border: 2px solid #555; border-radius: 10px 10px 5px 5px; margin-top: -2px; }
+  /* 慢速漂浮 (阻塞區) */
+  .rbc-slow { animation: floatRbcSlow 15s linear infinite; }
+  @keyframes floatRbcSlow { 0% { transform: translate(100vw, 0) rotate(0deg); opacity: 0.6; } 100% { transform: translate(-100px, 20px) rotate(360deg); opacity: 0.6; } }
   
-  /* 降落特效 (過關後回到大地) */
-  .drop-in { animation: dropFromSky 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
-  @keyframes dropFromSky { 0% { transform: translateY(-300px) scale(0.8); opacity: 0; } 70% { transform: translateY(10px) scale(1.1); opacity: 1; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+  /* 快速衝刺 (打通區) */
+  .rbc-fast { animation: dashRbcFast 3s linear infinite; z-index: 15; }
+  @keyframes dashRbcFast { 0% { transform: translate(-100px, 0) rotate(0deg) scale(1.2); opacity: 1; } 100% { transform: translate(100vw, 0) rotate(360deg) scale(0.8); opacity: 0.8; } }
 
-  .health-coin { position: absolute; width: 35px; height: 35px; background-color: var(--coin-gold); border: 3px solid #b8860b; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #8b4513; font-weight: bold; font-size: 18px; box-shadow: 0 0 10px rgba(255,215,0,0.7), inset 2px 2px 5px rgba(255,255,255,0.6); animation: rotateCoin 2s linear infinite, floatCoin 1.5s ease-in-out infinite alternate; }
+  /* 氧氣泡泡 */
+  .oxygen-bubble {
+      position: absolute; border: 1px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);
+      border-radius: 50%; animation: bubbleFloat up infinite ease-in-out;
+  }
+  @keyframes bubbleFloat { 0% { transform: translateY(0) scale(0.8); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-100px) scale(1.2); opacity: 0; } }
+
+  /* === 關卡節點 (內皮細胞) === */
+  .cell-node { 
+    position: absolute; top: 15%; 
+    width: 80px; height: 60px; border-radius: 50% 50% 20% 20%; 
+    background: radial-gradient(circle at 50% 20%, #5d4037 0%, #3e2723 100%); 
+    box-shadow: 0 10px 20px rgba(0,0,0,0.8), inset 0 -5px 10px rgba(0,0,0,0.5); 
+    display: flex; align-items: center; justify-content: center; 
+    color: #aaa; font-weight: 900; font-size: 16px; text-shadow: 1px 1px 2px #000; 
+    transition: all 0.3s; z-index: 20; text-align: center;
+  }
+  .cell-node::before {
+      content: ''; position: absolute; top: -10px; left: 10%; width: 80%; height: 20px;
+      background: var(--vessel-light); border-radius: 50%; filter: blur(4px); z-index: -1;
+  }
+  
+  .node-locked { filter: grayscale(100%) brightness(0.5); }
+  
+  /* 挑戰中的脈動光芒 (依據當前模式顏色) */
+  .node-active { 
+      background: radial-gradient(circle at 50% 20%, #795548 0%, #4e342e 100%); 
+      color: #fff;
+      animation: activeCellPulse 2s infinite alternate ease-in-out; 
+  }
+  @keyframes activeCellPulse { 
+      0% { box-shadow: 0 10px 20px rgba(0,0,0,0.8), 0 0 15px var(--current-glow); transform: scale(1); } 
+      100% { box-shadow: 0 15px 30px rgba(0,0,0,0.9), 0 0 35px var(--current-glow); transform: scale(1.05); } 
+  }
+
+  /* 已通關的明亮狀態 */
+  .node-cleared {
+    background: radial-gradient(circle at 50% 20%, #fff 0%, var(--current-theme) 100%) !important;
+    color: #000 !important; text-shadow: 1px 1px 0 rgba(255,255,255,0.8) !important;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5), 0 0 40px var(--current-glow), inset 0 -5px 15px rgba(0,0,0,0.3) !important;
+  }
+
+  /* 跳躍撞擊特效 */
+  .active-hit { 
+      transform: translateY(-15px) scale(1.1) !important; 
+      background: #fff !important; box-shadow: 0 0 50px #fff !important; 
+      transition: all 0.1s !important; animation: none !important; 
+  }
+
+  /* 下方血管壁的文字說明 */
+  .level-info-bottom {
+      position: absolute; bottom: 5%; left: 50%; transform: translateX(-50%);
+      width: 120px; text-align: center; pointer-events: none; z-index: 20;
+  }
+  .level-category {
+      font-size: 11px; color: #fff; background: rgba(0,0,0,0.7);
+      padding: 2px 8px; border-radius: 12px; margin-bottom: 4px; display: inline-block;
+      border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+  }
+  .level-title {
+      color: #ffcdd2; font-size: 13px; font-weight: 900;
+      text-shadow: 1px 1px 3px #000, 0 0 5px rgba(0,0,0,0.8); line-height: 1.2;
+  }
+
+  /* === 血栓障礙物 === */
+  .thrombus-block {
+      position: absolute; top: 20%; bottom: 20%; 
+      width: 60px; background: repeating-linear-gradient(45deg, var(--thrombus-core), var(--thrombus-core) 10px, var(--thrombus-edge) 10px, var(--thrombus-edge) 20px);
+      border-left: 3px solid rgba(0,0,0,0.5); border-right: 3px solid rgba(0,0,0,0.5);
+      border-radius: 10px; z-index: 12; opacity: 0.95;
+      box-shadow: -10px 0 20px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.8);
+      display: flex; align-items: center; justify-content: center; overflow: hidden;
+      transition: width 1s ease-in-out, opacity 1s ease-in-out;
+  }
+  .thrombus-block::after {
+      content: ''; position: absolute; inset: 0;
+      background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+      background-size: 8px 8px; pointer-events: none;
+  }
+
+  .thrombus-cleared { width: 0 !important; opacity: 0 !important; border: none !important; }
+
+  /* 打通區段的明亮背景光暈 */
+  .cleared-light-zone {
+      position: absolute; top: 0; bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1) 20%, rgba(255,255,255,0.1) 80%, transparent);
+      z-index: 1; pointer-events: none; filter: blur(20px);
+  }
+
+  /* === 玩家 (奈米膠囊) === */
+  #player { 
+      position: absolute; bottom: 22%; width: 40px; height: 25px; 
+      z-index: 30; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); will-change: left, transform; 
+  }
+  .capsule-body {
+      width: 100%; height: 100%; border-radius: 20px;
+      background: linear-gradient(90deg, #eceff1 50%, var(--current-theme) 50%);
+      border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset -3px -3px 6px rgba(0,0,0,0.3);
+      position: relative; overflow: hidden;
+  }
+  .capsule-core {
+      position: absolute; top: 50%; left: 25%; transform: translate(-50%, -50%);
+      width: 8px; height: 8px; background: #00e676; border-radius: 50%; box-shadow: 0 0 10px #00e676;
+      animation: corePulse 1s infinite alternate;
+  }
+  @keyframes corePulse { from { opacity: 0.5; } to { opacity: 1; box-shadow: 0 0 15px #69f0ae; } }
+
+  .drop-in { animation: injectCapsule 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+  @keyframes injectCapsule { 0% { transform: translate(-200px, 200px) scale(0.5) rotate(-45deg); opacity: 0; } 100% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; } }
+
+  /* 健康幣 */
+  .health-coin { position: absolute; width: 30px; height: 30px; background-color: var(--coin-gold); border: 3px solid #b8860b; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #8b4513; font-weight: bold; font-size: 16px; z-index: 25; box-shadow: 0 0 10px rgba(255,215,0,0.7), inset 2px 2px 5px rgba(255,255,255,0.6); animation: rotateCoin 2s linear infinite, floatCoin 1.5s ease-in-out infinite alternate; }
   @keyframes rotateCoin { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(360deg); } }
   @keyframes floatCoin { 0% { margin-top: 0px; } 100% { margin-top: -8px; } }
   .health-coin.collected { animation: collectEffect 0.5s ease-out forwards; pointer-events: none; }
   @keyframes collectEffect { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-50px) scale(1.5); opacity: 0; } }
 
-  /* 完美藏於草地的虛擬按鍵 */
+  /* === 虛擬按鍵 (無死角觸控設計) === */
   #virtual-controls {
-      position: absolute; 
-      bottom: calc(15% + 15px); /* 落在90px的草地中央 */
-      width: 100%; height: 60px; z-index: 50; pointer-events: none; 
+      position: absolute; bottom: 5%; width: 100%; height: 60px; z-index: 50; pointer-events: none; 
   }
   .v-btn {
-      pointer-events: auto; 
-      background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.4); 
+      pointer-events: auto; background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.3); 
       color: rgba(255, 255, 255, 0.9); border-radius: 50%;
-      width: 55px; height: 55px; font-size: 24px; font-weight: bold;
+      width: 55px; height: 55px; font-size: 20px; font-weight: bold;
       display: flex; justify-content: center; align-items: center;
-      backdrop-filter: blur(2px); box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-      touch-action: manipulation; transition: transform 0.1s, background 0.1s; cursor: pointer;
-      position: absolute;
+      backdrop-filter: blur(4px); box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      touch-action: manipulation; transition: transform 0.1s, background 0.1s; cursor: pointer; position: absolute;
   }
-  .v-btn:active { background: rgba(255, 255, 255, 0.4); transform: scale(0.92); }
-  
+  .v-btn:active { background: rgba(255, 255, 255, 0.3); transform: scale(0.92); }
   #btn-left { left: 20px; bottom: 0; }
   #btn-right { right: 20px; bottom: 0; }
-  #btn-jump { left: 50%; bottom: 0; transform: translateX(-50%); width: 85px; border-radius: 20px; font-size: 18px; letter-spacing: 2px; }
-  #btn-jump:active { transform: translateX(-50%) scale(0.92); }
+  #btn-jump { left: 50%; bottom: 0; transform: translateX(-50%); width: 80px; border-radius: 25px; font-size: 16px; letter-spacing: 1px; color: var(--current-theme); border-color: var(--current-theme); background: rgba(0,0,0,0.6);}
+  #btn-jump:active { transform: translateX(-50%) scale(0.92); background: rgba(255,255,255,0.2); }
 </style>
 </head>
 <body>
 
 <div id="game-window">
-  <div class="ocean-bg"></div>
-  <div class="cliff-bg"></div>
-  <div id="bubbles-container"></div>
+  <div class="vessel-wall top"><div class="vessel-texture"></div></div>
+  <div class="vessel-wall bottom"><div class="vessel-texture"></div></div>
+  
+  <div id="particles-container"></div>
   
   <div id="world">
-    <div id="clouds-container"></div>
-    <div id="creatures-container"></div>
-    <div id="vines-container"></div>
-    <div id="bricks-container"></div>
+    <div id="light-zones-container"></div>
+    
+    <div id="nodes-container"></div>
+    <div id="thrombus-container"></div>
+    
     <div id="coins-container"></div>
-    <div id="player"><div class="player-head"></div><div class="player-body"></div></div>
+    
+    <div id="player">
+        <div class="capsule-body"><div class="capsule-core"></div></div>
+    </div>
   </div>
   
   <div id="virtual-controls">
@@ -156,142 +254,159 @@
 <script>
   const player = document.getElementById('player');
   const world = document.getElementById('world');
-  const bricksContainer = document.getElementById('bricks-container');
-  const vinesContainer = document.getElementById('vines-container');
+  const nodesContainer = document.getElementById('nodes-container');
+  const thrombusContainer = document.getElementById('thrombus-container');
+  const lightZonesContainer = document.getElementById('light-zones-container');
   const coinsContainer = document.getElementById('coins-container');
+  const particlesContainer = document.getElementById('particles-container');
   
   let targetPlayerX = 150; 
   let playerX = 150; 
   let isJumping = false;
   let minPlayerX = 50; 
+  let maxAllowedX = 5000; // 給定初始寬度
   
   let isMovingLeft = false;
   let isMovingRight = false;
   
-  const LEVEL_SPACING = 160; const START_OFFSET = 300; 
-  let TOTAL_CYCLES = 4; let WORLD_MAX_WIDTH = 20000;
+  const NODE_SPACING = 300; 
+  const START_OFFSET = 200; 
+  let WORLD_MAX_WIDTH = 5000;
   
-  const bricksData = []; const coinsData = [];
+  const nodesData = []; const coinsData = [];
 
   window.addEventListener('message', (event) => {
       if (event.data.type === 'RENDER_MAP') {
+          // 動態更新主題色
+          const isAdv = event.data.mode === 'advanced';
+          document.documentElement.style.setProperty('--current-theme', isAdv ? 'var(--theme-adv)' : 'var(--theme-beg)');
+          document.documentElement.style.setProperty('--current-glow', isAdv ? 'var(--theme-adv-glow)' : 'var(--theme-beg-glow)');
+
           let activeIdx = event.data.activeIndex !== undefined ? event.data.activeIndex : (event.data.progressIndex || 0);
           let isCleared = event.data.allCleared || false;
           let safeCoins = event.data.collectedCoins || [];
-          let lastPlayedIdx = event.data.lastPlayedIndex; // 主程式傳來的足跡
+          let lastPlayedIdx = event.data.lastPlayedIndex; 
+          
           buildWorld(event.data.baseSeq, safeCoins, activeIdx, isCleared, lastPlayedIdx);
       }
   });
 
   window.onload = () => {
-      generateEnvironment();
+      generateParticles();
       window.parent.postMessage({ type: 'GHIBLI_HUB_READY' }, '*');
-      requestAnimationFrame(gameLoop);
       setupVirtualControls();
+      requestAnimationFrame(gameLoop);
   };
 
   function buildWorld(baseSeq, collectedCoins, activeIndex, allCleared, lastPlayedIdx) {
       if (!baseSeq || baseSeq.length === 0) return;
 
-      bricksContainer.innerHTML = ''; vinesContainer.innerHTML = ''; coinsContainer.innerHTML = '';
-      bricksData.length = 0; coinsData.length = 0;
+      nodesContainer.innerHTML = ''; thrombusContainer.innerHTML = ''; 
+      coinsContainer.innerHTML = ''; lightZonesContainer.innerHTML = '';
+      nodesData.length = 0; coinsData.length = 0;
 
-      const CYCLE_LENGTH = baseSeq.length; 
-      const TOTAL_LEVELS = CYCLE_LENGTH * TOTAL_CYCLES; 
-      const CYCLE_GAP = 800; 
-      const CYCLE_WIDTH = CYCLE_LENGTH * LEVEL_SPACING + CYCLE_GAP;
-      
-      WORLD_MAX_WIDTH = START_OFFSET + TOTAL_CYCLES * CYCLE_WIDTH + 500;
+      const TOTAL_NODES = baseSeq.length; 
+      WORLD_MAX_WIDTH = START_OFFSET + (TOTAL_NODES * NODE_SPACING) + 300;
       world.style.width = WORLD_MAX_WIDTH + 'px';
 
-      const startCycle = Math.floor(TOTAL_CYCLES / 2);
-      minPlayerX = allCleared ? 50 : (START_OFFSET + startCycle * CYCLE_WIDTH - 50);
-      if (isNaN(minPlayerX)) minPlayerX = 50;
+      // ★ 修正：永遠允許玩家退回最左邊的起點
+      minPlayerX = 50; 
 
-      for (let i = 0; i < TOTAL_LEVELS; i++) {
-          const cycleNumber = Math.floor(i / CYCLE_LENGTH);
-          const cycleIndex = i % CYCLE_LENGTH; 
-          const bX = START_OFFSET + cycleNumber * CYCLE_WIDTH + cycleIndex * LEVEL_SPACING;
-          
-          const item = baseSeq[cycleIndex]; 
-          const island = document.createElement('div');
-          island.className = 'floating-island';
-          island.style.left = bX + 'px'; 
-          island.style.animationDelay = `-${Math.random() * 3}s`;
-          
-          let innerHTMLStr = '';
+      // ★ 修正：動態計算玩家可以往右走的最遠距離 (血栓位置)
+      if (allCleared) {
+          maxAllowedX = WORLD_MAX_WIDTH; 
+      } else {
+          // 停在進行中節點的右側一點點，剛好碰到血栓
+          maxAllowedX = START_OFFSET + activeIndex * NODE_SPACING + 120;
+      }
 
-          if (i === startCycle * CYCLE_LENGTH + activeIndex) {
-              innerHTMLStr += `<div class="light-beam"></div>`;
-          }
+      // 產生節點與血栓
+      for (let i = 0; i < TOTAL_NODES; i++) {
+          const bX = START_OFFSET + i * NODE_SPACING;
+          const item = baseSeq[i]; 
           
-          let isRandom = false;
-          if (item.type === 'task') {
-              if (item.status === 'cleared') island.classList.add('island-cleared');
-              else if (item.status === 'locked') island.classList.add('island-locked');
+          let isNodeCleared = false;
+          let isNodeActive = false;
+          let isNodeLocked = true;
+
+          // 判斷狀態
+          if (item.status === 'cleared') { isNodeCleared = true; isNodeLocked = false; }
+          else if (item.status === 'locked') { isNodeLocked = true; }
+          else { isNodeActive = true; isNodeLocked = false; }
+          
+          // --- 1. 產生血管上壁的細胞節點 ---
+          const node = document.createElement('div');
+          node.className = 'cell-node';
+          node.style.left = bX + 'px'; 
+          node.innerText = i + 1; 
+          
+          if (isNodeCleared) node.classList.add('node-cleared');
+          else if (isNodeActive) node.classList.add('node-active');
+          else node.classList.add('node-locked');
+
+          nodesContainer.appendChild(node);
+          nodesData.push({ x: bX, element: node, itemData: item, isRollingLocked: false });
+
+          // --- 2. 產生下血管壁的文字說明 ---
+          const info = document.createElement('div');
+          info.className = 'level-info-bottom';
+          info.style.left = (bX + 40) + 'px'; 
+          let titleColor = isNodeLocked ? '#757575' : (isNodeCleared ? '#fff' : 'var(--current-theme)');
+          
+          info.innerHTML = `
+              <div class="level-category">${item.category || '演練'}</div>
+              <div class="level-title" style="color:${titleColor}">${item.title || '關卡'}</div>
+          `;
+          nodesContainer.appendChild(info);
+
+          // --- 3. 產生血栓障礙 ---
+          if (i < TOTAL_NODES - 1) {
+              const trbX = bX + 140; 
+              const thrombus = document.createElement('div');
+              thrombus.className = 'thrombus-block';
+              thrombus.style.left = trbX + 'px';
               
-              let categoryText = item.category || '特別演練';
-              innerHTMLStr += `
-                  第 ${item.globalIdx + 1} 關
-                  <div class="level-category-bottom">${categoryText}</div>
-                  <div class="level-title-bottom">${item.title || ''}</div>
-              `;
-          } else if (item.type === 'random') {
-              island.classList.add('random-level'); 
-              if (item.status === 'locked') island.classList.add('island-locked');
-              else island.classList.add('island-active');
-              innerHTMLStr += `<span class="random-text">隨機</span><div class="level-title-bottom">未知的挑戰</div>`;
-              isRandom = true;
-          } else if (item.type === 'comprehensive') {
-              if (item.status === 'locked') island.classList.add('island-locked');
-              else island.classList.add('island-active');
-              innerHTMLStr += `綜合<div class="level-title-bottom">終極考驗</div>`;
-              island.style.background = 'radial-gradient(circle at 30% 30%, #ff8a65 0%, #d84315 70%, #bf360c 100%)';
-          }
-          
-          island.innerHTML = innerHTMLStr;
-          bricksContainer.appendChild(island);
-          bricksData.push({ x: bX, element: island, itemData: item, isRandom: isRandom, isRollingLocked: false });
+              if (isNodeCleared) thrombus.classList.add('thrombus-cleared');
+              thrombusContainer.appendChild(thrombus);
 
-          if (cycleIndex < CYCLE_LENGTH - 1) {
-              const vine = document.createElement('div');
-              vine.className = 'vine';
-              vine.style.left = (bX + 37) + 'px'; vine.style.width = (LEVEL_SPACING) + 'px'; 
-              vinesContainer.appendChild(vine);
+              if (isNodeCleared) {
+                  const lightZone = document.createElement('div');
+                  lightZone.className = 'cleared-light-zone';
+                  lightZone.style.left = (bX - 100) + 'px';
+                  lightZone.style.width = (NODE_SPACING + 100) + 'px';
+                  lightZonesContainer.appendChild(lightZone);
+              }
           }
       }
 
-      coinLocations = [ {x: 600}, {x: 1400}, {x: 2300}, {x: 3200}, {x: 4100} ];
+      // 金幣
+      let coinLocations = [ {x: START_OFFSET + 150}, {x: START_OFFSET + NODE_SPACING + 150} ]; 
       coinLocations.forEach((loc, index) => {
-          if (!collectedCoins.includes(index)) {
-              const coin = document.createElement('div'); coin.className = 'health-coin'; coin.innerText = 'H';
-              coin.style.left = loc.x + 'px'; coin.style.bottom = `calc(15% + 105px)`;
+          if (!collectedCoins.includes(index) && loc.x < START_OFFSET + activeIndex * NODE_SPACING) {
+              const coin = document.createElement('div'); coin.className = 'health-coin'; coin.innerText = '$';
+              coin.style.left = loc.x + 'px'; coin.style.bottom = `40%`; 
               coinsContainer.appendChild(coin);
-              coinsData.push({ id: index, x: loc.x, yPx: 105, element: coin, isCollected: false });
+              coinsData.push({ id: index, x: loc.x, yPx: window.innerHeight * 0.4, element: coin, isCollected: false });
           }
       });
 
       activeIndex = parseInt(activeIndex) || 0;
-      let finalTargetX = (START_OFFSET + startCycle * CYCLE_WIDTH + activeIndex * LEVEL_SPACING) + 17.5; 
-      if (isNaN(finalTargetX)) finalTargetX = START_OFFSET + 150;
+      let finalTargetX = (START_OFFSET + activeIndex * NODE_SPACING) + 20; 
+      if (isNaN(finalTargetX)) finalTargetX = START_OFFSET + 20;
 
-      // === 降落演出邏輯 ===
+      // 降落/注入演出
       if (lastPlayedIdx !== undefined && lastPlayedIdx !== null) {
-          // 如果有剛打完的關卡，先從那關的正下方降落，然後再慢慢走向下一關
-          let startDropX = (START_OFFSET + startCycle * CYCLE_WIDTH + lastPlayedIdx * LEVEL_SPACING) + 17.5;
+          let startDropX = (START_OFFSET + lastPlayedIdx * NODE_SPACING) + 20;
           targetPlayerX = startDropX;
           playerX = startDropX;
           
-          // 加上降落動畫
           player.classList.add('drop-in');
-          
-          // 等降落動畫快結束時，更新目標，讓人物自己走向下一關
           setTimeout(() => {
-              targetPlayerX = finalTargetX;
+              targetPlayerX = finalTargetX; 
               player.classList.remove('drop-in');
+              generateFastRBCs(startDropX, finalTargetX); 
           }, 800);
       } else {
-          // 如果沒有剛打完的關卡，就直接站在該站的位置
           targetPlayerX = finalTargetX;
           playerX = targetPlayerX;
       }
@@ -302,9 +417,10 @@
       const btnRight = document.getElementById('btn-right');
       const btnJump = document.getElementById('btn-jump');
 
+      // 確保觸控事件不被瀏覽器預設行為干擾
       const addHoldEvent = (el, setTrue, setFalse) => {
-          el.addEventListener('touchstart', (e) => { e.preventDefault(); setTrue(); });
-          el.addEventListener('touchend', (e) => { e.preventDefault(); setFalse(); });
+          el.addEventListener('touchstart', (e) => { e.preventDefault(); setTrue(); }, {passive: false});
+          el.addEventListener('touchend', (e) => { e.preventDefault(); setFalse(); }, {passive: false});
           el.addEventListener('mousedown', (e) => { e.preventDefault(); setTrue(); });
           el.addEventListener('mouseup', (e) => { e.preventDefault(); setFalse(); });
           el.addEventListener('mouseleave', (e) => { e.preventDefault(); setFalse(); });
@@ -313,63 +429,49 @@
       addHoldEvent(btnLeft, () => isMovingLeft = true, () => isMovingLeft = false);
       addHoldEvent(btnRight, () => isMovingRight = true, () => isMovingRight = false);
 
-      btnJump.addEventListener('touchstart', (e) => { e.preventDefault(); jump(); });
+      btnJump.addEventListener('touchstart', (e) => { e.preventDefault(); jump(); }, {passive: false});
       btnJump.addEventListener('mousedown', (e) => { e.preventDefault(); jump(); });
   }
 
   function gameLoop() {
+      // ★ 修正：無論是否在跳躍中，都允許左右移動，讓手感更好
       if (isMovingLeft) targetPlayerX -= 8;
       if (isMovingRight) targetPlayerX += 8;
       
+      // ★ 修正：完美的邊界檢查
       if (targetPlayerX < minPlayerX) targetPlayerX = minPlayerX; 
-      if (targetPlayerX > WORLD_MAX_WIDTH) targetPlayerX = WORLD_MAX_WIDTH; 
+      if (targetPlayerX > maxAllowedX) targetPlayerX = maxAllowedX; 
 
-      if (!isNaN(targetPlayerX) && !isJumping) {
-          // 玩家物理 X 軸追趕目標 X 軸 (Lerp)
+      if (!isNaN(targetPlayerX)) {
+          // 物理平滑跟隨
           playerX += (targetPlayerX - playerX) * 0.15; 
           
-          // === 絕對鎖定置中攝影機 ===
-          // 相機的偏移量 = 螢幕寬度的一半 - 玩家當前的物理X座標 - 玩家寬度的一半
           let camX = (window.innerWidth / 2) - playerX - 20; 
-          
-          // 邊界限制
           if (camX > 0) camX = 0; 
           const maxScroll = -(WORLD_MAX_WIDTH - window.innerWidth + 200);
           if (camX < maxScroll) camX = maxScroll;
           
           world.style.transform = `translate3d(${camX}px, 0, 0)`;
-          // 玩家的 left 是相對於 world 的，所以依然填入 playerX
           player.style.left = `${playerX}px`;
-          
-          checkCoinCollisions(0); 
       }
+      
+      // 不管在空中還是地上，都檢查金幣碰撞
+      checkCoinCollisions(isJumping ? window.innerHeight * 0.55 : 0); 
+      
       requestAnimationFrame(gameLoop);
   }
 
   function jump() {
       if (isJumping) return;
       isJumping = true;
-      let jumpHeight = -90; 
-      player.style.transform = `translateY(${jumpHeight}px)`;
+      let jumpDistance = window.innerHeight * 0.55; 
+      player.style.transform = `translateY(-${jumpDistance}px) scale(1.2)`;
       
       setTimeout(() => {
-          let hitAny = false;
-          bricksData.forEach(b => {
-              if (Math.abs(playerX + 20 - (b.x + 35)) < 45) {
+          nodesData.forEach(b => {
+              // 判定碰撞 (膠囊中心 對 節點中心)
+              if (Math.abs(playerX + 20 - (b.x + 40)) < 50) {
                   b.element.classList.add('active-hit'); 
-                  hitAny = true;
-                  
-                  if (b.isRandom && !b.isRollingLocked && b.itemData.status !== 'locked') {
-                      b.isRollingLocked = true;
-                      let rollCount = 0; const randomText = b.element.querySelector('.random-text');
-                      const rollInterval = setInterval(() => {
-                          randomText.innerText = `第 ${Math.floor(Math.random() * 25) + 1} 關`;
-                          if (++rollCount >= 20) { 
-                              clearInterval(rollInterval);
-                              randomText.innerText = `第 ${Math.floor(Math.random() * 25) + 1} 關`;
-                          }
-                      }, 50);
-                  }
 
                   setTimeout(() => {
                       window.parent.postMessage({
@@ -378,26 +480,24 @@
                           taskIdx: b.itemData.taskIdx, globalIdx: b.itemData.globalIdx, status: b.itemData.status
                       }, '*');
                       b.element.classList.remove('active-hit'); 
-                  }, 600);
+                  }, 400);
               } else { 
                   if (!b.isRollingLocked) b.element.classList.remove('active-hit'); 
               }
           });
-          if (!hitAny) { bricksData.forEach(b => { if(!b.isRollingLocked) b.element.classList.remove('active-hit'); }); }
-          checkCoinCollisions(-jumpHeight);
-      }, 200);
+      }, 300);
 
       setTimeout(() => {
-          player.style.transform = 'translateY(0)';
-          setTimeout(() => { isJumping = false; }, 100); 
-      }, 400);
+          player.style.transform = 'translateY(0) scale(1)';
+          setTimeout(() => { isJumping = false; }, 200); 
+      }, 500);
   }
 
   function checkCoinCollisions(playerYOffset) {
-      const playerActualY = 85 + playerYOffset; 
+      const playerActualY = window.innerHeight * 0.78 - playerYOffset; 
       coinsData.forEach(c => {
           if (c.isCollected) return; 
-          if (Math.abs(playerX + 20 - (c.x + 17.5)) < 40 && Math.abs(playerActualY - c.yPx) < 40) {
+          if (Math.abs(playerX + 20 - (c.x + 15)) < 40 && Math.abs(playerActualY - c.yPx) < 50) {
               c.isCollected = true; c.element.classList.add('collected');
               window.parent.postMessage({ type: 'COLLECT_HUB_COIN', coinIndex: c.id }, '*');
               setTimeout(() => { if (c.element.parentNode) c.element.parentNode.removeChild(c.element); }, 500);
@@ -405,46 +505,50 @@
       });
   }
 
-  function generateEnvironment() {
-      const bubblesContainer = document.getElementById('bubbles-container');
-      for(let i=0; i<8; i++) { const bubble = document.createElement('div'); bubble.className = 'bubble'; bubble.style.left = `${Math.random() * 100}%`; bubble.style.bottom = `${Math.random() * 20}%`; const size = 5 + Math.random() * 10; bubble.style.width = `${size}px`; bubble.style.height = `${size}px`; bubble.style.animationDuration = `${6 + Math.random() * 6}s`; bubble.style.animationDelay = `-${Math.random() * 6}s`; bubblesContainer.appendChild(bubble); }
+  function generateParticles() {
+      const pContainer = document.getElementById('particles-container');
       
-      const MAX_W = 20000; 
-      for(let i = 0; i < Math.floor(MAX_W/300); i++) { const cloud = document.createElement('div'); cloud.className = 'cloud'; cloud.style.left = `${(i * 300) + Math.random() * 150}px`; cloud.style.top = `${Math.random() * 35}%`; cloud.style.width = `${80 + Math.random() * 150}px`; cloud.style.height = `${20 + Math.random() * 40}px`; cloud.style.opacity = 0.4 + Math.random() * 0.4; cloud.style.animationDuration = `${40 + Math.random() * 40}s`; document.getElementById('clouds-container').appendChild(cloud); }
-      
-      const coralEmojis = ['🪸', '🌿', '🌱', '🦀']; 
-      for (let i = 0; i < Math.floor(MAX_W/300); i++) { const coral = document.createElement('div'); coral.className = 'coral'; const type = coralEmojis[Math.floor(Math.random() * coralEmojis.length)]; coral.innerText = type; coral.style.left = `${(i * 300) + Math.random() * 150}px`; coral.style.fontSize = '40px'; if (type === '🌿' || type === '🌱') { coral.style.transform = `scale(${0.8 + Math.random() * 0.4}, ${1.5 + Math.random() * 2.0})`; coral.style.filter = `hue-rotate(${Math.random() * 90 - 45}deg) drop-shadow(2px 2px 4px rgba(0,0,0,0.5))`; } else { coral.style.transform = `scale(${0.7 + Math.random() * 0.6})`; coral.style.filter = `hue-rotate(${Math.random() * 360}deg) drop-shadow(2px 2px 4px rgba(0,0,0,0.5))`; } document.getElementById('world').appendChild(coral); }
-      
-      const creaturesContainer = document.getElementById('creatures-container');
-      // === 飛鳥高度嚴格限制在上方 5% ~ 25% (關卡上方) ===
-      for (let i = 0; i < 12; i++) { 
-          const isFlock = Math.random() > 0.6; const flockSize = isFlock ? (Math.random() > 0.5 ? 2 : 3) : 1; 
-          const baseX = Math.random() * MAX_W; 
-          const baseY = Math.random() * 20 + 5; 
-          const animName = Math.random() > 0.5 ? 'flyWave' : 'flySwoop'; 
-          const duration = 100 + Math.random() * 100; const delay = -(Math.random() * 200); 
-          for (let j = 0; j < flockSize; j++) { 
-              const bird = document.createElement('div'); bird.className = 'bird'; bird.innerText = ['🦅', '🕊️'][Math.floor(Math.random() * 2)]; 
-              bird.style.left = `${baseX + j * (80 + Math.random() * 40)}px`; 
-              bird.style.top = `calc(${baseY}% + ${j * (5 - Math.random() * 10)}px)`; 
-              bird.style.animationName = animName; bird.style.animationTimingFunction = 'linear'; bird.style.animationIterationCount = 'infinite'; 
-              bird.style.animationDuration = `${duration}s`; bird.style.animationDelay = `${delay}s`; creaturesContainer.appendChild(bird); 
-          } 
+      // 緩慢的暗色血球 (背景)
+      for(let i=0; i<15; i++) { 
+          const rbc = document.createElement('div'); 
+          rbc.className = 'red-blood-cell rbc-slow'; 
+          rbc.style.top = `${20 + Math.random() * 50}%`; 
+          const size = 15 + Math.random() * 20; 
+          rbc.style.width = `${size}px`; rbc.style.height = `${size}px`; 
+          rbc.style.animationDuration = `${10 + Math.random() * 10}s`; 
+          rbc.style.animationDelay = `-${Math.random() * 10}s`; 
+          pContainer.appendChild(rbc); 
       }
       
-      // === 魚群活動範圍上調 (2% ~ 50% 的海洋範圍內) ===
-      for (let i = 0; i < 18; i++) { 
-          const isSchool = Math.random() > 0.5; const schoolSize = isSchool ? Math.floor(Math.random() * 3) + 2 : 1; 
-          const baseX = Math.random() * MAX_W; 
-          const baseY = Math.random() * 48 + 2; // 2% 到 50%
-          const duration = 240 + Math.random() * 150; const delay = -(Math.random() * 300); const baseHue = Math.floor(Math.random() * 360); 
-          for (let j = 0; j < schoolSize; j++) { 
-              const fish = document.createElement('div'); fish.className = 'fish'; fish.innerText = ['🐠', '🐡', '🐟', '🪼', '🦑'][Math.floor(Math.random() * 5)]; 
-              fish.style.left = `${baseX + j * (80 + Math.random() * 50)}px`; 
-              fish.style.bottom = `calc(${baseY}% + ${j * (2 - Math.random() * 4)}%)`; // 底部對齊海床
-              fish.style.animationDuration = `${duration}s`; fish.style.animationDelay = `${delay}s`; 
-              const scale = 0.5 + Math.random() * 0.5; fish.style.transform = `scale(${scale})`; fish.style.filter = `drop-shadow(3px 6px 10px rgba(0,0,0,0.5)) hue-rotate(${baseHue + (j*15)}deg)`; fish.style.opacity = scale; document.getElementById('world').appendChild(fish); 
-          } 
+      // 氧氣泡泡
+      for(let i=0; i<20; i++) { 
+          const bubble = document.createElement('div'); 
+          bubble.className = 'oxygen-bubble'; 
+          bubble.style.left = `${Math.random() * 100}%`; 
+          bubble.style.top = `${30 + Math.random() * 60}%`; 
+          const size = 3 + Math.random() * 8; 
+          bubble.style.width = `${size}px`; bubble.style.height = `${size}px`; 
+          bubble.style.animationDuration = `${3 + Math.random() * 5}s`; 
+          bubble.style.animationDelay = `-${Math.random() * 5}s`; 
+          pContainer.appendChild(bubble); 
+      }
+  }
+
+  // 過關時產生的快速血流特效
+  function generateFastRBCs(startX, endX) {
+      const wContainer = document.getElementById('world');
+      for(let i=0; i<10; i++) {
+          setTimeout(() => {
+              const rbc = document.createElement('div'); 
+              rbc.className = 'red-blood-cell rbc-fast'; 
+              rbc.style.left = `${startX - 100}px`;
+              rbc.style.top = `${30 + Math.random() * 40}%`; 
+              rbc.style.animationDuration = `${1 + Math.random() * 1}s`; 
+              wContainer.appendChild(rbc);
+              
+              // 動畫結束後移除
+              setTimeout(() => { if (rbc.parentNode) rbc.parentNode.removeChild(rbc); }, 3000);
+          }, i * 200);
       }
   }
 </script>
