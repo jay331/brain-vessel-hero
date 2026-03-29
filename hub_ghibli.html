@@ -17,6 +17,7 @@
   #game-window { position: relative; width: 100%; height: 100%; background: linear-gradient(to bottom, var(--sky-top) 0%, var(--sky-bottom) 60%); overflow: hidden; }
   #world { position: absolute; left: 0; top: 0; height: 100%; transition: transform 0.1s ease-out; }
   
+  /* 特效層 Z-index 降為 15 */
   #screen-effects { position: absolute; inset: 0; pointer-events: none; z-index: 15; }
   .wind-line { position: absolute; height: 2px; background: rgba(255,255,255,0.4); border-radius: 2px; animation: blowRight linear infinite; }
   @keyframes blowRight { 0% { transform: translateX(-20vw); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateX(100vw); opacity: 0; } }
@@ -40,14 +41,17 @@
   .fish { position: absolute; z-index: 6; font-size: 45px; animation: swimLeft linear infinite; }
   @keyframes swimLeft { 0% { transform: translateX(10000px) scaleX(1); } 100% { transform: translateX(-200px) scaleX(1); } }
   
-  .vine { position: absolute; bottom: calc(25% + 215px); height: 40px; border-bottom: 4px solid #4a7c2a; border-radius: 50%; z-index: 9; opacity: 0.8; }
+  /* === 優化：樹藤與關卡高度大幅下降，避免在手機被切頭 === */
+  .vine { position: absolute; bottom: calc(25% + 145px); height: 40px; border-bottom: 4px solid #4a7c2a; border-radius: 50%; z-index: 9; opacity: 0.8; }
   
+  /* Z-index 提高到 20，避免文字被風的線條穿過 */
   .floating-island { 
-    position: absolute; bottom: calc(25% + 200px); width: 75px; height: 65px; border-radius: 45% 55% 40% 60%; 
+    position: absolute; bottom: calc(25% + 130px); width: 75px; height: 65px; border-radius: 45% 55% 40% 60%; 
     background: radial-gradient(circle at 30% 30%, #a8e6cf 0%, #3d8c40 70%, #2a592c 100%); 
     box-shadow: 0 10px 15px rgba(0,0,0,0.3), inset -6px -6px 12px rgba(0,0,0,0.4), inset 3px 3px 8px rgba(255,255,255,0.2); 
     display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; text-shadow: 1px 1px 2px #000; 
-    transition: box-shadow 0.2s, background 0.2s; animation: floatUpDown 4s ease-in-out infinite alternate; z-index: 10; text-align: center; line-height: 1.2;
+    transition: box-shadow 0.2s, background 0.2s; animation: floatUpDown 4s ease-in-out infinite alternate; 
+    z-index: 20; text-align: center; line-height: 1.2;
   }
   @keyframes floatUpDown { 0% { transform: translateY(0px); } 100% { transform: translateY(-10px); } }
   
@@ -75,7 +79,7 @@
       padding: 4px 12px; border-radius: 6px; 
       white-space: nowrap; pointer-events: none; 
       border: 1px solid rgba(188, 170, 164, 0.5); border-bottom: 2px solid rgba(62, 39, 35, 1); 
-      box-shadow: 0 4px 6px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.15); text-shadow: 1px 1px 2px #000; z-index: 5;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.15); text-shadow: 1px 1px 2px #000;
   }
 
   .level-title-bottom {
@@ -84,17 +88,19 @@
       text-shadow: 1px 1px 3px #000, 0 0 8px rgba(0,0,0,0.8); font-weight: bold; line-height: 1.2; word-break: break-word; pointer-events: none;
   }
 
+  /* 綠色箭頭位置調整 */
   .active-arrow-container {
-      position: absolute; top: -85px; left: 50%; transform: translateX(-50%);
+      position: absolute; top: -65px; left: 50%; transform: translateX(-50%);
       animation: bounceArrow 0.8s infinite alternate ease-in-out; pointer-events: none; z-index: 20;
       display: flex; flex-direction: column; align-items: center; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));
   }
-  .arrow-stem { width: 12px; height: 35px; background: linear-gradient(to bottom, rgba(30, 136, 62, 0.9) 0%, rgba(61, 255, 142, 0.9) 100%); border-radius: 5px 5px 0 0; border: 2px solid rgba(255,255,255,0.5); border-bottom: none; }
-  .arrow-point { width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 22px solid rgba(61, 255, 142, 0.9); margin-top: -2px; position: relative; }
-  .arrow-point::after { content: ''; position: absolute; top: -25px; left: -20px; width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 22px solid white; opacity: 0.3; }
-  @keyframes bounceArrow { 0% { transform: translate(-50%, 0); } 100% { transform: translate(-50%, 12px); } }
+  .arrow-stem { width: 10px; height: 25px; background: linear-gradient(to bottom, rgba(30, 136, 62, 0.9) 0%, rgba(61, 255, 142, 0.9) 100%); border-radius: 5px 5px 0 0; border: 2px solid rgba(255,255,255,0.5); border-bottom: none; }
+  .arrow-point { width: 0; height: 0; border-left: 16px solid transparent; border-right: 16px solid transparent; border-top: 18px solid rgba(61, 255, 142, 0.9); margin-top: -2px; position: relative; }
+  .arrow-point::after { content: ''; position: absolute; top: -20px; left: -16px; width: 0; height: 0; border-left: 16px solid transparent; border-right: 16px solid transparent; border-top: 18px solid white; opacity: 0.3; }
+  @keyframes bounceArrow { 0% { transform: translate(-50%, 0); } 100% { transform: translate(-50%, 10px); } }
 
-  #player { position: absolute; left: 150px; bottom: calc(25% + 50px); width: 40px; height: 60px; z-index: 20; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  /* 玩家 Z-index 拉高到 25 */
+  #player { position: absolute; left: 150px; bottom: calc(25% + 50px); width: 40px; height: 60px; z-index: 25; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   .player-head { width: 30px; height: 30px; background: #ffe0b2; border: 2px solid #555; border-radius: 50%; margin: 0 auto; position: relative; }
   .player-body { width: 40px; height: 30px; background: #e3f2fd; border: 2px solid #555; border-radius: 10px 10px 5px 5px; margin-top: -2px; }
 
@@ -200,14 +206,11 @@
                   <div class="level-title-bottom">${item.title || ''}</div>
               `;
           } else if (item.type === 'random') {
-              island.classList.add('random-level'); 
-              if (item.status === 'locked') island.classList.add('island-locked');
-              else island.classList.add('island-active');
+              island.classList.add('random-level', 'island-active'); 
               innerHTMLStr += `<span class="random-text">隨機</span><div class="level-label">抽籤關卡</div><div class="level-title-bottom">未知的挑戰</div>`;
               isRandom = true;
           } else if (item.type === 'comprehensive') {
-              if (item.status === 'locked') island.classList.add('island-locked');
-              else island.classList.add('island-active');
+              island.classList.add('island-active'); 
               innerHTMLStr += `綜合<div class="level-label">綜合演練</div><div class="level-title-bottom">終極考驗</div>`;
               island.style.background = 'radial-gradient(circle at 30% 30%, #ff8a65 0%, #d84315 70%, #bf360c 100%)';
           }
@@ -255,7 +258,8 @@
   function jump() {
       if (isJumping) return;
       isJumping = true;
-      let jumpHeight = -120; 
+      // === 優化：對應關卡降低，跳躍高度調低，讓動作更俐落 ===
+      let jumpHeight = -70; 
       player.style.transform = `translateY(${jumpHeight}px)`;
       
       setTimeout(() => {
@@ -265,7 +269,6 @@
                   b.element.classList.add('active-hit'); 
                   hitAny = true;
                   
-                  // 只有狀態不是 locked 時，才會觸發抽籤數字狂跳動畫
                   if (b.isRandom && !b.isRollingLocked && b.itemData.status !== 'locked') {
                       b.isRollingLocked = true;
                       let rollCount = 0; const randomText = b.element.querySelector('.random-text'); const levelLabel = b.element.querySelector('.level-label');
