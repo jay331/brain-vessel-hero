@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>吉卜力大廳引擎</title>
+<title>吉卜力大廳引擎 (極致絲滑版)</title>
 <style>
   :root {
     --sky-top: #5c9dd6; --sky-bottom: #d4f0ff;
@@ -15,7 +15,9 @@
   body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; touch-action: none; font-family: "PingFang TC", sans-serif; }
   
   #game-window { position: relative; width: 100%; height: 100%; background: linear-gradient(to bottom, var(--sky-top) 0%, var(--sky-bottom) 60%); overflow: hidden; }
-  #world { position: absolute; left: 0; top: 0; height: 100%; transition: transform 0.1s ease-out; }
+  
+  /* 【優化 1】移除原本的 transition，改用 JS 控制，並加入 will-change 提示瀏覽器優化 */
+  #world { position: absolute; left: 0; top: 0; height: 100%; will-change: transform; }
   
   #screen-effects { position: absolute; inset: 0; pointer-events: none; z-index: 15; }
   .wind-line { position: absolute; height: 2px; background: rgba(255,255,255,0.4); border-radius: 2px; animation: blowRight linear infinite; }
@@ -68,55 +70,34 @@
   .level-label { position: absolute; top: -35px; white-space: nowrap; background: rgba(0,0,0,0.6); color: #fff; padding: 4px 8px; border-radius: 10px; font-size: 12px; opacity: 0; }
   .active-hit .level-label, .island-active .level-label { opacity: 1; }
 
-  /* === 換回原本的寶藍色 (深琉璃藍漸層，帶點透明) === */
   .level-category-bottom {
       position: absolute; top: 72px; left: 50%; transform: translateX(-50%);
-      font-size: 11px; color: #fff; /* 暖金黃色文字 -> 白色文字 */
-      /* 深木質/牛皮色漸層 -> 深琉璃藍漸層 */
-      background: linear-gradient(135deg, rgba(13, 71, 161, 0.85) 0%, rgba(25, 118, 210, 0.7) 100%);
-      padding: 4px 10px; border-radius: 20px; /* 改回較大圓角 */
+      font-size: 11px; color: #ffecb3; 
+      background: linear-gradient(135deg, rgba(109, 76, 65, 0.95) 0%, rgba(62, 39, 35, 0.95) 100%);
+      padding: 4px 12px; border-radius: 6px; 
       white-space: nowrap; pointer-events: none; 
-      /* 微亮的邊框與琉璃般的內陰影 */
-      border: 1px solid rgba(144, 202, 249, 0.4);
-      box-shadow: 0 2px 5px rgba(0,0,0,0.3), inset 1px 1px 3px rgba(255,255,255,0.2);
-      z-index: 5;
+      border: 1px solid rgba(188, 170, 164, 0.5); border-bottom: 2px solid rgba(62, 39, 35, 1); 
+      box-shadow: 0 4px 6px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.15); text-shadow: 1px 1px 2px #000; z-index: 5;
   }
 
   .level-title-bottom {
-      position: absolute; top: 98px; left: 50%; transform: translateX(-50%);
+      position: absolute; top: 100px; left: 50%; transform: translateX(-50%);
       width: 140px; text-align: center; color: #e0f7fa; font-size: 11px;
       text-shadow: 1px 1px 3px #000, 0 0 8px rgba(0,0,0,0.8); font-weight: bold; line-height: 1.2; word-break: break-word; pointer-events: none;
   }
 
-  /* 精緻的 CSS 繪製綠色指標 (琉璃質感箭頭) */
   .active-arrow-container {
       position: absolute; top: -85px; left: 50%; transform: translateX(-50%);
       animation: bounceArrow 0.8s infinite alternate ease-in-out; pointer-events: none; z-index: 20;
       display: flex; flex-direction: column; align-items: center; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));
   }
-  .arrow-stem {
-      width: 12px; height: 35px;
-      background: linear-gradient(to bottom, rgba(30, 136, 62, 0.9) 0%, rgba(61, 255, 142, 0.9) 100%);
-      border-radius: 5px 5px 0 0;
-      border: 2px solid rgba(255,255,255,0.5); border-bottom: none;
-  }
-  .arrow-point {
-      width: 0; height: 0;
-      border-left: 20px solid transparent;
-      border-right: 20px solid transparent;
-      border-top: 22px solid rgba(61, 255, 142, 0.9);
-      margin-top: -2px; 
-      position: relative;
-  }
-  .arrow-point::after {
-      content: ''; position: absolute; top: -25px; left: -20px;
-      width: 0; height: 0;
-      border-left: 20px solid transparent; border-right: 20px solid transparent;
-      border-top: 22px solid white; opacity: 0.3;
-  }
+  .arrow-stem { width: 12px; height: 35px; background: linear-gradient(to bottom, rgba(30, 136, 62, 0.9) 0%, rgba(61, 255, 142, 0.9) 100%); border-radius: 5px 5px 0 0; border: 2px solid rgba(255,255,255,0.5); border-bottom: none; }
+  .arrow-point { width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 22px solid rgba(61, 255, 142, 0.9); margin-top: -2px; position: relative; }
+  .arrow-point::after { content: ''; position: absolute; top: -25px; left: -20px; width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 22px solid white; opacity: 0.3; }
   @keyframes bounceArrow { 0% { transform: translate(-50%, 0); } 100% { transform: translate(-50%, 12px); } }
 
-  #player { position: absolute; left: 150px; bottom: calc(25% + 50px); width: 40px; height: 60px; z-index: 20; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  /* 【優化 2】保留 transform 用於跳躍，加入 will-change 確保效能 */
+  #player { position: absolute; left: 150px; bottom: calc(25% + 50px); width: 40px; height: 60px; z-index: 20; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); will-change: left, transform; }
   .player-head { width: 30px; height: 30px; background: #ffe0b2; border: 2px solid #555; border-radius: 50%; margin: 0 auto; position: relative; }
   .player-body { width: 40px; height: 30px; background: #e3f2fd; border: 2px solid #555; border-radius: 10px 10px 5px 5px; margin-top: -2px; }
 
@@ -145,7 +126,10 @@
   const vinesContainer = document.getElementById('vines-container');
   const coinsContainer = document.getElementById('coins-container');
   
-  let playerX = 150; let isDragging = false; let startClientX = 0; let startPlayerX = 0; let isJumping = false;
+  // 【優化 3】新增 targetPlayerX 來實現慣性滑動 (Lerp)
+  let targetPlayerX = 150; 
+  let playerX = 150; 
+  let isDragging = false; let startClientX = 0; let startPlayerX = 0; let isJumping = false;
   let minPlayerX = 50; 
   
   const LEVEL_SPACING = 160; const START_OFFSET = 300; 
@@ -165,6 +149,8 @@
   window.onload = () => {
       generateEnvironment();
       window.parent.postMessage({ type: 'GHIBLI_HUB_READY' }, '*');
+      // 啟動遊戲渲染迴圈
+      requestAnimationFrame(gameLoop);
   };
 
   function buildWorld(baseSeq, collectedCoins, activeIndex, allCleared) {
@@ -257,21 +243,30 @@
       });
 
       activeIndex = parseInt(activeIndex) || 0;
-      playerX = (START_OFFSET + startCycle * CYCLE_WIDTH + activeIndex * LEVEL_SPACING) + 17.5; 
-      if (isNaN(playerX)) { playerX = START_OFFSET + 150; }
-
-      updateCamera();
+      // 載入時將實際與目標座標直接對齊
+      targetPlayerX = (START_OFFSET + startCycle * CYCLE_WIDTH + activeIndex * LEVEL_SPACING) + 17.5; 
+      if (isNaN(targetPlayerX)) { targetPlayerX = START_OFFSET + 150; }
+      playerX = targetPlayerX;
   }
 
-  function updateCamera() {
-      if (isNaN(playerX)) return;
-      let camX = window.innerWidth * 0.3 - playerX;
-      if (camX > 0) camX = 0; 
-      const maxScroll = -(WORLD_MAX_WIDTH - window.innerWidth + 200);
-      if (camX < maxScroll) camX = maxScroll;
-      world.style.transform = `translateX(${camX}px)`;
-      player.style.left = `${playerX}px`;
-      checkCoinCollisions(0); 
+  // 【優化 4】獨立的遊戲渲染迴圈 (取代直接呼叫 updateCamera)
+  function gameLoop() {
+      if (!isNaN(targetPlayerX) && !isJumping) {
+          // 慣性平滑計算 (Lerp)
+          playerX += (targetPlayerX - playerX) * 0.15; 
+          
+          let camX = window.innerWidth * 0.3 - playerX;
+          if (camX > 0) camX = 0; 
+          const maxScroll = -(WORLD_MAX_WIDTH - window.innerWidth + 200);
+          if (camX < maxScroll) camX = maxScroll;
+          
+          // 強制開啟 GPU 硬體加速 (translate3d)
+          world.style.transform = `translate3d(${camX}px, 0, 0)`;
+          player.style.left = `${playerX}px`;
+          
+          checkCoinCollisions(0); 
+      }
+      requestAnimationFrame(gameLoop);
   }
 
   function jump() {
@@ -333,23 +328,36 @@
       });
   }
 
-  const handleStart = (e) => { isDragging = true; startClientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX; startPlayerX = playerX; };
+  const handleStart = (e) => { 
+      isDragging = true; 
+      startClientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX; 
+      startPlayerX = targetPlayerX; // 基準點改為目標位置
+  };
+  
   const handleMove = (e) => { 
       if (!isDragging) return; 
+      // 【優化 5】強制阻擋手機瀏覽器預設的下拉或翻頁行為
+      if (e.cancelable) e.preventDefault(); 
+      
       let clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX; 
       let deltaX = clientX - startClientX; 
-      playerX = startPlayerX + deltaX * 1.5; 
       
-      if (playerX < minPlayerX) playerX = minPlayerX; 
-      if (playerX > WORLD_MAX_WIDTH) playerX = WORLD_MAX_WIDTH; 
-      updateCamera(); 
+      // 更新「目標座標」，讓遊戲迴圈去追趕，製造平滑手感
+      targetPlayerX = startPlayerX + deltaX * 1.8; 
+      
+      if (targetPlayerX < minPlayerX) targetPlayerX = minPlayerX; 
+      if (targetPlayerX > WORLD_MAX_WIDTH) targetPlayerX = WORLD_MAX_WIDTH; 
   };
+  
   const handleEnd = (e) => { if (!isDragging) return; isDragging = false; let clientX = e.type.includes('touch') ? e.changedTouches[0].clientX : e.clientX; if (Math.abs(clientX - startClientX) < 10) jump(); };
 
   const interactArea = document.getElementById('game-window');
   interactArea.addEventListener('mousedown', handleStart); window.addEventListener('mousemove', handleMove); window.addEventListener('mouseup', handleEnd);
-  interactArea.addEventListener('touchstart', handleStart, { passive: false }); window.addEventListener('touchmove', handleMove, { passive: false }); window.addEventListener('touchend', handleEnd);
-  window.addEventListener('resize', updateCamera);
+  
+  // 加上 { passive: false } 才能讓 preventDefault 成功攔截
+  interactArea.addEventListener('touchstart', handleStart, { passive: false }); 
+  interactArea.addEventListener('touchmove', handleMove, { passive: false }); 
+  interactArea.addEventListener('touchend', handleEnd);
 
   function generateEnvironment() {
       const screenEffects = document.getElementById('screen-effects'); const bubblesContainer = document.getElementById('bubbles-container');
