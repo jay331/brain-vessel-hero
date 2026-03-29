@@ -37,11 +37,11 @@
   /* === 上半部：血管遊戲視角區 === */
   #bv-viewport {
       flex: 1; position: relative; width: 100%;
-      background: var(--bg-dark); /* 預設全黑，靠光暈照亮 */
+      background: var(--bg-dark); 
       overflow: hidden;
   }
 
-  /* 血管外層邊界背景 (隱藏在細胞後方) - ★ 往內縮，讓細胞能完整顯示 */
+  /* 血管外層邊界背景 */
   .vessel-wall { position: absolute; width: 100%; height: 35px; left: 0; z-index: 1; background: var(--vessel-dark); box-shadow: 0 0 20px rgba(0,0,0,0.8); }
   .vessel-wall.top { top: 20px; border-bottom: 2px solid rgba(255,138,138,0.1); }
   .vessel-wall.bottom { bottom: 20px; border-top: 2px solid rgba(255,138,138,0.1); }
@@ -49,18 +49,17 @@
   /* 負責捲動的世界層 */
   #world { 
       position: absolute; left: 0; top: 0; height: 100%; will-change: transform; z-index: 10; 
-      /* ★ 加入 clip-path 的過場動畫，實現血栓打通時畫面變亮的推進感 */
-      transition: transform 0.05s linear, clip-path 1s ease-in-out;
+      transition: transform 0.05s linear;
       clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); 
   }
 
-  /* ★ 一顆顆無縫排列的內皮細胞 */
+  /* ★ 一顆顆無縫排列的內皮細胞 (加胖加厚版) */
   #wall-container { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
   .endo-cell {
       position: absolute; 
-      width: 120px; /* 無間隙並排 */
-      height: 42px;
-      border-radius: 21px; /* 完整的橢圓形 */
+      width: 120px; 
+      height: 55px; /* 加胖，給字體更多空間 */
+      border-radius: 27px; /* 完整的橢圓形 */
       background: radial-gradient(circle at 50% 50%, var(--vessel-light) 0%, var(--vessel-dark) 100%);
       border-left: 1px solid rgba(0,0,0,0.5); 
       border-right: 1px solid rgba(0,0,0,0.5);
@@ -71,25 +70,24 @@
       display: flex; flex-direction: column; align-items: center; justify-content: center;
   }
   
-  /* ★ 往內縮，確保完整形狀不被隱藏 */
-  .endo-cell.top { top: 18px; }
-  .endo-cell.bottom { bottom: 18px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8), 0 -5px 10px rgba(0,0,0,0.5); }
+  .endo-cell.top { top: 15px; }
+  .endo-cell.bottom { bottom: 15px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8), 0 -5px 10px rgba(0,0,0,0.5); }
 
-  /* 寫在下壁細胞內的文字 */
-  .cell-text-cat { font-size: 10px; color: #aaa; margin-bottom: 2px; line-height: 1; text-shadow: 1px 1px 1px #000; }
-  .cell-text-title { font-size: 13px; font-weight: 900; color: #ffcdd2; line-height: 1; text-shadow: 1px 1px 2px #000; white-space: nowrap;}
+  /* 寫在下壁細胞內的文字 (空間更充裕) */
+  .cell-text-cat { font-size: 11px; color: #ffcdd2; margin-bottom: 3px; line-height: 1; text-shadow: 1px 1px 1px #000; opacity: 0.9;}
+  .cell-text-title { font-size: 14px; font-weight: 900; color: #fff; line-height: 1; text-shadow: 1px 1px 2px #000; white-space: nowrap;}
 
-  /* ★ 關卡節點 (特殊的變異細胞) */
+  /* ★ 關卡節點 (特殊的變異細胞，再大一點點) */
   .cell-node { 
-      height: 60px; top: 18px; width: 90px;
-      border-radius: 30px; 
+      height: 75px; top: 15px; width: 100px;
+      border-radius: 37px; 
       background: radial-gradient(circle at 50% 20%, #5d4037 0%, #3e2723 100%); 
       color: #aaa; font-weight: 900; text-shadow: 1px 1px 2px #000; 
       transition: all 0.3s; z-index: 20; cursor: pointer; pointer-events: auto;
       flex-direction: row; gap: 6px;
   }
-  .node-icon { font-size: 22px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); margin-top: 5px;}
-  .node-num { font-size: 11px; margin-top: 2px; }
+  .node-icon { font-size: 24px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); margin-top: 5px;}
+  .node-num { font-size: 14px; margin-top: 2px; }
 
   .node-locked { filter: grayscale(100%) brightness(0.5); }
   .node-active { 
@@ -112,7 +110,7 @@
 
   /* === 完全阻塞的血栓 === */
   .thrombus-block {
-      position: absolute; top: 60px; bottom: 60px; /* 完美連接上下細胞邊緣 */
+      position: absolute; top: 75px; bottom: 75px; 
       width: 80px; background: repeating-linear-gradient(45deg, var(--thrombus-core), var(--thrombus-core) 10px, var(--thrombus-edge) 10px, var(--thrombus-edge) 20px);
       border-left: 2px solid #111; border-right: 2px solid #111; border-radius: 8px;
       z-index: 12; opacity: 1;
@@ -122,12 +120,11 @@
   .thrombus-block::after { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 10px 10px; pointer-events: none; }
   .thrombus-cleared { width: 0 !important; opacity: 0 !important; border: none !important; box-shadow: none !important; }
 
-  /* 打通區段的明亮背景光暈 (只出現在血流區) */
-  #light-zones-container { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+  /* 打通區段的明亮背景光暈 */
   .cleared-light-zone {
       position: absolute; top: 0; bottom: 0;
       background: radial-gradient(ellipse at center, rgba(138, 42, 42, 0.4) 0%, transparent 80%);
-      filter: blur(20px);
+      z-index: 1; pointer-events: none; filter: blur(20px);
   }
 
   /* === 微觀粒子與血球 === */
@@ -135,28 +132,34 @@
   .red-blood-cell { position: absolute; width: 30px; height: 30px; background: radial-gradient(circle at 30% 30%, #ff5252 0%, #d32f2f 60%, #b71c1c 100%); border-radius: 50%; box-shadow: inset 0 0 10px rgba(100,0,0,0.8), 2px 4px 6px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center;}
   .red-blood-cell::after { content: ''; width: 40%; height: 40%; border-radius: 50%; background: rgba(150,0,0,0.4); box-shadow: inset 2px 2px 4px rgba(0,0,0,0.5); }
   
-  /* 慢速漂浮 */
   .rbc-slow { animation: floatRbcSlow 15s linear infinite; }
   @keyframes floatRbcSlow { 0% { transform: translateX(0) rotate(0deg); opacity: 0.5; } 100% { transform: translateX(300px) rotate(360deg); opacity: 0.5; } }
   
-  /* 快速衝刺 (打通區) */
   .rbc-fast { animation: dashRbcFast 3s linear forwards; z-index: 15; }
   @keyframes dashRbcFast { 0% { transform: translateX(0) rotate(0deg) scale(1.2); opacity: 1; } 100% { transform: translateX(800px) rotate(360deg) scale(0.8); opacity: 0; } }
 
-  /* === 玩家 (奈米膠囊) === */
+  /* === 玩家 (奈米膠囊) ★ 轉向90度朝上！ === */
   #player { 
-      position: absolute; bottom: 65px; transform: translateX(-50%); width: 45px; height: 28px; 
+      position: absolute; bottom: 75px; transform: translateX(-50%); 
+      /* 長寬對調，變成直立的膠囊 */
+      width: 28px; height: 45px; 
       z-index: 30; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); will-change: left, transform; 
   }
   .capsule-body {
-      width: 100%; height: 100%; border-radius: 20px; background: linear-gradient(90deg, #eceff1 50%, var(--current-theme) 50%);
+      width: 100%; height: 100%; border-radius: 20px; 
+      /* 漸層改成上下方向 */
+      background: linear-gradient(180deg, #eceff1 50%, var(--current-theme) 50%);
       border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.8), inset -3px -3px 6px rgba(0,0,0,0.3);
       position: relative; overflow: hidden;
   }
-  .capsule-core { position: absolute; top: 50%; left: 25%; transform: translate(-50%, -50%); width: 10px; height: 10px; background: #00e676; border-radius: 50%; box-shadow: 0 0 10px #00e676; animation: corePulse 1s infinite alternate; }
+  .capsule-core { 
+      /* 發光核心改到膠囊的最上方 */
+      position: absolute; top: 25%; left: 50%; transform: translate(-50%, -50%); 
+      width: 10px; height: 10px; background: #00e676; border-radius: 50%; box-shadow: 0 0 10px #00e676; animation: corePulse 1s infinite alternate; 
+  }
   @keyframes corePulse { from { opacity: 0.5; } to { opacity: 1; box-shadow: 0 0 15px #69f0ae; } }
   .drop-in { animation: injectCapsule 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
-  @keyframes injectCapsule { 0% { transform: translate(-200px, 200px) scale(0.5) rotate(-45deg); opacity: 0; } 100% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; } }
+  @keyframes injectCapsule { 0% { transform: translate(-200px, 200px) scale(0.5); opacity: 0; } 100% { transform: translate(0, 0) scale(1); opacity: 1; } }
 
   /* 健康幣 */
   .health-coin { position: absolute; width: 30px; height: 30px; background-color: var(--coin-gold); border: 3px solid #b8860b; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #8b4513; font-weight: bold; font-size: 16px; z-index: 25; box-shadow: 0 0 10px rgba(255,215,0,0.7), inset 2px 2px 5px rgba(255,255,255,0.6); animation: rotateCoin 2s linear infinite, floatCoin 1.5s ease-in-out infinite alternate; }
@@ -165,27 +168,33 @@
   .health-coin.collected { animation: collectEffect 0.5s ease-out forwards; pointer-events: none; }
   @keyframes collectEffect { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-50px) scale(1.5); opacity: 0; } }
 
-  /* === 下半部：獨立的虛擬控制台 (絕不擋字) === */
+  /* === 下半部：獨立的虛擬控制台 (★ 完美融入血管情境配色) === */
   #control-bar {
-      height: 90px; width: 100%; background: #070202; border-top: 3px solid #3e0b0b;
+      height: 90px; width: 100%; 
+      background: linear-gradient(to bottom, #1a0505, #0a0202); 
+      border-top: 3px solid var(--vessel-dark);
       position: relative; z-index: 100; flex-shrink: 0;
       display: flex; justify-content: center; align-items: center;
       padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -10px 20px rgba(0,0,0,0.8);
   }
   #virtual-controls { position: relative; width: 100%; max-width: 400px; height: 60px; pointer-events: none; }
+  
+  /* 按鈕縮小、並改用血肉主題色 */
   .v-btn {
-      pointer-events: auto; background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.3); 
-      color: rgba(255, 255, 255, 0.9); border-radius: 50%;
-      width: 60px; height: 60px; font-size: 24px; font-weight: bold;
+      pointer-events: auto; 
+      background: rgba(93, 64, 55, 0.6); 
+      border: 2px solid rgba(255, 138, 138, 0.3); 
+      color: #ffcdd2; border-radius: 50%;
+      width: 50px; height: 50px; font-size: 20px; font-weight: bold;
       display: flex; justify-content: center; align-items: center;
       backdrop-filter: blur(4px); box-shadow: 0 4px 10px rgba(0,0,0,0.5);
       touch-action: manipulation; transition: transform 0.1s, background 0.1s; cursor: pointer; position: absolute; top: 50%; transform: translateY(-50%);
   }
-  .v-btn:active { background: rgba(255, 255, 255, 0.3); }
+  .v-btn:active { background: rgba(93, 64, 55, 0.9); border-color: rgba(255, 138, 138, 0.6); }
   #btn-left { left: 20px; } #btn-left:active { transform: translateY(-50%) scale(0.92); }
   #btn-right { right: 20px; } #btn-right:active { transform: translateY(-50%) scale(0.92); }
-  #btn-jump { left: 50%; transform: translate(-50%, -50%); width: 110px; border-radius: 30px; font-size: 18px; letter-spacing: 2px; color: #fff; border-color: var(--current-theme); background: rgba(0,0,0,0.8); box-shadow: 0 0 15px var(--current-glow);}
-  #btn-jump:active { transform: translate(-50%, -50%) scale(0.92); background: rgba(255,255,255,0.2); }
+  #btn-jump { left: 50%; transform: translate(-50%, -50%); width: 90px; border-radius: 25px; font-size: 16px; letter-spacing: 2px; color: #fff; border-color: var(--current-theme); background: rgba(93, 64, 55, 0.8); box-shadow: 0 0 15px var(--current-glow);}
+  #btn-jump:active { transform: translate(-50%, -50%) scale(0.92); background: rgba(93, 64, 55, 1); }
 </style>
 </head>
 <body>
@@ -240,10 +249,10 @@
   let isMovingLeft = false;
   let isMovingRight = false;
   
-  const CELL_WIDTH = 120; // 每個內皮細胞佔用的寬度 (無縫並排)
-  const CELLS_BETWEEN_NODES = 3; // 兩個關卡之間間隔 3 顆普通細胞
+  const CELL_WIDTH = 120; 
+  const CELLS_BETWEEN_NODES = 2; // ★ 改為只隔一顆空白細胞 (自己算1 + 空白算1 = 間隔2)
   const NODE_SPACING = CELL_WIDTH * CELLS_BETWEEN_NODES; 
-  const START_OFFSET = CELL_WIDTH; // 從第二顆細胞開始
+  const START_OFFSET = CELL_WIDTH; 
   let WORLD_MAX_WIDTH = 5000;
   
   const nodesData = []; const coinsData = [];
@@ -337,7 +346,7 @@
       if (allCleared || activeIndex >= TOTAL_NODES) {
           maxAllowedX = WORLD_MAX_WIDTH - 100; 
       } else {
-          maxAllowedX = START_OFFSET + activeIndex * NODE_SPACING + CELL_WIDTH + 20; 
+          maxAllowedX = START_OFFSET + activeIndex * NODE_SPACING + CELL_WIDTH + 30; 
       }
 
       let taskMap = {}; 
@@ -361,7 +370,6 @@
           // 2. 上方細胞 (可能是關卡節點)
           if (taskMap[cellX]) {
               const tData = taskMap[cellX]; const t = tData.task;
-              // ★ 嚴謹的關卡數字：優先使用 globalIdx
               const displayNum = (t.globalIdx !== undefined) ? (t.globalIdx + 1) : (tData.index + 1);
               
               const node = document.createElement('div');
@@ -375,13 +383,13 @@
               topWallContainer.appendChild(node);
               nodesData.push({ x: cellX, element: node, itemData: t });
 
-              // 兩個關卡間的血栓 (放在該節點右邊第 1 顆空白細胞的位置)
+              // 兩個關卡間的血栓 (放在該節點右邊唯一的空白細胞正中央)
               if (tData.index < TOTAL_NODES - 1) {
-                  const trbX = cellX + CELL_WIDTH + 25; // 剛好塞在兩顆細胞之間
+                  const trbX = cellX + CELL_WIDTH + 20; 
                   const thrombus = document.createElement('div');
                   thrombus.className = 'thrombus-block'; 
                   thrombus.style.left = trbX + 'px';
-                  thrombus.id = `thrombus-${tData.index}`; // ★ 賦予唯一 ID 以便後續做動畫
+                  thrombus.id = `thrombus-${tData.index}`; 
                   
                   let isJustCleared = (lastPlayedIdx !== null && lastPlayedIdx === tData.index && t.status === 'cleared');
                   
@@ -443,9 +451,8 @@
                   generateFastRBCs(startDropX, finalTargetX); 
               }, 1000);
               
-          }, 800); // 800ms 是膠囊降落動畫時間
+          }, 800); 
       } else {
-          // 沒有通關動畫，直接站在該站的位置
           activeIndex = parseInt(activeIndex) || 0;
           let finalTargetX = (START_OFFSET + activeIndex * NODE_SPACING) + 30; 
           if (activeIndex >= TOTAL_NODES) finalTargetX = START_OFFSET + (TOTAL_NODES - 1) * NODE_SPACING + 30; 
@@ -454,7 +461,7 @@
 
       // 套用遮罩並生成血球
       world.style.clipPath = `polygon(0 0, ${initialBrightLimit}px 0, ${initialBrightLimit}px 100%, 0 100%)`;
-      generateParticles(WORLD_MAX_WIDTH); // 因為有 clip-path 保護，可以放心鋪滿
+      generateParticles(WORLD_MAX_WIDTH); 
   }
 
   function setupVirtualControls() {
@@ -503,7 +510,6 @@
       if (isJumping) return;
       isJumping = true;
       
-      // 計算相對於 viewport 的跳躍高度，確保剛好撞上 top-cell
       const viewportHeight = document.getElementById('bv-viewport').offsetHeight;
       let jumpDistance = viewportHeight * 0.45; 
       player.style.transform = `translateY(-${jumpDistance}px) scale(1.2)`;
@@ -511,7 +517,7 @@
       setTimeout(() => {
           nodesData.forEach(b => {
               // 判定碰撞 (玩家中心 對 節點中心)
-              if (Math.abs(playerX + 22.5 - (b.x + 60)) < 50) {
+              if (Math.abs(playerX + 14 - (b.x + 50)) < 60) {
                   b.element.classList.add('active-hit'); 
 
                   setTimeout(() => {
@@ -536,7 +542,6 @@
       const pContainer = document.getElementById('particles-container');
       pContainer.innerHTML = '';
       
-      // 產生充滿整個畫面的血球，但會被 clip-path 完美的切斷在血栓處
       for(let i=0; i<15; i++) { 
           const rbc = document.createElement('div'); rbc.className = 'red-blood-cell rbc-slow'; 
           rbc.style.left = `${Math.random() * brightLimitX}px`;
