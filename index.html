@@ -125,7 +125,15 @@ body.mode-advanced .node-pulse { animation: pulseActiveAdv 2s infinite; }
 .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px;}
 .tag { background: rgba(0,0,0,0.5); border: 1px solid var(--theme-primary); padding: 3px 8px; border-radius: 10px; font-size: 11px; }
 
-/* ===== ★ 底部導覽列 (中心按鈕改為模式切換) ===== */
+.wizard-header { font-size: 16px; color: var(--theme-primary); font-weight: bold; margin-bottom: 10px; text-align: center; }
+.wizard-option { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.6); border: 1px solid var(--theme-dim); padding: 12px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; flex-shrink: 0;}
+.wizard-option:active { background: var(--theme-bg); }
+.wizard-option .icon { font-size: 20px; width: 26px; text-align: center; }
+.wizard-option .text { font-size: 14px; color: #fff; }
+.trend-card { background: rgba(0,0,0,0.5); border: 1px solid var(--theme-dim); border-radius: 8px; padding: 10px; margin-bottom: 10px; flex-shrink: 0;}
+.health-dist-title { display: flex; justify-content: space-between; font-size: 11px; color: #ccc; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+
+/* ===== ★ 底部導覽列 (中心鈕改回模式切換) ===== */
 .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 75px; background: rgba(10,10,10,0.95); border-top: 1px solid #333; display: flex; justify-content: space-around; padding: 0 5px; align-items: center; z-index: 100; backdrop-filter: blur(5px); padding-bottom: env(safe-area-inset-bottom); }
 .nav-item { color: #888; font-weight: bold; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; flex: 1; transition: color 0.2s; height: 100%;}
 .nav-item .icon { font-size: 24px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); transition: transform 0.2s; margin-bottom: 2px;}
@@ -133,7 +141,7 @@ body.mode-advanced .node-pulse { animation: pulseActiveAdv 2s infinite; }
 .nav-item.active { color: var(--theme-primary); }
 .nav-item.active .icon { transform: translateY(-2px); }
 
-/* 中央高亮按鈕 (初階/進階 切換) */
+/* 中央高亮按鈕 (模式切換) */
 .nav-item.highlight-action { 
     background: linear-gradient(180deg, var(--theme-dim), rgba(0,0,0,0.6));
     border: 1px solid var(--theme-primary);
@@ -218,11 +226,11 @@ body.mode-advanced .node-pulse { animation: pulseActiveAdv 2s infinite; }
           <h2 style="color: var(--theme-primary); margin-top:0; border-bottom: none;" id="lbMainTitle">🏆 極限挑戰大賽</h2>
           
           <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.6); padding:10px 15px; border-radius:8px; margin-bottom:15px; border:1px solid var(--theme-dim);">
-             <div style="color:#ffb300; font-size:16px; font-weight:bold; display:flex; align-items:center; gap:8px;">
-                 <span style="font-size:24px;">🧠</span> 
-                 <span><span id="uiBrainCoins" style="font-size:20px;">0</span> 分</span>
+             <div style="color:var(--good); font-size:16px; font-weight:bold; display:flex; align-items:center; gap:8px;">
+                 <span style="font-size:20px;">💲</span> 
+                 <span><span id="lbHealthCoins" style="font-size:18px;">0</span> 幣</span>
              </div>
-             <button class="btn btn-rescue" style="width:auto; padding:8px 14px; margin:0;" onclick="openChallengeStore()">🛍️ 挑戰商城</button>
+             <button class="btn btn-rescue" style="width:auto; padding:8px 14px; margin:0;" onclick="openStoreUI()">🛍️ 綜合商城</button>
           </div>
 
           <div id="lbListTotal" style="flex: 1; overflow-y: auto; padding-right: 4px;"></div>
@@ -236,10 +244,10 @@ body.mode-advanced .node-pulse { animation: pulseActiveAdv 2s infinite; }
           
           <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.6); padding:10px 15px; border-radius:8px; margin-bottom:15px; border:1px solid var(--theme-dim);">
              <div style="color:var(--good); font-size:16px; font-weight:bold; display:flex; align-items:center; gap:8px;">
-                 <span style="font-size:24px;">🏋️</span> 
-                 <span><span id="uiRehabCoins" style="font-size:20px;">0</span> 分</span>
+                 <span style="font-size:20px;">💲</span> 
+                 <span><span id="rehabHealthCoins" style="font-size:18px;">0</span> 幣</span>
              </div>
-             <button class="btn btn-rescue" style="width:auto; padding:8px 14px; margin:0;" onclick="openRehabStore()">🛍️ 復健商城</button>
+             <button class="btn btn-rescue" style="width:auto; padding:8px 14px; margin:0;" onclick="openStoreUI()">🛍️ 綜合商城</button>
           </div>
 
           <div style="flex: 1; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#aaa;">
@@ -585,7 +593,7 @@ function setHomeView(isMap) {
   
   if (isMap) {
       if(id('nodeMapContainer')) id('nodeMapContainer').style.display = 'flex';
-      renderTaskHub(); // 渲染新的互動地圖
+      renderNodeMap(); // 渲染新的互動地圖
   } else {
       if(id('roleListContainer')) id('roleListContainer').style.display = 'flex';
   }
@@ -617,7 +625,7 @@ function getDailyCoinPositions() {
     return poses;
 }
 
-function renderTaskHub() {
+function renderNodeMap() {
     const container = id('nodeMapContainer');
     if (!container) return;
     container.innerHTML = '';
@@ -781,7 +789,7 @@ function handleHubNodeClick(type, roleId, taskIdx, status, globalIdx) {
                     playerState.isReplaying = true;
                     playerState.replayProgression = globalIdx;
                     activeRoleId = roleId;
-                    playTask(taskIdx); // 使用 playTask 而不是 Flat，因為我們在地圖裡
+                    playTask(taskIdx); 
                 }, null, '🎬 回顧任務', '開始回顧');
             } else if (status === 'active') {
                 activeRoleId = roleId;
@@ -871,7 +879,6 @@ function updateModeUI() {
   
   // 更新底部導覽列正中央的模式顯示
   if (id('navCenterText')) id('navCenterText').textContent = isBeg ? '初階版' : '進階版';
-  if (id('navModeText')) id('navModeText').textContent = isBeg ? '初階版' : '進階版';
   
   if(id('navSlot2Icon')) id('navSlot2Icon').innerHTML = isBeg ? '📖' : '<span style="filter: brightness(1.5) drop-shadow(0 0 2px #4fc3f7);">🩺</span>';
   if(id('navSlot2Text')) id('navSlot2Text').textContent = isBeg ? '中風歷程' : '臨床工具';
@@ -1012,12 +1019,6 @@ function saveProfile(m) {
   } catch(e) { console.error(e); customAlert("登入發生錯誤：" + e.message, null, "⚠️ 系統錯誤"); }
 }
 
-function restartBeginnerStory() {
-    customConfirm("確定要重頭開始體驗引導任務嗎？\n這不會清除您的健康卡收集進度。", () => {
-        playerState.isReplaying = true; playerState.replayProgression = 0; saveGameData(); playTaskFlat(0);
-    });
-}
-
 function launchExplore() {
     if (playerState.mode === 'beginner' && playerState.storyProgression < TOTAL_BEG_TASKS) { return customAlert("請先完成初階版的 25 個引導任務，才能解鎖醫院探索模式喔！", null, "🔒 尚未解鎖"); }
     if(id('mapOverlayTitle')) id('mapOverlayTitle').textContent = '🏥 醫院探索模式'; 
@@ -1028,7 +1029,6 @@ function launchExplore() {
 function saveGameData() {
   const dataToSave = {
     hasSetup: playerState.hasSetup, name: playerState.name, avatar: playerState.avatar, mode: playerState.mode, coins: playerState.coins, 
-    brainCoins: playerState.brainCoins, rehabCoins: playerState.rehabCoins,
     storyMode: playerState.storyMode, storyProgression: playerState.storyProgression, replayProgression: playerState.replayProgression,
     explorationTasksCompleted: playerState.explorationTasksCompleted, clothes: playerState.clothes, ownedClothes: playerState.ownedClothes,
     glasses: playerState.glasses, ownedGlasses: playerState.ownedGlasses, carSkin: playerState.carSkin, ownedCarSkins: playerState.ownedCarSkins,
@@ -1056,8 +1056,6 @@ function loadGameData() {
       if(parsed.avatar) playerState.avatar = parsed.avatar;
       if(parsed.mode) playerState.mode = parsed.mode;
       if(parsed.coins !== undefined) playerState.coins = parsed.coins;
-      if(parsed.brainCoins !== undefined) playerState.brainCoins = parsed.brainCoins;
-      if(parsed.rehabCoins !== undefined) playerState.rehabCoins = parsed.rehabCoins;
       if(parsed.storyMode !== undefined) playerState.storyMode = parsed.storyMode;
       if(parsed.storyProgression !== undefined) playerState.storyProgression = parsed.storyProgression;
       if(parsed.replayProgression !== undefined) playerState.replayProgression = parsed.replayProgression;
@@ -1156,9 +1154,8 @@ function handleGameClear(score) {
   const targetMap = playerState.mode === 'beginner' ? playerState.taskScoresBeg : playerState.taskScoresAdv;
   const isFirstClear = !targetMap.has(info.id);
   
-  if (isFirstClear) playerState.coins += (playerState.mode === 'beginner' ? 100 : 150);
+  if (isFirstClear && !info.isChallenge) playerState.coins += (playerState.mode === 'beginner' ? 100 : 150);
   
-  // ★ 隨機演練即使過關，也不會推進主線邏輯，只給金幣並記錄最佳分數
   if (!info.isChallenge) {
       targetMap.set(info.id, score); 
       if (info.role.currentTask === info.taskIndex + 1) info.role.currentTask++;
@@ -1176,7 +1173,7 @@ function handleGameClear(score) {
 
   // 隨機演練的結束提示
   if (info.isChallenge) {
-      customAlert(`【隨機演練完成】\n\n🎯 關卡：${info.role.subTasks[info.taskIndex].substring(3)}\n💰 獲得 ${playerState.mode==='beginner'?100:150} 健康幣！`, () => { updateModeUI(); }, "🎲 練習結束");
+      customAlert(`【隨機演練完成】\n\n🎯 關卡：${info.role.subTasks[info.taskIndex].substring(3)}\n💰 獲得 ${playerState.mode==='beginner'?100:150} 健康幣！`, () => { playerState.coins += (playerState.mode==='beginner'?100:150); saveGameData(); updateHUD(); }, "🎲 練習結束");
       currentGameInfo = null;
       return;
   }
