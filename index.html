@@ -672,48 +672,58 @@ function getDailyCoinPositions() {
     return poses;
 }
 
-// 請將原本的 renderNodeMap() 整段取代為以下內容
 function renderNodeMap() {
     checkExtremeAttempts();
     let baseSeq = [];
     let globalIndex = 0;
     const roles = getActiveRoles();
 
-    let clearedCount = 0; // 紀錄已經過關的數量
+    let clearedCount = 0;
+    let firstUnclearedIdx = -1; // 記錄第一個尚未通關的關卡位置
 
     // 1. 計算所有關卡狀態
     roles.forEach(role => {
         role.subTasks.forEach((subTask, idx) => {
             let isCleared = false, isLocked = false;
-            const taskTitle = subTask.substring(3); // 取得標題
+            const taskTitle = subTask.substring(3);
 
             if (playerState.mode === 'beginner') {
                 isCleared = playerState.taskScoresBeg.has(`${role.id}_${idx}`);
-                isLocked = false; // 初階版「不限順序」，所以全部預設解鎖 (不鎖住)
-                if (isCleared) clearedCount++;
+                isLocked = false; // 初階不限順序
             } else {
-                // 進階版如果需要維持順序，可以在這裡設鎖
                 isCleared = playerState.taskScoresAdv.has(`${role.id}_${idx}`);
                 let prevTaskCleared = globalIndex === 0 || playerState.taskScoresAdv.has(`${getFlatTask(globalIndex-1)?.role?.id}_${getFlatTask(globalIndex-1)?.taskIndex}`);
                 isLocked = !isCleared && !prevTaskCleared;
-                if (isCleared) clearedCount++;
             }
             
-            // 初階版尚未打過的我們設為 'unlocked'，打過的設為 'cleared'
+            if (isCleared) {
+                clearedCount++;
+            } else if (firstUnclearedIdx === -1) {
+                // 抓到第一個尚未破關的關卡
+                firstUnclearedIdx = globalIndex;
+            }
+            
             let statusStr = isLocked ? 'locked' : (isCleared ? 'cleared' : 'unlocked');
-            baseSeq.push({ type: 'task', roleId: role.id, taskIdx: idx, globalIdx: globalIndex, status: statusStr, title: taskTitle });
+            baseSeq.push({ 
+                type: 'task', roleId: role.id, taskIdx: idx, globalIdx: globalIndex, 
+                status: statusStr, title: taskTitle, category: role.name 
+            });
             globalIndex++;
         });
     });
 
+    const allCleared = clearedCount >= 25;
+    
     // 2. 只有當 25 關全破時，才加入隨機與綜合關卡
-    if (clearedCount >= 25) {
+    if (allCleared) {
         baseSeq.push({ type: 'random' });
         baseSeq.push({ type: 'comprehensive' });
+        
+        // 若全破，指示箭頭指向「綜合演練」(Index = 26)
+        firstUnclearedIdx = 26; 
     }
-
-    let playerProgressIndex = playerState.mode === 'beginner' ? playerState.storyProgression : 0;
-    if(playerProgressIndex >= baseSeq.length) playerProgressIndex = baseSeq.length - 1;
+    
+    if (firstUnclearedIdx === -1) firstUnclearedIdx = 0; // 防呆預設
 
     // 3. 將資料發送給吉卜力 Iframe
     const frame = document.getElementById('ghibliHubFrame');
@@ -722,7 +732,8 @@ function renderNodeMap() {
             type: 'RENDER_MAP',
             baseSeq: baseSeq,
             collectedCoins: playerState.dailyMapCoins.collected,
-            progressIndex: playerProgressIndex
+            activeIndex: firstUnclearedIdx, // 將箭頭與出生點目標傳過去
+            allCleared: allCleared          // 傳送全破狀態解鎖逆向移動
         }, '*');
     }
 }
