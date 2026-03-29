@@ -20,90 +20,87 @@ input, select { font-family: inherit; background: rgba(0,0,0,0.6); border: 1px s
 input[type="checkbox"] { width: auto; }
 .app { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; }
 
-/* ===== HUD 標題列 ===== */
+/* ===== HUD 標題列 (左側資訊，右側單一切換鈕) ===== */
 header { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(180deg, rgba(0,0,0,0.95), rgba(0,0,0,0.85)); border-bottom: 1px solid rgba(255,255,255,0.1); z-index: 100; flex-shrink: 0; padding: 10px 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.8); }
 
-.header-left { display: flex; align-items: center; gap: 12px; flex: 1; }
-.avatar-wrap { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--theme-primary); background: #000; overflow: hidden; position: relative; cursor: pointer; box-shadow: 0 0 10px rgba(0,0,0,0.8), inset 0 0 5px rgba(255,255,255,0.5); flex-shrink: 0; transition: transform 0.2s;}
+.header-left { display: flex; align-items: center; gap: 10px; flex: 1; }
+.avatar-wrap { width: 46px; height: 46px; border-radius: 50%; border: 2px solid var(--theme-primary); background: #000; overflow: hidden; position: relative; cursor: pointer; box-shadow: 0 0 10px rgba(0,0,0,0.8), inset 0 0 5px rgba(255,255,255,0.5); flex-shrink: 0; transition: transform 0.2s;}
 .avatar-wrap:active { transform: scale(0.92); }
 .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
 
 .player-info-col { display: flex; flex-direction: column; justify-content: center; gap: 4px; }
-.player-name { font-size: 16px; font-weight: 900; color: #fff; cursor: pointer; transition: color 0.2s; letter-spacing: 0.5px; text-shadow: 0 2px 4px rgba(0,0,0,1);} 
+.player-name { font-size: 15px; font-weight: 900; color: #fff; cursor: pointer; transition: color 0.2s; letter-spacing: 0.5px; text-shadow: 0 2px 4px rgba(0,0,0,1);} 
 .player-name:active { color: var(--theme-primary); }
 
 .coin-row { display: flex; align-items: center; gap: 6px; cursor: pointer; transition: transform 0.2s;}
 .coin-row:active { transform: scale(0.95); }
-.coin-title { color: var(--good); font-weight: 900; font-size: 12px; letter-spacing: 0.5px; text-shadow: 0 1px 2px rgba(0,0,0,1);}
-.coin-value { color: #fff; font-size: 16px; font-weight: 900; text-shadow: 0 0 6px rgba(255,255,255,0.4); line-height: 1; }
+.coin-title { color: var(--good); font-weight: 900; font-size: 11px; letter-spacing: 0.5px; text-shadow: 0 1px 2px rgba(0,0,0,1);}
+.coin-value { color: #fff; font-size: 14px; font-weight: 900; text-shadow: 0 0 6px rgba(255,255,255,0.4); line-height: 1; }
 
 .header-right { display: flex; justify-content: flex-end; align-items: center; }
-.view-toggle-btn { background: linear-gradient(135deg, #1976d2, #0d47a1); border: 1px solid #64b5f6; border-radius: 20px; color: #fff; font-weight: bold; font-size: 13px; padding: 8px 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); cursor: pointer; transition: transform 0.1s; letter-spacing: 0.5px;}
+.view-toggle-btn { background: linear-gradient(135deg, #1976d2, #0d47a1); border: 1px solid #64b5f6; border-radius: 20px; color: #fff; font-weight: bold; font-size: 12px; padding: 8px 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); cursor: pointer; transition: transform 0.1s; letter-spacing: 0.5px;}
 .view-toggle-btn:active { transform: scale(0.95); }
 body.mode-advanced .view-toggle-btn { background: linear-gradient(135deg, #f57f17, #f57c00); border-color: #ffd54f;}
 
 /* ===== 佈局與背景 ===== */
 .wrap { flex: 1; display: flex; flex-direction: column; min-height: 0; position: relative;}
-.stage { position: absolute; inset: 0; display: flex; flex-direction: column; background: radial-gradient(circle at 50% 30%, var(--theme-bg), rgba(0,0,0,0.95)), linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.98)), url('https://images.unsplash.com/photo-1551076805-e1869033e561?q=80&w=800&auto=format&fit=crop') center/cover no-repeat; }
-.screen { position: absolute; inset: 0; display: none; flex-direction: column; z-index: 10; padding: 10px; padding-bottom: 95px; overflow-y: auto; }
+.stage { position: absolute; inset: 0; display: flex; flex-direction: column; background: #000; }
+.screen { position: absolute; inset: 0; display: none; flex-direction: column; z-index: 10; padding: 10px; padding-bottom: 95px; overflow-y: auto; background: radial-gradient(circle at 50% 30%, var(--theme-bg), rgba(0,0,0,0.95)), linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.98)), url('https://images.unsplash.com/photo-1551076805-e1869033e561?q=80&w=800&auto=format&fit=crop') center/cover no-repeat;}
 .screen.show { display: flex; }
 .screen.full-view { padding-top: 10px; padding-bottom: 10px; z-index: 200; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); }
 
 /* ==========================================================
-   ★ 全新 2D 橫向卷軸地圖 (Task Hub)
+   ★ 全新 2D 海陸空橫向卷軸地圖 (Task Hub)
    ========================================================== */
-#nodeMapContainer { overflow: hidden; position: relative; background: #111; margin: -10px; padding: 0; flex: 1; border-radius: 0; display: none; }
-.hub-camera { position: absolute; left: 0; top: 0; width: 100%; height: 100%; will-change: transform; }
+#nodeMapContainer { display: none; flex: 1; position: relative; overflow: hidden; background: #111; margin: -10px; padding: 0; }
+#hubCamera { position: absolute; top: 0; left: 0; width: 100%; height: 100%; will-change: transform; }
 
-/* 環境分層：天空、陸地、海洋 */
-.env-layer { position: absolute; width: 100000px; left: 0; }
-.env-sky { top: 0; height: 50%; background: linear-gradient(to bottom, #4fc3f7, #bbdefb); z-index: 1;}
-.env-sky::after { content: '☁️ ☁️ ☁️'; position: absolute; top: 20%; left: 0; font-size: 40px; opacity: 0.5; letter-spacing: 200px; width: 100%; text-align: center; }
-.env-land { top: 50%; height: 25%; background: linear-gradient(to bottom, #81c784, #388e3c); border-top: 6px solid #4caf50; z-index: 2; box-shadow: inset 0 10px 20px rgba(0,0,0,0.2);}
-.env-ocean { top: 75%; height: 25%; background: linear-gradient(to bottom, #0288d1, #01579b); border-top: 4px solid #e1f5fe; z-index: 3; box-shadow: inset 0 10px 20px rgba(0,0,0,0.4);}
-.env-ocean::after { content: '🐟 🫧 🐟 🫧'; position: absolute; top: 30%; left: 0; font-size: 30px; opacity: 0.3; letter-spacing: 300px; width: 100%; text-align: center; }
+.env-layer { position: absolute; left: 0; width: 200000px; } 
+.env-sky { top: 0; height: 50%; background: linear-gradient(to bottom, #4fc3f7, #bbdefb); }
+.env-sky::after { content: '☁️    ☁️    ☁️'; position: absolute; top: 20%; left: 0; font-size: 50px; opacity: 0.6; letter-spacing: 200px; width: 100%; text-align: center; }
+.env-land { top: 50%; height: 25%; background: linear-gradient(to bottom, #81c784, #388e3c); border-top: 4px solid #4caf50; box-shadow: inset 0 10px 20px rgba(0,0,0,0.2);}
+.env-ocean { top: 75%; height: 25%; background: linear-gradient(to bottom, #0288d1, #01579b); border-top: 4px solid #b3e5fc; box-shadow: inset 0 10px 20px rgba(0,0,0,0.4);}
+.env-ocean::after { content: '🐟  🫧  🐟  🫧'; position: absolute; top: 30%; left: 0; font-size: 35px; opacity: 0.3; letter-spacing: 150px; width: 100%; text-align: center; }
 
 /* 節點與物件 */
 .hub-node { position: absolute; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; z-index: 10; }
-.hub-node-circle { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 6px 12px rgba(0,0,0,0.8); border: 3px solid #fff; transition: transform 0.2s;}
-.hub-node-text { margin-top: 6px; font-weight: 900; font-size: 12px; text-shadow: 1px 1px 4px #000; text-align: center; line-height: 1.2; padding: 2px 6px; background: rgba(0,0,0,0.6); border-radius: 6px;}
+.hub-node-circle { width: 48px; height: 48px; border-radius: 50%; border: 3px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 4px 10px rgba(0,0,0,0.6); }
+.hub-node-text { margin-top: 5px; font-weight: 900; font-size: 11px; text-shadow: 1px 1px 2px #000; text-align: center; padding: 2px 6px; background: rgba(0,0,0,0.6); border-radius: 4px; white-space: nowrap;}
 
-.hub-dummy { position: absolute; transform: translate(-50%, -100%); width: 30px; height: 30px; background: rgba(255,255,255,0.3); border: 2px dashed rgba(255,255,255,0.5); border-radius: 4px; z-index: 5; }
+.hub-dummy { position: absolute; transform: translate(-50%, -100%); width: 26px; height: 26px; background: rgba(255,255,255,0.3); border: 2px dashed rgba(255,255,255,0.6); border-radius: 4px; z-index: 5; }
 .hub-dummy.circle { border-radius: 50%; }
 
-.hub-coin { position: absolute; width: 26px; height: 26px; background: radial-gradient(circle, #ffeb3b, #fbc02d); border-radius: 50%; border: 2px solid #fff; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; font-weight: 900; color: #b71c1c; font-size: 14px; box-shadow: 0 0 15px rgba(255,235,59,0.8); z-index: 15; animation: coinSpin 1s infinite linear;}
-@keyframes coinSpin { 0% { transform: translate(-50%, -50%) scaleX(1); } 50% { transform: translate(-50%, -50%) scaleX(0.1); } 100% { transform: translate(-50%, -50%) scaleX(1); } }
+.hub-coin { position: absolute; transform: translate(-50%, -100%); width: 22px; height: 22px; background: radial-gradient(circle, #ffeb3b, #fbc02d); border-radius: 50%; border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #d32f2f; font-size: 12px; box-shadow: 0 0 15px rgba(255,235,59,0.8); z-index: 15; animation: coinFloat 1s infinite alternate ease-in-out;}
+@keyframes coinFloat { from { transform: translate(-50%, -100%); } to { transform: translate(-50%, calc(-100% - 10px)); } }
 
 /* 玩家小人 */
-.hub-player { position: absolute; width: 34px; height: 50px; transform: translate(-50%, -100%); z-index: 50; display: flex; flex-direction: column; align-items: center;}
-.hub-player-head { width: 28px; height: 28px; background: #ffcc80; border-radius: 50%; border: 2px solid #333; z-index: 2; box-shadow: inset -2px -2px 5px rgba(0,0,0,0.2);}
-.hub-player-body { width: 24px; height: 26px; background: var(--theme-primary); border-radius: 8px 8px 4px 4px; border: 2px solid #333; margin-top: -6px; z-index: 1; box-shadow: inset -2px -2px 5px rgba(0,0,0,0.3);}
-.hub-player::after { content: ''; position: absolute; bottom: 0; width: 20px; height: 6px; background: rgba(0,0,0,0.5); border-radius: 50%; z-index: -1; filter: blur(2px);}
-.hub-player.jump .hub-player-body { height: 22px; margin-top: -2px; }
+.hub-player { position: absolute; transform: translate(-50%, -100%); width: 34px; height: 50px; z-index: 50; display: flex; flex-direction: column; align-items: center; }
+.hub-player-head { width: 26px; height: 26px; background: #ffcc80; border-radius: 50%; border: 2px solid #333; z-index: 2; box-shadow: inset -2px -2px 0 rgba(0,0,0,0.2);}
+.hub-player-body { width: 22px; height: 24px; background: var(--theme-primary); border-radius: 6px 6px 4px 4px; border: 2px solid #333; margin-top: -4px; z-index: 1; }
 
-/* 地圖 UI (跑酷按鈕、計時器、虛擬搖桿) */
-.map-ui-layer { position: absolute; inset: 0; z-index: 100; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 15px; }
-.map-ui-top { display: flex; justify-content: space-between; pointer-events: auto; }
-.btn-parkour { background: linear-gradient(135deg, #ff4081, #d81b60); border: 2px solid #fff; color: #fff; padding: 8px 16px; border-radius: 20px; font-weight: 900; box-shadow: 0 4px 10px rgba(0,0,0,0.5); text-shadow: 1px 1px 2px #000; font-size: 14px; cursor: pointer; transition: transform 0.2s;}
-.btn-parkour:active { transform: scale(0.9); }
-.parkour-timer { background: rgba(0,0,0,0.7); color: #fff; padding: 6px 12px; border-radius: 8px; font-family: monospace; font-size: 18px; font-weight: bold; border: 1px solid #555; display: none;}
+/* 地圖操控鈕 */
+.map-controls { position: absolute; bottom: 85px; left: 10px; right: 10px; display: flex; justify-content: space-between; align-items: flex-end; pointer-events: none; z-index: 100;}
+.d-pad { display: flex; gap: 15px; }
+.map-ctrl-btn { pointer-events: auto; width: 50px; height: 50px; border-radius: 50%; background: rgba(0,0,0,0.4); border: 2px solid rgba(255,255,255,0.8); color: #fff; font-size: 20px; font-weight: bold; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(4px); box-shadow: 0 4px 10px rgba(0,0,0,0.5); user-select: none; -webkit-user-select: none; transition: transform 0.1s;}
+.map-ctrl-btn:active { background: rgba(0,0,0,0.7); transform: scale(0.9); }
 
-/* 螢幕操作按鈕 */
-.map-controls { display: flex; justify-content: space-between; align-items: flex-end; pointer-events: auto; padding-bottom: 75px; /* 避開底部導覽列 */ }
-.d-pad { display: flex; gap: 10px; }
-.ctrl-btn { width: 50px; height: 50px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.5); color: #fff; font-size: 20px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); user-select: none; -webkit-user-select: none;}
-.ctrl-btn:active { background: rgba(255,255,255,0.5); transform: scale(0.9); }
-.jump-btn { width: 60px; height: 60px; border-radius: 50%; background: rgba(var(--theme-primary), 0.5); border: 2px solid #fff; color: #fff; font-size: 24px; font-weight: 900; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); box-shadow: 0 4px 10px rgba(0,0,0,0.5); user-select: none; -webkit-user-select: none;}
-.jump-btn:active { background: var(--theme-primary); transform: scale(0.9); }
+@keyframes pulseActiveBeg { 0% { box-shadow: 0 0 0 0 rgba(100, 181, 246, 0.8); } 70% { box-shadow: 0 0 0 15px rgba(100, 181, 246, 0); } 100% { box-shadow: 0 0 0 0 rgba(100, 181, 246, 0); } }
+@keyframes pulseActiveAdv { 0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.8); } 70% { box-shadow: 0 0 0 15px rgba(212, 175, 55, 0); } 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); } }
+body.mode-beginner .node-pulse { animation: pulseActiveBeg 1.5s infinite; }
+body.mode-advanced .node-pulse { animation: pulseActiveAdv 1.5s infinite; }
 
-/* 跑酷障礙物 */
-.parkour-obstacle { position: absolute; font-size: 30px; transform: translate(-50%, -100%); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)); z-index: 40; }
-
-@keyframes pulseNode { 0% { box-shadow: 0 0 0 0 rgba(255,255,255, 0.8); } 70% { box-shadow: 0 0 0 15px rgba(255,255,255, 0); } 100% { box-shadow: 0 0 0 0 rgba(255,255,255, 0); } }
-.node-pulse { animation: pulseNode 1.5s infinite; }
+/* ===== 元件 ===== */
+.panel { background: var(--theme-panel); border: 1px solid var(--theme-dim); border-radius: 12px; padding: 15px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; flex: 1; min-height: 0;}
+.panel h2 { color: var(--theme-primary); margin: 0 0 12px 0; font-size: 18px; text-align: center; border-bottom: 1px dashed var(--theme-dim); padding-bottom: 8px; flex-shrink: 0;}
+.btn { padding: 12px; border-radius: 8px; font-weight: 900; font-size: 15px; text-align: center; background: linear-gradient(180deg, #444, #222); color: #fff; border: 1px solid #666; width: 100%; cursor:pointer; flex-shrink: 0; transition: transform 0.1s;}
+.btn:active { transform: scale(0.95); }
+.btn-back { background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.6)); border: 1px solid var(--theme-dim); color: #fff; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 10px rgba(0,0,0,0.5); border-radius: 8px; transition: all 0.2s; flex-shrink: 0; }
+.btn-back:active { transform: scale(0.97); background: rgba(0,0,0,0.8); }
+.btn-rescue { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border: none; color: #004d26; font-weight: 900; text-shadow: 0 1px 1px rgba(255,255,255,0.4); padding: 12px; font-size: 14px; border-radius: 8px; box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4), inset 0 -3px 0 rgba(0,0,0,0.15); transition: all 0.2s; margin-bottom: 4px;}
 
 /* ===== 清單模式 ===== */
-.role-list { display: flex; flex-direction: column; gap: 8px; margin: 0; flex: 1; overflow-y:auto; padding-bottom: 95px;} 
+#scrHome { justify-content: flex-start; padding: 0;} 
+.role-list { display: flex; flex-direction: column; gap: 8px; margin: 0; flex: 1; overflow-y:auto; padding: 12px; padding-bottom: 120px;} 
 .role-card { display: flex; align-items: center; gap: 10px; padding: 0 12px; background: var(--theme-grad); border: 1px solid var(--theme-dim); border-radius: 8px; position: relative; cursor: pointer; flex-shrink: 0; min-height: 60px; transition: border-radius 0.2s;} 
 .role-card.expanded { border-radius: 8px 8px 0 0; background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent); border-bottom-color: transparent;}
 .role-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--theme-primary); border-radius: 8px 0 0 8px; }
@@ -122,7 +119,40 @@ body.mode-advanced .view-toggle-btn { background: linear-gradient(135deg, #f57f1
 .subtask-item.active { background: linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); border: 2px solid #fff; color: var(--btn-text); text-shadow: var(--btn-shadow); cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5), 0 0 15px var(--theme-primary); transform: scale(1.02); z-index:2; }
 .subtask-item.locked { background: rgba(0, 0, 0, 0.6); border-color: #333; color: #666; pointer-events: none; }
 
-/* ===== 底部導覽列 (中心鈕回歸初階/進階切換) ===== */
+/* 卡匣等其餘 UI */
+.pokedex-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 6px; flex-wrap: nowrap; scrollbar-width: none; justify-content:center; flex-shrink: 0;}
+.pokedex-tabs::-webkit-scrollbar { display: none; }
+.tab-btn { flex-shrink: 0; padding: 6px 12px; border-radius: 20px; border: 1px solid var(--theme-dim); background: rgba(0,0,0,0.8); color: #ccc; font-weight: bold; font-size: 12px; cursor:pointer; white-space: nowrap; }
+.tab-btn.active { background: var(--theme-primary); color: var(--btn-text); border-color: #fff; text-shadow: var(--btn-shadow); box-shadow: 0 0 10px rgba(212,175,55,0.5); }
+.card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; overflow-y: auto; overflow-x: hidden; padding: 4px; align-content: flex-start;}
+.card-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 15px; scrollbar-width: none; }
+.card-row::-webkit-scrollbar { display: none; }
+.card-row .card-item { width: 105px; flex-shrink: 0; }
+@media (min-width: 400px) { .card-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.card-item { min-height: 130px; border-radius: 6px; border: 1px solid var(--theme-dim); background: linear-gradient(180deg, #2a241e, #111); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; cursor: pointer; text-align: center; padding:4px;}
+.card-title { font-size: 11px; font-weight: bold; line-height: 1.2; padding:0 2px; text-shadow: 1px 1px 2px #000; word-break: break-word;}
+.card-icon { font-size: 20px; margin-bottom: 2px; }
+.card-item.locked { filter: grayscale(100%); opacity: 0.3; }
+
+.business-card { background: linear-gradient(135deg, var(--theme-dim), #000); border-radius: 12px; padding: 15px; color: #fff; box-shadow: 0 8px 16px rgba(0,0,0,0.8); position: relative; overflow: hidden; border: 1px solid var(--theme-primary); flex-shrink: 0;}
+.business-card::after { content: '🏥'; position: absolute; right: -10px; bottom: -20px; font-size: 80px; opacity: 0.05; }
+.bc-title { font-size: 16px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 6px; margin-bottom: 10px; display:flex; justify-content:space-between; color:var(--theme-primary);}
+.bc-row { display: flex; margin-bottom: 8px; font-size: 13px;}
+.bc-label { width: 75px; color: #ccc; }
+.bc-val { flex: 1; font-weight:bold; }
+.tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px;}
+.tag { background: rgba(0,0,0,0.5); border: 1px solid var(--theme-primary); padding: 3px 8px; border-radius: 10px; font-size: 11px; }
+
+.wizard-header { font-size: 16px; color: var(--theme-primary); font-weight: bold; margin-bottom: 10px; text-align: center; }
+.wizard-option { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.6); border: 1px solid var(--theme-dim); padding: 12px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; flex-shrink: 0;}
+.wizard-option:active { background: var(--theme-bg); }
+.wizard-option .icon { font-size: 20px; width: 26px; text-align: center; }
+.wizard-option .text { font-size: 14px; color: #fff; }
+.trend-card { background: rgba(0,0,0,0.5); border: 1px solid var(--theme-dim); border-radius: 8px; padding: 10px; margin-bottom: 10px; flex-shrink: 0;}
+.health-dist-title { display: flex; justify-content: space-between; font-size: 11px; color: #ccc; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+
+/* ===== ★ 底部導覽列 (中心鈕：初階/進階切換) ===== */
 .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 75px; background: rgba(10,10,10,0.95); border-top: 1px solid #333; display: flex; justify-content: space-around; padding: 0 5px; align-items: center; z-index: 100; backdrop-filter: blur(5px); padding-bottom: env(safe-area-inset-bottom); }
 .nav-item { color: #888; font-weight: bold; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; flex: 1; transition: color 0.2s; height: 100%;}
 .nav-item .icon { font-size: 24px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); transition: transform 0.2s; margin-bottom: 2px;}
@@ -139,12 +169,11 @@ body.mode-advanced .view-toggle-btn { background: linear-gradient(135deg, #f57f1
     height: calc(100% - 12px); 
     flex: 1.1; 
     box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-    /* 修正內容垂直置中問題 */
-    justify-content: center;
-    padding-top: 4px; 
+    justify-content: center; /* 修正文字置中 */
+    padding: 0; 
 }
-.nav-item.highlight-action .icon { color: var(--text-main); font-size: 26px; margin-bottom: 0;}
-.nav-item.highlight-action span:not(.icon) { color: var(--text-main); }
+.nav-item.highlight-action .icon { color: var(--text-main); font-size: 26px; margin-bottom: 2px;}
+.nav-item.highlight-action span:not(.icon) { color: var(--text-main); line-height: 1; }
 
 /* 彈出視窗 */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 50000; padding: 15px;}
@@ -154,65 +183,128 @@ body.mode-advanced .view-toggle-btn { background: linear-gradient(135deg, #f57f1
 </head>
 <body class="mode-beginner">
 
+<script>
+// 基礎系統宣告與共用狀態
+const id = (el) => document.getElementById(el);
+const SAVE_KEY = 'BrainPioneer_SaveData_v10.1'; 
+
+let playerState = { 
+  hasSetup: false, name: "", avatar: "https://i.pravatar.cc/150?img=11", mode: "beginner", 
+  coins: 0, 
+  storyMode: true, storyProgression: 0, replayProgression: 0, isReplaying: false, explorationTasksCompleted: 0, 
+  completedCasesBeg: new Map(), completedCasesAdv: new Map(),
+  taskScoresBeg: new Map(), taskScoresAdv: new Map(), 
+  clothes: '#fff', ownedClothes: ['#fff'], glasses: 'none', ownedGlasses: ['none'], carSkin: 'default', ownedCarSkins: ['default'], 
+  scaleRecords: [], strokeCard: null, unlockedPuzzles: [], boughtPuzzles: 0, pendingPuzzles: [], foundItems: [], completedExplores: [], 
+  dailyExplores: { date: "", count: 0 }, extremeAttempts: { date: "", count: 5 }, challengeRecords: {},
+  dailyComp: { date: "", count: 5 }, dailyMapCoins: { date: "", collected: [] }
+};
+
+let currentGameInfo = null; let activeRoleId = null;
+let currentQIndex = 0; let currentAnswers = {}; let trendChartInstance = null;
+let isGlobalFs = false;
+
+// 提前宣告介面更新函數
+function updateModeUI() {
+  const isBeg = playerState.mode === 'beginner';
+  document.body.className = `mode-${playerState.mode}`;
+  if (id('uiPlayerName')) id('uiPlayerName').textContent = playerState.name; 
+  if (id('hudAvatar')) id('hudAvatar').src = playerState.avatar; 
+  
+  if (id('navCenterText')) id('navCenterText').textContent = isBeg ? '初階版' : '進階版';
+  
+  if(id('navSlot2Icon')) id('navSlot2Icon').innerHTML = isBeg ? '📖' : '<span style="filter: brightness(1.5) drop-shadow(0 0 2px #4fc3f7);">🩺</span>';
+  if(id('navSlot2Text')) id('navSlot2Text').textContent = isBeg ? '中風歷程' : '臨床工具';
+  if(id('navSlot6Icon')) id('navSlot6Icon').innerHTML = isBeg ? '💪' : '🏆';
+  if(id('navSlot6Text')) id('navSlot6Text').textContent = isBeg ? '復健挑戰' : '極限挑戰';
+  
+  setHomeView(playerState.storyMode);
+  updateHUD(); renderHomeRoles(); showScreen('scrHome');
+}
+
+function setHomeView(isMap) {
+  playerState.storyMode = isMap; saveGameData();
+  
+  const btnView = id('btnViewToggle');
+  if (btnView) btnView.textContent = isMap ? "切換為清單模式" : "切換為任務模式";
+
+  if(id('roleListContainer')) id('roleListContainer').style.display = 'none'; 
+  if(id('nodeMapContainer')) id('nodeMapContainer').style.display = 'none';
+  
+  if (isMap) {
+      if(id('nodeMapContainer')) id('nodeMapContainer').style.display = 'flex';
+      initHubWorld();
+  } else {
+      if(id('roleListContainer')) id('roleListContainer').style.display = 'flex';
+  }
+}
+
+function toggleMode() { 
+    playerState.mode = playerState.mode === 'beginner' ? 'advanced' : 'beginner'; 
+    saveGameData(); 
+    updateModeUI(); 
+}
+
+function showScreen(screenId) {
+  document.querySelectorAll('.screen').forEach(s => { s.classList.remove('show'); s.classList.remove('full-view'); });
+  const target = id(screenId); if(target) target.classList.add('show');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  
+  if (screenId === 'scrHome') { 
+    if (!isGlobalFs) { if(id('mainHeader')) id('mainHeader').style.display = 'flex'; if(id('mainNav')) id('mainNav').style.display = 'flex'; }
+  } else { 
+    if(id('mainHeader')) id('mainHeader').style.display = 'none'; if(id('mainNav')) id('mainNav').style.display = 'none'; target.classList.add('full-view'); 
+  }
+}
+</script>
+
 <div class="app">
   <header id="mainHeader">
-      
       <div class="header-left">
-        <div class="avatar-wrap" onclick="document.getElementById('profileModal').style.display='flex'">
+        <div class="avatar-wrap" onclick="id('profileModal').style.display='flex'">
           <img id="hudAvatar" src="https://i.pravatar.cc/150?img=11">
         </div>
-        
         <div class="player-info-col">
-            <div class="player-name" id="uiPlayerName" onclick="openSettings()">急救新星</div>
+            <div class="player-name" id="uiPlayerName" onclick="id('settingsModal').style.display='flex'">急救新星</div>
             <div class="coin-row" onclick="openStoreUI()">
                 <span class="coin-title">健康幣</span>
                 <span class="coin-value" id="uiCoins">0</span>
             </div>
         </div>
       </div>
-      
       <div class="header-right" id="uiStoryToggleWrap">
           <button id="btnViewToggle" class="view-toggle-btn" onclick="toggleViewMode()">切換為清單模式</button>
       </div>
-      
   </header>
 
   <div class="wrap">
     <div class="stage">
       
       <section class="screen show" id="scrHome">
-        
         <div id="nodeMapContainer">
             <div class="hub-camera" id="hubCamera">
                 <div class="env-layer env-sky"></div>
                 <div class="env-layer env-land"></div>
                 <div class="env-layer env-ocean"></div>
                 
-                <div id="hubWorldContent"></div>
-
+                <div id="hubNodesLayer"></div>
+                
                 <div id="hubPlayer" class="hub-player">
                     <div class="hub-player-head"></div>
                     <div class="hub-player-body"></div>
                 </div>
             </div>
-
-            <div class="map-ui-layer">
-                <div class="map-ui-top">
-                    <button class="btn-parkour" onclick="toggleParkour()">🏃‍♂️ 跑酷</button>
-                    <div class="parkour-timer" id="parkourTimer">00.00</div>
+            
+            <div class="map-controls">
+                <div class="d-pad">
+                    <button class="map-ctrl-btn" id="btnLeft">◀</button>
+                    <button class="map-ctrl-btn" id="btnRight">▶</button>
                 </div>
-                <div class="map-controls" id="hubControls">
-                    <div class="d-pad">
-                        <button class="ctrl-btn" id="btnLeft">◀</button>
-                        <button class="ctrl-btn" id="btnRight">▶</button>
-                    </div>
-                    <button class="jump-btn" id="btnJump">▲</button>
-                </div>
+                <button class="map-ctrl-btn" id="btnJump" style="width:65px; height:65px; background:rgba(25,118,210,0.8); border:3px solid #fff;">▲<br><span style="font-size:11px;">跳躍</span></button>
             </div>
         </div>
-
-        <div class="role-list" id="roleListContainer" style="display: none;"></div>
         
+        <div class="role-list" id="roleListContainer" style="display: none;"></div>
       </section>
 
       <section class="screen" id="scrCaseDex">
@@ -226,7 +318,7 @@ body.mode-advanced .view-toggle-btn { background: linear-gradient(135deg, #f57f1
             </div>
           </div>
           <div class="pokedex-tabs" id="caseDexTabs">
-            <button class="tab-btn active" onclick="switchCaseTab('gallery', this)">拼圖收藏</button>
+            <button class="tab-btn active" onclick="switchCaseTab('gallery', this)">拼圖收藏 (<span id="uiPuzzleCollected">0</span>/20)</button>
             <button class="tab-btn" onclick="switchCaseTab('healthcards', this)">健康卡</button>
           </div>
           <div id="puzzleGallery" class="card-grid" style="flex: 1; overflow-y: auto; display:grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 4px;"></div>
@@ -341,10 +433,18 @@ body.mode-advanced .view-toggle-btn { background: linear-gradient(135deg, #f57f1
 
 <div class="modal-overlay" id="settingsModal">
   <div class="modal-content" style="border-color: var(--theme-primary); padding:20px; max-width: 300px;">
-    <button class="close-btn" onclick="document.getElementById('settingsModal').style.display='none'">✖</button>
+    <button class="close-btn" onclick="id('settingsModal').style.display='none'">✖</button>
     <h3 style="color:var(--theme-primary); margin: 0 0 20px 0; font-size: 18px;">系統偏好設定</h3>
     <div style="font-size:12px; color:#aaa; margin-bottom:15px;">功能開發中...敬請期待！</div>
-    <button class="btn" style="background:var(--theme-primary); color:var(--btn-text); text-shadow:var(--btn-shadow); border:none;" onclick="document.getElementById('settingsModal').style.display='none'">確定</button>
+    <button class="btn" style="background:var(--theme-primary); color:var(--btn-text); text-shadow:var(--btn-shadow); border:none;" onclick="id('settingsModal').style.display='none'">確定</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="reviewModal">
+  <div class="modal-content" style="border-color: #ff9800; padding:20px; max-width: 320px;">
+    <button class="close-btn" onclick="id('reviewModal').style.display='none'">✖</button>
+    <h3 style="color:#ff9800; margin: 0 0 15px 0; font-size: 18px;">📜 回顧已通關任務</h3>
+    <div id="reviewTaskList" style="display:flex; flex-direction:column; gap:8px; max-height:60vh; overflow-y:auto; text-align:left;"></div>
   </div>
 </div>
 
@@ -364,11 +464,11 @@ body.mode-advanced .view-toggle-btn { background: linear-gradient(135deg, #f57f1
 </div>
 
 <div class="modal-overlay" id="customMsgModal"><div class="modal-content"><h3 id="customMsgTitle"></h3><p id="customMsgText"></p><div id="customMsgBtnWrap"></div></div></div>
-<div class="modal-overlay" id="cardDetailModal"><div class="modal-content"><button class="close-btn" onclick="document.getElementById('cardDetailModal').style.display='none'">✖</button><div id="modalIcon" style="font-size:40px; margin-bottom:8px;"></div><h3 id="modalTitle" style="color:var(--theme-primary); margin:0 0 8px 0; font-size:16px;"></h3><div id="modalCategory" style="font-size:11px; color:var(--text-muted); margin-bottom:12px;"></div><p id="modalDesc" style="color:#fff; font-size:13px; line-height:1.5; text-align:left; background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; border:1px solid #444; margin:0;"></p></div></div>
+<div class="modal-overlay" id="cardDetailModal"><div class="modal-content"><button class="close-btn" onclick="id('cardDetailModal').style.display='none'">✖</button><div id="modalIcon" style="font-size:40px; margin-bottom:8px;"></div><h3 id="modalTitle" style="color:var(--theme-primary); margin:0 0 8px 0; font-size:16px;"></h3><div id="modalCategory" style="font-size:11px; color:var(--text-muted); margin-bottom:12px;"></div><p id="modalDesc" style="color:#fff; font-size:13px; line-height:1.5; text-align:left; background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; border:1px solid #444; margin:0;"></p></div></div>
 
 <div class="modal-overlay" id="storeModal">
   <div class="modal-content" style="border-color: #81c784;">
-    <button class="close-btn" onclick="document.getElementById('storeModal').style.display='none'">✖</button>
+    <button class="close-btn" onclick="id('storeModal').style.display='none'">✖</button>
     <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.6); padding:10px 15px; border-radius:8px; margin-bottom:15px; border:1px solid var(--theme-dim);">
        <span style="color:#aaa; font-size:13px; font-weight:bold;">目前餘額</span>
        <span style="color:var(--good); font-size:16px; font-weight:900;" id="storeCoinDisplay">$ 0 幣</span>
@@ -377,115 +477,92 @@ body.mode-advanced .view-toggle-btn { background: linear-gradient(135deg, #f57f1
   </div>
 </div>
 
+<div class="modal-overlay" id="wardrobeModal">
+  <div class="modal-content" style="border-color: #8d6e63;">
+    <button class="close-btn" onclick="id('wardrobeModal').style.display='none'">✖</button>
+    <h3 style="color:#d7ccc8; margin: 0 0 15px 0;">🚪 員工休息室 - 更衣櫃</h3>
+    <div id="wardrobeList" style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center;"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="challengeStoreModal">
+  <div class="modal-content" style="border-color: #ffb300;">
+    <button class="close-btn" onclick="id('challengeStoreModal').style.display='none'">✖</button>
+    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.6); padding:10px 15px; border-radius:8px; margin-bottom:15px; border:1px solid var(--theme-dim);">
+       <span style="color:#aaa; font-size:13px; font-weight:bold;">大腦分數</span>
+       <span style="color:#ffb300; font-size:16px; font-weight:900;" id="csBrainCoinDisplay">🧠 0 分</span>
+    </div>
+    <h3 style="color:#ffb300; margin: 0 0 5px 0;">🛍️ 挑戰商城</h3>
+    <p style="font-size:12px; color:#aaa; margin-bottom:15px;">使用大腦分數兌換極限拉力賽的專屬車輛塗裝！</p>
+    <div id="challengeStoreList" style="display:flex; flex-direction:column; gap:8px;"></div>
+  </div>
+</div>
+
 <script src="js/db_main.js"></script>
 <script>
 // ===============================================
-// 基礎系統宣告
+// 全域事件監聽與主邏輯
 // ===============================================
-const id = (el) => document.getElementById(el);
-const SAVE_KEY = 'BrainPioneer_SaveData_v9.8'; 
-
-let playerState = { 
-  hasSetup: false, name: "", avatar: "https://i.pravatar.cc/150?img=11", mode: "beginner", 
-  coins: 0, 
-  storyMode: true, storyProgression: 0, replayProgression: 0, isReplaying: false, explorationTasksCompleted: 0, 
-  completedCasesBeg: new Map(), completedCasesAdv: new Map(),
-  taskScoresBeg: new Map(), taskScoresAdv: new Map(), 
-  clothes: '#fff', ownedClothes: ['#fff'], glasses: 'none', ownedGlasses: ['none'], carSkin: 'default', ownedCarSkins: ['default'], 
-  scaleRecords: [], strokeCard: null, unlockedPuzzles: [], boughtPuzzles: 0, pendingPuzzles: [], foundItems: [], completedExplores: [], 
-  dailyExplores: { date: "", count: 0 }, extremeAttempts: { date: "", count: 5 }, challengeRecords: {},
-  dailyComp: { date: "", count: 5 }, dailyMapCoins: { date: "", collected: [] }
-};
-
-let currentGameInfo = null; let activeRoleId = null;
-let currentQIndex = 0; let currentAnswers = {}; let trendChartInstance = null;
-
-// ===============================================
-// 基礎函式
-// ===============================================
-function getFlatTask(index) {
-  let count = 0;
-  for (let role of ROLES_DATA_BEG) {
-    for (let i = 0; i < role.totalTasks; i++) {
-      if (count === index) return { role: role, taskIndex: i, gameId: `${role.id}_${i}` };
-      count++;
-    }
+window.addEventListener('message', (event) => {
+  if (!event.data) return;
+  if (event.data.type === 'GAME_CLEAR' || event.data.type === 'GAME_OVER' || event.data.type === 'CLOSE_IFRAME') {
+      closeAllIframes();
+      if (event.data.type === 'GAME_CLEAR') {
+          if (currentGameInfo && currentGameInfo.isChallenge) handleChallengeClear(currentGameInfo.id, event.data.score || 0);
+          else handleGameClear(event.data.score || 1000);
+      } else {
+          updateModeUI();
+          customAlert('任務模擬失敗，請再接再厲！', () => { currentGameInfo = null; }, "❌ 任務失敗");
+      }
   }
-  return null;
-}
-
-function getActiveRoles() { return playerState.mode === 'beginner' ? ROLES_DATA_BEG : ROLES_DATA_ADV; }
-function getActiveCompletedCases() { return playerState.mode === 'beginner' ? playerState.completedCasesBeg : playerState.completedCasesAdv; }
-
-function checkDailyLimits() {
-  const todayStr = new Date().toLocaleDateString('zh-TW');
-  if (!playerState.extremeAttempts || playerState.extremeAttempts.date !== todayStr) playerState.extremeAttempts = { date: todayStr, count: 5 };
-  if (!playerState.dailyComp || playerState.dailyComp.date !== todayStr) playerState.dailyComp = { date: todayStr, count: 5 };
-  if (!playerState.dailyMapCoins || playerState.dailyMapCoins.date !== todayStr) playerState.dailyMapCoins = { date: todayStr, collected: [] };
-  saveGameData();
-}
-
-// ===============================================
-// ★ 單一按鈕的模式切換 (任務模式 <-> 清單模式)
-// ===============================================
-function toggleViewMode() {
-    setHomeView(!playerState.storyMode);
-}
-
-function setHomeView(isMap) {
-  playerState.storyMode = isMap; saveGameData();
-  
-  const btnView = id('btnViewToggle');
-  if (btnView) btnView.textContent = isMap ? "切換為清單模式" : "切換為任務模式";
-
-  id('roleListContainer').style.display = 'none'; 
-  id('nodeMapContainer').style.display = 'none';
-  
-  if (isMap) {
-      id('nodeMapContainer').style.display = 'flex';
-      initHubWorld();
-  } else {
-      id('roleListContainer').style.display = 'flex';
+  else if (event.data.type === 'PUZZLE_CLEAR') {
+      const pid = event.data.puzzleId;
+      if (!playerState.unlockedPuzzles) playerState.unlockedPuzzles = [];
+      if (!playerState.pendingPuzzles) playerState.pendingPuzzles = [];
+      if (window.currentChallengePuzzleId === pid && !playerState.unlockedPuzzles.includes(pid)) {
+          playerState.pendingPuzzles = playerState.pendingPuzzles.filter(idx => idx !== pid); playerState.unlockedPuzzles.push(pid); 
+          saveGameData(); updateHUD(); renderCaseDex(); 
+          setTimeout(() => { customAlert(`拼圖 #${pid} 挑戰成功！已為您正式加入收藏！`, null, "🎉 拼圖收藏成功"); }, 500);
+      }
   }
-}
+});
 
 // ===============================================
-// ★ 全新 2D 橫向卷軸地圖引擎 (Hub World)
+// ★ 互動任務地圖 (Hub World) 引擎核心
 // ===============================================
-let hub = {
+let hubState = {
     x: 0, y: 0, vx: 0, vy: 0, isJumping: false,
-    groundY: 0, skyY: 0, oceanY: 0, mapWidth: 0, loopWidth: 0,
-    keys: { left: false, right: false, up: false, down: false },
-    parkour: { active: false, phase: 0, speed: 4, startTime: 0, time: 0 },
-    nodes: [], obstacles: [], animationId: null
+    groundY: 0, skyY: 0, nodeY: 0, loopWidth: 0,
+    keys: { left: false, right: false, up: false, down: false, jump: false },
+    nodes: [], coins: [], loopId: null
 };
-
-// 節點間距設定
-const NODE_GAP = 200; // 每個節點與裝飾物的距離，大約一個螢幕3個
 
 function getDailyCoinPositions() {
     const dateStr = new Date().toLocaleDateString('zh-TW');
     let seed = 0; for(let i=0; i<dateStr.length; i++) seed += dateStr.charCodeAt(i);
     const poses = [];
     for(let i=0; i<5; i++) {
-        const x = 500 + Math.abs(Math.sin(seed + i * 1.2)) * (hub.loopWidth - 1000);
+        // 散落在不同的 X 坐標
+        const x = 500 + Math.abs(Math.sin(seed + i * 1.2)) * (hubState.loopWidth - 1000);
         poses.push(x);
     }
     return poses;
 }
 
+// 初始化 Hub World
 function initHubWorld() {
     checkDailyLimits();
-    const content = id('hubWorldContent');
-    if (!content) return;
-    content.innerHTML = '';
-    hub.nodes = [];
+    const layer = id('hubNodesLayer');
+    if (!layer) return;
+    layer.innerHTML = '';
+    hubState.nodes = [];
     
-    // 計算高度界線
-    const mapH = id('nodeMapContainer').clientHeight;
-    hub.skyY = mapH * 0.25;
-    hub.groundY = mapH * 0.5 - 25; // 減去玩家一半高度
-    hub.oceanY = mapH * 0.85;
+    // 計算高度界定
+    const container = id('nodeMapContainer');
+    const ch = container.clientHeight || 500;
+    hubState.skyY = ch * 0.5;
+    hubState.nodeY = ch * 0.40;
+    hubState.groundY = ch * 0.65;
 
     const roles = getActiveRoles();
     let flatTasks = [];
@@ -497,10 +574,11 @@ function initHubWorld() {
         });
     });
 
-    let currentX = 200; // 起點 X 偏移
+    let currentX = 150;
+    const gap = 160;
     let html = '';
 
-    // 生成節點與裝飾 (陸地交界線)
+    // 生成 25 個關卡節點
     flatTasks.forEach((task, i) => {
         let isCleared = false, isActive = false, isLocked = true;
         if (playerState.mode === 'beginner') {
@@ -515,568 +593,301 @@ function initHubWorld() {
             else if (prevTaskCleared) { isLocked = false; isActive = true; }
         }
 
-        let bgColor = '#222', borderColor = '#555', iconOpacity = '0.4', pulseClass = '';
-        if (isCleared) { bgColor = 'var(--good)'; borderColor = '#fff'; iconOpacity = '1'; } 
-        else if (isActive) { bgColor = 'var(--theme-primary)'; borderColor = '#fff'; iconOpacity = '1'; pulseClass = 'node-pulse'; }
+        let bgColor = isCleared ? 'var(--good)' : (isActive ? 'var(--theme-primary)' : '#444');
+        let pulseClass = isActive ? 'node-pulse' : '';
         let statusStr = isLocked ? 'locked' : (isCleared ? 'cleared' : 'active');
-        let textCol = isCleared ? 'var(--good)' : (isActive ? 'var(--theme-primary)' : '#888');
+        let opacity = isLocked ? '0.5' : '1';
+        let textCol = isCleared ? 'var(--good)' : (isActive ? 'var(--theme-primary)' : '#ccc');
 
-        // 加入真實關卡節點
         html += `
-        <div class="hub-node" style="left: ${currentX}px; top: ${hub.groundY + 25}px;" onclick="hubNodeClick('task', '${task.roleId}', ${task.taskIdx}, '${statusStr}', ${task.globalIdx})">
-            <div class="hub-node-circle ${pulseClass}" style="background: ${bgColor}; border-color: ${borderColor}; opacity: ${isLocked ? '0.6' : '1'};">
-                <span style="opacity: ${iconOpacity}">${task.icon}</span>
+        <div class="hub-node" style="left: ${currentX}px; top: ${hubState.nodeY}px;">
+            <div class="hub-node-circle ${pulseClass}" style="background: ${bgColor}; opacity: ${opacity}; border-color:#fff;">
+                <span>${task.icon}</span>
             </div>
             <div class="hub-node-text" style="color:${textCol};">第 ${i+1} 關</div>
         </div>`;
-        hub.nodes.push({ x: currentX, y: hub.groundY + 25, type: 'task', id: task.roleId, idx: task.taskIdx, status: statusStr, gIdx: task.globalIdx });
+        hubState.nodes.push({ x: currentX, y: hubState.nodeY, type: 'task', id: task.roleId, idx: task.taskIdx, status: statusStr, gIdx: task.globalIdx });
         
-        currentX += NODE_GAP;
+        currentX += gap;
 
-        // 加入無作用的裝飾方塊/圈圈
-        let dummyShape = i % 2 === 0 ? 'circle' : '';
-        html += `<div class="hub-dummy ${dummyShape}" style="left: ${currentX}px; top: ${hub.groundY + 25}px;"></div>`;
-        currentX += NODE_GAP;
+        // 生成無作用方塊/圈圈裝飾
+        let dShape = Math.random() > 0.5 ? 'circle' : '';
+        html += `<div class="hub-dummy ${dShape}" style="left: ${currentX}px; top: ${hubState.nodeY}px;"></div>`;
+        currentX += gap;
+        if(Math.random() > 0.5) {
+            dShape = Math.random() > 0.5 ? 'circle' : '';
+            html += `<div class="hub-dummy ${dShape}" style="left: ${currentX}px; top: ${hubState.nodeY}px;"></div>`;
+            currentX += gap;
+        }
     });
 
-    // 加入特殊演練節點
+    // 加入特殊演練
     html += `
-        <div class="hub-node" style="left: ${currentX}px; top: ${hub.groundY + 25}px;" onclick="hubNodeClick('random')">
+        <div class="hub-node" style="left: ${currentX}px; top: ${hubState.nodeY}px;">
             <div class="hub-node-circle" style="background:linear-gradient(135deg, #ab47bc, #7b1fa2); border-color:#fff;">🎲</div>
             <div class="hub-node-text" style="color:#e1bee7;">隨機演練</div>
         </div>`;
-    hub.nodes.push({ x: currentX, y: hub.groundY + 25, type: 'random' });
-    currentX += NODE_GAP;
-    html += `<div class="hub-dummy" style="left: ${currentX}px; top: ${hub.groundY + 25}px;"></div>`;
-    currentX += NODE_GAP;
+    hubState.nodes.push({ x: currentX, y: hubState.nodeY, type: 'random' });
+    currentX += gap;
+    html += `<div class="hub-dummy circle" style="left: ${currentX}px; top: ${hubState.nodeY}px;"></div>`;
+    currentX += gap;
 
     html += `
-        <div class="hub-node" style="left: ${currentX}px; top: ${hub.groundY + 25}px;" onclick="hubNodeClick('comprehensive')">
+        <div class="hub-node" style="left: ${currentX}px; top: ${hubState.nodeY}px;">
             <div class="hub-node-circle" style="background:linear-gradient(135deg, #ef5350, #c62828); border-color:#fff;">🛡️</div>
             <div class="hub-node-text" style="color:#ffcdd2;">綜合演練</div>
         </div>`;
-    hub.nodes.push({ x: currentX, y: hub.groundY + 25, type: 'comprehensive' });
-    currentX += NODE_GAP;
-    html += `<div class="hub-dummy circle" style="left: ${currentX}px; top: ${hub.groundY + 25}px;"></div>`;
-    currentX += NODE_GAP;
+    hubState.nodes.push({ x: currentX, y: hubState.nodeY, type: 'comprehensive' });
+    currentX += gap;
+    html += `<div class="hub-dummy" style="left: ${currentX}px; top: ${hubState.nodeY}px;"></div>`;
+    currentX += gap;
+    html += `<div class="hub-dummy circle" style="left: ${currentX}px; top: ${hubState.nodeY}px;"></div>`;
+    currentX += gap;
 
-    hub.loopWidth = currentX;
+    hubState.loopWidth = currentX;
 
-    // 渲染每日健康幣 (只在陸地)
+    // 加入每日健康幣
     const coinPoses = getDailyCoinPositions();
+    hubState.coins = [];
     coinPoses.forEach((xPos, i) => {
         if (!playerState.dailyMapCoins.collected.includes(i)) {
-            html += `<div class="hub-coin" id="hubCoin_${i}" style="left:${xPos}px; top:${hub.groundY}px;" onclick="collectHubCoin(event, ${i})">＄</div>`;
+            html += `<div class="hub-coin" id="coin_${i}" style="left:${xPos}px; top:${hubState.groundY}px;">＄</div>`;
+            hubState.coins.push({ i: i, x: xPos, y: hubState.groundY, collected: false });
         }
     });
 
-    // 為了無縫循環，我們將整個節點列表複製一份貼在後面
-    let cloneHtml = html.replace(/id="/g, 'id="clone_'); 
-    html += `<div style="position:absolute; left:${hub.loopWidth}px; top:0; width:${hub.loopWidth}px; height:100%;">${cloneHtml}</div>`;
+    // 無縫地圖：將整個地圖複製一份接在後面
+    let cloneHtml = html.replace(/id="/g, 'data-clone-id="'); 
+    html += `<div style="position:absolute; left:${hubState.loopWidth}px; top:0; width:${hubState.loopWidth}px; height:100%; pointer-events:none;">${cloneHtml}</div>`;
+    
+    // 渲染世界
+    layer.innerHTML = html;
 
-    content.innerHTML = html;
+    // 將小人放至當前進度節點 (或起點)
+    let startNode = hubState.nodes.find(n => n.status === 'active') || hubState.nodes[0];
+    hubState.x = startNode.x;
+    hubState.y = hubState.groundY;
+    hubState.vx = 0; hubState.vy = 0;
 
-    // 玩家初始位置：放在進行中關卡的下方 (置中)
-    let startNode = hub.nodes.find(n => n.status === 'active') || hub.nodes[0];
-    hub.x = startNode.x;
-    hub.y = hub.groundY;
-    hub.vx = 0; hub.vy = 0;
-    hub.parkour.active = false;
-    id('parkourTimer').style.display = 'none';
-
-    // 啟動物理引擎與搖桿
+    // 初始化控制與動畫
     initHubControls();
-    if(hub.animationId) cancelAnimationFrame(hub.animationId);
+    if(hubState.loopId) cancelAnimationFrame(hubState.loopId);
     hubLoop();
 }
 
-function hubNodeClick(type, roleId, taskIdx, status, globalIdx) {
-    if (status === 'locked') return customAlert('此區域尚未解鎖，請先完成前面的任務！', null, '🔒 區域未解鎖');
-    
-    if (playerState.mode === 'advanced') {
-        setHomeView(false); 
-        setTimeout(() => { toggleAccordion(roleId); const cardEl = id(`card-${roleId}`); if (cardEl) cardEl.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 100);
-    } else {
-        if (type === 'random') startRandomPractice();
-        else if (type === 'comprehensive') openComprehensiveDrill();
-        else if (status === 'cleared') {
-            customConfirm(`第 ${globalIdx + 1} 關已通關！\n是否要重新回顧此關卡的情境演練？`, () => {
-                playerState.isReplaying = true; playerState.replayProgression = globalIdx; playTaskFlat(globalIdx);
-            }, null, '🎬 回顧任務', '開始回顧');
-        } else if (status === 'active') { playTaskFlat(playerState.storyProgression); }
-    }
-}
-
-function collectHubCoin(e, index) {
-    e.stopPropagation();
-    const coinEl = id(`hubCoin_${index}`);
-    const coinClone = id(`clone_hubCoin_${index}`);
-    if(coinEl) coinEl.style.display = 'none';
-    if(coinClone) coinClone.style.display = 'none';
-    
-    if(!playerState.dailyMapCoins.collected.includes(index)) {
-        playerState.dailyMapCoins.collected.push(index);
-        playerState.coins += 50; saveGameData(); updateHUD();
-        customAlert("拾取健康幣！\n\n獲得 50 幣！", null, "💰 意外收穫");
-    }
-}
-
-// 物理引擎與跑酷邏輯
-function hubLoop() {
-    if (!playerState.storyMode || id('nodeMapContainer').style.display === 'none') {
-        hub.animationId = requestAnimationFrame(hubLoop); return;
-    }
-
-    if (hub.parkour.active) {
-        // --- 跑酷模式 ---
-        let p = hub.parkour;
-        p.time = (Date.now() - p.startTime) / 1000;
-        id('parkourTimer').innerText = p.time.toFixed(2);
-        
-        // 每 10 秒加速一次
-        p.speed = 6 + Math.floor(p.time / 10) * 1.5;
-
-        // 階段控制: 0=陸地右, 1=海洋左, 2=天空右, 3=陸地左, 4=海洋右, 5=天空左
-        if (p.phase === 0) { hub.vx = p.speed; hub.y = hub.groundY; }
-        else if (p.phase === 1) { hub.vx = -p.speed; }
-        else if (p.phase === 2) { hub.vx = p.speed; }
-        else if (p.phase === 3) { hub.vx = -p.speed; hub.y = hub.groundY; }
-        else if (p.phase === 4) { hub.vx = p.speed; }
-        else if (p.phase === 5) { hub.vx = -p.speed; }
-
-        // 海洋/天空的上下控制 (無重力)
-        if (p.phase !== 0 && p.phase !== 3) {
-            if (hub.keys.up || hub.keys.jump) hub.vy = -5;
-            else if (hub.keys.down) hub.vy = 5;
-            else hub.vy *= 0.8; // 減速
-            hub.y += hub.vy;
-            
-            // 邊界限制
-            if (p.phase === 1 || p.phase === 4) { // 海洋
-                if(hub.y < hub.oceanY - 30) hub.y = hub.oceanY - 30;
-                if(hub.y > hub.oceanY + 60) hub.y = hub.oceanY + 60;
-            } else { // 天空
-                if(hub.y < hub.skyY - 50) hub.y = hub.skyY - 50;
-                if(hub.y > hub.skyY + 50) hub.y = hub.skyY + 50;
-            }
-        } else {
-            // 陸地的跳躍與重力
-            hub.vy += 0.8; // 重力
-            hub.y += hub.vy;
-            if (hub.y > hub.groundY) { hub.y = hub.groundY; hub.isJumping = false; hub.vy = 0; }
-            if ((hub.keys.up || hub.keys.jump) && !hub.isJumping) { hub.vy = -12; hub.isJumping = true; }
-        }
-
-        hub.x += hub.vx;
-
-        // 階段切換邏輯 (碰到底部循環點)
-        if (hub.x > hub.loopWidth && hub.vx > 0) {
-            hub.x = 0;
-            p.phase = (p.phase + 1) % 6;
-            changeParkourPhase();
-        } else if (hub.x < 0 && hub.vx < 0) {
-            hub.x = hub.loopWidth;
-            p.phase = (p.phase + 1) % 6;
-            changeParkourPhase();
-        }
-
-        spawnAndMoveObstacles();
-        checkParkourCollision();
-
-    } else {
-        // --- 一般探索模式 ---
-        // 左右移動
-        if (hub.keys.left) hub.vx = -5;
-        else if (hub.keys.right) hub.vx = 5;
-        else hub.vx *= 0.7; // 摩擦力
-
-        // 跳躍與重力
-        hub.vy += 0.8; // 重力
-        hub.y += hub.vy;
-        
-        if (hub.y > hub.groundY) { 
-            hub.y = hub.groundY; hub.isJumping = false; hub.vy = 0; 
-            id('hubPlayer').classList.remove('jump');
-        }
-        
-        if ((hub.keys.up || hub.keys.jump) && !hub.isJumping) { 
-            hub.vy = -14; hub.isJumping = true; 
-            id('hubPlayer').classList.add('jump');
-        }
-
-        hub.x += hub.vx;
-
-        // 無縫地圖循環
-        if (hub.x < 0) hub.x += hub.loopWidth;
-        if (hub.x >= hub.loopWidth) hub.x -= hub.loopWidth;
-
-        // 碰撞節點判定 (由下往上跳躍時觸發)
-        if (hub.vy < 0 && hub.y < hub.groundY - 10) {
-            for (let n of hub.nodes) {
-                // 檢查是否在節點下方
-                if (Math.abs(hub.x - n.x) < 40 && hub.y < n.y + 40 && hub.y > n.y - 10) {
-                    hub.vy = 0; // 頂到東西往下掉
-                    hubNodeClick(n.type, n.id, n.idx, n.status, n.gIdx);
-                    hub.keys.up = false; hub.keys.jump = false; // 防止連續觸發
-                    break;
-                }
-            }
-        }
-    }
-
-    // 渲染
-    const playerEl = id('hubPlayer');
-    if (playerEl) {
-        // 跑酷時根據方向翻轉小人
-        let scaleX = (hub.vx < 0) ? -1 : 1;
-        playerEl.style.transform = `translate(-50%, -100%) translate(${hub.x}px, ${hub.y}px) scaleX(${scaleX})`;
-    }
-
-    const camEl = id('hubCamera');
-    if (camEl) {
-        // 相機跟隨玩家，讓玩家永遠在畫面正中央
-        let camX = (window.innerWidth / 2) - hub.x;
-        camEl.style.transform = `translateX(${camX}px)`;
-    }
-
-    hub.animationId = requestAnimationFrame(hubLoop);
-}
-
-// 跑酷控制
-function toggleParkour() {
-    if (hub.parkour.active) { stopParkour(); return; }
-    
-    customConfirm(`【跑酷訓練模式】\n\n這是一個無限循環的體能訓練！\n- 在陸地時：跳躍閃避障礙\n- 在天空/海洋時：上下移動閃避\n- 速度會越來越快！\n\n準備好了嗎？`, () => {
-        hub.parkour.active = true;
-        hub.parkour.phase = 0;
-        hub.parkour.startTime = Date.now();
-        hub.parkour.time = 0;
-        hub.parkour.speed = 6;
-        hub.obstacles.forEach(o => o.el.remove());
-        hub.obstacles = [];
-        
-        id('parkourTimer').style.display = 'block';
-        id('btnJump').innerText = '▲'; // 確保顯示跳躍鈕
-        changeParkourPhase();
-    }, null, '🏃‍♂️ 跑酷模式', '開始奔跑');
-}
-
-function changeParkourPhase() {
-    let p = hub.parkour.phase;
-    // 0: 陸地右, 1: 海洋左, 2: 天空右, 3: 陸地左, 4: 海洋右, 5: 天空左
-    if (p === 0 || p === 3) hub.y = hub.groundY;
-    else if (p === 1 || p === 4) hub.y = hub.oceanY;
-    else hub.y = hub.skyY;
-    
-    // 清除舊障礙物
-    hub.obstacles.forEach(o => o.el.remove());
-    hub.obstacles = [];
-}
-
-function spawnAndMoveObstacles() {
-    let p = hub.parkour;
-    // 隨機生成障礙物
-    if (Math.random() < 0.02 + (p.speed * 0.002)) {
-        let obs = document.createElement('div');
-        obs.className = 'parkour-obstacle';
-        obs.innerText = '🧱';
-        
-        // 生成在畫面外
-        let spawnX = (hub.vx > 0) ? hub.x + window.innerWidth : hub.x - window.innerWidth;
-        let spawnY = hub.y;
-        
-        if (p.phase !== 0 && p.phase !== 3) {
-            // 海洋或天空：障礙物 Y 軸隨機
-            let offset = (Math.random() - 0.5) * 80;
-            spawnY += offset;
-        }
-
-        obs.style.left = spawnX + 'px';
-        obs.style.top = spawnY + 'px';
-        id('hubWorldContent').appendChild(obs);
-        hub.obstacles.push({ el: obs, x: spawnX, y: spawnY });
-    }
-
-    // 移動與清理障礙物 (其實障礙物不動，是玩家在動，所以只要清理太遠的即可)
-    for (let i = hub.obstacles.length - 1; i >= 0; i--) {
-        let obs = hub.obstacles[i];
-        if (Math.abs(obs.x - hub.x) > window.innerWidth + 500) {
-            obs.el.remove();
-            hub.obstacles.splice(i, 1);
-        }
-    }
-}
-
-function checkParkourCollision() {
-    for (let obs of hub.obstacles) {
-        let dx = Math.abs(obs.x - hub.x);
-        let dy = Math.abs(obs.y - hub.y);
-        // 簡單的 AABB 碰撞
-        if (dx < 30 && dy < 40) {
-            stopParkour(true);
-            break;
-        }
-    }
-}
-
-function stopParkour(isCrash = false) {
-    hub.parkour.active = false;
-    id('parkourTimer').style.display = 'none';
-    hub.obstacles.forEach(o => o.el.remove());
-    hub.obstacles = [];
-    hub.y = hub.groundY; // 回到陸地
-    
-    if (isCrash) {
-        let coinsEarned = Math.floor(hub.parkour.time * 2);
-        playerState.coins += coinsEarned;
-        saveGameData(); updateHUD();
-        customAlert(`💥 撞到障礙物了！\n\n存活時間：${hub.parkour.time.toFixed(1)} 秒\n獲得 ${coinsEarned} 健康幣！`, null, "🏃‍♂️ 跑酷結算");
-    }
-}
-
-// 控制器綁定
 function initHubControls() {
     const bindBtn = (btnId, key) => {
         const btn = id(btnId);
         if(!btn) return;
-        btn.onmousedown = btn.ontouchstart = (e) => { e.preventDefault(); hub.keys[key] = true; };
-        btn.onmouseup = btn.onmouseleave = btn.ontouchend = btn.ontouchcancel = (e) => { e.preventDefault(); hub.keys[key] = false; };
+        btn.onmousedown = btn.ontouchstart = (e) => { e.preventDefault(); hubState.keys[key] = true; };
+        btn.onmouseup = btn.onmouseleave = btn.ontouchend = btn.ontouchcancel = (e) => { e.preventDefault(); hubState.keys[key] = false; };
     };
     bindBtn('btnLeft', 'left');
     bindBtn('btnRight', 'right');
     bindBtn('btnJump', 'jump');
+}
+
+// 物理引擎與跑酷邏輯主迴圈
+function hubLoop() {
+    if (!playerState.storyMode || id('nodeMapContainer').style.display === 'none') {
+        hubState.loopId = requestAnimationFrame(hubLoop); return;
+    }
+
+    // 左右移動與摩擦力
+    if (hubState.keys.left) hubState.vx -= 1.5;
+    else if (hubState.keys.right) hubState.vx += 1.5;
+    else hubState.vx *= 0.8;
+
+    // 限制最高速度
+    if (hubState.vx > 7) hubState.vx = 7;
+    if (hubState.vx < -7) hubState.vx = -7;
+
+    // 跳躍
+    if (hubState.keys.jump && !hubState.isJumping) { 
+        hubState.vy = -16; hubState.isJumping = true; 
+    }
+
+    // 重力
+    hubState.vy += 0.8; 
+    hubState.x += hubState.vx;
+    hubState.y += hubState.vy;
+
+    // 陸地碰撞
+    if (hubState.y > hubState.groundY) { 
+        hubState.y = hubState.groundY; hubState.isJumping = false; hubState.vy = 0; 
+    }
+
+    // 無縫循環
+    if (hubState.x < 0) hubState.x += hubState.loopWidth;
+    if (hubState.x >= hubState.loopWidth) hubState.x -= hubState.loopWidth;
+
+    // 節點碰撞觸發 (由下往上撞擊)
+    if (hubState.vy < 0 && hubState.y < hubState.nodeY + 30 && hubState.y > hubState.nodeY - 10) {
+        for (let n of hubState.nodes) {
+            if (Math.abs(hubState.x - n.x) < 40) {
+                hubState.vy = 5; // 撞到後往下掉
+                handleNodeHit(n);
+                hubState.keys.jump = false; // 防止連續觸發
+                break;
+            }
+        }
+    }
+
+    // 硬幣碰撞拾取
+    for (let i = hubState.coins.length - 1; i >= 0; i--) {
+        let c = hubState.coins[i];
+        if (!c.collected && Math.abs(hubState.x - c.x) < 30 && Math.abs(hubState.y - c.y) < 50) {
+            c.collected = true;
+            playerState.dailyMapCoins.collected.push(c.i);
+            playerState.coins += 50;
+            saveGameData(); updateHUD();
+            
+            let coinEl = id(`coin_${c.i}`); if(coinEl) coinEl.style.display = 'none';
+            let cloneEl = document.querySelector(`[data-clone-id="coin_${c.i}"]`); if(cloneEl) cloneEl.style.display = 'none';
+            
+            customAlert("拾取健康幣！\n\n獲得 50 幣！", null, "💰 意外收穫");
+        }
+    }
+
+    // 渲染人物與視角
+    const playerEl = id('hubPlayer');
+    if (playerEl) {
+        let scaleX = (hubState.vx < -0.1) ? -1 : ((hubState.vx > 0.1) ? 1 : (playerEl.style.transform.includes('scaleX(-1)')?-1:1));
+        playerEl.style.transform = `translate(-50%, -100%) translate(${hubState.x}px, ${hubState.y}px) scaleX(${scaleX})`;
+    }
+
+    const camEl = id('hubCamera');
+    if (camEl) {
+        let camX = (window.innerWidth / 2) - hubState.x;
+        camEl.style.transform = `translateX(${camX}px)`;
+    }
+
+    hubState.loopId = requestAnimationFrame(hubLoop);
+}
+
+function handleNodeHit(n) {
+    if(n.type === 'task') {
+        if(n.status === 'locked') return customAlert('此區域尚未解鎖，請先完成前面的任務！', null, '🔒 區域未解鎖');
+        
+        if (playerState.mode === 'advanced') {
+            setHomeView(false); 
+            setTimeout(() => { toggleAccordion(n.id); const cardEl = id(`card-${n.id}`); if (cardEl) cardEl.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 100);
+        } else {
+            if (n.status === 'cleared') {
+                customConfirm(`第 ${n.gIdx + 1} 關已通關！\n是否要重新回顧此關卡的情境演練？`, () => {
+                    playerState.isReplaying = true; playerState.replayProgression = n.gIdx; activeRoleId = n.id; playTask(n.idx); 
+                }, null, '🎬 回顧任務', '開始回顧');
+            } else if (n.status === 'active') {
+                activeRoleId = n.id; playTask(n.idx);
+            }
+        }
+    } else if (n.type === 'random') {
+        startRandomPractice();
+    } else if (n.type === 'comprehensive') {
+        openComprehensiveDrill();
+    }
+}
+
+// ===============================================
+// 演練功能邏輯
+// ===============================================
+function startRandomPractice() {
+    const roles = getActiveRoles();
+    const rRole = roles[Math.floor(Math.random() * roles.length)];
+    const rTaskIdx = Math.floor(Math.random() * rRole.totalTasks);
     
-    // 跑酷模式專用：控制鍵也可以當上下用
-    id('btnJump').ontouchstart = (e) => { e.preventDefault(); hub.keys.jump = true; hub.keys.up = true; };
-    id('btnJump').ontouchend = (e) => { e.preventDefault(); hub.keys.jump = false; hub.keys.up = false; };
+    customConfirm(`是否開始【隨機演練】？\n這將隨機挑選一個任務供您練習，完成可獲取健康幣，但不影響主線進度。`, () => {
+        activeRoleId = rRole.id;
+        currentGameInfo = { role: rRole, taskIndex: rTaskIdx, id: `${rRole.id}_${rTaskIdx}`, isLinear: false, isChallenge: true };
+        const gameUrl = typeof GAME_URLS !== 'undefined' ? GAME_URLS[currentGameInfo.id] : null;
+        
+        if (gameUrl) { if(id('gameFrame')) id('gameFrame').src = gameUrl; if(id('gameTitle')) id('gameTitle').textContent = "隨機演練：" + rRole.subTasks[rTaskIdx].substring(3); if(id('gameOverlay')) id('gameOverlay').style.display = 'flex'; } 
+        else { if(id('mapOverlayTitle')) id('mapOverlayTitle').textContent = `🎯 隨機演練：${rRole.subTasks[rTaskIdx].substring(3)}`; if(id('mapOverlay')) id('mapOverlay').style.display = 'flex'; if(id('mapFrame')) id('mapFrame').src = `rpg_loader.html?taskId=${currentGameInfo.id}`; }
+    }, null, '🎲 隨機練習');
 }
 
-// ===============================================
-// 存檔與玩家設定
-// ===============================================
-function saveProfile(m) {
-  try {
-    const nameInput = id('inputNickname').value.trim();
-    if (!nameInput) { customAlert("請輸入暱稱！", null, "⚠️ 登入提示"); return; }
-    playerState.name = nameInput; playerState.mode = m; playerState.avatar = id('previewAvatar').src; playerState.hasSetup = true;
+function openComprehensiveDrill() {
+  checkDailyLimits();
+  if (playerState.dailyComp.count <= 0) return customAlert('今日綜合演練次數已用盡！請明日再來挑戰。', null, '⚠️ 次數耗盡');
 
-    if (nameInput === "ILoveFemh") {
-      playerState.coins = 99999; playerState.storyProgression = TOTAL_BEG_TASKS; 
-      ROLES_DATA_BEG.forEach(r => { r.currentTask = 6; r.subTasks.forEach((st, i) => playerState.taskScoresBeg.set(`${r.id}_${i}`, 1000)); });
-      ROLES_DATA_ADV.forEach(r => { r.currentTask = 6; r.subTasks.forEach((st, i) => playerState.taskScoresAdv.set(`${r.id}_${i}`, 1000)); });
-      playerState.completedCasesBeg.set("11111", 5000); playerState.completedCasesAdv.set("11111", 5000);
-      playerState.unlockedPuzzles = Array.from({length: 20}, (_, i) => i + 1); playerState.pendingPuzzles = [];
+  const roles = getActiveRoles();
+  if (!roles.every(r => r.currentTask > 1)) return customAlert('需在目前的模式中，將「五大角色」皆通關至少一項任務以解鎖綜合演練！', null, '🔒 尚未解鎖');
+  
+  let possibleCombos = []; let maxIndices = roles.map(role => Math.min(role.currentTask - 1, 5));
+  function generate(currentIndex, currentCombo) {
+    if (currentIndex === 5) { possibleCombos.push(currentCombo); return; }
+    for (let i = 1; i <= maxIndices[currentIndex]; i++) { generate(currentIndex + 1, currentCombo + i.toString()); }
+  }
+  generate(0, "");
+  
+  const completed = getActiveCompletedCases();
+  let newCombos = possibleCombos.filter(c => !completed.has(c));
+  let selectedComboStr = newCombos.length > 0 ? newCombos[Math.floor(Math.random() * newCombos.length)] : possibleCombos[Math.floor(Math.random() * possibleCombos.length)];
+  
+  const isFirstClear = !completed.has(selectedComboStr);
+  const rewardCoins = playerState.mode === 'beginner' ? 300 : 500;
+  
+  customConfirm(`即將執行連續 5 項任務的綜合演練...\n本次目標編號：#C-${selectedComboStr}\n(今日剩餘 ${playerState.dailyComp.count} 次)\n\n按「確定」模擬順利過關！`, 
+    () => {
+      playerState.dailyComp.count--;
+      if (Math.floor(800 + Math.random() * 200) > (completed.get(selectedComboStr) || 0)) { completed.set(selectedComboStr, Math.floor(800 + Math.random() * 200)); }
       
-      customAlert("已解鎖全部任務與拼圖！", null, "🔓 開發者模式");
-    }
-
-    // 登入後預設直接開啟任務模式地圖
-    playerState.storyMode = true;
-    saveGameData(); updateModeUI(); id('profileModal').style.display = 'none';
-  } catch(e) { console.error(e); customAlert("登入發生錯誤：" + e.message, null, "⚠️ 系統錯誤"); }
-}
-
-function restartBeginnerStory() {
-    customConfirm("確定要重頭開始體驗引導任務嗎？\n這不會清除您的健康卡收集進度。", () => {
-        playerState.isReplaying = true; playerState.replayProgression = 0; saveGameData(); playTaskFlat(0);
-    });
-}
-
-function launchExplore() {
-    if (playerState.mode === 'beginner' && playerState.storyProgression < TOTAL_BEG_TASKS) { return customAlert("請先完成初階版的 25 個引導任務，才能解鎖醫院探索模式喔！", null, "🔒 尚未解鎖"); }
-    if(id('mapOverlayTitle')) id('mapOverlayTitle').textContent = '🏥 醫院探索模式'; 
-    if(id('mapOverlay')) id('mapOverlay').style.display = 'flex'; 
-    if(id('mapFrame')) id('mapFrame').src = `rpg_loader.html?taskId=hub_world`;
-}
-
-function saveGameData() {
-  const dataToSave = {
-    hasSetup: playerState.hasSetup, name: playerState.name, avatar: playerState.avatar, mode: playerState.mode, coins: playerState.coins, 
-    storyMode: playerState.storyMode, storyProgression: playerState.storyProgression, replayProgression: playerState.replayProgression,
-    explorationTasksCompleted: playerState.explorationTasksCompleted, clothes: playerState.clothes, ownedClothes: playerState.ownedClothes,
-    glasses: playerState.glasses, ownedGlasses: playerState.ownedGlasses, carSkin: playerState.carSkin, ownedCarSkins: playerState.ownedCarSkins,
-    completedCasesBeg: Array.from(playerState.completedCasesBeg.entries()), completedCasesAdv: Array.from(playerState.completedCasesAdv.entries()),
-    taskScoresBeg: Array.from(playerState.taskScoresBeg.entries()), taskScoresAdv: Array.from(playerState.taskScoresAdv.entries()),
-    scaleRecords: playerState.scaleRecords, strokeCard: playerState.strokeCard,
-    unlockedPuzzles: playerState.unlockedPuzzles, boughtPuzzles: playerState.boughtPuzzles,
-    pendingPuzzles: playerState.pendingPuzzles, foundItems: playerState.foundItems, 
-    completedExplores: playerState.completedExplores,
-    dailyExplores: playerState.dailyExplores, extremeAttempts: playerState.extremeAttempts, challengeRecords: playerState.challengeRecords,
-    dailyComp: playerState.dailyComp, dailyMapCoins: playerState.dailyMapCoins,
-    roleProgressBeg: ROLES_DATA_BEG.map(r => ({ id: r.id, currentTask: r.currentTask, dailyAttempts: r.dailyAttempts })),
-    roleProgressAdv: ROLES_DATA_ADV.map(r => ({ id: r.id, currentTask: r.currentTask, dailyAttempts: r.dailyAttempts }))
-  };
-  try { localStorage.setItem(SAVE_KEY, JSON.stringify(dataToSave)); } catch(e) {}
-}
-
-function loadGameData() {
-  try {
-    const savedJSON = localStorage.getItem(SAVE_KEY);
-    if (savedJSON) {
-      const parsed = JSON.parse(savedJSON);
-      playerState.hasSetup = parsed.hasSetup || false;
-      if(parsed.name) playerState.name = parsed.name;
-      if(parsed.avatar) playerState.avatar = parsed.avatar;
-      if(parsed.mode) playerState.mode = parsed.mode;
-      if(parsed.coins !== undefined) playerState.coins = parsed.coins;
-      if(parsed.storyMode !== undefined) playerState.storyMode = parsed.storyMode;
-      if(parsed.storyProgression !== undefined) playerState.storyProgression = parsed.storyProgression;
-      if(parsed.replayProgression !== undefined) playerState.replayProgression = parsed.replayProgression;
-      if(parsed.explorationTasksCompleted !== undefined) playerState.explorationTasksCompleted = parsed.explorationTasksCompleted;
-      if(parsed.clothes) playerState.clothes = parsed.clothes;
-      if(parsed.ownedClothes) playerState.ownedClothes = parsed.ownedClothes;
-      if(parsed.glasses) playerState.glasses = parsed.glasses;
-      if(parsed.ownedGlasses) playerState.ownedGlasses = parsed.ownedGlasses;
-      if(parsed.carSkin) playerState.carSkin = parsed.carSkin;
-      if(parsed.ownedCarSkins) playerState.ownedCarSkins = parsed.ownedCarSkins;
-      if(parsed.strokeCard) playerState.strokeCard = parsed.strokeCard;
-      if(parsed.scaleRecords) playerState.scaleRecords = parsed.scaleRecords;
-      if(parsed.unlockedPuzzles) playerState.unlockedPuzzles = parsed.unlockedPuzzles;
-      if(parsed.boughtPuzzles) playerState.boughtPuzzles = parsed.boughtPuzzles;
-      if(parsed.pendingPuzzles) playerState.pendingPuzzles = parsed.pendingPuzzles;
-      if(parsed.foundItems) playerState.foundItems = parsed.foundItems;
-      if(parsed.completedExplores) playerState.completedExplores = parsed.completedExplores; 
-      if(parsed.dailyExplores) playerState.dailyExplores = parsed.dailyExplores; 
-      if(parsed.extremeAttempts) playerState.extremeAttempts = parsed.extremeAttempts;
-      if(parsed.challengeRecords) playerState.challengeRecords = parsed.challengeRecords;
-      if(parsed.dailyComp) playerState.dailyComp = parsed.dailyComp;
-      if(parsed.dailyMapCoins) playerState.dailyMapCoins = parsed.dailyMapCoins;
-      
-      if(parsed.completedCasesBeg) playerState.completedCasesBeg = new Map(parsed.completedCasesBeg);
-      if(parsed.completedCasesAdv) playerState.completedCasesAdv = new Map(parsed.completedCasesAdv);
-      if(parsed.taskScoresBeg) playerState.taskScoresBeg = new Map(parsed.taskScoresBeg);
-      if(parsed.taskScoresAdv) playerState.taskScoresAdv = new Map(parsed.taskScoresAdv);
-      
-      if (parsed.roleProgressBeg) parsed.roleProgressBeg.forEach(rp => { const r = ROLES_DATA_BEG.find(x => x.id === rp.id); if(r) { r.currentTask = rp.currentTask; r.dailyAttempts = rp.dailyAttempts; }});
-      if (parsed.roleProgressAdv) parsed.roleProgressAdv.forEach(rp => { const r = ROLES_DATA_ADV.find(x => x.id === rp.id); if(r) { r.currentTask = rp.currentTask; r.dailyAttempts = rp.dailyAttempts; }});
-      return true;
-    }
-  } catch(e) {}
-  return false;
-}
-function handleAvatarUpload(event) {
-  const file = event.target.files[0];
-  if (file) { const reader = new FileReader(); reader.onload = function(e) { id('previewAvatar').src = e.target.result; }; reader.readAsDataURL(file); }
+      if (isFirstClear) { playerState.coins += rewardCoins; saveGameData(); updateHUD(); customAlert(`完成全新的綜合演練組合！\n獲得 ${rewardCoins} 健康幣！`, null, `🏆 完美救援！`); } 
+      else { saveGameData(); updateHUD(); customAlert(`完成綜合演練！\n(重複的演練組合無額外獎勵)`, null, `🏆 複習完成！`); }
+    }, () => {}, "🛡️ 綜合演練"
+  );
 }
 
 // ===============================================
-// 遊戲挑戰流程
+// 跑酷模式 (Parkour) 不在此版實現
 // ===============================================
-function playTaskFlat(index) {
-  const flatTask = getFlatTask(index); if (!flatTask) return;
-  activeRoleId = flatTask.role.id; currentGameInfo = { role: flatTask.role, taskIndex: flatTask.taskIndex, id: flatTask.gameId, isLinear: true, isChallenge: false };
-  
-  const gameUrl = typeof GAME_URLS !== 'undefined' ? GAME_URLS[flatTask.gameId] : null;
-  if (!gameUrl && flatTask.gameId !== 'beg_id_0' && flatTask.gameId !== 'beg_id_1') {
-      return customAlert(`【${flatTask.role.subTasks[flatTask.taskIndex].substring(3)}】\n此主線任務的情境演練正在建置中...\n點擊「確定」直接模擬通關！`, () => { handleGameClear(1000); }, "🚧 任務建置中");
-  }
-
-  if(id('linearStoryContainer')) id('linearStoryContainer').style.display = 'none'; 
-  if(id('restartStoryContainer')) id('restartStoryContainer').style.display = 'none'; 
-  if(id('roleListContainer')) id('roleListContainer').style.display = 'none';
-  if(id('nodeMapContainer')) id('nodeMapContainer').style.display = 'none'; 
-  if(id('mainHeader')) id('mainHeader').style.display = 'flex'; 
-  if(id('mainNav')) id('mainNav').style.display = 'flex';
-  isGlobalFs = false; 
-  
-  if(id('mapOverlayTitle')) id('mapOverlayTitle').textContent = `🎯 模擬演練：${flatTask.role.subTasks[flatTask.taskIndex].substring(3)}`; 
-  if(id('mapOverlay')) id('mapOverlay').style.display = 'flex'; 
-  if(id('mapFrame')) id('mapFrame').src = `rpg_loader.html?taskId=${flatTask.gameId}`;
-}
-
-function playTask(taskIndex) {
-  const role = getActiveRoles().find(r => r.id === activeRoleId);
-  const gameId = `${role.id}_${taskIndex}`; currentGameInfo = { role: role, taskIndex: taskIndex, id: gameId, isLinear: false, isChallenge: false };
-  
-  const gameUrl = typeof GAME_URLS !== 'undefined' ? GAME_URLS[gameId] : null;
-  if (!gameUrl && gameId !== 'beg_id_0' && gameId !== 'beg_id_1') {
-      return customAlert(`【${role.subTasks[taskIndex].substring(3)}】\n此任務的情境演練正在建置中...\n點擊「確定」直接模擬通關！`, () => { handleGameClear(1000); }, "🚧 任務建置中");
-  }
-
-  if (gameUrl) { if(id('gameFrame')) id('gameFrame').src = gameUrl; if(id('gameTitle')) id('gameTitle').textContent = role.subTasks[taskIndex].substring(3); if(id('gameOverlay')) id('gameOverlay').style.display = 'flex'; } 
-  else { if(id('mapOverlayTitle')) id('mapOverlayTitle').textContent = `🎯 模擬演練：${role.subTasks[taskIndex].substring(3)}`; if(id('mapOverlay')) id('mapOverlay').style.display = 'flex'; if(id('mapFrame')) id('mapFrame').src = `rpg_loader.html?taskId=${gameId}`; }
-}
-
-function customConfirm(msg, onConfirm, onCancel, title="請確認", confirmTxt="確定", cancelTxt="取消") {
-  id('customMsgTitle').textContent = title; id('customMsgText').innerHTML = msg.replace(/\n/g, '<br>'); 
-  id('customMsgBtnWrap').innerHTML = `<button class="btn" style="flex:1; width:auto; background:#555; color:#fff;" onclick="closeCustomMsg(); ${onCancel ? 'customMsgCancel();' : ''}">${cancelTxt}</button><button class="btn" style="flex:1; width:auto; background:var(--theme-primary); color:var(--btn-text);" onclick="closeCustomMsg(); customMsgConfirm();">${confirmTxt}</button>`;
-  window.customMsgConfirm = onConfirm; window.customMsgCancel = onCancel || null; id('customMsgModal').style.display = 'flex';
-}
-
-function customAlert(msg, callback, title="系統提示", btnText="確定") {
-  id('customMsgTitle').textContent = title; id('customMsgText').innerHTML = msg.replace(/\n/g, '<br>'); 
-  id('customMsgBtnWrap').innerHTML = `<button class="btn" style="flex:1; width:auto; background:var(--theme-primary); color:var(--btn-text);" onclick="closeCustomMsg(); ${callback ? 'customMsgCallback();' : ''}">${btnText}</button>`;
-  window.customMsgCallback = callback || null; id('customMsgModal').style.display = 'flex';
-}
-function closeCustomMsg() { id('customMsgModal').style.display = 'none'; }
-
-function handleGameClear(score) {
-  const info = currentGameInfo; if(!info) return;
-  const targetMap = playerState.mode === 'beginner' ? playerState.taskScoresBeg : playerState.taskScoresAdv;
-  const isFirstClear = !targetMap.has(info.id);
-  
-  if (isFirstClear && !info.isChallenge) playerState.coins += (playerState.mode === 'beginner' ? 100 : 150);
-  
-  if (!info.isChallenge) {
-      targetMap.set(info.id, score); 
-      if (info.role.currentTask === info.taskIndex + 1) info.role.currentTask++;
-  } else {
-      if (!targetMap.has(info.id) || targetMap.get(info.id) < score) targetMap.set(info.id, score);
-  }
-  
-  const tabMode = playerState.mode === 'beginner' ? 'beg' : 'adv';
-  const rolesList = tabMode === 'beg' ? ROLES_DATA_BEG : ROLES_DATA_ADV;
-  let absoluteNumber = tabMode === 'beg' ? 1 : 26;
-  for (let r of rolesList) { if (r.id === info.role.id) { absoluteNumber += info.taskIndex; break; } absoluteNumber += r.totalTasks; }
-  const cardId = `#${absoluteNumber}`;
-  
-  saveGameData(); updateHUD(); 
-
-  if (info.isChallenge) {
-      customAlert(`【隨機演練完成】\n\n🎯 關卡：${info.role.subTasks[info.taskIndex].substring(3)}\n💰 獲得 ${playerState.mode==='beginner'?100:150} 健康幣！`, () => { playerState.coins += (playerState.mode==='beginner'?100:150); saveGameData(); updateHUD(); }, "🎲 練習結束");
-      currentGameInfo = null;
-      return;
-  }
-
-  if (playerState.isReplaying) {
-      playerState.replayProgression++;
-      if (playerState.replayProgression < TOTAL_BEG_TASKS) {
-          customConfirm(`<div style="text-align: left;">回顧任務順利完成！<br><br>要接著複習下一關嗎？</div>`, 
-              () => { playTaskFlat(playerState.replayProgression); }, () => { updateModeUI(); playerState.isReplaying = false; }, "✅ 任務回顧", "繼續下一關", "先休息"
-          );
-      } else { playerState.replayProgression = 0; playerState.isReplaying = false; customAlert("太厲害了！你已經重新回顧了所有初階任務！", () => { updateModeUI(); }, "🎉 回顧完成"); }
-  } 
-  else if (playerState.mode === 'beginner' && info.isLinear && playerState.storyProgression < TOTAL_BEG_TASKS) {
-      playerState.storyProgression++; saveGameData();
-      if (playerState.storyProgression < TOTAL_BEG_TASKS) {
-          const nextTask = getFlatTask(playerState.storyProgression);
-          const msgHtml = `<div style="text-align: left; padding-left: 10px;">${isFirstClear ? '💰 獲得 100 健康幣！<br><br>' : ''}✨ 取得新的健康卡<br><br>是否立即進入下一關：<br>${nextTask.role.subTasks[nextTask.taskIndex].substring(3)}？</div>`;
-          customConfirm(msgHtml, () => { playTaskFlat(playerState.storyProgression); }, () => { updateModeUI(); openCardModal(tabMode, info.role.id, info.taskIndex, absoluteNumber); }, "🎉 任務成功", "進入下一關", `觀看健康卡 ${cardId}` );
-      } else { customAlert("恭喜你完成所有初階訓練！現在為您開啟「醫院自由探索模式」！", () => { updateModeUI(); }, "🎉 訓練結業"); }
-  } 
-  else {
-      const coinText = playerState.mode === 'beginner' ? '💰 獲得 100 健康幣！' : '💰 獲得 150 健康幣！';
-      const msgHtml = `<div style="text-align: left; padding-left: 10px;">${isFirstClear ? coinText + '<br><br>' : '🔄 (複習任務無硬幣獎勵)<br><br>'}✨ 取得新的健康卡</div>`;
-      customAlert(msgHtml, () => { openCardModal(tabMode, info.role.id, info.taskIndex, absoluteNumber); updateModeUI(); }, "🎉 任務成功！", `觀看健康卡 ${cardId}`);
-  }
-  currentGameInfo = null;
-}
-
-function openCardModal(tab, roleId, taskIdx, absNum) {
-  let role = (tab === 'beg' ? ROLES_DATA_BEG : ROLES_DATA_ADV).find(r => r.id === roleId); if (!role) return;
-  id('modalIcon').textContent = role.icon; id('modalTitle').textContent = `#${absNum} ${role.subTasks[taskIdx].substring(3)}`; id('modalCategory').textContent = `${role.name} - ${role.subtitle}`;
-  const customDesc = role.cardDesc && role.cardDesc[taskIdx] ? role.cardDesc[taskIdx] : `這裡是關於「${role.subTasks[taskIdx].substring(3)}」的詳細重點整理。透過這張卡片，您可以隨時複習關鍵的醫療處置與照護知識！`;
-  id('modalDesc').innerHTML = customDesc;
-  
-  const modal = id('cardDetailModal'); const content = modal.querySelector('.modal-content');
-  content.style.transform = 'scale(0.2) rotateY(180deg)'; content.style.opacity = '0'; content.style.transition = 'all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)'; content.style.boxShadow = 'none';
-  modal.style.display = 'flex';
-  requestAnimationFrame(() => { requestAnimationFrame(() => { content.style.transform = 'scale(1) rotateY(0deg)'; content.style.opacity = '1'; content.style.boxShadow = '0 0 60px var(--theme-primary), inset 0 0 20px rgba(255,255,255,0.2)'; }); });
+function toggleParkour() {
+    customAlert("極限跑酷系統建置中！敬請期待下個版本更新！", null, "🚧 開發中");
 }
 
 // ===============================================
 // 各分頁內容生成函數
 // ===============================================
+function renderHomeRoles() {
+  const container = id('roleListContainer'); if(!container) return;
+  if (playerState.storyMode) { container.style.display = 'none'; return; }
+  container.style.display = 'flex'; container.innerHTML = '';
+  
+  getActiveRoles().forEach(role => {
+    let doneCount = 0;
+    for(let i=0; i<role.totalTasks; i++) {
+       if(playerState.mode === 'beginner' && playerState.taskScoresBeg.has(`${role.id}_${i}`)) doneCount++;
+       else if (playerState.mode === 'advanced' && playerState.taskScoresAdv.has(`${role.id}_${i}`)) doneCount++;
+    }
+    const isCompleted = playerState.mode === 'beginner' ? (doneCount === role.totalTasks) : (role.currentTask > role.totalTasks);
+    const progressText = isCompleted ? '✅ 已通關' : `進度 ${playerState.mode==='beginner'?doneCount:role.currentTask-1}/${role.totalTasks}`;
+
+    let tasksHtml = '';
+    for(let i=0; i<role.totalTasks; i++) {
+        let statusClass = 'locked', icon = '🔒', action = '';
+        if (playerState.mode === 'beginner') {
+           const isDone = playerState.taskScoresBeg.has(`${role.id}_${i}`);
+           statusClass = isDone ? 'completed' : 'active'; icon = isDone ? '✔ 完成' : '➤ 挑戰'; action = `onclick="startTaskFromAccordion('${role.id}', ${i})"`;
+        } else {
+           if (i+1 < role.currentTask) { statusClass = 'completed'; icon = '✔ 完成'; action = `onclick="startTaskFromAccordion('${role.id}', ${i})"`; }
+           else if (i+1 === role.currentTask) { statusClass = 'active'; icon = '➤ 挑戰'; action = `onclick="startTaskFromAccordion('${role.id}', ${i})"`; }
+           if (role.currentTask > role.totalTasks) { statusClass = 'active'; icon = '↻ 複習'; action = `onclick="startTaskFromAccordion('${role.id}', ${i})"`;}
+        }
+        tasksHtml += `<div class="subtask-item ${statusClass}" ${action}><span>${role.subTasks[i]}</span><span class="status-text">${icon}</span></div>`;
+    }
+
+    container.innerHTML += `
+      <div>
+          <div class="role-card" id="card-${role.id}" onclick="toggleAccordion('${role.id}')">
+            <div class="role-avatar">${role.icon}</div>
+            <div class="role-info"><div class="role-name">${role.name}</div><div class="role-task">${role.subtitle} | ${progressText}</div></div>
+            <div class="role-status"><div class="role-go-btn" id="btn-${role.id}">▼</div></div>
+          </div>
+          <div class="role-tasks-accordion" id="acc-${role.id}">${tasksHtml}</div>
+      </div>`;
+  });
+}
+
 function getAvailableTickets() {
   const totalUniqueTasks = playerState.taskScoresBeg.size + playerState.taskScoresAdv.size;
   const totalUniqueCases = playerState.completedCasesBeg.size + playerState.completedCasesAdv.size;
@@ -1089,15 +900,10 @@ function getAvailableTickets() {
 function renderCaseDex() {
   const avail = getAvailableTickets(); 
   const unlockedCount = (playerState.unlockedPuzzles || []).length;
-  
   if(id('uiPuzzleAvail')) id('uiPuzzleAvail').textContent = avail; 
   if(id('uiPuzzleCollected')) id('uiPuzzleCollected').textContent = unlockedCount;
-  if(id('btnDrawPuzzle')) {
-      if (avail > 0) id('btnDrawPuzzle').style.display = 'inline-block'; else id('btnDrawPuzzle').style.display = 'none';
-  }
-
-  const gallery = id('puzzleGallery'); 
-  if(!gallery) return;
+  if(id('btnDrawPuzzle')) { if (avail > 0) id('btnDrawPuzzle').style.display = 'inline-block'; else id('btnDrawPuzzle').style.display = 'none'; }
+  const gallery = id('puzzleGallery'); if(!gallery) return;
   gallery.innerHTML = '';
   let unlockedArr = playerState.unlockedPuzzles || []; let pendingArr = playerState.pendingPuzzles || [];
   let displayItems = [];
@@ -1149,6 +955,16 @@ function renderHealthCardsList() {
       }); 
   });
   container.innerHTML += generateRow('💠 進階健康卡', advHtml);
+
+  const isBegMaster = playerState.taskScoresBeg.size >= 25; const isAdvMaster = playerState.taskScoresAdv.size >= 25;
+  let hiddenHtml = `
+    <div class="card-item hidden-card ${isBegMaster?'':'locked'}" onclick="if(${isBegMaster}) { id('modalIcon').textContent='🏥'; id('modalTitle').textContent='#51 亞東中風中心'; id('modalCategory').textContent='初階隱藏卡'; id('modalDesc').innerHTML='整合急診、神經內外科、復健科跨團隊，為病患提供全方位黃金救援與術後照護體系！'; id('cardDetailModal').style.display='flex'; } else customAlert('請先完成初階版所有 25 個任務！', null, '🔒 尚未解鎖')">
+      <div style="font-size:10px; color:#aaa; width:100%; text-align:left; padding-left:4px;">#51</div><div class="card-icon">🏥</div><div class="card-title" style="color:#4fc3f7">亞東中風中心</div>
+    </div>
+    <div class="card-item hidden-card ${isAdvMaster?'':'locked'}" onclick="if(${isAdvMaster}) { id('modalIcon').textContent='🏛️'; id('modalTitle').textContent='#52 亞東紀念醫院'; id('modalCategory').textContent='進階隱藏卡'; id('modalDesc').innerHTML='秉持持續提升醫療品質，善盡社會醫療責任之宗旨，是您最堅強的醫療後盾！'; id('cardDetailModal').style.display='flex'; } else customAlert('請先完成進階版所有 25 個任務！', null, '🔒 尚未解鎖')">
+      <div style="font-size:10px; color:#aaa; width:100%; text-align:left; padding-left:4px;">#52</div><div class="card-icon">🏛️</div><div class="card-title" style="color:var(--theme-primary)">亞東紀念醫院</div>
+    </div>`;
+  container.innerHTML += generateRow('⭐ 隱藏卡', hiddenHtml);
 }
 
 function triggerGacha() {
@@ -1192,6 +1008,24 @@ function showGachaAnimation(newId, availableIds) {
 function playPendingPuzzle(pid) { window.currentChallengePuzzleId = pid; id('gameTitle').textContent = `🧩 挑戰拼圖 #${pid}`; id('gameFrame').src = `game_jigsaw.html?imgId=${pid}&isReplay=false`; id('gameOverlay').style.display = 'flex'; }
 function replayPuzzle(pid) { window.currentChallengePuzzleId = null; id('gameTitle').textContent = `🧩 欣賞拼圖 #${pid}`; id('gameFrame').src = `game_jigsaw.html?imgId=${pid}&isReplay=true`; id('gameOverlay').style.display = 'flex'; }
 
+function tryLaunchFreeCell() {
+  const isBegMaster = playerState.taskScoresBeg.size >= 25; const isAdvMaster = playerState.taskScoresAdv.size >= 25;
+  if (isBegMaster && isAdvMaster) {
+    if(id('gameTitle')) id('gameTitle').textContent = '🃏 腦脈新接龍'; if(id('gameFrame')) id('gameFrame').src = 'game_freecell.html'; if(id('gameOverlay')) id('gameOverlay').style.display = 'flex';
+  } else {
+    const avail = getAvailableTickets();
+    if (avail > 0) {
+        customConfirm(`挑戰接龍將扣除 1 張通用票券（目前剩餘：${avail} 張）。\n確定要挑戰嗎？`, () => {
+            playerState.usedFreecellTickets = (playerState.usedFreecellTickets || 0) + 1; saveGameData(); updateHUD(); renderCaseDex();
+            if(id('gameTitle')) id('gameTitle').textContent = '🃏 腦脈新接龍'; if(id('gameFrame')) id('gameFrame').src = 'game_freecell.html'; if(id('gameOverlay')) id('gameOverlay').style.display = 'flex';
+        }, null, "🃏 消耗票券");
+    } else { customAlert("票券不足！每完成 5 項任務或演練可獲得 1 張票券", null, "🎟️ 票券不足"); }
+  }
+}
+
+// ===============================================
+// ★ 極限挑戰賽
+// ===============================================
 const CHALLENGE_GAMES = [
   { id: 'ch_freecell', roleId: 'all', title: '【極限】腦脈新接龍', desc: '經典紙牌遊戲，用最少步驟完成挑戰！', icon: '🃏', url: 'game_freecell.html', unit: '步', order: 'desc' },
   { id: 'ch_racing_dist', roleId: 'ems', title: '【極限】長程救護拉力賽', desc: '在無盡的車流中行駛最長距離，測試穩定度！', icon: '🏎️', url: 'game_racing_infinite.html', unit: '公尺', order: 'asc' },
@@ -1205,6 +1039,7 @@ function renderTotalScoreLeaderboard() {
   
   id('lbMainTitle').textContent = '🔥 極限挑戰大賽';
   const container = id('lbListTotal'); container.innerHTML = '';
+  
   container.innerHTML += `<div style="text-align:center; color:var(--theme-primary); font-weight:bold; margin-bottom:15px; background:rgba(0,0,0,0.5); padding:10px; border-radius:8px; border:1px solid var(--theme-dim);">今日剩餘極限挑戰次數：<span style="color:var(--good); font-size:20px;">${playerState.extremeAttempts.count}</span> 次</div>`;
 
   CHALLENGE_GAMES.forEach(ch => {
@@ -1217,9 +1052,12 @@ function renderTotalScoreLeaderboard() {
         isUnlocked = doneCount >= role.totalTasks;
       }
     }
+
     let bestRecordStr = "尚未挑戰";
-    if (playerState.challengeRecords && playerState.challengeRecords[ch.id] !== undefined) bestRecordStr = `最佳: ${playerState.challengeRecords[ch.id]} ${ch.unit}`;
-    
+    if (playerState.challengeRecords && playerState.challengeRecords[ch.id] !== undefined) {
+        bestRecordStr = `最佳: ${playerState.challengeRecords[ch.id]} ${ch.unit}`;
+    }
+
     if (isUnlocked) {
       container.innerHTML += `<div class="role-card" style="margin-bottom:10px; min-height:80px; background:linear-gradient(135deg, #1a1a1a, #333); border:2px solid var(--theme-primary);" onclick="launchChallenge('${ch.id}', '${ch.url}', '${ch.title}')"><div class="role-avatar" style="font-size:28px;">${ch.icon}</div><div class="role-info"><div style="display:flex; justify-content:space-between; align-items:center;"><div class="role-name" style="color:var(--good);">${ch.title}</div><div style="font-size:11px; color:#ff9800; font-weight:bold; text-align:right;">${bestRecordStr}</div></div><div class="role-task" style="opacity:0.8; margin-top:4px;">${ch.desc}</div></div><div class="role-go-btn" style="background:var(--good); color:#000;">GO</div></div>`;
     } else {
@@ -1232,6 +1070,7 @@ function renderTotalScoreLeaderboard() {
 function launchChallenge(chId, url, title) { 
   checkExtremeAttempts();
   if (playerState.extremeAttempts.count <= 0) return customAlert("今日極限挑戰次數已用盡！\n未來可透過其他活動獲取更多次數。", null, "⚠️ 體力不足");
+  
   playerState.extremeAttempts.count--; saveGameData(); updateHUD();
   if (id('lbListTotal')) renderTotalScoreLeaderboard(); 
   
@@ -1242,24 +1081,36 @@ function launchChallenge(chId, url, title) {
 function handleChallengeClear(chId, score) {
     const chInfo = CHALLENGE_GAMES.find(c => c.id === chId); if (!chInfo) return;
     if (!playerState.challengeRecords) playerState.challengeRecords = {};
+    
     let currentBest = playerState.challengeRecords[chId];
     let isNewRecord = false;
+    
     if (currentBest === undefined) { isNewRecord = true; } 
     else {
         if (chInfo.order === 'desc') { if (score < currentBest) isNewRecord = true; } 
         else { if (score > currentBest) isNewRecord = true; }
     }
+    
     if (isNewRecord) {
         playerState.challengeRecords[chId] = score; playerState.extremeAttempts.count += 3;
-        playerState.coins += 300; saveGameData(); updateHUD();
-        customAlert(`太神了！打破個人紀錄！\n\n新紀錄：${score} ${chInfo.unit}\n🎉 獲得 300 健康幣！\n🎁 額外獲得 3 次極限挑戰機會！`, () => { if (playerState.mode === 'advanced') { renderTotalScoreLeaderboard(); showScreen('scrLeaderboard'); } }, "🏆 突破極限");
+        playerState.coins += 300; 
+        saveGameData(); updateHUD();
+        customAlert(`太神了！打破個人紀錄！\n\n新紀錄：${score} ${chInfo.unit}\n🎉 獲得 300 健康幣！\n🎁 額外獲得 3 次極限挑戰機會！`, () => {
+            if (playerState.mode === 'advanced') { renderTotalScoreLeaderboard(); showScreen('scrLeaderboard'); }
+        }, "🏆 突破極限");
     } else {
-        playerState.coins += 100; saveGameData(); updateHUD();
-        customAlert(`挑戰完成！\n\n本次成績：${score} ${chInfo.unit}\n最佳紀錄：${currentBest} ${chInfo.unit}\n🎉 獲得 100 健康幣！\n再接再厲突破自我吧！`, () => { if (playerState.mode === 'advanced') { renderTotalScoreLeaderboard(); showScreen('scrLeaderboard'); } }, "🏁 挑戰結束");
+        playerState.coins += 100;
+        saveGameData(); updateHUD();
+        customAlert(`挑戰完成！\n\n本次成績：${score} ${chInfo.unit}\n最佳紀錄：${currentBest} ${chInfo.unit}\n🎉 獲得 100 健康幣！\n再接再厲突破自我吧！`, () => {
+            if (playerState.mode === 'advanced') { renderTotalScoreLeaderboard(); showScreen('scrLeaderboard'); }
+        }, "🏁 挑戰結束");
     }
     currentGameInfo = null;
 }
 
+// ===============================================
+// 中風歷程與量表
+// ===============================================
 function renderStrokeCard() {
   if (playerState.strokeCard && playerState.strokeCard.date) {
     id('scDisplayMode').style.display = 'block'; id('scEditMode').style.display = 'none';
@@ -1326,6 +1177,9 @@ function navScaleAction() {
   if (playerState.scaleRecords.length === 0) { switchScaleTab('form'); } else { switchScaleTab('list'); }
 }
 
+// ===============================================
+// ★ 服裝、眼鏡系統與挑戰商城
+// ===============================================
 const CLOTHES_DB = [
   { id: 'c_white', color: '#fff', name: '實習白袍', price: 0 }, { id: 'c_blue', color: '#64b5f6', name: '刷手服(藍)', price: 1000 },
   { id: 'c_green', color: '#81c784', name: '外科綠', price: 1500 }, { id: 'c_red', color: '#e57373', name: '急救紅', price: 3000 },
@@ -1450,10 +1304,14 @@ function equipClothes(color) {
   if(id('mapFrame') && id('mapFrame').contentWindow) id('mapFrame').contentWindow.postMessage({ type: 'SYNC_PLAYER_DATA', payload }, '*');
 }  
 
+// ===============================================
+// 載入與初始化
+// ===============================================
 window.onload = () => {
   if (loadGameData() && playerState.hasSetup) { updateModeUI(); } 
   else { id('profileModal').style.display = 'flex'; }
 };
+
 </script>
 </body>
 </html>
