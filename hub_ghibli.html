@@ -42,7 +42,6 @@
   
   .vine { position: absolute; bottom: calc(25% + 215px); height: 40px; border-bottom: 4px solid #4a7c2a; border-radius: 50%; z-index: 9; opacity: 0.8; }
   
-  /* 浮島預設外觀 */
   .floating-island { 
     position: absolute; bottom: calc(25% + 200px); width: 75px; height: 65px; border-radius: 45% 55% 40% 60%; 
     background: radial-gradient(circle at 30% 30%, #a8e6cf 0%, #3d8c40 70%, #2a592c 100%); 
@@ -54,6 +53,7 @@
   
   /* 接收主程式資料後賦予的狀態樣式 */
   .island-locked { filter: grayscale(100%) brightness(0.6); }
+  .island-unlocked { /* 自由選擇關卡的外觀，不閃爍但亮色 */ }
   .island-active { animation: activePulse 2s infinite ease-in-out; }
   @keyframes activePulse { 
       0% { box-shadow: 0 10px 15px rgba(0,0,0,0.3), inset -6px -6px 12px rgba(0,0,0,0.4); transform: translateY(0); } 
@@ -64,6 +64,13 @@
   
   .level-label { position: absolute; top: -35px; white-space: nowrap; background: rgba(0,0,0,0.6); color: #fff; padding: 4px 8px; border-radius: 10px; font-size: 12px; opacity: 0; }
   .active-hit .level-label, .island-active .level-label { opacity: 1; }
+
+  /* 關卡下方的標題文字 */
+  .level-title-bottom {
+      position: absolute; top: 75px; left: 50%; transform: translateX(-50%);
+      width: 140px; text-align: center; color: #e0f7fa; font-size: 11px;
+      text-shadow: 1px 1px 3px #000, 0 0 8px rgba(0,0,0,0.8); font-weight: bold; line-height: 1.2; word-break: break-word; pointer-events: none;
+  }
 
   #player { position: absolute; left: 150px; bottom: calc(25% + 50px); width: 40px; height: 60px; z-index: 20; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   .player-head { width: 30px; height: 30px; background: #ffe0b2; border: 2px solid #555; border-radius: 50%; margin: 0 auto; position: relative; }
@@ -102,7 +109,7 @@
   const bricksData = []; const coinsData = [];
 
   // =========================================
-  // 接收主程式 (RPG_Index.html) 傳來的地圖資料
+  // 接收主程式傳來的地圖資料
   // =========================================
   window.addEventListener('message', (event) => {
       if (event.data.type === 'RENDER_MAP') {
@@ -112,12 +119,11 @@
 
   window.onload = () => {
       generateEnvironment();
-      // 通知主程式大廳準備完畢，請求派發資料
       window.parent.postMessage({ type: 'GHIBLI_HUB_READY' }, '*');
   };
 
   // =========================================
-  // 構建與主程式進度同步的關卡
+  // 構建關卡 (包含下方的標題)
   // =========================================
   function buildWorld(baseSeq, collectedCoins, progressIndex) {
       bricksContainer.innerHTML = ''; vinesContainer.innerHTML = ''; coinsContainer.innerHTML = '';
@@ -131,7 +137,7 @@
       for (let i = 0; i < TOTAL_LEVELS; i++) {
           const bX = START_OFFSET + i * LEVEL_SPACING;
           const cycleIndex = i % CYCLE_LENGTH; 
-          const item = baseSeq[cycleIndex]; // 取得主程式定義好的狀態 (locked, active, cleared)
+          const item = baseSeq[cycleIndex]; 
           
           const island = document.createElement('div');
           island.className = 'floating-island';
@@ -140,17 +146,20 @@
           
           let isRandom = false;
           if (item.type === 'task') {
-              island.innerHTML = `第 ${item.globalIdx + 1} 關<div class="level-label">準備任務</div>`;
+              // 加上下方的任務標題
+              island.innerHTML = `第 ${item.globalIdx + 1} 關<div class="level-label">準備任務</div><div class="level-title-bottom">${item.title || ''}</div>`;
+              
               if (item.status === 'locked') island.classList.add('island-locked');
               else if (item.status === 'active') island.classList.add('island-active');
+              else if (item.status === 'unlocked') island.classList.add('island-unlocked');
               // cleared 維持預設不發光
           } else if (item.type === 'random') {
-              island.classList.add('random-level', 'island-active'); // 隨機永遠可玩
-              island.innerHTML = `<span class="random-text">隨機</span><div class="level-label">抽籤關卡</div>`;
+              island.classList.add('random-level', 'island-active'); 
+              island.innerHTML = `<span class="random-text">隨機</span><div class="level-label">抽籤關卡</div><div class="level-title-bottom">未知的挑戰</div>`;
               isRandom = true;
           } else if (item.type === 'comprehensive') {
-              island.classList.add('island-active'); // 綜合演練永遠可點 (主程式會阻擋條件不足)
-              island.innerHTML = `綜合<div class="level-label">綜合演練</div>`;
+              island.classList.add('island-active'); 
+              island.innerHTML = `綜合<div class="level-label">綜合演練</div><div class="level-title-bottom">終極考驗</div>`;
               island.style.background = 'radial-gradient(circle at 30% 30%, #ff8a65 0%, #d84315 70%, #bf360c 100%)';
           }
           
@@ -165,7 +174,6 @@
           }
       }
 
-      // 健康幣 (只在前排生成)
       const coinLocations = [ {x: 600}, {x: 1400}, {x: 2300}, {x: 3200}, {x: 4100} ];
       coinLocations.forEach((loc, index) => {
           if (!collectedCoins.includes(index)) {
@@ -176,15 +184,14 @@
           }
       });
 
-      // 自動移動到玩家當前進度所在的區塊
       const startCycle = Math.floor(TOTAL_CYCLES / 2);
-      const startItemIndex = startCycle * CYCLE_LENGTH + progressIndex;
+      const startItemIndex = startCycle * CYCLE_LENGTH + Math.min(progressIndex, CYCLE_LENGTH - 1);
       playerX = START_OFFSET + startItemIndex * LEVEL_SPACING;
       updateCamera();
   }
 
   // =========================================
-  // 物理碰撞與事件通報
+  // 物理碰撞與事件
   // =========================================
   function updateCamera() {
       let camX = window.innerWidth * 0.3 - playerX;
@@ -221,14 +228,13 @@
                       }, 50);
                   }
 
-                  // 延遲 0.6 秒讓玩家看清楚方塊發光，然後發送啟動任務指令給主程式
                   setTimeout(() => {
                       window.parent.postMessage({
                           type: 'HUB_NODE_CLICK',
                           nodeType: b.itemData.type, roleId: b.itemData.roleId,
                           taskIdx: b.itemData.taskIdx, globalIdx: b.itemData.globalIdx, status: b.itemData.status
                       }, '*');
-                      b.element.classList.remove('active-hit'); // 復原
+                      b.element.classList.remove('active-hit'); 
                   }, 600);
               } else { 
                   if (!b.isRollingLocked) b.element.classList.remove('active-hit'); 
@@ -250,14 +256,12 @@
           if (c.isCollected) return; 
           if (Math.abs(playerX + 20 - (c.x + 17.5)) < 40 && Math.abs(playerActualY - c.yPx) < 40) {
               c.isCollected = true; c.element.classList.add('collected');
-              // 發送金幣獲取事件給主程式
               window.parent.postMessage({ type: 'COLLECT_HUB_COIN', coinIndex: c.id }, '*');
               setTimeout(() => { if (c.element.parentNode) c.element.parentNode.removeChild(c.element); }, 500);
           }
       });
   }
 
-  // 拖曳事件
   const handleStart = (e) => { isDragging = true; startClientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX; startPlayerX = playerX; };
   const handleMove = (e) => { if (!isDragging) return; let clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX; let deltaX = clientX - startClientX; playerX = startPlayerX + deltaX * 1.5; if (playerX < 50) playerX = 50; if (playerX > WORLD_MAX_WIDTH) playerX = WORLD_MAX_WIDTH; updateCamera(); };
   const handleEnd = (e) => { if (!isDragging) return; isDragging = false; let clientX = e.type.includes('touch') ? e.changedTouches[0].clientX : e.clientX; if (Math.abs(clientX - startClientX) < 10) jump(); };
@@ -267,20 +271,49 @@
   interactArea.addEventListener('touchstart', handleStart, { passive: false }); window.addEventListener('touchmove', handleMove, { passive: false }); window.addEventListener('touchend', handleEnd);
   window.addEventListener('resize', updateCamera);
 
-  // 生成裝飾環境背景
+  // =========================================
+  // 生成背景環境 (密度減半、速度更慢)
+  // =========================================
   function generateEnvironment() {
       const screenEffects = document.getElementById('screen-effects'); const bubblesContainer = document.getElementById('bubbles-container');
       for(let i=0; i<4; i++) { const wind = document.createElement('div'); wind.className = 'wind-line'; wind.style.top = `${Math.random() * 45}%`; wind.style.width = `${100 + Math.random() * 200}px`; wind.style.animationDuration = `${12 + Math.random() * 10}s`; wind.style.animationDelay = `-${Math.random() * 10}s`; screenEffects.appendChild(wind); }
       for(let i=0; i<8; i++) { const bubble = document.createElement('div'); bubble.className = 'bubble'; bubble.style.left = `${Math.random() * 100}%`; bubble.style.bottom = `${Math.random() * 20}%`; const size = 5 + Math.random() * 10; bubble.style.width = `${size}px`; bubble.style.height = `${size}px`; bubble.style.animationDuration = `${6 + Math.random() * 6}s`; bubble.style.animationDelay = `-${Math.random() * 6}s`; bubblesContainer.appendChild(bubble); }
       
-      const MAX_W = 10000; const SCREEN_W = 400; const oceanContainer = document.getElementById('ocean-container');
+      const MAX_W = 20000; const oceanContainer = document.getElementById('ocean-container');
       for(let i = 0; i < Math.floor(MAX_W/300); i++) { const cloud = document.createElement('div'); cloud.className = 'cloud'; cloud.style.left = `${(i * 300) + Math.random() * 150}px`; cloud.style.top = `${Math.random() * 35}%`; cloud.style.width = `${80 + Math.random() * 150}px`; cloud.style.height = `${20 + Math.random() * 40}px`; cloud.style.opacity = 0.4 + Math.random() * 0.4; cloud.style.animationDuration = `${40 + Math.random() * 40}s`; document.getElementById('clouds-container').appendChild(cloud); }
       const coralEmojis = ['🪸', '🌿', '🌱', '🦀']; 
       for (let i = 0; i < Math.floor(MAX_W/300); i++) { const coral = document.createElement('div'); coral.className = 'coral'; const type = coralEmojis[Math.floor(Math.random() * coralEmojis.length)]; coral.innerText = type; coral.style.left = `${(i * 300) + Math.random() * 150}px`; coral.style.fontSize = '40px'; if (type === '🌿' || type === '🌱') { coral.style.transform = `scale(${0.8 + Math.random() * 0.4}, ${1.5 + Math.random() * 2.0})`; coral.style.filter = `hue-rotate(${Math.random() * 90 - 45}deg) drop-shadow(2px 2px 4px rgba(0,0,0,0.5))`; } else { coral.style.transform = `scale(${0.7 + Math.random() * 0.6})`; coral.style.filter = `hue-rotate(${Math.random() * 360}deg) drop-shadow(2px 2px 4px rgba(0,0,0,0.5))`; } coral.style.opacity = 0.85; coral.style.animationDelay = `-${Math.random() * 5}s`; oceanContainer.appendChild(coral); }
       
       const creaturesContainer = document.getElementById('creatures-container');
-      for (let i = 0; i < 25; i++) { const isFlock = Math.random() > 0.6; const flockSize = isFlock ? (Math.random() > 0.5 ? 2 : 3) : 1; const baseX = Math.random() * MAX_W; const baseY = Math.random() * 20 + 2; const animName = Math.random() > 0.5 ? 'flyWave' : 'flySwoop'; const duration = 60 + Math.random() * 60; const delay = -(Math.random() * 100); for (let j = 0; j < flockSize; j++) { const bird = document.createElement('div'); bird.className = 'bird'; bird.innerText = ['🦅', '🕊️'][Math.floor(Math.random() * 2)]; bird.style.left = `${baseX + j * (40 + Math.random() * 20)}px`; bird.style.top = `calc(${baseY}% + ${j * (10 - Math.random() * 20)}px)`; bird.style.animationName = animName; bird.style.animationTimingFunction = 'linear'; bird.style.animationIterationCount = 'infinite'; bird.style.animationDuration = `${duration}s`; bird.style.animationDelay = `${delay}s`; creaturesContainer.appendChild(bird); } }
-      for (let i = 0; i < 35; i++) { const isSchool = Math.random() > 0.5; const schoolSize = isSchool ? Math.floor(Math.random() * 3) + 2 : 1; const baseX = Math.random() * MAX_W; const baseY = Math.random() * 40 + 10; const duration = 180 + Math.random() * 120; const delay = -(Math.random() * 200); const baseHue = Math.floor(Math.random() * 360); for (let j = 0; j < schoolSize; j++) { const fish = document.createElement('div'); fish.className = 'fish'; fish.innerText = ['🐠', '🐡', '🐟', '🪼', '🦑'][Math.floor(Math.random() * 5)]; fish.style.left = `${baseX + j * (50 + Math.random() * 30)}px`; fish.style.top = `calc(${baseY}% + ${j * (20 - Math.random() * 40)}px)`; fish.style.animationDuration = `${duration}s`; fish.style.animationDelay = `${delay}s`; const scale = 0.5 + Math.random() * 0.5; fish.style.transform = `scale(${scale})`; fish.style.filter = `drop-shadow(3px 6px 10px rgba(0,0,0,0.5)) hue-rotate(${baseHue + (j*15)}deg)`; fish.style.opacity = scale; oceanContainer.appendChild(fish); } }
+      // 鳥類密度減半 (原本 25 -> 12)
+      for (let i = 0; i < 12; i++) { 
+          const isFlock = Math.random() > 0.6; const flockSize = isFlock ? (Math.random() > 0.5 ? 2 : 3) : 1; 
+          const baseX = Math.random() * MAX_W; const baseY = Math.random() * 20 + 2; const animName = Math.random() > 0.5 ? 'flyWave' : 'flySwoop'; 
+          const duration = 100 + Math.random() * 100; // 速度變得非常慢
+          const delay = -(Math.random() * 200); 
+          for (let j = 0; j < flockSize; j++) { 
+              const bird = document.createElement('div'); bird.className = 'bird'; bird.innerText = ['🦅', '🕊️'][Math.floor(Math.random() * 2)]; 
+              // 加寬群體之間的距離，避免太擠
+              bird.style.left = `${baseX + j * (80 + Math.random() * 40)}px`; bird.style.top = `calc(${baseY}% + ${j * (10 - Math.random() * 20)}px)`; 
+              bird.style.animationName = animName; bird.style.animationTimingFunction = 'linear'; bird.style.animationIterationCount = 'infinite'; 
+              bird.style.animationDuration = `${duration}s`; bird.style.animationDelay = `${delay}s`; creaturesContainer.appendChild(bird); 
+          } 
+      }
+      
+      // 魚類密度減半 (原本 35 -> 18)
+      for (let i = 0; i < 18; i++) { 
+          const isSchool = Math.random() > 0.5; const schoolSize = isSchool ? Math.floor(Math.random() * 3) + 2 : 1; 
+          const baseX = Math.random() * MAX_W; const baseY = Math.random() * 40 + 10; 
+          const duration = 240 + Math.random() * 150; // 速度極度慢
+          const delay = -(Math.random() * 300); const baseHue = Math.floor(Math.random() * 360); 
+          for (let j = 0; j < schoolSize; j++) { 
+              const fish = document.createElement('div'); fish.className = 'fish'; fish.innerText = ['🐠', '🐡', '🐟', '🪼', '🦑'][Math.floor(Math.random() * 5)]; 
+              // 加寬群體之間的距離
+              fish.style.left = `${baseX + j * (80 + Math.random() * 50)}px`; fish.style.top = `calc(${baseY}% + ${j * (20 - Math.random() * 40)}px)`; 
+              fish.style.animationDuration = `${duration}s`; fish.style.animationDelay = `${delay}s`; 
+              const scale = 0.5 + Math.random() * 0.5; fish.style.transform = `scale(${scale})`; fish.style.filter = `drop-shadow(3px 6px 10px rgba(0,0,0,0.5)) hue-rotate(${baseHue + (j*15)}deg)`; fish.style.opacity = scale; oceanContainer.appendChild(fish); 
+          } 
+      }
   }
 </script>
 </body>
