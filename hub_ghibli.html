@@ -51,16 +51,12 @@
   }
   @keyframes floatUpDown { 0% { transform: translateY(0px); } 100% { transform: translateY(-10px); } }
   
-  /* === 新增的關卡狀態與 UI === */
   .island-locked { filter: grayscale(100%) brightness(0.6); }
-  
-  /* 已通關的金色石頭 */
   .island-cleared {
     background: radial-gradient(circle at 30% 30%, #fff9c4 0%, #ffd54f 70%, #f57f17 100%) !important;
     box-shadow: 0 10px 15px rgba(0,0,0,0.3), inset -6px -6px 12px rgba(180,100,0,0.5), inset 3px 3px 8px rgba(255,255,255,0.7) !important;
     color: #4e342e !important; text-shadow: 1px 1px 0px rgba(255,255,255,0.5) !important;
   }
-
   .island-active { animation: activePulse 2s infinite ease-in-out; }
   @keyframes activePulse { 
       0% { box-shadow: 0 10px 15px rgba(0,0,0,0.3), inset -6px -6px 12px rgba(0,0,0,0.4); transform: translateY(0); } 
@@ -72,21 +68,20 @@
   .level-label { position: absolute; top: -35px; white-space: nowrap; background: rgba(0,0,0,0.6); color: #fff; padding: 4px 8px; border-radius: 10px; font-size: 12px; opacity: 0; }
   .active-hit .level-label, .island-active .level-label { opacity: 1; }
 
-  /* 關卡上方的類別文字 */
-  .level-category-top {
-      position: absolute; top: -25px; left: 50%; transform: translateX(-50%);
+  /* 類別文字 - 移到下方 */
+  .level-category-bottom {
+      position: absolute; top: 72px; left: 50%; transform: translateX(-50%);
       font-size: 11px; color: #fff; background: rgba(0,0,0,0.7); padding: 3px 6px; border-radius: 4px;
-      white-space: nowrap; pointer-events: none; border: 1px solid rgba(255,255,255,0.3);
+      white-space: nowrap; pointer-events: none; border: 1px solid rgba(255,255,255,0.3); z-index: 5;
   }
 
-  /* 關卡下方的標題文字 */
+  /* 標題文字 - 再往更下方推 */
   .level-title-bottom {
-      position: absolute; top: 75px; left: 50%; transform: translateX(-50%);
+      position: absolute; top: 98px; left: 50%; transform: translateX(-50%);
       width: 140px; text-align: center; color: #e0f7fa; font-size: 11px;
       text-shadow: 1px 1px 3px #000, 0 0 8px rgba(0,0,0,0.8); font-weight: bold; line-height: 1.2; word-break: break-word; pointer-events: none;
   }
 
-  /* 進行中關卡的綠色跳動箭頭 */
   .active-arrow {
       position: absolute; top: -65px; left: 50%; transform: translateX(-50%);
       font-size: 26px; color: #3dff8e; text-shadow: 0 4px 6px rgba(0,0,0,0.8);
@@ -124,19 +119,19 @@
   const coinsContainer = document.getElementById('coins-container');
   
   let playerX = 150; let isDragging = false; let startClientX = 0; let startPlayerX = 0; let isJumping = false;
-  let minPlayerX = 50; // 控制畫面能否往左滑的邊界限制
+  let minPlayerX = 50; 
   
   const LEVEL_SPACING = 160; const START_OFFSET = 300; 
   let TOTAL_CYCLES = 4; let WORLD_MAX_WIDTH = 5000;
   
   const bricksData = []; const coinsData = [];
 
-  // =========================================
-  // 接收主程式傳來的地圖資料
-  // =========================================
   window.addEventListener('message', (event) => {
       if (event.data.type === 'RENDER_MAP') {
-          buildWorld(event.data.baseSeq, event.data.collectedCoins, event.data.activeIndex, event.data.allCleared);
+          let activeIdx = event.data.activeIndex !== undefined ? event.data.activeIndex : (event.data.progressIndex || 0);
+          let isCleared = event.data.allCleared || false;
+          let safeCoins = event.data.collectedCoins || [];
+          buildWorld(event.data.baseSeq, safeCoins, activeIdx, isCleared);
       }
   });
 
@@ -145,28 +140,35 @@
       window.parent.postMessage({ type: 'GHIBLI_HUB_READY' }, '*');
   };
 
-  // =========================================
-  // 構建關卡
-  // =========================================
   function buildWorld(baseSeq, collectedCoins, activeIndex, allCleared) {
+      if (!baseSeq || baseSeq.length === 0) return;
+
       bricksContainer.innerHTML = ''; vinesContainer.innerHTML = ''; coinsContainer.innerHTML = '';
       bricksData.length = 0; coinsData.length = 0;
 
       const CYCLE_LENGTH = baseSeq.length; 
       const TOTAL_LEVELS = CYCLE_LENGTH * TOTAL_CYCLES; 
-      WORLD_MAX_WIDTH = START_OFFSET + TOTAL_LEVELS * LEVEL_SPACING + 500;
+      
+      // 加入 800px 的「時空斷層」，徹底切斷循環間的連視
+      const CYCLE_GAP = 800; 
+      const CYCLE_WIDTH = CYCLE_LENGTH * LEVEL_SPACING + CYCLE_GAP;
+      
+      WORLD_MAX_WIDTH = START_OFFSET + TOTAL_CYCLES * CYCLE_WIDTH + 500;
       world.style.width = WORLD_MAX_WIDTH + 'px';
 
       const startCycle = Math.floor(TOTAL_CYCLES / 2);
       
-      // 控制畫面邊界：如果還沒全破，不允許滑回前一個循環的尾巴 (卡在第一關之前)
-      minPlayerX = allCleared ? 50 : (START_OFFSET + startCycle * CYCLE_LENGTH * LEVEL_SPACING - 50);
+      // 計算並防呆畫面邊界 (使用新的 CYCLE_WIDTH)
+      minPlayerX = allCleared ? 50 : (START_OFFSET + startCycle * CYCLE_WIDTH - 50);
+      if (isNaN(minPlayerX)) minPlayerX = 50;
 
       for (let i = 0; i < TOTAL_LEVELS; i++) {
-          const bX = START_OFFSET + i * LEVEL_SPACING;
+          const cycleNumber = Math.floor(i / CYCLE_LENGTH);
           const cycleIndex = i % CYCLE_LENGTH; 
-          const item = baseSeq[cycleIndex]; 
+          // 根據時空斷層重新計算每個方塊的 X 座標
+          const bX = START_OFFSET + cycleNumber * CYCLE_WIDTH + cycleIndex * LEVEL_SPACING;
           
+          const item = baseSeq[cycleIndex]; 
           const island = document.createElement('div');
           island.className = 'floating-island';
           island.style.left = bX + 'px'; 
@@ -174,21 +176,22 @@
           
           let innerHTMLStr = '';
 
-          // 判斷是否為當前進行中關卡 (只在當前循環繪製綠色箭頭)
+          // 進行中關卡的綠色箭頭
           if (i === startCycle * CYCLE_LENGTH + activeIndex) {
               innerHTMLStr += `<div class="active-arrow">⬇</div>`;
           }
           
           let isRandom = false;
           if (item.type === 'task') {
-              // 賦予狀態樣式 (已通關為金色)
               if (item.status === 'cleared') island.classList.add('island-cleared');
               else if (item.status === 'locked') island.classList.add('island-locked');
               
+              let categoryText = item.category || '特別演練';
+              
               innerHTMLStr += `
-                  <div class="level-category-top">${item.category}</div>
                   第 ${item.globalIdx + 1} 關
                   <div class="level-label">準備任務</div>
+                  <div class="level-category-bottom">${categoryText}</div>
                   <div class="level-title-bottom">${item.title || ''}</div>
               `;
           } else if (item.type === 'random') {
@@ -205,7 +208,8 @@
           bricksContainer.appendChild(island);
           bricksData.push({ x: bX, element: island, itemData: item, isRandom: isRandom, isRollingLocked: false });
 
-          if (i < TOTAL_LEVELS - 1) {
+          // 樹藤連接 (注意：每一輪的最後一關不向後連樹藤，因為後面是 800px 斷層！)
+          if (cycleIndex < CYCLE_LENGTH - 1) {
               const vine = document.createElement('div');
               vine.className = 'vine';
               vine.style.left = (bX + 37) + 'px'; vine.style.width = (LEVEL_SPACING) + 'px'; 
@@ -213,7 +217,7 @@
           }
       }
 
-      const coinLocations = [ {x: 600}, {x: 1400}, {x: 2300}, {x: 3200}, {x: 4100} ];
+      coinLocations = [ {x: 600}, {x: 1400}, {x: 2300}, {x: 3200}, {x: 4100} ];
       coinLocations.forEach((loc, index) => {
           if (!collectedCoins.includes(index)) {
               const coin = document.createElement('div'); coin.className = 'health-coin'; coin.innerText = 'H';
@@ -223,16 +227,15 @@
           }
       });
 
-      // 人物出生點設定在「進行中關卡」正下方
-      const targetGlobalIndex = startCycle * CYCLE_LENGTH + activeIndex;
-      playerX = (START_OFFSET + targetGlobalIndex * LEVEL_SPACING) + 17.5; // 置中對齊
+      activeIndex = parseInt(activeIndex) || 0;
+      playerX = (START_OFFSET + startCycle * CYCLE_WIDTH + activeIndex * LEVEL_SPACING) + 17.5; 
+      if (isNaN(playerX)) { playerX = START_OFFSET + 150; }
+
       updateCamera();
   }
 
-  // =========================================
-  // 物理碰撞與事件
-  // =========================================
   function updateCamera() {
+      if (isNaN(playerX)) return;
       let camX = window.innerWidth * 0.3 - playerX;
       if (camX > 0) camX = 0; 
       const maxScroll = -(WORLD_MAX_WIDTH - window.innerWidth + 200);
@@ -308,10 +311,8 @@
       let deltaX = clientX - startClientX; 
       playerX = startPlayerX + deltaX * 1.5; 
       
-      // 套用畫面邊界限制
       if (playerX < minPlayerX) playerX = minPlayerX; 
       if (playerX > WORLD_MAX_WIDTH) playerX = WORLD_MAX_WIDTH; 
-      
       updateCamera(); 
   };
   const handleEnd = (e) => { if (!isDragging) return; isDragging = false; let clientX = e.type.includes('touch') ? e.changedTouches[0].clientX : e.clientX; if (Math.abs(clientX - startClientX) < 10) jump(); };
@@ -321,9 +322,6 @@
   interactArea.addEventListener('touchstart', handleStart, { passive: false }); window.addEventListener('touchmove', handleMove, { passive: false }); window.addEventListener('touchend', handleEnd);
   window.addEventListener('resize', updateCamera);
 
-  // =========================================
-  // 生成背景環境
-  // =========================================
   function generateEnvironment() {
       const screenEffects = document.getElementById('screen-effects'); const bubblesContainer = document.getElementById('bubbles-container');
       for(let i=0; i<4; i++) { const wind = document.createElement('div'); wind.className = 'wind-line'; wind.style.top = `${Math.random() * 45}%`; wind.style.width = `${100 + Math.random() * 200}px`; wind.style.animationDuration = `${12 + Math.random() * 10}s`; wind.style.animationDelay = `-${Math.random() * 10}s`; screenEffects.appendChild(wind); }
