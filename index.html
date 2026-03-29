@@ -679,7 +679,7 @@ function renderNodeMap() {
     const roles = getActiveRoles();
 
     let clearedCount = 0;
-    let firstUnclearedIdx = -1; // 記錄第一個尚未通關的關卡位置
+    let firstUnclearedIdx = -1;
 
     // 1. 計算所有關卡狀態
     roles.forEach(role => {
@@ -699,7 +699,6 @@ function renderNodeMap() {
             if (isCleared) {
                 clearedCount++;
             } else if (firstUnclearedIdx === -1) {
-                // 抓到第一個尚未破關的關卡
                 firstUnclearedIdx = globalIndex;
             }
             
@@ -714,16 +713,16 @@ function renderNodeMap() {
 
     const allCleared = clearedCount >= 25;
     
-    // 2. 只有當 25 關全破時，才加入隨機與綜合關卡
+    // 2. 隨機與綜合關卡一開始就出現，但根據是否全破決定它們的狀態 (locked 或 active)
+    const extraStatus = allCleared ? 'active' : 'locked';
+    baseSeq.push({ type: 'random', status: extraStatus });
+    baseSeq.push({ type: 'comprehensive', status: extraStatus });
+    
+    // 若全破，指示箭頭指向「綜合演練」(Index = 26)
     if (allCleared) {
-        baseSeq.push({ type: 'random' });
-        baseSeq.push({ type: 'comprehensive' });
-        
-        // 若全破，指示箭頭指向「綜合演練」(Index = 26)
         firstUnclearedIdx = 26; 
     }
-    
-    if (firstUnclearedIdx === -1) firstUnclearedIdx = 0; // 防呆預設
+    if (firstUnclearedIdx === -1) firstUnclearedIdx = 0; 
 
     // 3. 將資料發送給吉卜力 Iframe
     const frame = document.getElementById('ghibliHubFrame');
@@ -732,9 +731,35 @@ function renderNodeMap() {
             type: 'RENDER_MAP',
             baseSeq: baseSeq,
             collectedCoins: playerState.dailyMapCoins.collected,
-            activeIndex: firstUnclearedIdx, // 將箭頭與出生點目標傳過去
-            allCleared: allCleared          // 傳送全破狀態解鎖逆向移動
+            activeIndex: firstUnclearedIdx, 
+            allCleared: allCleared          
         }, '*');
+    }
+}
+
+function handleHubNodeClickLogic(type, roleId, taskIdx, status, globalIdx) {
+    if (type === 'random') {
+        // 加入上鎖判定
+        if (status === 'locked') return customAlert('這是一道神秘的關卡，請先將前面 25 個任務全部過關後再來挑戰吧！', null, '🔒 尚未解鎖');
+        startRandomPractice();
+    } else if (type === 'comprehensive') {
+        // 加入上鎖判定
+        if (status === 'locked') return customAlert('終極考驗尚未開放！請先將前面 25 個任務全部過關。', null, '🔒 尚未解鎖');
+        openComprehensiveDrill();
+    } else if (type === 'task') {
+        if (status === 'locked') return customAlert('此區域尚未解鎖，請先完成前面的任務！', null, '🔒 區域未解鎖');
+        
+        if (status === 'cleared') {
+            customConfirm(`第 ${globalIdx + 1} 關已通關！\n是否要重新回顧此關卡的情境演練？`, () => {
+                playerState.isReplaying = true;
+                playerState.replayProgression = globalIdx;
+                activeRoleId = roleId;
+                playTask(taskIdx); 
+            }, null, '🎬 回顧任務', '開始回顧');
+        } else if (status === 'active' || status === 'unlocked') {
+            activeRoleId = roleId;
+            playTask(taskIdx);
+        }
     }
 }
 
