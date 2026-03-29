@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>吉卜力大廳引擎</title>
+<title>吉卜力大廳引擎 (完美置中版)</title>
 <style>
   :root {
     --sky-top: #5c9dd6; --sky-bottom: #d4f0ff;
@@ -15,41 +15,40 @@
   body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; touch-action: none; font-family: "PingFang TC", sans-serif; user-select: none; -webkit-user-select: none; }
   
   #game-window { position: relative; width: 100%; height: 100%; background: linear-gradient(to bottom, var(--sky-top) 0%, var(--sky-bottom) 60%); overflow: hidden; }
-  #world { position: absolute; left: 0; top: 0; height: 100%; will-change: transform; }
   
-  #screen-effects { position: absolute; inset: 0; pointer-events: none; z-index: 15; }
-  .wind-line { position: absolute; height: 2px; background: rgba(255,255,255,0.4); border-radius: 2px; animation: blowRight linear infinite; }
-  @keyframes blowRight { 0% { transform: translateX(-20vw); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateX(100vw); opacity: 0; } }
+  /* 固定在畫面後方的背景 (不會隨著人物走動而滑出邊界) */
+  .ocean-bg { position: absolute; bottom: 0; width: 100%; height: 15%; background: linear-gradient(to bottom, var(--ocean-top) 0%, var(--ocean-bottom) 100%); z-index: 1; opacity: 0.85; border-top: 4px solid rgba(255,255,255,0.4); }
+  .cliff-bg { position: absolute; bottom: 15%; width: 100%; height: 90px; background: linear-gradient(to bottom, var(--grass-light) 0%, var(--grass-dark) 40%, var(--dirt) 40%, #4a3626 100%); border-top: 3px solid #bdf285; z-index: 2; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+
+  /* 負責捲動的世界層 */
+  #world { position: absolute; left: 0; top: 0; height: 100%; will-change: transform; z-index: 3; }
   
-  #bubbles-container { position: absolute; bottom: 0; width: 100%; height: 25%; pointer-events: none; z-index: 14; overflow: hidden; }
+  #bubbles-container { position: absolute; bottom: 0; width: 100%; height: 15%; pointer-events: none; z-index: 14; overflow: hidden; }
   .bubble { position: absolute; background: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.6); border-radius: 50%; animation: floatUp ease-in infinite; }
   @keyframes floatUp { 0% { transform: translateY(0px) scale(0.5); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(-40px) scale(1.2); opacity: 0; } }
 
   .cloud { position: absolute; background: rgba(255,255,255,0.85); border-radius: 50px; filter: blur(2px); animation: floatCloud ease-in-out infinite alternate; }
   @keyframes floatCloud { 0% { transform: translateX(0px); } 100% { transform: translateX(50px); } }
   
-  /* 陸地微調加厚 */
-  .ocean { position: absolute; bottom: 0; width: 100%; height: 23%; background: linear-gradient(to bottom, var(--ocean-top) 0%, var(--ocean-bottom) 100%); z-index: 5; opacity: 0.85; border-top: 4px solid rgba(255,255,255,0.4); }
-  .cliff { position: absolute; bottom: 23%; width: 100%; height: 50px; background: linear-gradient(to bottom, var(--grass-light) 0%, var(--grass-dark) 40%, var(--dirt) 40%, #4a3626 100%); border-top: 3px solid #bdf285; z-index: 10; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
-  .coral { position: absolute; bottom: -5px; z-index: 4; transform-origin: bottom center; animation: sway 8s ease-in-out infinite alternate; }
+  .coral { position: absolute; bottom: 2%; transform-origin: bottom center; animation: sway 8s ease-in-out infinite alternate; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5)); }
   @keyframes sway { 0% { transform: rotate(-3deg); } 100% { transform: rotate(3deg); } }
 
-  .bird { position: absolute; z-index: 2; font-size: 35px; filter: drop-shadow(2px 5px 8px rgba(0,0,0,0.3)); }
+  .bird { position: absolute; font-size: 35px; filter: drop-shadow(2px 5px 8px rgba(0,0,0,0.3)); }
   @keyframes flyWave { 0% { transform: translate(-100px, 0) scaleX(-1); } 25% { transform: translate(2500px, -60px) scaleX(-1); } 50% { transform: translate(5000px, 30px) scaleX(-1); } 75% { transform: translate(7500px, -40px) scaleX(-1); } 100% { transform: translate(10000px, 0) scaleX(-1); } }
   @keyframes flySwoop { 0% { transform: translate(-100px, -50px) scaleX(-1); } 20% { transform: translate(2000px, 80px) scaleX(-1); } 50% { transform: translate(5000px, -30px) scaleX(-1); } 80% { transform: translate(8000px, 70px) scaleX(-1); } 100% { transform: translate(10000px, -50px) scaleX(-1); } }
   
-  .fish { position: absolute; z-index: 6; font-size: 45px; animation: swimLeft linear infinite; }
+  .fish { position: absolute; font-size: 45px; animation: swimLeft linear infinite; }
   @keyframes swimLeft { 0% { transform: translateX(10000px) scaleX(1); } 100% { transform: translateX(-200px) scaleX(1); } }
   
-  /* === 優化：關卡與樹藤整體拉高 === */
-  .vine { position: absolute; bottom: calc(23% + 185px); height: 40px; border-bottom: 4px solid #4a7c2a; border-radius: 50%; z-index: 9; opacity: 0.8; }
+  /* 關卡與物件高度精準調整 (依據 15%海 + 90px草地 計算) */
+  .vine { position: absolute; bottom: calc(15% + 200px); height: 40px; border-bottom: 4px solid #4a7c2a; border-radius: 50%; opacity: 0.8; }
   
   .floating-island { 
-    position: absolute; bottom: calc(23% + 170px); width: 75px; height: 65px; border-radius: 45% 55% 40% 60%; 
+    position: absolute; bottom: calc(15% + 185px); width: 75px; height: 65px; border-radius: 45% 55% 40% 60%; 
     background: radial-gradient(circle at 30% 30%, #a8e6cf 0%, #3d8c40 70%, #2a592c 100%); 
     box-shadow: 0 10px 15px rgba(0,0,0,0.3), inset -6px -6px 12px rgba(0,0,0,0.4), inset 3px 3px 8px rgba(255,255,255,0.2); 
     display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; text-shadow: 1px 1px 2px #000; 
-    transition: box-shadow 0.2s, background 0.2s; animation: floatUpDown 4s ease-in-out infinite alternate; z-index: 10; text-align: center; line-height: 1.2;
+    transition: box-shadow 0.2s, background 0.2s; animation: floatUpDown 4s ease-in-out infinite alternate; text-align: center; line-height: 1.2;
   }
   @keyframes floatUpDown { 0% { transform: translateY(0px); } 100% { transform: translateY(-10px); } }
   
@@ -66,16 +65,11 @@
       100% { box-shadow: 0 10px 15px rgba(0,0,0,0.3), inset -6px -6px 12px rgba(0,0,0,0.4); transform: translateY(0); } 
   }
   .active-hit { box-shadow: 0 0 30px #ffeb3b, inset -4px -4px 10px rgba(180,120,0,0.5) !important; background: radial-gradient(circle at 30% 30%, #fff59d 0%, #fbc02d 70%, #f57f17 100%) !important; transform: translateY(-15px) !important; animation: none !important; }
-  
-  .level-label { position: absolute; top: -35px; white-space: nowrap; background: rgba(0,0,0,0.6); color: #fff; padding: 4px 8px; border-radius: 10px; font-size: 12px; opacity: 0; }
-  .active-hit .level-label, .island-active .level-label { opacity: 1; }
 
   .level-category-bottom {
       position: absolute; top: 72px; left: 50%; transform: translateX(-50%);
-      font-size: 11px; color: #fff; 
-      background: linear-gradient(135deg, rgba(13, 71, 161, 0.85) 0%, rgba(25, 118, 210, 0.7) 100%);
-      padding: 4px 10px; border-radius: 20px; 
-      white-space: nowrap; pointer-events: none; 
+      font-size: 11px; color: #fff; background: linear-gradient(135deg, rgba(13, 71, 161, 0.85) 0%, rgba(25, 118, 210, 0.7) 100%);
+      padding: 4px 10px; border-radius: 20px; white-space: nowrap; pointer-events: none; 
       border: 1px solid rgba(144, 202, 249, 0.4); box-shadow: 0 2px 5px rgba(0,0,0,0.3), inset 1px 1px 3px rgba(255,255,255,0.2); z-index: 5;
   }
 
@@ -85,40 +79,35 @@
       text-shadow: 1px 1px 3px #000, 0 0 8px rgba(0,0,0,0.8); font-weight: bold; line-height: 1.2; word-break: break-word; pointer-events: none;
   }
 
-  /* === 優化：神聖光束 (取代原本的綠色箭頭) === */
+  /* 神聖光束 */
   .light-beam {
       position: absolute; top: 60px; left: 50%; transform: translateX(-50%);
-      width: 50px; height: 130px; /* 剛好延伸到草地位置 */
+      width: 50px; height: 130px; 
       background: linear-gradient(to bottom, rgba(255, 235, 59, 0.5) 0%, rgba(255, 235, 59, 0) 100%);
-      pointer-events: none; z-index: -1;
-      animation: beamPulse 1.5s infinite alternate ease-in-out;
-      filter: blur(4px);
+      pointer-events: none; z-index: -1; animation: beamPulse 1.5s infinite alternate ease-in-out; filter: blur(4px);
   }
   @keyframes beamPulse { 0% { opacity: 0.4; height: 110px; } 100% { opacity: 0.8; height: 140px; } }
 
-  #player { position: absolute; left: 150px; bottom: calc(23% + 45px); width: 40px; height: 60px; z-index: 25; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); will-change: left, transform; }
+  #player { position: absolute; bottom: calc(15% + 85px); width: 40px; height: 60px; z-index: 20; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); will-change: left, transform; }
   .player-head { width: 30px; height: 30px; background: #ffe0b2; border: 2px solid #555; border-radius: 50%; margin: 0 auto; position: relative; }
   .player-body { width: 40px; height: 30px; background: #e3f2fd; border: 2px solid #555; border-radius: 10px 10px 5px 5px; margin-top: -2px; }
 
-  .health-coin { position: absolute; width: 35px; height: 35px; background-color: var(--coin-gold); border: 3px solid #b8860b; border-radius: 50%; z-index: 15; display: flex; align-items: center; justify-content: center; color: #8b4513; font-weight: bold; font-size: 18px; box-shadow: 0 0 10px rgba(255,215,0,0.7), inset 2px 2px 5px rgba(255,255,255,0.6); animation: rotateCoin 2s linear infinite, floatCoin 1.5s ease-in-out infinite alternate; }
+  .health-coin { position: absolute; width: 35px; height: 35px; background-color: var(--coin-gold); border: 3px solid #b8860b; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #8b4513; font-weight: bold; font-size: 18px; box-shadow: 0 0 10px rgba(255,215,0,0.7), inset 2px 2px 5px rgba(255,255,255,0.6); animation: rotateCoin 2s linear infinite, floatCoin 1.5s ease-in-out infinite alternate; }
   @keyframes rotateCoin { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(360deg); } }
   @keyframes floatCoin { 0% { margin-top: 0px; } 100% { margin-top: -8px; } }
   .health-coin.collected { animation: collectEffect 0.5s ease-out forwards; pointer-events: none; }
   @keyframes collectEffect { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-50px) scale(1.5); opacity: 0; } }
 
-  /* === 優化：虛擬按鍵移至草地，並調整為高透明水泡材質 === */
+  /* === 完美藏於草地的虛擬按鍵 === */
   #virtual-controls {
       position: absolute; 
-      /* 剛好落在草地上方、稍微跨過一點海面 */
-      bottom: calc(23% - 10px); 
+      bottom: calc(15% + 15px); /* 海洋15% + 向上偏移15px，完美落在90px的草地中央 */
       width: 100%; height: 60px; z-index: 50; pointer-events: none; 
   }
   .v-btn {
       pointer-events: auto; 
-      background: rgba(255, 255, 255, 0.15); /* 高透明度 */
-      border: 1px solid rgba(255, 255, 255, 0.4); 
-      color: rgba(255, 255, 255, 0.9); 
-      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.4); 
+      color: rgba(255, 255, 255, 0.9); border-radius: 50%;
       width: 55px; height: 55px; font-size: 24px; font-weight: bold;
       display: flex; justify-content: center; align-items: center;
       backdrop-filter: blur(2px); box-shadow: 0 4px 8px rgba(0,0,0,0.3);
@@ -129,7 +118,6 @@
   
   #btn-left { left: 20px; bottom: 0; }
   #btn-right { right: 20px; bottom: 0; }
-  /* JUMP 置中 */
   #btn-jump { left: 50%; bottom: 0; transform: translateX(-50%); width: 85px; border-radius: 20px; font-size: 18px; letter-spacing: 2px; }
   #btn-jump:active { transform: translateX(-50%) scale(0.92); }
 </style>
@@ -137,10 +125,16 @@
 <body>
 
 <div id="game-window">
-  <div id="screen-effects"></div><div id="bubbles-container"></div>
+  <div class="ocean-bg"></div>
+  <div class="cliff-bg"></div>
+  <div id="bubbles-container"></div>
+  
   <div id="world">
-    <div id="clouds-container"></div><div class="cliff"></div><div class="ocean" id="ocean-container"></div>
-    <div id="creatures-container"></div><div id="vines-container"></div><div id="bricks-container"></div><div id="coins-container"></div>
+    <div id="clouds-container"></div>
+    <div id="creatures-container"></div>
+    <div id="vines-container"></div>
+    <div id="bricks-container"></div>
+    <div id="coins-container"></div>
     <div id="player"><div class="player-head"></div><div class="player-body"></div></div>
   </div>
   
@@ -167,7 +161,7 @@
   let isMovingRight = false;
   
   const LEVEL_SPACING = 160; const START_OFFSET = 300; 
-  let TOTAL_CYCLES = 4; let WORLD_MAX_WIDTH = 5000;
+  let TOTAL_CYCLES = 4; let WORLD_MAX_WIDTH = 20000;
   
   const bricksData = []; const coinsData = [];
 
@@ -198,9 +192,6 @@
       const CYCLE_GAP = 800; 
       const CYCLE_WIDTH = CYCLE_LENGTH * LEVEL_SPACING + CYCLE_GAP;
       
-      WORLD_MAX_WIDTH = START_OFFSET + TOTAL_CYCLES * CYCLE_WIDTH + 500;
-      world.style.width = WORLD_MAX_WIDTH + 'px';
-
       const startCycle = Math.floor(TOTAL_CYCLES / 2);
       
       minPlayerX = allCleared ? 50 : (START_OFFSET + startCycle * CYCLE_WIDTH - 50);
@@ -219,7 +210,6 @@
           
           let innerHTMLStr = '';
 
-          // === 新增：發射光束指示玩家 (取代綠色箭頭) ===
           if (i === startCycle * CYCLE_LENGTH + activeIndex) {
               innerHTMLStr += `<div class="light-beam"></div>`;
           }
@@ -230,10 +220,8 @@
               else if (item.status === 'locked') island.classList.add('island-locked');
               
               let categoryText = item.category || '特別演練';
-              
               innerHTMLStr += `
                   第 ${item.globalIdx + 1} 關
-                  <div class="level-label">準備任務</div>
                   <div class="level-category-bottom">${categoryText}</div>
                   <div class="level-title-bottom">${item.title || ''}</div>
               `;
@@ -241,12 +229,12 @@
               island.classList.add('random-level'); 
               if (item.status === 'locked') island.classList.add('island-locked');
               else island.classList.add('island-active');
-              innerHTMLStr += `<span class="random-text">隨機</span><div class="level-label">抽籤關卡</div><div class="level-title-bottom">未知的挑戰</div>`;
+              innerHTMLStr += `<span class="random-text">隨機</span><div class="level-title-bottom">未知的挑戰</div>`;
               isRandom = true;
           } else if (item.type === 'comprehensive') {
               if (item.status === 'locked') island.classList.add('island-locked');
               else island.classList.add('island-active');
-              innerHTMLStr += `綜合<div class="level-label">綜合演練</div><div class="level-title-bottom">終極考驗</div>`;
+              innerHTMLStr += `綜合<div class="level-title-bottom">終極考驗</div>`;
               island.style.background = 'radial-gradient(circle at 30% 30%, #ff8a65 0%, #d84315 70%, #bf360c 100%)';
           }
           
@@ -266,9 +254,9 @@
       coinLocations.forEach((loc, index) => {
           if (!collectedCoins.includes(index)) {
               const coin = document.createElement('div'); coin.className = 'health-coin'; coin.innerText = 'H';
-              coin.style.left = loc.x + 'px'; coin.style.bottom = `calc(23% + 60px)`;
+              coin.style.left = loc.x + 'px'; coin.style.bottom = `calc(15% + 105px)`;
               coinsContainer.appendChild(coin);
-              coinsData.push({ id: index, x: loc.x, yPx: 60, element: coin, isCollected: false });
+              coinsData.push({ id: index, x: loc.x, yPx: 105, element: coin, isCollected: false });
           }
       });
 
@@ -308,10 +296,8 @@
       if (!isNaN(targetPlayerX) && !isJumping) {
           playerX += (targetPlayerX - playerX) * 0.15; 
           
-          let camX = window.innerWidth * 0.3 - playerX;
-          if (camX > 0) camX = 0; 
-          const maxScroll = -(WORLD_MAX_WIDTH - window.innerWidth + 200);
-          if (camX < maxScroll) camX = maxScroll;
+          // === 完美置中邏輯 ===
+          let camX = (window.innerWidth / 2) - playerX - 20;
           
           world.style.transform = `translate3d(${camX}px, 0, 0)`;
           player.style.left = `${playerX}px`;
@@ -324,7 +310,6 @@
   function jump() {
       if (isJumping) return;
       isJumping = true;
-      // === 配合關卡拉高，跳躍高度設定為 -110px ===
       let jumpHeight = -110; 
       player.style.transform = `translateY(${jumpHeight}px)`;
       
@@ -337,12 +322,12 @@
                   
                   if (b.isRandom && !b.isRollingLocked && b.itemData.status !== 'locked') {
                       b.isRollingLocked = true;
-                      let rollCount = 0; const randomText = b.element.querySelector('.random-text'); const levelLabel = b.element.querySelector('.level-label');
+                      let rollCount = 0; const randomText = b.element.querySelector('.random-text');
                       const rollInterval = setInterval(() => {
                           randomText.innerText = `第 ${Math.floor(Math.random() * 25) + 1} 關`;
                           if (++rollCount >= 20) { 
                               clearInterval(rollInterval);
-                              randomText.innerText = `第 ${Math.floor(Math.random() * 25) + 1} 關`; levelLabel.innerText = `抽中！`;
+                              randomText.innerText = `第 ${Math.floor(Math.random() * 25) + 1} 關`;
                           }
                       }, 50);
                   }
@@ -370,7 +355,7 @@
   }
 
   function checkCoinCollisions(playerYOffset) {
-      const playerActualY = 45 + playerYOffset; 
+      const playerActualY = 85 + playerYOffset; 
       coinsData.forEach(c => {
           if (c.isCollected) return; 
           if (Math.abs(playerX + 20 - (c.x + 17.5)) < 40 && Math.abs(playerActualY - c.yPx) < 40) {
@@ -392,13 +377,11 @@
       if (e.cancelable) e.preventDefault(); 
       let clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX; 
       let deltaX = clientX - startClientX; 
-      targetPlayerX = startPlayerX + deltaX * 1.8; 
+      targetPlayerX = startPlayerX - deltaX * 1.5; // 相機拖曳反向
       if (targetPlayerX < minPlayerX) targetPlayerX = minPlayerX; 
       if (targetPlayerX > WORLD_MAX_WIDTH) targetPlayerX = WORLD_MAX_WIDTH; 
   };
-  const handleEnd = (e) => { 
-      isDragging = false; 
-  };
+  const handleEnd = (e) => { isDragging = false; };
 
   const interactArea = document.getElementById('game-window');
   interactArea.addEventListener('mousedown', handleStart); window.addEventListener('mousemove', handleMove); window.addEventListener('mouseup', handleEnd);
@@ -406,21 +389,21 @@
   window.addEventListener('resize', () => { playerX = targetPlayerX; });
 
   function generateEnvironment() {
-      const screenEffects = document.getElementById('screen-effects'); const bubblesContainer = document.getElementById('bubbles-container');
-      for(let i=0; i<4; i++) { const wind = document.createElement('div'); wind.className = 'wind-line'; wind.style.top = `${Math.random() * 45}%`; wind.style.width = `${100 + Math.random() * 200}px`; wind.style.animationDuration = `${12 + Math.random() * 10}s`; wind.style.animationDelay = `-${Math.random() * 10}s`; screenEffects.appendChild(wind); }
+      const bubblesContainer = document.getElementById('bubbles-container');
       for(let i=0; i<8; i++) { const bubble = document.createElement('div'); bubble.className = 'bubble'; bubble.style.left = `${Math.random() * 100}%`; bubble.style.bottom = `${Math.random() * 20}%`; const size = 5 + Math.random() * 10; bubble.style.width = `${size}px`; bubble.style.height = `${size}px`; bubble.style.animationDuration = `${6 + Math.random() * 6}s`; bubble.style.animationDelay = `-${Math.random() * 6}s`; bubblesContainer.appendChild(bubble); }
       
-      const MAX_W = 20000; const oceanContainer = document.getElementById('ocean-container');
+      const MAX_W = 20000; 
       for(let i = 0; i < Math.floor(MAX_W/300); i++) { const cloud = document.createElement('div'); cloud.className = 'cloud'; cloud.style.left = `${(i * 300) + Math.random() * 150}px`; cloud.style.top = `${Math.random() * 35}%`; cloud.style.width = `${80 + Math.random() * 150}px`; cloud.style.height = `${20 + Math.random() * 40}px`; cloud.style.opacity = 0.4 + Math.random() * 0.4; cloud.style.animationDuration = `${40 + Math.random() * 40}s`; document.getElementById('clouds-container').appendChild(cloud); }
+      
       const coralEmojis = ['🪸', '🌿', '🌱', '🦀']; 
-      for (let i = 0; i < Math.floor(MAX_W/300); i++) { const coral = document.createElement('div'); coral.className = 'coral'; const type = coralEmojis[Math.floor(Math.random() * coralEmojis.length)]; coral.innerText = type; coral.style.left = `${(i * 300) + Math.random() * 150}px`; coral.style.fontSize = '40px'; if (type === '🌿' || type === '🌱') { coral.style.transform = `scale(${0.8 + Math.random() * 0.4}, ${1.5 + Math.random() * 2.0})`; coral.style.filter = `hue-rotate(${Math.random() * 90 - 45}deg) drop-shadow(2px 2px 4px rgba(0,0,0,0.5))`; } else { coral.style.transform = `scale(${0.7 + Math.random() * 0.6})`; coral.style.filter = `hue-rotate(${Math.random() * 360}deg) drop-shadow(2px 2px 4px rgba(0,0,0,0.5))`; } coral.style.opacity = 0.85; coral.style.animationDelay = `-${Math.random() * 5}s`; oceanContainer.appendChild(coral); }
+      for (let i = 0; i < Math.floor(MAX_W/300); i++) { const coral = document.createElement('div'); coral.className = 'coral'; const type = coralEmojis[Math.floor(Math.random() * coralEmojis.length)]; coral.innerText = type; coral.style.left = `${(i * 300) + Math.random() * 150}px`; coral.style.fontSize = '40px'; if (type === '🌿' || type === '🌱') { coral.style.transform = `scale(${0.8 + Math.random() * 0.4}, ${1.5 + Math.random() * 2.0})`; coral.style.filter = `hue-rotate(${Math.random() * 90 - 45}deg) drop-shadow(2px 2px 4px rgba(0,0,0,0.5))`; } else { coral.style.transform = `scale(${0.7 + Math.random() * 0.6})`; coral.style.filter = `hue-rotate(${Math.random() * 360}deg) drop-shadow(2px 2px 4px rgba(0,0,0,0.5))`; } document.getElementById('world').appendChild(coral); }
       
       const creaturesContainer = document.getElementById('creatures-container');
       for (let i = 0; i < 12; i++) { 
           const isFlock = Math.random() > 0.6; const flockSize = isFlock ? (Math.random() > 0.5 ? 2 : 3) : 1; 
           const baseX = Math.random() * MAX_W; 
-          // === 優化：飛鳥位置改由關卡下方飛過 (45% ~ 60%) ===
-          const baseY = Math.random() * 15 + 45; 
+          // 鳥類飛行高度：5% ~ 25% (關卡上方)
+          const baseY = Math.random() * 20 + 5; 
           const animName = Math.random() > 0.5 ? 'flyWave' : 'flySwoop'; 
           const duration = 100 + Math.random() * 100; const delay = -(Math.random() * 200); 
           for (let j = 0; j < flockSize; j++) { 
@@ -434,13 +417,13 @@
       
       for (let i = 0; i < 18; i++) { 
           const isSchool = Math.random() > 0.5; const schoolSize = isSchool ? Math.floor(Math.random() * 3) + 2 : 1; 
-          const baseX = Math.random() * MAX_W; const baseY = Math.random() * 40 + 10; 
+          const baseX = Math.random() * MAX_W; const baseY = Math.random() * 10 + 2; 
           const duration = 240 + Math.random() * 150; const delay = -(Math.random() * 300); const baseHue = Math.floor(Math.random() * 360); 
           for (let j = 0; j < schoolSize; j++) { 
               const fish = document.createElement('div'); fish.className = 'fish'; fish.innerText = ['🐠', '🐡', '🐟', '🪼', '🦑'][Math.floor(Math.random() * 5)]; 
-              fish.style.left = `${baseX + j * (80 + Math.random() * 50)}px`; fish.style.top = `calc(${baseY}% + ${j * (20 - Math.random() * 40)}px)`; 
+              fish.style.left = `${baseX + j * (80 + Math.random() * 50)}px`; fish.style.bottom = `calc(${baseY}% + ${j * (2 - Math.random() * 4)}%)`; 
               fish.style.animationDuration = `${duration}s`; fish.style.animationDelay = `${delay}s`; 
-              const scale = 0.5 + Math.random() * 0.5; fish.style.transform = `scale(${scale})`; fish.style.filter = `drop-shadow(3px 6px 10px rgba(0,0,0,0.5)) hue-rotate(${baseHue + (j*15)}deg)`; fish.style.opacity = scale; oceanContainer.appendChild(fish); 
+              const scale = 0.5 + Math.random() * 0.5; fish.style.transform = `scale(${scale})`; fish.style.filter = `drop-shadow(3px 6px 10px rgba(0,0,0,0.5)) hue-rotate(${baseHue + (j*15)}deg)`; fish.style.opacity = scale; document.getElementById('world').appendChild(fish); 
           } 
       }
   }
