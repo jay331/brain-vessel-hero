@@ -668,11 +668,12 @@ function renderNodeMap() {
 
 function handleHubNodeClickLogic(type, roleId, taskIdx, status, globalIdx) {
     if (type === 'random') {
-        if (status === 'locked') return customAlert('這是一道神秘的關卡，請先將前面 25 個任務全部過關後再來挑戰吧！', null, '🔒 尚未解鎖');
         startRandomPractice();
     } else if (type === 'comprehensive') {
-        if (status === 'locked') return customAlert('終極考驗尚未開放！請先將前面 25 個任務全部過關。', null, '🔒 尚未解鎖');
         openComprehensiveDrill();
+    } else if (type === 'parkour') {
+        // ★ 新增的跑酷按鈕點擊回應！
+        customAlert('🏃 跑酷挑戰模式積極開發中！\n未來將解鎖更多考驗反應神經的動作關卡，敬請期待！', null, '跑酷挑戰預告');
     } else if (type === 'task') {
         if (status === 'locked') return customAlert('此區域尚未解鎖，請先完成前面的任務！', null, '🔒 區域未解鎖');
         
