@@ -265,7 +265,7 @@ body.mode-advanced .view-toggle-btn {
       </div>
       
       <div class="header-right" id="uiStoryToggleWrap">
-          <button id="btnViewToggle" class="view-toggle-btn" onclick="toggleViewMode()">切換為清單模式</button>
+          <button id="btnViewToggle" class="view-toggle-btn" onclick="toggleViewMode()">清單模式</button>
       </div>
   </header>
 
@@ -689,7 +689,7 @@ function setHomeView(isMap) {
   playerState.storyMode = isMap; saveGameData();
   
   const btnView = id('btnViewToggle');
-  if (btnView) btnView.textContent = isMap ? "切換為清單模式" : "切換為任務模式";
+  if (btnView) btnView.textContent = isMap ? "清單模式" : "任務模式";
 
   if(id('roleListContainer')) id('roleListContainer').style.display = 'none'; 
   if(id('nodeMapContainer')) id('nodeMapContainer').style.display = 'none';
