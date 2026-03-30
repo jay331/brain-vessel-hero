@@ -161,8 +161,22 @@
   .player-firing .enzyme-beam { width: 120px; opacity: 1; animation: beamPulse 0.1s infinite alternate; }
   @keyframes beamPulse { from { opacity: 0.7; filter: brightness(1); } to { opacity: 1; filter: brightness(1.5); } }
 
-  .health-coin { position: absolute; width: 30px; height: 30px; background: radial-gradient(circle, var(--coin-gold), #b8860b); border: 2px solid #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #8b4513; font-weight: bold; font-size: 16px; z-index: 25; box-shadow: 0 0 10px rgba(255,215,0,0.7); animation: floatCoin 1.5s ease-in-out infinite alternate; }
-  @keyframes floatCoin { 0% { transform: translateY(0px); } 100% { transform: translateY(-8px); } }
+  /* ★ 綠色健康幣，並支援放在細胞內的定位 */
+  .health-coin { 
+      position: absolute; width: 30px; height: 30px; 
+      background: radial-gradient(circle, #69f0ae, #00b259); /* 改為發光綠色 */
+      border: 2px solid #fff; border-radius: 50%; 
+      display: flex; align-items: center; justify-content: center; 
+      color: #004d26; font-weight: 900; font-size: 16px; z-index: 25; 
+      box-shadow: 0 0 10px rgba(0, 230, 118, 0.7); 
+      animation: floatCoin 1.5s ease-in-out infinite alternate; 
+  }
+  .endo-cell .health-coin {
+      position: relative; /* 覆蓋 absolute，讓它乖乖待在細胞正中央 */
+      left: auto !important; bottom: auto !important;
+      animation: none; /* 在細胞內不需要上下浮動 */
+      box-shadow: inset 0 -2px 4px rgba(0,0,0,0.3), 0 0 15px rgba(0, 230, 118, 0.9);
+  }
   .health-coin.collected { animation: collectEffect 0.5s ease-out forwards; pointer-events: none; }
   @keyframes collectEffect { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-50px) scale(1.5); opacity: 0; } }
 
@@ -304,13 +318,14 @@
       let taskMap = {}; 
       baseSeq.forEach((t, i) => { taskMap[START_OFFSET + i * NODE_SPACING] = { task: t, index: i }; });
 
+      let blankCellIdx = 0; // ★ 用來計算空白細胞的專屬硬幣 ID
+
       for (let i = 0; i < totalCellsNeeded; i++) {
           const cellX = i * CELL_WIDTH;
           
-          // 1. 下方細胞 (只留關卡名稱)
+          // 下方細胞
           const bCell = document.createElement('div');
           bCell.className = 'endo-cell bottom'; bCell.style.left = cellX + 'px';
-          
           if (taskMap[cellX]) {
               const tData = taskMap[cellX]; const t = tData.task;
               let titleColor = (t.status === 'locked') ? '#757575' : ((t.status === 'cleared') ? '#fff' : 'var(--current-theme)');
@@ -318,48 +333,47 @@
           }
           bottomWallContainer.appendChild(bCell);
 
-          // 2. 上方細胞 (關卡節點)
+          // 上方細胞
           if (taskMap[cellX]) {
               const tData = taskMap[cellX]; const t = tData.task; 
-              const displayNum = t.taskIdx + 1; // 該類別中的第 1~5 關
+              const displayNum = t.taskIdx + 1; 
 
               const node = document.createElement('div');
               node.className = 'endo-cell top cell-node'; node.style.left = cellX + 'px';
               
-              if (t.status === 'cleared') {
-                  node.classList.add('node-cleared');
-                  node.style.color = "#000";
-              }
+              if (t.status === 'cleared') { node.classList.add('node-cleared'); node.style.color = "#000"; }
               else if (t.status === 'active' || t.status === 'unlocked') {
                   node.classList.add('node-active');
-                  // ★ 增加綠色能量球，懸浮於尚未過關的節點下方
                   node.innerHTML += `<div class="energy-orb"></div>`;
               }
               else node.classList.add('node-locked');
 
-              node.innerHTML += `
-                  <div style="font-size: 10px; opacity: 0.8; margin-bottom: 2px;">${t.category || '演練'}</div>
-                  <div style="font-size: 15px; font-weight: 900; letter-spacing: 1px;">第 ${displayNum} 關</div>
-              `;
+              node.innerHTML += `<div style="font-size: 10px; opacity: 0.8; margin-bottom: 2px;">${t.category || '演練'}</div><div style="font-size: 15px; font-weight: 900; letter-spacing: 1px;">第 ${displayNum} 關</div>`;
               topWallContainer.appendChild(node);
               nodesData.push({ x: cellX, element: node, itemData: t });
 
           } else {
+              // ★ 這裡是「空白的上方細胞」
               const tCell = document.createElement('div');
               tCell.className = 'endo-cell top'; tCell.style.left = cellX + 'px';
+              
+              // ★ 在此動態塞入綠色健康幣
+              // 條件：硬幣沒被吃過，且進度不能超過當前解鎖的關卡
+              if (!collectedCoins.includes(blankCellIdx) && cellX <= START_OFFSET + activeIndex * NODE_SPACING) {
+                  const coin = document.createElement('div'); 
+                  coin.className = 'health-coin'; 
+                  coin.innerText = '$';
+                  tCell.appendChild(coin);
+                  
+                  // 將硬幣加入碰撞偵測陣列 (X座標為細胞中心)
+                  coinsData.push({ id: blankCellIdx, x: cellX + 65, element: coin, isCollected: false });
+              }
               topWallContainer.appendChild(tCell);
+              blankCellIdx++; // ID 遞增
           }
       }
-
-      let coinLocations = [ {x: START_OFFSET + 150}, {x: START_OFFSET + NODE_SPACING + 150} ]; 
-      coinLocations.forEach((loc, index) => {
-          if (!collectedCoins.includes(index) && loc.x < START_OFFSET + activeIndex * NODE_SPACING) {
-              const coin = document.createElement('div'); coin.className = 'health-coin'; coin.innerText = '$';
-              coin.style.left = loc.x + 'px'; coin.style.bottom = `40%`; 
-              coinsContainer.appendChild(coin);
-              coinsData.push({ id: index, x: loc.x, yPx: window.innerHeight * 0.4, element: coin, isCollected: false });
-          }
-      });
+      
+      // (舊的 coinLocations 陣列已經被我們刪除了，因為不需要了);
 
       // ★ 計算巨型血栓的最終位置
       let finalThrombusLeft = (allCleared || activeIndex >= TOTAL_NODES) ? WORLD_MAX_WIDTH : (START_OFFSET + activeIndex * NODE_SPACING + 115);
@@ -503,11 +517,10 @@
      player.style.transform = `translate(-50%, -${jumpDistance}px) scale(1.2)`;
       
       setTimeout(() => {
+          // 原本的關卡節點撞擊偵測
           nodesData.forEach(b => {
               if (Math.abs((playerX) - (b.x + 65)) < 70) {
                   b.element.classList.add('active-hit'); 
-                  
-                  // ★ 撞擊時隱藏綠色能量球，給予即時回饋
                   let orb = b.element.querySelector('.energy-orb');
                   if(orb) orb.style.opacity = '0';
 
@@ -519,6 +532,25 @@
                       }, '*');
                       b.element.classList.remove('active-hit'); 
                   }, 400);
+              }
+          });
+
+          // ★ 新增的：健康幣撞擊偵測！
+          coinsData.forEach(c => {
+              if (!c.isCollected && Math.abs(playerX - c.x) < 60) {
+                  c.isCollected = true;
+                  c.element.classList.add('collected'); // 觸發往上飛的吃幣動畫
+                  
+                  // 傳送吃幣訊號給主程式 (index.html)
+                  window.parent.postMessage({
+                      type: 'COLLECT_HUB_COIN',
+                      coinIndex: c.id
+                  }, '*');
+                  
+                  // 延遲後將硬幣從 DOM 移除
+                  setTimeout(() => {
+                      if (c.element.parentNode) c.element.parentNode.removeChild(c.element);
+                  }, 500);
               }
           });
       }, 300);
