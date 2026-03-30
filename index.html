@@ -20,29 +20,80 @@ input, select { font-family: inherit; background: rgba(0,0,0,0.6); border: 1px s
 input[type="checkbox"] { width: auto; }
 .app { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; }
 
-/* ===== HUD 標題列 ===== */
-header { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(180deg, rgba(0,0,0,0.95), rgba(0,0,0,0.85)); border-bottom: 1px solid rgba(255,255,255,0.1); z-index: 100; flex-shrink: 0; padding: 10px 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.8); }
+/* ===== HUD 標題列 (高質感微壓克力升級版) ===== */
+header { 
+    display: flex; align-items: center; justify-content: space-between; 
+    /* 改用半透明深色底，配合毛玻璃效果 */
+    background: rgba(12, 12, 15, 0.75); 
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.08); 
+    z-index: 100; flex-shrink: 0; padding: 10px 14px; 
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6); 
+}
 
-/* 左側：大頭貼、玩家名稱、健康幣堆疊 */
-.header-left { display: flex; align-items: center; gap: 10px; flex: 1; }
-.avatar-wrap { width: 46px; height: 46px; border-radius: 50%; border: 2px solid var(--theme-primary); background: #000; overflow: hidden; position: relative; cursor: pointer; box-shadow: 0 0 10px rgba(0,0,0,0.8), inset 0 0 5px rgba(255,255,255,0.5); flex-shrink: 0; transition: transform 0.2s;}
+/* 左側：大頭貼與資訊整合為「玩家膠囊」 */
+.header-left { 
+    display: flex; align-items: center; gap: 12px; flex: 1; 
+    /* 淡淡的漸層底光，框住整個玩家資訊 */
+    background: linear-gradient(90deg, rgba(255,255,255,0.05) 0%, transparent 100%); 
+    padding: 4px 16px 4px 4px; border-radius: 30px; 
+    border: 1px solid rgba(255,255,255,0.05);
+    box-shadow: inset 0 2px 4px rgba(255,255,255,0.02);
+}
+
+.avatar-wrap { 
+    width: 48px; height: 48px; border-radius: 50%; 
+    border: 2px solid var(--theme-primary); 
+    background: #000; overflow: hidden; position: relative; cursor: pointer; 
+    /* 強化內外發光，讓大頭貼更立體 */
+    box-shadow: 0 0 12px rgba(0,0,0,0.8), inset 0 0 8px rgba(255,255,255,0.4); 
+    flex-shrink: 0; transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
 .avatar-wrap:active { transform: scale(0.92); }
 .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
 
 .player-info-col { display: flex; flex-direction: column; justify-content: center; gap: 4px; }
-.player-name { font-size: 15px; font-weight: 900; color: #fff; cursor: pointer; transition: color 0.2s; letter-spacing: 0.5px; text-shadow: 0 2px 4px rgba(0,0,0,1);} 
-.player-name:active { color: var(--theme-primary); }
 
-.coin-row { display: flex; align-items: center; gap: 6px; cursor: pointer; transition: transform 0.2s;}
-.coin-row:active { transform: scale(0.95); }
-.coin-title { color: var(--good); font-weight: 900; font-size: 11px; letter-spacing: 0.5px; text-shadow: 0 1px 2px rgba(0,0,0,1);}
-.coin-value { color: #fff; font-size: 14px; font-weight: 900; text-shadow: 0 0 6px rgba(255,255,255,0.4); line-height: 1; }
+.player-name { 
+    font-size: 15px; font-weight: 900; color: #fff; cursor: pointer; 
+    transition: color 0.2s, text-shadow 0.2s; letter-spacing: 0.5px; 
+    text-shadow: 0 2px 4px rgba(0,0,0,1); line-height: 1.1;
+} 
+.player-name:active { color: var(--theme-primary); text-shadow: 0 0 8px var(--theme-primary); }
 
-/* 右側：單一視角切換鈕 */
+/* 金幣列升級為獨立的「內凹小儀表板」 */
+.coin-row { 
+    display: inline-flex; align-items: center; gap: 6px; cursor: pointer; 
+    transition: transform 0.2s;
+    background: rgba(0,0,0,0.5); padding: 3px 10px 3px 8px; 
+    border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: inset 0 1px 4px rgba(0,0,0,0.8);
+}
+.coin-row:active { transform: scale(0.95); background: rgba(0,0,0,0.8); }
+
+.coin-title { color: #999; font-weight: bold; font-size: 10px; letter-spacing: 0.5px; text-shadow: none; }
+.coin-value { 
+    color: var(--good); font-size: 13px; font-weight: 900; 
+    text-shadow: 0 0 8px rgba(61,255,142,0.4); line-height: 1; letter-spacing: 0.5px;
+}
+
+/* 右側：單一視角切換鈕 (微玻璃質感) */
 .header-right { display: flex; justify-content: flex-end; align-items: center; }
-.view-toggle-btn { background: linear-gradient(135deg, #1976d2, #0d47a1); border: 1px solid #64b5f6; border-radius: 20px; color: #fff; font-weight: bold; font-size: 12px; padding: 8px 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); cursor: pointer; transition: transform 0.1s; letter-spacing: 0.5px;}
-.view-toggle-btn:active { transform: scale(0.95); }
-body.mode-advanced .view-toggle-btn { background: linear-gradient(135deg, #f57f17, #f57c00); border-color: #ffd54f;}
+.view-toggle-btn { 
+    background: linear-gradient(135deg, rgba(25, 118, 210, 0.8), rgba(13, 71, 161, 0.9)); 
+    border: 1px solid rgba(100, 181, 246, 0.5); 
+    border-radius: 20px; color: #fff; font-weight: bold; font-size: 12px; 
+    padding: 8px 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,255,0.2); 
+    cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px;
+}
+.view-toggle-btn:active { 
+    transform: scale(0.95); box-shadow: inset 0 2px 8px rgba(0,0,0,0.8); border-color: var(--theme-primary); 
+}
+
+body.mode-advanced .view-toggle-btn { 
+    background: linear-gradient(135deg, rgba(245, 127, 23, 0.8), rgba(245, 124, 0, 0.9)); 
+    border-color: rgba(255, 213, 79, 0.5);
+}
 
 /* ===== 佈局與背景 ===== */
 .wrap { flex: 1; display: flex; flex-direction: column; min-height: 0; position: relative;}
