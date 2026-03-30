@@ -12,371 +12,282 @@
     --vessel-light: #8c2a2a;
     --vessel-edge: #ff8a8a;
     --theme-beg: #64b5f6;
-    --coin-gold: #ffd700;
   }
-
-  body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; touch-action: manipulation; font-family: "PingFang TC", sans-serif; user-select: none; -webkit-user-select: none; background: #000; }
+  body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: "PingFang TC", sans-serif; user-select: none; touch-action: none; }
   
-  #game-window { position: absolute; inset: 0; overflow: hidden; }
+  #bv-viewport { position: absolute; inset: 0; bottom: 60px; background: radial-gradient(ellipse 150% 100% at 50% 50%, var(--bg-light) 0%, var(--bg-dark) 100%); overflow: hidden; }
 
-  /* 完美複製原本血管的空間比例 */
-  #bv-viewport {
-      position: absolute; top: 0; bottom: 60px; left: 0; right: 0;
-      background: radial-gradient(ellipse 150% 100% at 50% 50%, var(--bg-light) 0%, var(--bg-dark) 100%); 
-      overflow: hidden;
-  }
-
-  /* 血管外層肌肉組織 */
-  .vessel-wall { 
-      position: absolute; width: 100%; height: 65px; left: 0; z-index: 1; 
-      background: #3a0d0d; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); 
-  }
+  /* 血管外壁 */
+  .vessel-wall { position: absolute; width: 100%; height: 65px; left: 0; z-index: 1; background: #3a0d0d; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
   .vessel-wall.top { top: 0; border-top: 2px solid rgba(255, 138, 138, 0.5); border-bottom: 5px solid rgba(255, 138, 138, 0.2); }
   .vessel-wall.bottom { bottom: 0; border-bottom: 2px solid rgba(255, 138, 138, 0.5); border-top: 5px solid rgba(255, 138, 138, 0.2); }
-  .vessel-wall::after { content: ''; position: absolute; inset: 0; pointer-events: none; background-image: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.6) 3px, rgba(0,0,0,0.6) 6px), repeating-linear-gradient(45deg, transparent, transparent 15px, rgba(255,138,138,0.15) 15px, rgba(255,138,138,0.15) 18px); }
+  .vessel-wall::after { content: ''; position: absolute; inset: 0; background-image: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.6) 3px, rgba(0,0,0,0.6) 6px), repeating-linear-gradient(45deg, transparent, transparent 15px, rgba(255,138,138,0.15) 15px, rgba(255,138,138,0.15) 18px); pointer-events: none;}
 
-  /* 無限滾動的內皮細胞層 */
-  .cell-track { position: absolute; left: 0; width: 200%; height: 50px; display: flex; z-index: 5; }
-  .cell-track.top { top: 25px; }
-  .cell-track.bottom { bottom: 25px; }
-  .endo-cell {
-      flex-shrink: 0; width: 130px; height: 50px; margin-right: 20px; border-radius: 25px; 
-      background: radial-gradient(circle at 50% 50%, var(--vessel-light) 0%, var(--vessel-dark) 100%);
-      border: 2px solid var(--vessel-edge);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-  }
-  .cell-track.top .endo-cell { box-shadow: inset 0 -4px 8px rgba(0,0,0,0.6), 0 10px 18px rgba(0,0,0,0.7); }
-  .cell-track.bottom .endo-cell { box-shadow: inset 0 4px 8px rgba(0,0,0,0.6), 0 -10px 18px rgba(0,0,0,0.7); }
-  .cell-text { font-size: 11px; font-weight: 900; color: #ffcdd2; opacity: 0.5; }
+  /* 無縫背景細胞 (獨立個體，由 JS 履帶式移動) */
+  #bg-container { position: absolute; inset: 0; z-index: 5; }
+  .endo-cell { position: absolute; width: 130px; height: 50px; border-radius: 25px; background: radial-gradient(circle at 50% 50%, var(--vessel-light) 0%, var(--vessel-dark) 100%); border: 2px solid var(--vessel-edge); display: flex; align-items: center; justify-content: center; will-change: transform; }
+  .endo-cell.top { top: 25px; box-shadow: inset 0 -4px 8px rgba(0,0,0,0.6), 0 10px 18px rgba(0,0,0,0.7); }
+  .endo-cell.bottom { bottom: 25px; box-shadow: inset 0 4px 8px rgba(0,0,0,0.6), 0 -10px 18px rgba(0,0,0,0.7); }
+  .cell-text { font-size: 11px; font-weight: 900; color: #ffcdd2; opacity: 0.15; }
 
   /* 玩家 */
-  #player { 
-      position: absolute; bottom: 75px; left: 100px; width: 28px; height: 45px; 
-      z-index: 30; transform: translateX(-50%); 
-  }
+  #player { position: absolute; left: 80px; bottom: 75px; width: 28px; height: 45px; z-index: 30; transform: translateX(-50%); will-change: transform; }
   .capsule-body { width: 100%; height: 100%; border-radius: 20px; background: linear-gradient(180deg, #eceff1 50%, var(--theme-beg) 50%); border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.8), inset -3px -3px 6px rgba(0,0,0,0.3); position: relative; overflow: hidden; }
-  .capsule-core { position: absolute; top: 25%; left: 50%; transform: translate(-50%, -50%); width: 10px; height: 10px; border-radius: 50%; background: #00e676; box-shadow: 0 0 10px #00e676, 0 0 20px #69f0ae; animation: corePulse 0.5s infinite alternate; }
-  @keyframes corePulse { from { opacity: 0.7; transform: translate(-50%, -50%) scale(0.9); } to { opacity: 1; transform: translate(-50%, -50%) scale(1.1); } }
+  .capsule-core { position: absolute; top: 25%; left: 50%; transform: translate(-50%, -50%); width: 10px; height: 10px; border-radius: 50%; background: #00e676; box-shadow: 0 0 10px #00e676, 0 0 20px #69f0ae; }
 
   /* 障礙物與金幣 */
-  .obstacle { position: absolute; background-color: #5d4037; background-image: radial-gradient(circle at 20% 30%, rgba(251, 192, 45, 0.8) 0%, transparent 50%), radial-gradient(circle at 70% 60%, rgba(245, 127, 23, 0.9) 0%, transparent 60%); background-size: 40px 40px; border: 4px solid #f57f17; z-index: 12; box-shadow: inset 10px 0 20px rgba(0,0,0,0.8), -10px 0 15px rgba(0,0,0,0.6); }
+  #objects-container { position: absolute; inset: 0; z-index: 20; }
+  .obstacle { position: absolute; left: 0; background-color: #5d4037; background-image: radial-gradient(circle at 20% 30%, rgba(251, 192, 45, 0.8) 0%, transparent 50%), radial-gradient(circle at 70% 60%, rgba(245, 127, 23, 0.9) 0%, transparent 60%); background-size: 40px 40px; border: 4px solid #f57f17; box-shadow: inset 10px 0 20px rgba(0,0,0,0.8), -10px 0 15px rgba(0,0,0,0.6); will-change: transform; }
   .obs-bottom { bottom: 75px; border-radius: 40% 40% 10px 10px; border-bottom: none; }
   .obs-top { top: 75px; border-radius: 10px 10px 40% 40%; border-top: none; }
   
-  /* 鑲嵌在上方細胞層的金幣 */
-  .health-coin { position: absolute; top: 35px; width: 30px; height: 30px; background: radial-gradient(circle, #69f0ae, #00b259); border: 2px solid #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #004d26; font-weight: 900; font-size: 16px; z-index: 25; box-shadow: 0 0 15px rgba(0, 230, 118, 0.8), inset 0 -2px 4px rgba(0,0,0,0.3); animation: floatCoin 1s infinite alternate; }
-  @keyframes floatCoin { from { transform: scale(0.95); } to { transform: scale(1.05); } }
+  .health-coin { position: absolute; top: 35px; left: 0; width: 30px; height: 30px; background: radial-gradient(circle, #69f0ae, #00b259); border: 2px solid #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #004d26; font-weight: 900; font-size: 16px; box-shadow: 0 0 15px rgba(0, 230, 118, 0.8); will-change: transform; }
+  
+  /* 動態背景血球 */
+  #particles-container { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+  .rbc { position: absolute; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #ff5252 0%, #b71c1c 100%); opacity: 0.5; box-shadow: inset 0 0 10px rgba(100,0,0,0.8); will-change: transform; }
 
-  /* 獨立虛擬控制台 (原汁原味) */
-  #control-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: transparent; z-index: 100; display: flex; justify-content: center; align-items: center; touch-action: none; }
-  .v-btn { pointer-events: auto; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.4); border-radius: 50%; width: 46px; height: 46px; font-size: 18px; font-weight: bold; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(2px); box-shadow: none; position: absolute; top: 50%; transform: translateY(-50%); touch-action: none; }
-  #btn-jump { left: 50%; transform: translate(-50%, -50%); width: 120px; border-radius: 20px; font-size: 15px; letter-spacing: 2px; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.6); }
-  #btn-jump:active, #btn-jump.active { transform: translate(-50%, -50%) scale(0.92); background: rgba(0, 0, 0, 0.7); color: #fff; border-color: var(--theme-beg); }
+  /* 介面與控制台 */
+  #hud { position: absolute; top: 15px; left: 20px; right: 20px; display: flex; justify-content: space-between; z-index: 100; color: #fff; font-weight: bold; font-size: 16px; text-shadow: 1px 1px 2px #000; pointer-events: none;}
+  .val { color: #69f0ae; font-size: 22px; margin-left: 5px; }
 
-  /* 介面與背景粒子 */
-  .rbc { position: absolute; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #ff5252 0%, #d32f2f 60%, #b71c1c 100%); box-shadow: inset 0 0 10px rgba(100,0,0,0.8), 2px 4px 6px rgba(0,0,0,0.4); z-index: 2; opacity: 0.6;}
-  .rbc::after { content: ''; display: block; width: 40%; height: 40%; margin: 30% auto; border-radius: 50%; background: rgba(150,0,0,0.4); box-shadow: inset 2px 2px 4px rgba(0,0,0,0.5); }
+  #control-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 60px; z-index: 100; display: flex; justify-content: center; align-items: center; }
+  #btn-jump { pointer-events: auto; background: rgba(20,20,20,0.6); border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); border-radius: 26px; width: 180px; height: 50px; font-size: 18px; font-weight: 900; letter-spacing: 2px; backdrop-filter: blur(4px); box-shadow: 0 4px 10px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; transition: transform 0.1s; }
+  #btn-jump:active { transform: scale(0.95); background: rgba(0,0,0,0.8); border-color: var(--theme-beg); }
 
-  #hud { position: absolute; top: 15px; left: 20px; right: 20px; display: flex; justify-content: space-between; z-index: 100; color: #fff; font-weight: bold; font-size: 14px; text-shadow: 1px 1px 2px #000; pointer-events: none;}
-  .val { color: #69f0ae; font-size: 18px; margin-left: 5px; }
-
-  #start-screen, #game-over-screen { position: absolute; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; text-align: center; padding: 20px; backdrop-filter: blur(5px);}
-  h1 { color: #64b5f6; font-size: 28px; margin-bottom: 10px; text-shadow: 0 0 15px rgba(100,181,246,0.5); }
-  p { font-size: 15px; color: #ccc; margin-bottom: 20px; line-height: 1.5; }
-  .action-btn { padding: 12px 30px; font-size: 16px; font-weight: bold; border-radius: 30px; background: linear-gradient(135deg, #00e676, #00b259); color: #004d26; border: 2px solid #fff; cursor: pointer; box-shadow: 0 5px 15px rgba(0,230,118,0.4); text-shadow: 0 1px 0 rgba(255,255,255,0.5); transition: transform 0.1s;}
+  /* 開始與結算畫面 */
+  .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; text-align: center; padding: 20px; backdrop-filter: blur(5px);}
+  h1 { color: #00b0ff; font-size: 32px; margin-bottom: 10px; text-shadow: 0 0 15px rgba(0,176,255,0.5); }
+  p { font-size: 16px; color: #ccc; margin-bottom: 20px; line-height: 1.5; }
+  .action-btn { padding: 12px 30px; font-size: 18px; font-weight: bold; border-radius: 30px; background: linear-gradient(135deg, #00e676, #00b259); color: #004d26; border: 2px solid #fff; cursor: pointer; box-shadow: 0 5px 15px rgba(0,230,118,0.4); transition: transform 0.1s; margin: 0 5px; }
   .action-btn:active { transform: scale(0.95); }
 </style>
 </head>
 <body>
 
-<div id="game-window">
-    <div id="bv-viewport">
-        <div class="vessel-wall top"></div>
-        <div class="vessel-wall bottom"></div>
-        
-        <div id="bg-cells-top" class="cell-track top"></div>
-        <div id="bg-cells-bottom" class="cell-track bottom"></div>
-        
-        <div id="particles-container"></div>
-        <div id="objects-container"></div>
-        
-        <div id="player"><div class="capsule-body"><div class="capsule-core"></div></div></div>
-
-        <div id="hud">
-            <div>距離: <span id="ui-dist" class="val">0</span> m</div>
-            <div>金幣: <span id="ui-coins" class="val">0</span></div>
-        </div>
-    </div>
+<div id="bv-viewport">
+    <div class="vessel-wall top"></div>
+    <div class="vessel-wall bottom"></div>
+    <div id="particles-container"></div>
+    <div id="bg-container"></div>
+    <div id="objects-container"></div>
+    <div id="player"><div class="capsule-body"><div class="capsule-core"></div></div></div>
     
-    <div id="control-bar">
-        <div id="virtual-controls">
-            <div class="v-btn" style="left: 25px; opacity: 0.3;">◀</div>
-            <div class="v-btn" id="btn-jump">JUMP 跳躍</div>
-            <div class="v-btn" style="right: 25px; opacity: 0.3;">▶</div>
-        </div>
+    <div id="hud">
+        <div>極速距離: <span id="ui-dist" class="val">0</span> m</div>
+        <div>金幣: <span id="ui-coins" class="val">0</span></div>
     </div>
+</div>
 
-    <div id="start-screen">
-        <h1>🏃 微觀血管跑酷</h1>
-        <p>點擊畫面或 JUMP 鍵進行跳躍！<br><br>⚠️ <b>求生法則：</b><br>跳過下方斑塊，貼地閃避上方斑塊<br>抓準時機吃掉細胞層的健康幣！</p>
-        <button class="action-btn" onclick="startGame()">極速啟動</button>
-    </div>
+<div id="control-bar">
+    <div id="btn-jump">JUMP</div>
+</div>
 
-    <div id="game-over-screen" style="display: none;">
-        <h1 style="color: #ff5252;">💥 發生碰撞</h1>
-        <p style="font-size: 18px;">極限距離: <span id="final-dist" class="val" style="color:#fff;">0</span> m<br>收集金幣: <span id="final-coins" class="val" style="color:#ffd700;">0</span> 幣</p>
-        <div style="display:flex; gap:15px; margin-top:10px;">
-            <button class="action-btn" style="background: #555; color: #fff; border-color:#888;" onclick="resetGame()">再試一次</button>
-            <button class="action-btn" onclick="submitScore()">結算並離開</button>
-        </div>
+<div id="start-screen" class="overlay">
+    <h1>🏃 微觀血管跑酷</h1>
+    <p>在血管裡極速衝刺！<br><br>⚠️ <b>求生法則：</b><br>點擊畫面跳過下方斑塊，貼地閃避上方斑塊<br>抓準時機吃掉上方的健康幣！</p>
+    <button class="action-btn" onclick="startGame()">極速啟動</button>
+</div>
+
+<div id="game-over-screen" class="overlay" style="display: none;">
+    <h1 style="color: #ff5252;">💥 發生碰撞</h1>
+    <p style="font-size: 20px;">極限距離: <span id="final-dist" class="val" style="color:#fff;">0</span> m<br>收集金幣: <span id="final-coins" class="val" style="color:#ffd700;">0</span> 幣</p>
+    <div style="display:flex; justify-content:center;">
+        <button class="action-btn" style="background:#555; color:#fff; border-color:#888;" onclick="startGame()">再試一次</button>
+        <button class="action-btn" onclick="submitScore()">結算並離開</button>
     </div>
 </div>
 
 <script>
+    const bgContainer = document.getElementById('bg-container');
+    const objContainer = document.getElementById('objects-container');
+    const partContainer = document.getElementById('particles-container');
     const player = document.getElementById('player');
-    const objectsContainer = document.getElementById('objects-container');
-    const particlesContainer = document.getElementById('particles-container');
     const uiDist = document.getElementById('ui-dist');
     const uiCoins = document.getElementById('ui-coins');
-    const cellsTopTrack = document.getElementById('bg-cells-top');
-    const cellsBottomTrack = document.getElementById('bg-cells-bottom');
-    const viewport = document.getElementById('bv-viewport');
-    const btnJump = document.getElementById('btn-jump');
 
-    let isPlaying = false;
-    let isGameOver = false;
+    let isPlaying = false, isGameOver = false;
+    let distance = 0, coins = 0, speed = 5.5, frames = 0;
     
-    // 遊戲物理
-    let distance = 0;
-    let coins = 0;
-    let speed = 7; 
-    let frames = 0;
-    let bgPos = 0;
+    // 物理
+    let playerY = 0, velocityY = 0, isJumping = false;
+    const gravity = 1.2;
+    let maxJumpDistance = 0, jumpPower = 0;
+    
+    // 遊戲陣列
+    let cells = [], obstacles = [], coinsArr = [], particles = [];
 
-    // 精準計算空腔與跳躍距離
-    let viewportHeight = viewport.offsetHeight;
-    let maxJumpDistance = viewportHeight - 150 - 45 + 15; // 和 hub_ghibli 演算法完全一致
-    if (maxJumpDistance < 90) maxJumpDistance = 90;
-    
-    let gravity = 1.2;
-    // 根據公式：v^2 = 2gs => v = sqrt(2gs)
-    let jumpPower = Math.sqrt(2 * gravity * maxJumpDistance);
-    
-    let playerY = 0; 
-    let velocityY = 0;
-    let isJumping = false;
-    
-    let obstacles = [];
-    let coinsArr = [];
-
-    // 初始化背景無限細胞
+    // 初始化無縫履帶細胞
     function initCells() {
-        const numCells = Math.ceil(window.innerWidth / 150) + 2; 
-        cellsTopTrack.innerHTML = ''; cellsBottomTrack.innerHTML = '';
-        for(let i=0; i<numCells; i++) {
-            cellsTopTrack.innerHTML += '<div class="endo-cell"><div class="cell-text">Endothelium</div></div>';
-            cellsBottomTrack.innerHTML += '<div class="endo-cell"><div class="cell-text">Endothelium</div></div>';
+        bgContainer.innerHTML = ''; cells = [];
+        const cellCount = Math.ceil(window.innerWidth / 150) + 2; // 確保填滿螢幕
+        for (let i = 0; i < cellCount; i++) {
+            const topCell = document.createElement('div'); topCell.className = 'endo-cell top'; topCell.innerHTML = '<div class="cell-text">Endothelium</div>';
+            const botCell = document.createElement('div'); botCell.className = 'endo-cell bottom'; botCell.innerHTML = '<div class="cell-text">Endothelium</div>';
+            
+            let x = i * 150;
+            topCell.style.transform = `translateX(${x}px)`; botCell.style.transform = `translateX(${x}px)`;
+            bgContainer.appendChild(topCell); bgContainer.appendChild(botCell);
+            
+            cells.push({ top: topCell, bot: botCell, x: x });
         }
     }
-    initCells();
 
-    // 控制邏輯 (點擊任意處或 JUMP 鈕皆可)
-    function handleJump(e) {
-        if(e.target.tagName === 'BUTTON') return;
-        if(isPlaying && !isJumping && !isGameOver) {
-            isJumping = true;
-            velocityY = jumpPower;
-            btnJump.classList.add('active');
-            setTimeout(()=>btnJump.classList.remove('active'), 150);
+    function initParticles() {
+        partContainer.innerHTML = ''; particles = [];
+        for(let i=0; i<10; i++) {
+            const p = document.createElement('div'); p.className = 'rbc';
+            const size = 15 + Math.random() * 20;
+            p.style.width = size + 'px'; p.style.height = size + 'px'; p.style.top = `${20 + Math.random() * 60}%`;
+            let x = Math.random() * window.innerWidth;
+            p.style.transform = `translateX(${x}px)`;
+            partContainer.appendChild(p);
+            particles.push({ el: p, x: x, speedMult: 0.5 + Math.random() });
         }
     }
-    document.addEventListener('pointerdown', handleJump);
 
     function startGame() {
         document.getElementById('start-screen').style.display = 'none';
-        resetGame();
-    }
-
-    function resetGame() {
         document.getElementById('game-over-screen').style.display = 'none';
-        objectsContainer.innerHTML = '';
-        particlesContainer.innerHTML = '';
+        objContainer.innerHTML = '';
         obstacles = []; coinsArr = [];
-        distance = 0; coins = 0; speed = 7; frames = 0; bgPos = 0;
+        
+        distance = 0; coins = 0; speed = 5.5; frames = 0;
         playerY = 0; velocityY = 0; isJumping = false;
         player.style.transform = `translate(-50%, 0)`;
         player.style.filter = 'none';
-        isGameOver = false;
-        isPlaying = true;
+        
+        // 重新計算跳躍高度 (動態適應手機高度)
+        const vh = document.getElementById('bv-viewport').offsetHeight;
+        maxJumpDistance = vh - 150 - 45 + 15; 
+        if (maxJumpDistance < 90) maxJumpDistance = 90; 
+        jumpPower = Math.sqrt(2 * gravity * maxJumpDistance);
+
+        initCells(); initParticles();
         updateUI();
+        
+        isGameOver = false; isPlaying = true;
         requestAnimationFrame(gameLoop);
     }
 
-    function spawnObject() {
-        // 隨機生成斑塊障礙物
-        if (frames % Math.floor(Math.random() * 40 + 70) === 0) { 
-            const isTop = Math.random() > 0.5;
+    function spawnObjects() {
+        let spawnInterval = Math.max(60, 150 - Math.floor(frames / 30)); 
+        
+        // 生成障礙物 (前 15 秒絕對只有下方障礙物，之後慢慢混入上方)
+        if (frames > 120 && frames % spawnInterval === 0) {
+            let allowTop = frames > 900; 
+            let isTop = allowTop ? Math.random() > 0.6 : false;
+            
             const obs = document.createElement('div');
             obs.className = `obstacle ${isTop ? 'obs-top' : 'obs-bottom'}`;
             
-            // 動態計算障礙物高度，約佔空腔的 40% ~ 55%
-            const maxObsHeight = (viewportHeight - 150) * 0.55;
-            const minObsHeight = (viewportHeight - 150) * 0.40;
-            const h = minObsHeight + Math.random() * (maxObsHeight - minObsHeight);
-            const w = 40 + Math.random() * 30; // 寬度 40~70px
+            const vh = document.getElementById('bv-viewport').offsetHeight;
+            const h = ((vh - 150) * 0.25) + Math.random() * ((vh - 150) * 0.2); // 高度 25% ~ 45%
+            const w = 35 + Math.random() * 20; // 寬度 35~55
             
-            obs.style.width = w + 'px';
-            obs.style.height = h + 'px';
-            obs.style.left = window.innerWidth + 'px';
-            objectsContainer.appendChild(obs);
-            obstacles.push({ el: obs, x: window.innerWidth, w: w, h: h, isTop: isTop });
+            obs.style.width = w + 'px'; obs.style.height = h + 'px';
+            let startX = window.innerWidth + 50; // 從螢幕外順滑進場
+            obs.style.transform = `translateX(${startX}px)`;
+            
+            objContainer.appendChild(obs);
+            obstacles.push({ el: obs, x: startX, w: w, h: h, isTop: isTop });
         }
 
-        // 隨機生成金幣 (精準對齊上方內皮細胞)
-        if (frames % Math.floor(Math.random() * 60 + 80) === 0) {
+        // 生成金幣 (生成在上皮細胞的縫隙間)
+        if (frames > 180 && frames % 140 === 0) {
             const coin = document.createElement('div');
-            coin.className = 'health-coin';
-            coin.innerText = '$';
-            coin.style.left = window.innerWidth + 50 + 'px';
-            // top: 35px 剛好嵌入在 top: 25px 的內皮細胞中央
-            objectsContainer.appendChild(coin);
-            coinsArr.push({ el: coin, x: window.innerWidth + 50, collected: false });
-        }
-    }
-
-    function spawnParticle() {
-        if (frames % 15 === 0) {
-            const rbc = document.createElement('div');
-            rbc.className = 'rbc';
-            const size = Math.random() * 15 + 15;
-            rbc.style.width = size + 'px'; rbc.style.height = size + 'px';
-            rbc.style.left = window.innerWidth + 'px';
-            rbc.style.top = (Math.random() * 50 + 25) + '%';
-            particlesContainer.appendChild(rbc);
+            coin.className = 'health-coin'; coin.innerText = '$';
+            let startX = window.innerWidth + 50;
+            coin.style.transform = `translateX(${startX}px)`;
+            
+            objContainer.appendChild(coin);
+            coinsArr.push({ el: coin, x: startX, collected: false });
         }
     }
 
     function gameLoop() {
         if (!isPlaying || isGameOver) return;
-        frames++;
-        
-        // 無縫細胞滾動 (每單位寬度150px)
-        bgPos -= speed;
-        if(bgPos <= -150) bgPos += 150; 
-        cellsTopTrack.style.transform = `translateX(${bgPos}px)`;
-        cellsBottomTrack.style.transform = `translateX(${bgPos}px)`;
+        frames++; distance += speed * 0.015;
+        if (frames % 300 === 0) speed += 0.3; // 慢慢加速
 
-        // 跳躍物理運算
+        // 1. 履帶式背景滾動
+        cells.forEach(c => {
+            c.x -= speed;
+            if (c.x <= -150) c.x += cells.length * 150; // 無縫接軌
+            c.top.style.transform = `translateX(${c.x}px)`;
+            c.bot.style.transform = `translateX(${c.x}px)`;
+        });
+
+        // 2. 血球粒子滾動
+        particles.forEach(p => {
+            p.x -= speed * p.speedMult;
+            if (p.x <= -50) p.x = window.innerWidth + 50;
+            p.el.style.transform = `translateX(${p.x}px)`;
+        });
+
+        // 3. 跳躍物理
         if (isJumping) {
-            playerY += velocityY;
-            velocityY -= gravity;
-            if (playerY <= 0) {
-                playerY = 0;
-                isJumping = false;
-                velocityY = 0;
-            }
+            playerY += velocityY; velocityY -= gravity;
+            if (playerY <= 0) { playerY = 0; velocityY = 0; isJumping = false; }
             player.style.transform = `translate(-50%, -${playerY}px)`;
         }
 
-        // 碰撞判定參數準備
-        // 玩家中心 X = 100px。寬度 28px -> 左右邊界 86 ~ 114
-        const pLeft = 86, pRight = 114;
-        
-        // 移動與偵測障礙物
+        // 4. 障礙物與金幣物理 & 碰撞
+        const vh = document.getElementById('bv-viewport').offsetHeight;
+        const pLeft = 80 - 12, pRight = 80 + 12; // 玩家 X 軸固定在 80，判定寬度 24px
+
         for (let i = obstacles.length - 1; i >= 0; i--) {
-            let o = obstacles[i];
-            o.x -= speed;
-            o.el.style.left = o.x + 'px';
+            let o = obstacles[i]; o.x -= speed;
+            if (o.x < -100) { o.el.remove(); obstacles.splice(i, 1); continue; }
+            o.el.style.transform = `translateX(${o.x}px)`;
             
-            // X 軸交集判定 (寬鬆化 - 容錯 5px)
             let hitX = pRight > (o.x + 5) && pLeft < (o.x + o.w - 5);
-            let hitY = false;
+            let hitY = o.isTop ? (playerY + 35 > vh - 150 - o.h) : (playerY + 5 < o.h);
             
-            if (o.isTop) {
-                // 上方障礙物：玩家跳得太高就會撞到
-                // viewportHeight - 150 是總空腔高度。玩家頂部高度是 playerY + 45。
-                // 障礙物底部高度為 (viewportHeight - 150) - o.h
-                hitY = (playerY + 45 - 10) > (viewportHeight - 150 - o.h); // 減 10 是寬鬆判定
-            } else {
-                // 下方障礙物：玩家沒跳過就會撞到
-                hitY = (playerY + 5) < o.h; 
-            }
-
             if (hitX && hitY) {
-                triggerGameOver();
-                return; 
-            }
-
-            if (o.x < -100) {
-                o.el.remove();
-                obstacles.splice(i, 1);
+                isGameOver = true;
+                player.style.filter = 'brightness(2) drop-shadow(0 0 20px red) sepia(1) hue-rotate(-50deg) saturate(5)';
+                document.getElementById('final-dist').innerText = Math.floor(distance);
+                document.getElementById('final-coins').innerText = coins;
+                document.getElementById('game-over-screen').style.display = 'flex';
             }
         }
 
-        // 移動與吃金幣
         for (let i = coinsArr.length - 1; i >= 0; i--) {
-            let c = coinsArr[i];
-            c.x -= speed;
-            c.el.style.left = c.x + 'px';
-
+            let c = coinsArr[i]; c.x -= speed;
+            if (c.x < -100) { c.el.remove(); coinsArr.splice(i, 1); continue; }
             if (!c.collected) {
+                c.el.style.transform = `translateX(${c.x}px)`;
                 let hitX = pRight > c.x && pLeft < (c.x + 30);
-                // 金幣位在空腔最上方，玩家必須跳到極限(大於總跳躍高度的 80%) 才能吃到
-                let hitY = playerY > (maxJumpDistance * 0.8); 
-
+                let hitY = playerY > maxJumpDistance * 0.6; // 必須跳起才吃得到
+                
                 if (hitX && hitY) {
-                    c.collected = true;
-                    c.el.style.display = 'none';
-                    coins++;
-                    updateUI();
+                    c.collected = true; coins++; updateUI();
+                    c.el.style.transform = `translate(${c.x}px, -50px) scale(1.5)`;
+                    c.el.style.opacity = '0';
+                    c.el.style.transition = 'all 0.4s';
                 }
             }
-
-            if (c.x < -100) {
-                c.el.remove();
-                coinsArr.splice(i, 1);
-            }
         }
 
-        // 移動背景血球
-        const rbcs = particlesContainer.children;
-        for (let i = 0; i < rbcs.length; i++) {
-            let x = parseFloat(rbcs[i].style.left) - speed * 1.2;
-            rbcs[i].style.left = x + 'px';
-            if (x < -50) rbcs[i].remove();
-        }
-
-        // 難度與分數遞增
-        distance += speed * 0.015;
-        if (frames % 500 === 0) speed += 0.5; // 每跑一段時間微加速
-        
-        spawnObject();
-        spawnParticle();
-        updateUI();
-
+        spawnObjects(); updateUI();
         requestAnimationFrame(gameLoop);
     }
 
-    function updateUI() {
-        uiDist.innerText = Math.floor(distance);
-        uiCoins.innerText = coins;
-    }
+    function updateUI() { uiDist.innerText = Math.floor(distance); uiCoins.innerText = coins; }
 
-    function triggerGameOver() {
-        isGameOver = true;
-        document.getElementById('final-dist').innerText = Math.floor(distance);
-        document.getElementById('final-coins').innerText = coins;
-        document.getElementById('game-over-screen').style.display = 'flex';
-        
-        // 碰撞死亡特效
-        player.style.transform = `translate(-50%, -${playerY}px) scale(1.5) rotate(20deg)`;
-        player.style.filter = 'brightness(1.5) drop-shadow(0 0 20px red) sepia(1) hue-rotate(-50deg) saturate(5)';
-    }
-
-    function submitScore() {
-        if (coins > 0) {
-            window.parent.postMessage({ type: 'ADD_COINS', amount: coins }, '*');
+    function triggerJump(e) {
+        if(e && e.target.tagName === 'BUTTON' && !e.target.id.includes('btn-jump')) return;
+        if (isPlaying && !isJumping && !isGameOver) {
+            isJumping = true; velocityY = jumpPower;
         }
+    }
+    document.addEventListener('pointerdown', triggerJump);
+    document.getElementById('btn-jump').addEventListener('pointerdown', (e) => { e.preventDefault(); triggerJump(); });
+
+    // 結算並關閉 Iframe 回到主程式
+    function submitScore() {
+        if (coins > 0) window.parent.postMessage({ type: 'ADD_COINS', amount: coins }, '*');
         window.parent.postMessage({ type: 'GAME_CLEAR', score: Math.floor(distance) }, '*');
     }
 </script>
