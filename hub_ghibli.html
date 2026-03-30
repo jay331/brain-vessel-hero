@@ -80,7 +80,6 @@
   }
   .active-hit { transform: scale(1.1) !important; background: #fff !important; box-shadow: 0 0 50px #fff !important; transition: all 0.1s !important; animation: none !important; }
 
-  /* ★ 發光特效：終局特殊節點 */
   .special-node-pulse { animation: specialPulse 2s infinite alternate ease-in-out; }
   @keyframes specialPulse { 0% { filter: brightness(1); } 100% { filter: brightness(1.3); } }
 
@@ -93,7 +92,7 @@
   }
   @keyframes orbFloat { from { bottom: -24px; opacity: 0.8; } to { bottom: -16px; opacity: 1; } }
 
-  /* === 寫實版巨型斑塊血栓 === */
+  /* 寫實版巨型斑塊血栓 (主線用) */
   #massive-thrombus {
       position: absolute; top: 75px; bottom: 75px; right: 0; 
       background-color: #5d4037; 
@@ -106,12 +105,18 @@
       box-shadow: inset 20px 0 30px rgba(0,0,0,0.8), -15px 0 25px rgba(0,0,0,0.9);
       z-index: 12;
   }
-  #massive-thrombus::before {
-      content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 30px;
-      background: linear-gradient(90deg, rgba(0, 230, 118, 0.8), transparent);
-      opacity: 0; transition: opacity 0.3s; pointer-events: none;
-  }
+  #massive-thrombus::before { content: ''; position: absolute; inset: 0; left:0; width: 30px; background: linear-gradient(90deg, rgba(0, 230, 118, 0.8), transparent); opacity: 0; transition: opacity 0.3s; pointer-events: none; }
   #massive-thrombus.dissolving::before { opacity: 1; }
+
+  /* ★ 跑酷專用斑塊障礙物 */
+  .pk-obstacle {
+      position: absolute; background-color: #5d4037; 
+      background-image: radial-gradient(circle at 20% 30%, rgba(251, 192, 45, 0.8) 0%, transparent 50%), radial-gradient(circle at 70% 60%, rgba(245, 127, 23, 0.9) 0%, transparent 60%); 
+      background-size: 40px 40px; border: 4px solid #f57f17; z-index: 12; 
+      box-shadow: inset 10px 0 20px rgba(0,0,0,0.8), -10px 0 15px rgba(0,0,0,0.6); 
+  }
+  .pk-obs-bottom { bottom: 75px; border-radius: 40% 40% 10px 10px; border-bottom: none; }
+  .pk-obs-top { top: 75px; border-radius: 10px 10px 40% 40%; border-top: none; }
 
   #effects-mask { position: absolute; inset: 0; overflow: hidden; z-index: 2; transition: clip-path 1.5s ease-in-out; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
   #light-zones-container { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
@@ -125,90 +130,60 @@
   .rbc-fast { animation: dashRbcFast 3s linear forwards; z-index: 15; }
   @keyframes dashRbcFast { 0% { transform: translateX(0) rotate(0deg) scale(1.2); opacity: 1; } 100% { transform: translateX(800px) rotate(360deg) scale(0.8); opacity: 0; } }
 
-  /* === 玩家 (奈米膠囊) === */
+  /* 玩家 (奈米膠囊) */
   #player { 
       position: absolute; bottom: 75px; width: 28px; height: 45px; 
       z-index: 30; transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); will-change: left, transform; 
-      transform: translate(-50%, 0); /* ★ 確保中心點對齊 */
+      transform: translate(-50%, 0); 
   }
-  .capsule-body {
-      width: 100%; height: 100%; border-radius: 20px; background: linear-gradient(180deg, #eceff1 50%, var(--current-theme) 50%);
-      border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.8), inset -3px -3px 6px rgba(0,0,0,0.3); position: relative; overflow: hidden;
-  }
-  .capsule-core { 
-      position: absolute; top: 25%; left: 50%; transform: translate(-50%, -50%); 
-      width: 10px; height: 10px; border-radius: 50%; 
-      background: #888; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); 
-      transition: background 0.3s, box-shadow 0.3s;
-  }
-  .player-charged .capsule-core {
-      background: #00e676; box-shadow: 0 0 10px #00e676, 0 0 20px #69f0ae;
-      animation: corePulse 1s infinite alternate; 
-  }
+  .capsule-body { width: 100%; height: 100%; border-radius: 20px; background: linear-gradient(180deg, #eceff1 50%, var(--current-theme) 50%); border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.8), inset -3px -3px 6px rgba(0,0,0,0.3); position: relative; overflow: hidden; }
+  .capsule-core { position: absolute; top: 25%; left: 50%; transform: translate(-50%, -50%); width: 10px; height: 10px; border-radius: 50%; background: #888; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); transition: background 0.3s, box-shadow 0.3s; }
+  .player-charged .capsule-core { background: #00e676; box-shadow: 0 0 10px #00e676, 0 0 20px #69f0ae; animation: corePulse 1s infinite alternate; }
   @keyframes corePulse { from { opacity: 0.6; } to { opacity: 1; box-shadow: 0 0 15px #69f0ae; } }
 
-  /* 空降動畫修正 */
   .drop-in { animation: injectCapsule 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
-  @keyframes injectCapsule { 
-      0% { transform: translate(-50%, -120px) scale(0.2); opacity: 0; } 
-      70% { transform: translate(-50%, -20px) scale(1.05); opacity: 1; }
-      100% { transform: translate(-50%, 0) scale(1); opacity: 1; } 
-  }
+  @keyframes injectCapsule { 0% { transform: translate(-50%, -120px) scale(0.2); opacity: 0; } 70% { transform: translate(-50%, -20px) scale(1.05); opacity: 1; } 100% { transform: translate(-50%, 0) scale(1); opacity: 1; } }
 
-  .enzyme-beam {
-      position: absolute; left: 100%; top: 25%; transform: translateY(-50%);
-      width: 0; height: 8px; border-radius: 4px;
-      background: linear-gradient(90deg, #00e676, rgba(0, 230, 118, 0.8), transparent);
-      box-shadow: 0 0 10px #00e676; opacity: 0; transition: width 0.3s, opacity 0.3s;
-      z-index: 31; pointer-events: none; transform-origin: left center;
-  }
+  .enzyme-beam { position: absolute; left: 100%; top: 25%; transform: translateY(-50%); width: 0; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #00e676, rgba(0, 230, 118, 0.8), transparent); box-shadow: 0 0 10px #00e676; opacity: 0; transition: width 0.3s, opacity 0.3s; z-index: 31; pointer-events: none; transform-origin: left center; }
   .player-firing .enzyme-beam { width: 120px; opacity: 1; animation: beamPulse 0.1s infinite alternate; }
   @keyframes beamPulse { from { opacity: 0.7; filter: brightness(1); } to { opacity: 1; filter: brightness(1.5); } }
 
   .health-coin { 
-      position: absolute; width: 30px; height: 30px; 
-      background: radial-gradient(circle, #69f0ae, #00b259); 
-      border: 2px solid #fff; border-radius: 50%; 
-      display: flex; align-items: center; justify-content: center; 
+      position: absolute; width: 30px; height: 30px; background: radial-gradient(circle, #69f0ae, #00b259); 
+      border: 2px solid #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
       color: #004d26; font-weight: 900; font-size: 16px; z-index: 25; 
-      box-shadow: 0 0 10px rgba(0, 230, 118, 0.7); 
-      animation: floatCoin 1.5s ease-in-out infinite alternate; 
+      box-shadow: 0 0 10px rgba(0, 230, 118, 0.7); animation: floatCoin 1.5s ease-in-out infinite alternate; 
   }
-  .endo-cell .health-coin {
-      position: relative; left: auto !important; bottom: auto !important;
-      animation: none; 
-      box-shadow: inset 0 -2px 4px rgba(0,0,0,0.3), 0 0 15px rgba(0, 230, 118, 0.9);
-  }
+  .endo-cell .health-coin { position: relative; left: auto !important; bottom: auto !important; animation: none; box-shadow: inset 0 -2px 4px rgba(0,0,0,0.3), 0 0 15px rgba(0, 230, 118, 0.9); }
   .health-coin.collected { animation: collectEffect 0.5s ease-out forwards; pointer-events: none; }
   @keyframes collectEffect { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-50px) scale(1.5); opacity: 0; } }
 
-  #control-bar {
-      position: absolute; bottom: 0; left: 0; right: 0; height: 60px; 
-      background: transparent; z-index: 100; display: flex; justify-content: center; align-items: center;
-      touch-action: none;
-  }
+  /* 虛擬控制台 */
+  #control-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: transparent; z-index: 100; display: flex; justify-content: center; align-items: center; touch-action: none; transition: all 0.3s;}
   #virtual-controls { position: relative; width: 100%; max-width: 400px; height: 100%; pointer-events: none; }
-  
-  .v-btn {
-      pointer-events: auto; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1); 
-      color: rgba(255, 255, 255, 0.4); border-radius: 50%; width: 46px; height: 46px; font-size: 18px; font-weight: bold;
-      display: flex; justify-content: center; align-items: center; backdrop-filter: blur(2px); box-shadow: none;
-      position: absolute; top: 50%; transform: translateY(-50%); touch-action: none;
-  }
+  .v-btn { pointer-events: auto; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.4); border-radius: 50%; width: 46px; height: 46px; font-size: 18px; font-weight: bold; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(2px); box-shadow: none; position: absolute; top: 50%; transform: translateY(-50%); touch-action: none; transition: opacity 0.3s, width 0.3s;}
   .v-btn:active { background: rgba(0, 0, 0, 0.6); color: rgba(255,255,255,0.8); border-color: rgba(255, 255, 255, 0.3); }
   #btn-left { left: 25px; } #btn-left:active { transform: translateY(-50%) scale(0.92); }
   #btn-right { right: 25px; } #btn-right:active { transform: translateY(-50%) scale(0.92); }
-  #btn-jump { 
-      left: 50%; transform: translate(-50%, -50%); width: 95px; border-radius: 20px; font-size: 15px; letter-spacing: 2px; 
-      background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.6); box-shadow: none; 
-  }
+  #btn-jump { left: 50%; transform: translate(-50%, -50%); width: 95px; border-radius: 20px; font-size: 15px; letter-spacing: 2px; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.6); box-shadow: none; }
   #btn-jump:active { transform: translate(-50%, -50%) scale(0.92); background: rgba(0, 0, 0, 0.7); color: #fff; border-color: var(--current-theme); }
+
+  /* ★ 無縫跑酷介面 */
+  #parkour-hud { position: absolute; top: 15px; left: 20px; right: 20px; display: none; justify-content: space-between; z-index: 100; color: #fff; font-weight: bold; font-size: 18px; text-shadow: 1px 1px 2px #000; pointer-events: none;}
+  #parkour-hud .val { color: #69f0ae; font-size: 22px; margin-left: 5px; }
+
+  .pk-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; display: none; flex-direction: column; align-items: center; justify-content: center; color: #fff; text-align: center; padding: 20px; backdrop-filter: blur(5px);}
+  .pk-overlay h1 { font-size: 32px; margin-bottom: 10px; }
+  .pk-overlay p { font-size: 16px; color: #ccc; margin-bottom: 20px; line-height: 1.5; }
+  .pk-btn { padding: 12px 30px; font-size: 18px; font-weight: bold; border-radius: 30px; border: 2px solid #fff; cursor: pointer; transition: transform 0.1s; position: relative; pointer-events: auto; }
+  .pk-btn:active { transform: scale(0.95); }
+  .pk-btn-start { background: linear-gradient(135deg, #00e676, #00b259); color: #004d26; box-shadow: 0 5px 15px rgba(0,230,118,0.4); }
+  .pk-btn-retry { background: #555; color: #fff; border-color: #888; }
 </style>
 </head>
 <body>
 
 <div id="game-window">
-  
   <div id="bv-viewport">
       <div class="vessel-wall top"></div>
       <div class="vessel-wall bottom"></div>
@@ -224,8 +199,7 @@
         <div id="top-wall-container"></div>
         <div id="bottom-wall-container"></div>
         <div id="coins-container"></div>
-        
-        <div id="player">
+        <div id="parkour-objects-container"></div> <div id="player">
             <div class="enzyme-beam"></div>
             <div class="capsule-body"><div class="capsule-core"></div></div>
         </div>
@@ -237,6 +211,26 @@
           <div class="v-btn" id="btn-left">◀</div>
           <div class="v-btn" id="btn-jump">JUMP</div>
           <div class="v-btn" id="btn-right">▶</div>
+      </div>
+  </div>
+
+  <div id="parkour-hud">
+      <div>極速距離: <span id="pk-dist" class="val">0</span> m</div>
+      <div>金幣: <span id="pk-coins" class="val">0</span></div>
+  </div>
+
+  <div id="parkour-start" class="pk-overlay">
+      <h1 style="color:#00b0ff; text-shadow:0 0 15px rgba(0,176,255,0.5);">🏃 微觀血管跑酷</h1>
+      <p>跳過下方斑塊，貼地閃避上方斑塊<br>抓準時機吃掉上方的健康幣！</p>
+      <button class="pk-btn pk-btn-start" onclick="startParkour()">極速啟動</button>
+  </div>
+
+  <div id="parkour-result" class="pk-overlay">
+      <h1 style="color:#ff5252; text-shadow:0 0 15px rgba(255,82,82,0.5);">💥 發生碰撞</h1>
+      <p style="font-size:20px;">極限距離: <span id="pk-final-dist" style="color:#fff;">0</span> m<br>收集金幣: <span id="pk-final-coins" style="color:#ffd700;">0</span> 幣</p>
+      <div style="display:flex; gap:15px; margin-top:10px;">
+          <button class="pk-btn pk-btn-retry" onclick="resetParkour()">再試一次</button>
+          <button class="pk-btn pk-btn-start" onclick="exitParkour()">結算並離開</button>
       </div>
   </div>
 
@@ -253,15 +247,16 @@
   const massiveThrombus = document.getElementById('massive-thrombus');
   const lightZonesContainer = document.getElementById('light-zones-container');
   const coinsContainer = document.getElementById('coins-container');
+  const pkObjectsContainer = document.getElementById('parkour-objects-container');
   const particlesContainer = document.getElementById('particles-container');
   const effectsMask = document.getElementById('effects-mask');
   
   let targetPlayerX = 150; 
   let playerX = 150; 
   let isJumping = false;
-  let minPlayerX = 0; // 改為0方便無縫接軌
+  let minPlayerX = 0; 
   let maxAllowedX = 5000; 
-  let isAllCleared = false; // 紀錄全通關狀態
+  let isAllCleared = false; 
   
   let isMovingLeft = false;
   let isMovingRight = false;
@@ -273,6 +268,17 @@
   let WORLD_MAX_WIDTH = 5000;
   
   const nodesData = []; const coinsData = [];
+
+  // ★ 跑酷專用變數
+  let isParkourMode = false;
+  let pkDistance = 0;
+  let pkCoins = 0;
+  let pkSpeed = 9;
+  let pkFrames = 0;
+  let pkObstacles = [];
+  let pkCoinsArr = [];
+  let pkLastCellX = 0;
+  let pkJumpDistance = 90;
 
   window.addEventListener('message', (event) => {
       if (event.data.type === 'RENDER_MAP') {
@@ -310,8 +316,6 @@
       nodesData.length = 0; coinsData.length = 0;
 
       const TOTAL_NODES = baseSeq.length; 
-      
-      // ★ 終局地圖擴建：如果全通關，將地圖擴充到 57 個細胞的寬度 (0 ~ 56)
       let totalCellsNeeded = allCleared ? 57 : 1 + (TOTAL_NODES * CELLS_BETWEEN_NODES) + 2; 
       WORLD_MAX_WIDTH = totalCellsNeeded * CELL_WIDTH;
       world.style.width = WORLD_MAX_WIDTH + 'px';
@@ -324,7 +328,6 @@
       for (let i = 0; i < totalCellsNeeded; i++) {
           const cellX = i * CELL_WIDTH;
           
-          // --- 下方細胞 ---
           const bCell = document.createElement('div');
           bCell.className = 'endo-cell bottom'; bCell.style.left = cellX + 'px';
           if (taskMap[cellX]) {
@@ -334,29 +337,20 @@
           }
           bottomWallContainer.appendChild(bCell);
 
-          // --- ★ 終局特殊節點配置 ---
-          let isSpecial = false;
-          let specialData = null;
+          let isSpecial = false; let specialData = null;
           if (allCleared) {
-              if (i === 52) { isSpecial = true; specialData = { type: 'random', title: '隨機演練', icon: '🎲', color: '#ab47bc' }; } // 左邊
-              if (i === 53) { isSpecial = true; specialData = { type: 'comprehensive', title: '綜合演練', icon: '🛡️', color: '#f57c00' }; } // 正上方
-              if (i === 54) { isSpecial = true; specialData = { type: 'parkour', title: '跑酷挑戰', icon: '🏃', color: '#00b0ff' }; } // 右邊
+              if (i === 52) { isSpecial = true; specialData = { type: 'random', title: '隨機演練', icon: '🎲', color: '#ab47bc' }; } 
+              if (i === 53) { isSpecial = true; specialData = { type: 'comprehensive', title: '綜合演練', icon: '🛡️', color: '#f57c00' }; } 
+              if (i === 54) { isSpecial = true; specialData = { type: 'parkour', title: '跑酷挑戰', icon: '🏃', color: '#00b0ff' }; } 
           }
 
-          // --- 上方細胞 ---
           if (taskMap[cellX]) {
-              // 一般任務節點
-              const tData = taskMap[cellX]; const t = tData.task; 
-              const displayNum = t.taskIdx + 1; 
-
+              const tData = taskMap[cellX]; const t = tData.task; const displayNum = t.taskIdx + 1; 
               const node = document.createElement('div');
               node.className = 'endo-cell top cell-node'; node.style.left = cellX + 'px';
               
               if (t.status === 'cleared') { node.classList.add('node-cleared'); node.style.color = "#000"; }
-              else if (t.status === 'active' || t.status === 'unlocked') {
-                  node.classList.add('node-active');
-                  node.innerHTML += `<div class="energy-orb"></div>`;
-              }
+              else if (t.status === 'active' || t.status === 'unlocked') { node.classList.add('node-active'); node.innerHTML += `<div class="energy-orb"></div>`; }
               else node.classList.add('node-locked');
 
               node.innerHTML += `<div style="font-size: 10px; opacity: 0.8; margin-bottom: 2px;">${t.category || '演練'}</div><div style="font-size: 15px; font-weight: 900; letter-spacing: 1px;">第 ${displayNum} 關</div>`;
@@ -364,33 +358,19 @@
               nodesData.push({ x: cellX, element: node, itemData: t });
 
           } else if (isSpecial) {
-              // ★ 終局特殊節點 (跑酷、隨機、綜合)
               const node = document.createElement('div');
-              node.className = 'endo-cell top cell-node special-node-pulse';
-              node.style.left = cellX + 'px';
-              node.style.background = `radial-gradient(circle at 50% 20%, ${specialData.color} 0%, #222 100%)`;
-              node.style.borderColor = '#fff';
-              node.style.boxShadow = `0 5px 15px rgba(0,0,0,0.8), 0 0 25px ${specialData.color}`;
-              
-              node.innerHTML = `
-                  <div style="font-size: 22px; margin-bottom: 2px; text-shadow: 0 0 10px #fff;">${specialData.icon}</div>
-                  <div style="font-size: 14px; font-weight: 900; letter-spacing: 1px; color:#fff; text-shadow: 1px 1px 2px #000;">${specialData.title}</div>
-              `;
+              node.className = 'endo-cell top cell-node special-node-pulse'; node.style.left = cellX + 'px';
+              node.style.background = `radial-gradient(circle at 50% 20%, ${specialData.color} 0%, #222 100%)`; node.style.borderColor = '#fff'; node.style.boxShadow = `0 5px 15px rgba(0,0,0,0.8), 0 0 25px ${specialData.color}`;
+              node.innerHTML = `<div style="font-size: 22px; margin-bottom: 2px; text-shadow: 0 0 10px #fff;">${specialData.icon}</div><div style="font-size: 14px; font-weight: 900; letter-spacing: 1px; color:#fff; text-shadow: 1px 1px 2px #000;">${specialData.title}</div>`;
               topWallContainer.appendChild(node);
-              // 寫入 nodeType 給碰撞偵測傳送
               nodesData.push({ x: cellX, element: node, itemData: { type: specialData.type, status: 'unlocked' } });
               
           } else {
-              // 一般空白細胞 (鑲嵌金幣)
               const tCell = document.createElement('div');
               tCell.className = 'endo-cell top'; tCell.style.left = cellX + 'px';
-              
-              // 全通關後，終局區域不產生一般金幣，以免畫面太亂
               if (!allCleared || i < 50) {
                   if (!collectedCoins.includes(blankCellIdx) && cellX <= START_OFFSET + activeIndex * NODE_SPACING) {
-                      const coin = document.createElement('div'); 
-                      coin.className = 'health-coin'; 
-                      coin.innerText = '$';
+                      const coin = document.createElement('div'); coin.className = 'health-coin'; coin.innerText = '$';
                       tCell.appendChild(coin);
                       coinsData.push({ id: blankCellIdx, x: cellX + 65, element: coin, isCollected: false });
                   }
@@ -400,143 +380,254 @@
           }
       }
 
-      // 計算血栓位置 (全破後血栓退到畫面最右邊消失)
       let finalThrombusLeft = allCleared ? WORLD_MAX_WIDTH : (START_OFFSET + activeIndex * NODE_SPACING + 115);
       let initialThrombusLeft = finalThrombusLeft;
 
-      // === ★ 終極版通關動畫與重生點配置 ===
       if (lastPlayedIdx !== undefined && lastPlayedIdx !== null) {
-          
           initialThrombusLeft = START_OFFSET + lastPlayedIdx * NODE_SPACING + 115;
           let startDropX = START_OFFSET + lastPlayedIdx * NODE_SPACING + 65; 
-          
-          targetPlayerX = startDropX; 
-          playerX = startDropX;
-          maxAllowedX = startDropX; // 鎖死
+          targetPlayerX = startDropX; playerX = startDropX; maxAllowedX = startDropX; 
 
-          massiveThrombus.style.transition = 'none';
-          effectsMask.style.transition = 'none';
-          massiveThrombus.style.left = initialThrombusLeft + 'px';
-          effectsMask.style.clipPath = `polygon(0 0, ${initialThrombusLeft}px 0, ${initialThrombusLeft}px 100%, 0 100%)`;
+          massiveThrombus.style.transition = 'none'; effectsMask.style.transition = 'none';
+          massiveThrombus.style.left = initialThrombusLeft + 'px'; effectsMask.style.clipPath = `polygon(0 0, ${initialThrombusLeft}px 0, ${initialThrombusLeft}px 100%, 0 100%)`;
           massiveThrombus.offsetHeight; 
-          
-          massiveThrombus.style.transition = 'left 2s cubic-bezier(0.4, 0, 0.2, 1)';
-          effectsMask.style.transition = 'clip-path 2s cubic-bezier(0.4, 0, 0.2, 1)';
+          massiveThrombus.style.transition = 'left 2s cubic-bezier(0.4, 0, 0.2, 1)'; effectsMask.style.transition = 'clip-path 2s cubic-bezier(0.4, 0, 0.2, 1)';
 
-          player.classList.remove('player-charged');
-          player.classList.add('drop-in');
+          player.classList.remove('player-charged'); player.classList.add('drop-in');
 
           setTimeout(() => {
-              player.classList.remove('drop-in');
-              player.classList.add('player-charged');
-
+              player.classList.remove('drop-in'); player.classList.add('player-charged');
               setTimeout(() => {
-                  player.classList.add('player-firing');
-                  massiveThrombus.classList.add('dissolving');
-
+                  player.classList.add('player-firing'); massiveThrombus.classList.add('dissolving');
                   setTimeout(() => {
-                      massiveThrombus.style.left = finalThrombusLeft + 'px';
-                      effectsMask.style.clipPath = `polygon(0 0, ${finalThrombusLeft}px 0, ${finalThrombusLeft}px 100%, 0 100%)`;
-
-                      const lightZone = document.createElement('div');
-                      lightZone.className = 'cleared-light-zone'; 
-                      lightZone.style.left = (START_OFFSET + lastPlayedIdx * NODE_SPACING) + 'px'; 
-                      lightZone.style.width = NODE_SPACING + 'px';
-                      lightZonesContainer.appendChild(lightZone);
+                      massiveThrombus.style.left = finalThrombusLeft + 'px'; effectsMask.style.clipPath = `polygon(0 0, ${finalThrombusLeft}px 0, ${finalThrombusLeft}px 100%, 0 100%)`;
+                      const lightZone = document.createElement('div'); lightZone.className = 'cleared-light-zone'; lightZone.style.left = (START_OFFSET + lastPlayedIdx * NODE_SPACING) + 'px'; lightZone.style.width = NODE_SPACING + 'px'; lightZonesContainer.appendChild(lightZone);
 
                       setTimeout(() => {
-                          player.classList.remove('player-firing');
-                          player.classList.remove('player-charged'); 
-                          massiveThrombus.classList.remove('dissolving');
-
-                          // ★ 如果是剛剛打破第25關，目的地就是「綜合演練 (細胞 53)」
+                          player.classList.remove('player-firing'); player.classList.remove('player-charged'); massiveThrombus.classList.remove('dissolving');
                           if (allCleared) {
-                              maxAllowedX = WORLD_MAX_WIDTH; // 全通關無限延伸
-                              let finalTargetX = 53 * CELL_WIDTH + 65; // 目標：綜合演練的正中央
-                              targetPlayerX = finalTargetX; 
-                              generateFastRBCs(startDropX, finalTargetX); 
+                              maxAllowedX = WORLD_MAX_WIDTH; 
+                              let finalTargetX = 53 * CELL_WIDTH + 65; 
+                              targetPlayerX = finalTargetX; generateFastRBCs(startDropX, finalTargetX); 
                           } else {
-                              maxAllowedX = START_OFFSET + activeIndex * NODE_SPACING + 65; 
-                              let finalTargetX = maxAllowedX; 
-                              targetPlayerX = finalTargetX; 
-                              generateFastRBCs(startDropX, finalTargetX); 
+                              maxAllowedX = START_OFFSET + activeIndex * NODE_SPACING + 65; let finalTargetX = maxAllowedX; 
+                              targetPlayerX = finalTargetX; generateFastRBCs(startDropX, finalTargetX); 
                           }
-
                       }, 2000); 
                   }, 400); 
               }, 600); 
           }, 800); 
-
       } else {
-          // 一般讀取
           if (allCleared) {
-              // ★ 全通關後，預設重生點為「第25關往右數第4個細胞正中央」(細胞53，綜合演練下方)
-              let startX = 53 * CELL_WIDTH + 65;
-              targetPlayerX = startX; playerX = startX;
-              maxAllowedX = WORLD_MAX_WIDTH; 
+              let startX = 53 * CELL_WIDTH + 65; targetPlayerX = startX; playerX = startX; maxAllowedX = WORLD_MAX_WIDTH; 
           } else {
               spawnIndex = spawnIndex !== undefined ? spawnIndex : activeIndex;
-              let startX = START_OFFSET + spawnIndex * NODE_SPACING + 65;
-              targetPlayerX = startX; playerX = startX;
-              maxAllowedX = START_OFFSET + activeIndex * NODE_SPACING + 65; 
+              let startX = START_OFFSET + spawnIndex * NODE_SPACING + 65; targetPlayerX = startX; playerX = startX; maxAllowedX = START_OFFSET + activeIndex * NODE_SPACING + 65; 
           }
-          
-          massiveThrombus.style.transition = 'none';
-          massiveThrombus.style.left = finalThrombusLeft + 'px';
-          effectsMask.style.transition = 'none';
-          effectsMask.style.clipPath = `polygon(0 0, ${finalThrombusLeft}px 0, ${finalThrombusLeft}px 100%, 0 100%)`;
+          massiveThrombus.style.transition = 'none'; massiveThrombus.style.left = finalThrombusLeft + 'px'; effectsMask.style.transition = 'none'; effectsMask.style.clipPath = `polygon(0 0, ${finalThrombusLeft}px 0, ${finalThrombusLeft}px 100%, 0 100%)`;
       }
-
       generateParticles(WORLD_MAX_WIDTH); 
   }
 
+  // === ★ 跑酷核心系統 ===
+  function initParkour() {
+      // 發送啟動訊號給主程式，設定挑戰資料
+      window.parent.postMessage({ type: 'START_PARKOUR' }, '*');
+      
+      // UI 切換：隱藏左右鍵、放大 JUMP
+      document.getElementById('btn-left').style.opacity = '0';
+      document.getElementById('btn-right').style.opacity = '0';
+      document.getElementById('btn-jump').style.width = '180px';
+      document.getElementById('parkour-start').style.display = 'flex';
+  }
+
+  function startParkour() {
+      document.getElementById('parkour-start').style.display = 'none';
+      document.getElementById('parkour-result').style.display = 'none';
+      document.getElementById('parkour-hud').style.display = 'flex';
+      
+      // 初始化跑酷狀態
+      isParkourMode = true; pkDistance = 0; pkCoins = 0; pkSpeed = 8; pkFrames = 0;
+      pkObjectsContainer.innerHTML = '';
+      pkObstacles = []; pkCoinsArr = [];
+      
+      // 將生成起點設定在玩家前方
+      pkLastCellX = Math.floor(playerX / CELL_WIDTH) * CELL_WIDTH + window.innerWidth + 500;
+      maxAllowedX = Infinity; 
+      isMovingLeft = false; isMovingRight = false;
+      
+      updateParkourUI();
+  }
+
+  function resetParkour() {
+      player.style.filter = 'none';
+      startParkour();
+  }
+
+  function exitParkour() {
+      document.getElementById('parkour-result').style.display = 'none';
+      document.getElementById('parkour-hud').style.display = 'none';
+      
+      document.getElementById('btn-left').style.opacity = '1';
+      document.getElementById('btn-right').style.opacity = '1';
+      document.getElementById('btn-jump').style.width = '95px';
+      
+      isParkourMode = false;
+      player.style.filter = 'none';
+      pkObjectsContainer.innerHTML = ''; // 清除跑酷物件
+      
+      // 將玩家精準瞬移回跑酷節點前方，避免無限數字造成攝影機暴衝
+      let snapX = 54 * CELL_WIDTH + 65;
+      targetPlayerX = snapX; playerX = snapX;
+      maxAllowedX = WORLD_MAX_WIDTH;
+      
+      // 結算分數傳回主程式
+      if (pkCoins > 0) window.parent.postMessage({ type: 'ADD_COINS', amount: pkCoins }, '*');
+      window.parent.postMessage({ type: 'GAME_CLEAR', score: Math.floor(pkDistance) }, '*');
+  }
+
+  function updateParkourUI() {
+      document.getElementById('pk-dist').innerText = Math.floor(pkDistance);
+      document.getElementById('pk-coins').innerText = pkCoins;
+  }
+
+  function spawnParkourObjects() {
+      // 1. 動態生成無窮的背景細胞
+      while (pkLastCellX < playerX + window.innerWidth + 500) {
+          pkLastCellX += CELL_WIDTH;
+          const tCell = document.createElement('div'); tCell.className = 'endo-cell top'; tCell.style.left = pkLastCellX + 'px'; topWallContainer.appendChild(tCell);
+          const bCell = document.createElement('div'); bCell.className = 'endo-cell bottom'; bCell.style.left = pkLastCellX + 'px'; bottomWallContainer.appendChild(bCell);
+      }
+      
+      // 2. 生成障礙物
+      if (pkFrames % Math.floor(Math.random() * 40 + 50) === 0) {
+          const isTop = Math.random() > 0.5;
+          const obs = document.createElement('div');
+          obs.className = `pk-obstacle ${isTop ? 'pk-obs-top' : 'pk-obs-bottom'}`;
+          
+          const vh = document.getElementById('bv-viewport').offsetHeight;
+          const maxH = (vh - 150) * 0.55; const minH = (vh - 150) * 0.35;
+          const h = minH + Math.random() * (maxH - minH);
+          const w = 40 + Math.random() * 30;
+          
+          obs.style.width = w + 'px'; obs.style.height = h + 'px';
+          obs.style.left = (playerX + window.innerWidth + 100) + 'px';
+          
+          pkObjectsContainer.appendChild(obs);
+          pkObstacles.push({ el: obs, x: playerX + window.innerWidth + 100, w: w, h: h, isTop: isTop });
+      }
+      
+      // 3. 生成金幣
+      if (pkFrames % Math.floor(Math.random() * 60 + 80) === 0) {
+          const coin = document.createElement('div'); coin.className = 'health-coin'; coin.innerText = '$';
+          coin.style.left = (playerX + window.innerWidth + 200) + 'px';
+          // top: 35px 剛好鑲嵌在上方的細胞內
+          coin.style.top = '35px'; 
+          
+          pkObjectsContainer.appendChild(coin);
+          pkCoinsArr.push({ el: coin, x: playerX + window.innerWidth + 200, collected: false });
+      }
+  }
+
+  // 取得玩家即時 CSS Y軸位移高度 (用於極度精準碰撞偵測)
+  function getPlayerVisualY() {
+      const matrix = window.getComputedStyle(player).transform;
+      if (matrix !== 'none') {
+          const values = matrix.split('(')[1].split(')')[0].split(',');
+          return Math.abs(parseFloat(values[5])); 
+      }
+      return 0;
+  }
+
+  // 控制綁定
   function setupVirtualControls() {
-      const btnLeft = document.getElementById('btn-left');
-      const btnRight = document.getElementById('btn-right');
-      const btnJump = document.getElementById('btn-jump');
-
-      const addHoldEvent = (el, setTrue, setFalse) => {
-          el.addEventListener('pointerdown', (e) => { e.preventDefault(); setTrue(); });
-          el.addEventListener('pointerup', (e) => { e.preventDefault(); setFalse(); });
-          el.addEventListener('pointercancel', (e) => { e.preventDefault(); setFalse(); });
-          el.addEventListener('pointerleave', (e) => { e.preventDefault(); setFalse(); });
-      };
-
-      addHoldEvent(btnLeft, () => isMovingLeft = true, () => isMovingLeft = false);
-      addHoldEvent(btnRight, () => isMovingRight = true, () => isMovingRight = false);
-
+      const btnLeft = document.getElementById('btn-left'); const btnRight = document.getElementById('btn-right'); const btnJump = document.getElementById('btn-jump');
+      const addHoldEvent = (el, setTrue, setFalse) => { el.addEventListener('pointerdown', (e) => { e.preventDefault(); setTrue(); }); el.addEventListener('pointerup', (e) => { e.preventDefault(); setFalse(); }); el.addEventListener('pointercancel', (e) => { e.preventDefault(); setFalse(); }); el.addEventListener('pointerleave', (e) => { e.preventDefault(); setFalse(); }); };
+      addHoldEvent(btnLeft, () => { if(!isParkourMode) isMovingLeft = true; }, () => isMovingLeft = false);
+      addHoldEvent(btnRight, () => { if(!isParkourMode) isMovingRight = true; }, () => isMovingRight = false);
       btnJump.addEventListener('pointerdown', (e) => { e.preventDefault(); jump(); });
   }
 
+  // 主迴圈
   function gameLoop() {
-      if (isMovingLeft) targetPlayerX -= 8;
-      if (isMovingRight) targetPlayerX += 8;
-      
-      // ★ 無縫接軌 (Endless Loop) 邏輯
-      if (isAllCleared) {
-          // 如果超過第 56 個細胞 (7280px)，回到原點
-          if (targetPlayerX > 56 * CELL_WIDTH + 100) {
-              targetPlayerX = 50;
-              playerX = 50;
-          } 
-          // 如果從原點往左走，退回跑酷挑戰的右方
-          else if (targetPlayerX < 0) {
-              targetPlayerX = 56 * CELL_WIDTH;
-              playerX = 56 * CELL_WIDTH;
+      if (isParkourMode) {
+          // --- 無縫跑酷邏輯 ---
+          pkFrames++;
+          targetPlayerX += pkSpeed;
+          pkDistance += pkSpeed * 0.015;
+          if (pkFrames % 500 === 0) pkSpeed += 0.5; // 逐漸加速
+          
+          spawnParkourObjects();
+          updateParkourUI();
+          
+          let currentJumpY = getPlayerVisualY();
+          const vh = document.getElementById('bv-viewport').offsetHeight;
+          const maxJ = vh - 150 - 45 + 15; // 極限跳躍高度
+          
+          // 障礙物碰撞
+          for (let i = pkObstacles.length - 1; i >= 0; i--) {
+              let o = pkObstacles[i];
+              if (o.x < playerX - window.innerWidth/2 - 100) { o.el.remove(); pkObstacles.splice(i, 1); } 
+              else {
+                  const pLeft = playerX - 14, pRight = playerX + 14;
+                  let hitX = pRight > (o.x + 5) && pLeft < (o.x + o.w - 5);
+                  let hitY = false;
+                  
+                  if (o.isTop) {
+                      // 上方障礙：玩家太高會撞到 (120 是底距 75 + 人高 45)
+                      hitY = (120 + currentJumpY - 10) > (vh - 75 - o.h); 
+                  } else {
+                      // 下方障礙：玩家太低會撞到
+                      hitY = (currentJumpY + 10) < o.h;
+                  }
+                  
+                  if (hitX && hitY) {
+                      isParkourMode = false;
+                      document.getElementById('pk-final-dist').innerText = Math.floor(pkDistance);
+                      document.getElementById('pk-final-coins').innerText = pkCoins;
+                      document.getElementById('parkour-result').style.display = 'flex';
+                      player.style.filter = 'brightness(1.5) drop-shadow(0 0 20px red) sepia(1) hue-rotate(-50deg) saturate(5)';
+                  }
+              }
+          }
+          
+          // 金幣碰撞
+          for (let i = pkCoinsArr.length - 1; i >= 0; i--) {
+              let c = pkCoinsArr[i];
+              if (c.x < playerX - window.innerWidth/2 - 100) { c.el.remove(); pkCoinsArr.splice(i, 1); } 
+              else if (!c.collected) {
+                  const pLeft = playerX - 14, pRight = playerX + 14;
+                  let hitX = pRight > c.x && pLeft < (c.x + 30);
+                  let hitY = currentJumpY > (maxJ * 0.75); // 必須跳很高才能吃到
+                  
+                  if (hitX && hitY) {
+                      c.collected = true; c.el.classList.add('collected');
+                      pkCoins++; updateParkourUI();
+                  }
+              }
           }
       } else {
-          // 一般限制
-          if (targetPlayerX < minPlayerX) targetPlayerX = minPlayerX; 
-          if (targetPlayerX > maxAllowedX) targetPlayerX = maxAllowedX; 
+          // --- 一般探索邏輯 ---
+          if (isMovingLeft) targetPlayerX -= 8;
+          if (isMovingRight) targetPlayerX += 8;
+          
+          // 地球村環形無縫接軌
+          if (isAllCleared) {
+              if (targetPlayerX > 56 * CELL_WIDTH + 100) { targetPlayerX = 50; playerX = 50; } 
+              else if (targetPlayerX < 0) { targetPlayerX = 56 * CELL_WIDTH; playerX = 56 * CELL_WIDTH; }
+          } else {
+              if (targetPlayerX < minPlayerX) targetPlayerX = minPlayerX; 
+              if (targetPlayerX > maxAllowedX) targetPlayerX = maxAllowedX; 
+          }
       }
 
       if (!isNaN(targetPlayerX)) {
+          // 攝影機跟隨
           playerX += (targetPlayerX - playerX) * 0.15; 
-          
           let camX = (window.innerWidth / 2) - playerX - 20; 
           if (camX > 0) camX = 0; 
           const maxScroll = -(WORLD_MAX_WIDTH - window.innerWidth + 100);
-          if (camX < maxScroll) camX = maxScroll;
+          if (camX < maxScroll && !isParkourMode) camX = maxScroll; // 跑酷時無限延伸
           
           world.style.transform = `translate3d(${camX}px, 0, 0)`;
           player.style.left = `${playerX}px`;
@@ -549,47 +640,40 @@
       if (isJumping) return;
       isJumping = true;
       
-      const viewportHeight = document.getElementById('bv-viewport').offsetHeight;
-      let jumpDistance = viewportHeight - 150 - 45 + 15; 
-      if (jumpDistance < 90) jumpDistance = 90; 
+      const vh = document.getElementById('bv-viewport').offsetHeight;
+      pkJumpDistance = vh - 150 - 45 + 15; 
+      if (pkJumpDistance < 90) pkJumpDistance = 90; 
       
-      // 確保跳躍時人物中心點維持 -50%
-      player.style.transform = `translate(-50%, -${jumpDistance}px) scale(1.2)`;
+      player.style.transform = `translate(-50%, -${pkJumpDistance}px) scale(1.2)`;
       
       setTimeout(() => {
-          // 偵測撞擊細胞
-          nodesData.forEach(b => {
-              if (Math.abs(playerX - (b.x + 65)) < 70) {
-                  b.element.classList.add('active-hit'); 
-                  
-                  let orb = b.element.querySelector('.energy-orb');
-                  if(orb) orb.style.opacity = '0';
+          if (!isParkourMode) {
+              nodesData.forEach(b => {
+                  if (Math.abs(playerX - (b.x + 65)) < 70) {
+                      b.element.classList.add('active-hit'); 
+                      let orb = b.element.querySelector('.energy-orb'); if(orb) orb.style.opacity = '0';
 
-                  setTimeout(() => {
-                      window.parent.postMessage({
-                          type: 'HUB_NODE_CLICK',
-                          nodeType: b.itemData.type, // ★ 會正確傳送 'task', 'random', 'comprehensive', 'parkour'
-                          roleId: b.itemData.roleId,
-                          taskIdx: b.itemData.taskIdx, 
-                          globalIdx: b.itemData.globalIdx, 
-                          status: b.itemData.status
-                      }, '*');
-                      b.element.classList.remove('active-hit'); 
-                  }, 400);
-              }
-          });
+                      setTimeout(() => {
+                          if (b.itemData.type === 'parkour') {
+                              initParkour(); // 撞擊跑酷點直接啟動
+                          } else {
+                              window.parent.postMessage({
+                                  type: 'HUB_NODE_CLICK', nodeType: b.itemData.type, roleId: b.itemData.roleId, taskIdx: b.itemData.taskIdx, globalIdx: b.itemData.globalIdx, status: b.itemData.status
+                              }, '*');
+                          }
+                          b.element.classList.remove('active-hit'); 
+                      }, 400);
+                  }
+              });
 
-          // 偵測撞擊金幣
-          coinsData.forEach(c => {
-              if (!c.isCollected && Math.abs(playerX - c.x) < 60) {
-                  c.isCollected = true;
-                  c.element.classList.add('collected'); 
-                  
-                  window.parent.postMessage({ type: 'COLLECT_HUB_COIN', coinIndex: c.id }, '*');
-                  
-                  setTimeout(() => { if (c.element.parentNode) c.element.parentNode.removeChild(c.element); }, 500);
-              }
-          });
+              coinsData.forEach(c => {
+                  if (!c.isCollected && Math.abs(playerX - c.x) < 60) {
+                      c.isCollected = true; c.element.classList.add('collected'); 
+                      window.parent.postMessage({ type: 'COLLECT_HUB_COIN', coinIndex: c.id }, '*');
+                      setTimeout(() => { if (c.element.parentNode) c.element.parentNode.removeChild(c.element); }, 500);
+                  }
+              });
+          }
       }, 300);
 
       setTimeout(() => {
@@ -599,26 +683,17 @@
   }
 
   function generateParticles(brightLimitX) {
-      const pContainer = document.getElementById('particles-container');
-      pContainer.innerHTML = '';
+      const pContainer = document.getElementById('particles-container'); pContainer.innerHTML = '';
       for(let i=0; i<15; i++) { 
-          const rbc = document.createElement('div'); rbc.className = 'red-blood-cell rbc-slow'; 
-          rbc.style.left = `${Math.random() * brightLimitX}px`;
-          rbc.style.top = `${30 + Math.random() * 35}%`; 
-          const size = 15 + Math.random() * 20; rbc.style.width = `${size}px`; rbc.style.height = `${size}px`; 
-          rbc.style.animationDuration = `${10 + Math.random() * 10}s`; rbc.style.animationDelay = `-${Math.random() * 10}s`; 
-          pContainer.appendChild(rbc); 
+          const rbc = document.createElement('div'); rbc.className = 'red-blood-cell rbc-slow'; rbc.style.left = `${Math.random() * brightLimitX}px`; rbc.style.top = `${30 + Math.random() * 35}%`; 
+          const size = 15 + Math.random() * 20; rbc.style.width = `${size}px`; rbc.style.height = `${size}px`; rbc.style.animationDuration = `${10 + Math.random() * 10}s`; rbc.style.animationDelay = `-${Math.random() * 10}s`; pContainer.appendChild(rbc); 
       }
   }
 
   function generateFastRBCs(startX, endX) {
       for(let i=0; i<10; i++) {
           setTimeout(() => {
-              const rbc = document.createElement('div'); rbc.className = 'red-blood-cell rbc-fast'; 
-              rbc.style.left = `${startX - 100}px`; 
-              rbc.style.top = `${40 + Math.random() * 25}%`; 
-              rbc.style.animationDuration = `${1 + Math.random() * 1}s`; 
-              document.getElementById('particles-container').appendChild(rbc);
+              const rbc = document.createElement('div'); rbc.className = 'red-blood-cell rbc-fast'; rbc.style.left = `${startX - 100}px`; rbc.style.top = `${40 + Math.random() * 25}%`; rbc.style.animationDuration = `${1 + Math.random() * 1}s`; document.getElementById('particles-container').appendChild(rbc);
               setTimeout(() => { if (rbc.parentNode) rbc.parentNode.removeChild(rbc); }, 3000);
           }, i * 200);
       }
