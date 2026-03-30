@@ -702,6 +702,7 @@ function handleHubNodeClickLogic(type, roleId, taskIdx, status, globalIdx) {
         playerState.challengeAttempts[type]--;
         saveGameData();
         updateHUD(true); // 刷新地圖上的數字顯示
+        renderNodeMap();
         
         // 啟動對應的關卡
         if (type === 'random') {
