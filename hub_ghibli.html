@@ -356,8 +356,7 @@
           let lastPlayedIdx = event.data.lastPlayedIndex; 
           let spawnIdx = event.data.spawnIndex;
           let attempts = event.data.challengeAttempts || { random: 3, comprehensive: 3, parkour: 3 };
-          buildWorld(event.data.baseSeq, safeCoins, activeIdx, isAllCleared, lastPlayedIdx, spawnIdx);
-      }
+buildWorld(event.data.baseSeq, safeCoins, activeIdx, isAllCleared, lastPlayedIdx, spawnIdx, attempts);      }
   });
 
   window.onload = () => {
