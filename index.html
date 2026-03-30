@@ -607,6 +607,8 @@ function setHomeView(isMap) {
 // ===============================================
 function renderNodeMap() {
     checkExtremeAttempts();
+    checkDailyChallenges(); // ★ 每次渲染前，檢查並更新每日挑戰次數
+
     let baseSeq = [];
     let globalIndex = 0;
     const roles = getActiveRoles();
@@ -651,7 +653,7 @@ function renderNodeMap() {
 
     const allCleared = clearedCount >= 25;
     
-    // ★ 判斷是否為首次通關 (決定是否播放雷射動畫)
+    // 判斷是否為首次通關 (決定是否播放雷射動畫)
     let isNewClear = sessionStorage.getItem('index_isNewClear') === 'true';
     let lastIdxStr = sessionStorage.getItem('index_lastPlayedIdx');
     
@@ -677,26 +679,46 @@ function renderNodeMap() {
             mode: playerState.mode,
             baseSeq: baseSeq,
             collectedCoins: playerState.dailyMapCoins.collected,
-            activeIndex: targetIndex, // 真正的進度前線
-            lastPlayedIndex: isNewClear ? playedIdx : null, // 只有首通才傳入播放動畫
-            spawnIndex: spawnIdx, // 決定人物出現在哪裡
-            allCleared: allCleared          
+            activeIndex: targetIndex, 
+            lastPlayedIndex: isNewClear ? playedIdx : null, 
+            spawnIndex: spawnIdx, 
+            allCleared: allCleared,
+            challengeAttempts: playerState.challengeAttempts // ★ 新增：將剩餘次數傳給引擎
         }, '*');
     }
 }
 
 function handleHubNodeClickLogic(type, roleId, taskIdx, status, globalIdx) {
-    if (type === 'random') {
-        startRandomPractice();
-    } else if (type === 'comprehensive') {
-        openComprehensiveDrill();
-    } else if (type === 'parkour') {
-        // ★ 呼叫我們剛剛建立的獨立跑酷檔案
-        currentGameInfo = { isChallenge: true, id: 'ch_parkour', title: '微觀血管跑酷' };
-        if(id('gameTitle')) id('gameTitle').textContent = '🏃 微觀血管跑酷'; 
-        if(id('gameFrame')) id('gameFrame').src = 'game_parkour.html'; // 載入新遊戲
-        if(id('gameOverlay')) id('gameOverlay').style.display = 'flex'; 
-    } else if (type === 'task') {
+    // ★ 攔截三大終局挑戰，進行次數判定
+    if (type === 'random' || type === 'comprehensive' || type === 'parkour') {
+        checkDailyChallenges(); // 確保次數是最新的
+        
+        // 檢查次數是否用盡
+        if (playerState.challengeAttempts[type] <= 0) {
+            return customAlert('今日該項目的挑戰次數已用盡，請明日再來！', null, '⏳ 次數耗盡');
+        }
+        
+        // 扣除次數並存檔
+        playerState.challengeAttempts[type]--;
+        saveGameData();
+        updateHUD(true); // 刷新地圖上的數字顯示
+        
+        // 啟動對應的關卡
+        if (type === 'random') {
+            startRandomPractice();
+        } else if (type === 'comprehensive') {
+            openComprehensiveDrill();
+        } else if (type === 'parkour') {
+            currentGameInfo = { isChallenge: true, id: 'ch_parkour', title: '微觀血管跑酷', unit: '秒' };
+            if(id('gameTitle')) id('gameTitle').textContent = '🏃 微觀血管跑酷'; 
+            if(id('gameFrame')) id('gameFrame').src = 'game_parkour.html'; 
+            if(id('gameOverlay')) id('gameOverlay').style.display = 'flex'; 
+        }
+        return; // 結束執行
+    }
+
+    // ... 下方原本的 if (type === 'task') 保留不動 ...
+    if (type === 'task') {
         if (status === 'locked') return customAlert('此區域尚未解鎖，請先完成前面的任務！', null, '🔒 區域未解鎖');
         
         if (status === 'cleared') {
@@ -954,6 +976,23 @@ function saveGameData() {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(dataToSave)); } catch(e) {}
 }
 
+// ★ 新增：檢查每日挑戰次數是否需要重置
+function checkDailyChallenges() {
+    const today = new Date().toLocaleDateString();
+    if (!playerState.challengeAttempts) {
+        // 第一次遊玩，給予預設次數
+        playerState.challengeAttempts = { random: 3, comprehensive: 3, parkour: 3, lastDate: today };
+        saveGameData();
+    } else if (playerState.challengeAttempts.lastDate !== today) {
+        // 日期不同（過了一天），重置次數
+        playerState.challengeAttempts.random = 3;
+        playerState.challengeAttempts.comprehensive = 3;
+        playerState.challengeAttempts.parkour = 3;
+        playerState.challengeAttempts.lastDate = today;
+        saveGameData();
+    }
+}
+    
 function loadGameData() {
   try {
     const savedJSON = localStorage.getItem(SAVE_KEY);
