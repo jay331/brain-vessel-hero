@@ -418,25 +418,25 @@
           let cellW = 130; // 預設寬度
 
           // ★ 終局特殊節點配置 (緊密排列)
+          // ★ 終局特殊節點配置 (無縫緊貼排列)
           let isSpecial = false; let specialData = null;
           if (allCleared) {
-              // 把 52, 53, 54 這三個特殊節點靠攏
-              // 透過覆寫 cellX 與寬度，讓它們擠在一個畫面內
+              // 拔除所有額外的間距 (+40, +15)，讓座標完美接續
               if (i === 52) { 
-                  isSpecial = true; specialData = { type: 'random', title: '隨機演練', icon: '🎲', color: '#8e24aa' }; // 顏色調暗(紫)
-                  cellW = 100; cellX = 52 * CELL_WIDTH + 40; 
+                  isSpecial = true; specialData = { type: 'random', title: '隨機演練', icon: '🎲', color: '#8e24aa' }; 
+                  cellW = 100; cellX = 52 * CELL_WIDTH; // 緊貼 51 號細胞
               } 
               if (i === 53) { 
-                  isSpecial = true; specialData = { type: 'comprehensive', title: '綜合演練', icon: '🛡️', color: '#e65100' }; // 顏色調暗(橘)
-                  cellW = 110; cellX = 52 * CELL_WIDTH + 40 + 100 + 15; // 緊貼上一個
+                  isSpecial = true; specialData = { type: 'comprehensive', title: '綜合演練', icon: '🛡️', color: '#e65100' }; 
+                  cellW = 110; cellX = 52 * CELL_WIDTH + 100; // 緊貼 52 號
               } 
               if (i === 54) { 
-                  isSpecial = true; specialData = { type: 'parkour', title: '跑酷挑戰', icon: '🏃', color: '#0277bd' }; // 顏色調暗(藍)
-                  cellW = 100; cellX = 52 * CELL_WIDTH + 40 + 100 + 15 + 110 + 15; // 緊貼上一個
+                  isSpecial = true; specialData = { type: 'parkour', title: '跑酷挑戰', icon: '🏃', color: '#0277bd' }; 
+                  cellW = 100; cellX = 52 * CELL_WIDTH + 100 + 110; // 緊貼 53 號
               } 
-              // 修正 55, 56 (跑酷右邊的空白) 的位置，接續特殊節點
-              if (i === 55) { cellX = 52 * CELL_WIDTH + 40 + 100 + 15 + 110 + 15 + 100 + 30; }
-              if (i === 56) { cellX = 52 * CELL_WIDTH + 40 + 100 + 15 + 110 + 15 + 100 + 30 + 130 + 20; }
+              // 跑酷右邊的空白細胞，繼續緊貼
+              if (i === 55) { cellX = 52 * CELL_WIDTH + 100 + 110 + 100; }
+              if (i === 56) { cellX = 52 * CELL_WIDTH + 100 + 110 + 100 + 130; }
           }
 
           const bCell = document.createElement('div');
@@ -532,8 +532,7 @@
                           // ... 動畫裡的區塊 ...
                           if (allCleared) {
                               maxAllowedX = WORLD_MAX_WIDTH; 
-                              // 新的中央座標：52 * 130 + 40 + 100 + 15 + 55 = 7070
-                              let finalTargetX = 52 * CELL_WIDTH + 40 + 100 + 15 + 55; 
+                              let finalTargetX = 52 * CELL_WIDTH + 155; // ★ 更新置中點
                               targetPlayerX = finalTargetX; generateFastRBCs(startDropX, finalTargetX); 
                           } else {
                               maxAllowedX = START_OFFSET + activeIndex * NODE_SPACING + 65; let finalTargetX = maxAllowedX; 
@@ -544,8 +543,9 @@
               }, 600); 
           }, 800); 
       } else {
+          } else {
           if (allCleared) {
-              let startX = 53 * CELL_WIDTH + 65; targetPlayerX = startX; playerX = startX; maxAllowedX = WORLD_MAX_WIDTH; 
+              let startX = 52 * CELL_WIDTH + 155; targetPlayerX = startX; playerX = startX; maxAllowedX = WORLD_MAX_WIDTH; // ★ 更新置中點
           } else {
               spawnIndex = spawnIndex !== undefined ? spawnIndex : activeIndex;
               let startX = START_OFFSET + spawnIndex * NODE_SPACING + 65; targetPlayerX = startX; playerX = startX; maxAllowedX = START_OFFSET + activeIndex * NODE_SPACING + 65; 
@@ -787,8 +787,15 @@
           if (isMovingRight) targetPlayerX += 8;
           
           if (isAllCleared) {
-              if (targetPlayerX > 56 * CELL_WIDTH + 100) { targetPlayerX = 50; playerX = 50; } 
-              else if (targetPlayerX < 0) { targetPlayerX = 56 * CELL_WIDTH; playerX = 56 * CELL_WIDTH; }
+              // 總長度目前為 7330px，設定超過 7400 觸發循環
+              if (targetPlayerX > 7400) { 
+                  targetPlayerX = 50; playerX = 50; 
+                  world.style.transition = 'none'; world.offsetHeight; world.style.transition = 'transform 0.05s linear'; // 防止暴力切換畫面
+              } 
+              else if (targetPlayerX < 0) { 
+                  targetPlayerX = 7330; playerX = 7330; 
+                  world.style.transition = 'none'; world.offsetHeight; world.style.transition = 'transform 0.05s linear';
+              }
           } else {
               if (targetPlayerX < minPlayerX) targetPlayerX = minPlayerX; 
               if (targetPlayerX > maxAllowedX) targetPlayerX = maxAllowedX; 
