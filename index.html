@@ -352,7 +352,7 @@ body.mode-advanced .view-toggle-btn { background: linear-gradient(135deg, #f57f1
 </div>
 
 <div class="modal-overlay" id="customMsgModal"><div class="modal-content"><h3 id="customMsgTitle"></h3><p id="customMsgText"></p><div id="customMsgBtnWrap"></div></div></div>
-<div class="modal-overlay" id="cardDetailModal"><div class="modal-content"><button class="close-btn" onclick="document.getElementById('cardDetailModal').style.display='none'">✖</button><div id="modalIcon" style="font-size:40px; margin-bottom:8px;"></div><h3 id="modalTitle" style="color:var(--theme-primary); margin:0 0 8px 0; font-size:16px;"></h3><div id="modalCategory" style="font-size:11px; color:var(--text-muted); margin-bottom:12px;"></div><p id="modalDesc" style="color:#fff; font-size:13px; line-height:1.5; text-align:left; background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; border:1px solid #444; margin:0;"></p></div></div>
+<div class="modal-overlay" id="cardDetailModal"><div class="modal-content"><button class="close-btn" onclick="closeCardModalBtn()">✖</button><div id="modalIcon" style="font-size:40px; margin-bottom:8px;"></div><h3 id="modalTitle" style="color:var(--theme-primary); margin:0 0 8px 0; font-size:16px;"></h3><div id="modalCategory" style="font-size:11px; color:var(--text-muted); margin-bottom:12px;"></div><p id="modalDesc" style="color:#fff; font-size:13px; line-height:1.5; text-align:left; background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; border:1px solid #444; margin:0;"></p></div></div>
 
 <div class="modal-overlay" id="storeModal">
   <div class="modal-content" style="border-color: #81c784;">
@@ -789,7 +789,7 @@ function handleNavSlot6() {
   else { showScreen('scrLeaderboard'); renderTotalScoreLeaderboard(); }
 }
 
-function updateHUD() { 
+function updateHUD(skipMapRender = false) { 
   if(id('uiCoins')) id('uiCoins').textContent = playerState.coins.toLocaleString(); 
   if(id('storeCoinDisplay')) id('storeCoinDisplay').textContent = `$ ${playerState.coins.toLocaleString()} 幣`;
   if(id('lbHealthCoins')) id('lbHealthCoins').textContent = playerState.coins.toLocaleString();
@@ -812,7 +812,7 @@ function updateHUD() {
   if (exploreBadge) { if (uncompletedExploreCount > 0) { exploreBadge.style.display = 'flex'; exploreBadge.textContent = uncompletedExploreCount; } else { exploreBadge.style.display = 'none'; } }
   
   renderHomeRoles();
-  if (playerState.storyMode) renderNodeMap();
+  if (playerState.storyMode && !skipMapRender) renderNodeMap();
 }
 
 function renderHomeRoles() {
@@ -1038,7 +1038,7 @@ function handleGameClear(score) {
   const targetMap = playerState.mode === 'beginner' ? playerState.taskScoresBeg : playerState.taskScoresAdv;
   const isFirstClear = !targetMap.has(info.id);
   
-  // ★ 紀錄是否為首通 (供血管引擎判斷是否播動畫)
+  // ★ 1. 紀錄是否為首通 (供血管引擎判斷是否播動畫)
   sessionStorage.setItem('index_isNewClear', isFirstClear ? 'true' : 'false');
   
   if (isFirstClear && !info.isChallenge) playerState.coins += (playerState.mode === 'beginner' ? 100 : 150);
@@ -1056,19 +1056,27 @@ function handleGameClear(score) {
   for (let r of rolesList) { if (r.id === info.role.id) { absoluteNumber += info.taskIndex; break; } absoluteNumber += r.totalTasks; }
   const cardId = `#${absoluteNumber}`;
   
-  saveGameData(); updateHUD(); 
+  saveGameData(); 
+  updateHUD(true); // ★ 2. 傳入 true，只更新硬幣，不更新地圖以免動畫偷跑
 
   if (info.isChallenge) {
-      customAlert(`【隨機演練完成】\n\n🎯 關卡：${info.role.subTasks[info.taskIndex].substring(3)}\n💰 獲得 ${playerState.mode==='beginner'?100:150} 健康幣！`, () => { playerState.coins += (playerState.mode==='beginner'?100:150); saveGameData(); updateHUD(); }, "🎲 練習結束");
+      customAlert(`【隨機演練完成】\n\n🎯 關卡：${info.role.subTasks[info.taskIndex].substring(3)}\n💰 獲得 ${playerState.mode==='beginner'?100:150} 健康幣！`, () => { 
+          playerState.coins += (playerState.mode==='beginner'?100:150); saveGameData(); updateHUD(true); updateModeUI(); 
+      }, "🎲 練習結束");
       currentGameInfo = null;
       return;
   }
+
+  // ★ 3. 記錄剛通關的索引
+  sessionStorage.setItem('index_lastPlayedIdx', info.globalIdx !== undefined ? info.globalIdx : (absoluteNumber - (tabMode === 'beg' ? 1 : 26)));
 
   if (playerState.isReplaying) {
       playerState.replayProgression++;
       if (playerState.replayProgression < TOTAL_BEG_TASKS) {
           customConfirm(`<div style="text-align: left;">回顧任務順利完成！<br><br>要接著複習下一關嗎？</div>`, 
-              () => { playTaskFlat(playerState.replayProgression); }, () => { updateModeUI(); playerState.isReplaying = false; }, "✅ 任務回顧", "繼續下一關", "先休息"
+              () => { playTaskFlat(playerState.replayProgression); }, 
+              () => { playerState.isReplaying = false; updateModeUI(); }, 
+              "✅ 任務回顧", "繼續下一關", "先休息"
           );
       } else { playerState.replayProgression = 0; playerState.isReplaying = false; customAlert("太厲害了！你已經重新回顧了所有初階任務！", () => { updateModeUI(); }, "🎉 回顧完成"); }
   } 
@@ -1077,17 +1085,26 @@ function handleGameClear(score) {
       if (playerState.storyProgression < TOTAL_BEG_TASKS) {
           const nextTask = getFlatTask(playerState.storyProgression);
           const msgHtml = `<div style="text-align: left; padding-left: 10px;">${isFirstClear ? '💰 獲得 100 健康幣！<br><br>' : ''}✨ 取得新的健康卡<br><br>是否立即進入下一關：<br>${nextTask.role.subTasks[nextTask.taskIndex].substring(3)}？</div>`;
-          customConfirm(msgHtml, () => { playTaskFlat(playerState.storyProgression); }, () => { updateModeUI(); openCardModal(tabMode, info.role.id, info.taskIndex, absoluteNumber); }, "🎉 任務成功", "進入下一關", `觀看健康卡 ${cardId}` );
+          customConfirm(msgHtml, 
+              () => { playTaskFlat(playerState.storyProgression); }, 
+              () => { openCardModal(tabMode, info.role.id, info.taskIndex, absoluteNumber); }, 
+              "🎉 任務成功", "進入下一關", `觀看健康卡 ${cardId}` 
+          );
       } else { customAlert("恭喜你完成所有初階訓練！現在為您開啟「醫院自由探索模式」！", () => { updateModeUI(); }, "🎉 訓練結業"); }
   } 
   else {
       const coinText = playerState.mode === 'beginner' ? '💰 獲得 100 健康幣！' : '💰 獲得 150 健康幣！';
       const msgHtml = `<div style="text-align: left; padding-left: 10px;">${isFirstClear ? coinText + '<br><br>' : '🔄 (複習任務無硬幣獎勵)<br><br>'}✨ 取得新的健康卡</div>`;
-      customAlert(msgHtml, () => { openCardModal(tabMode, info.role.id, info.taskIndex, absoluteNumber); updateModeUI(); }, "🎉 任務成功！", `觀看健康卡 ${cardId}`);
+      customAlert(msgHtml, () => { openCardModal(tabMode, info.role.id, info.taskIndex, absoluteNumber); }, "🎉 任務成功！", `觀看健康卡 ${cardId}`);
   }
   currentGameInfo = null;
 }
 
+function closeCardModalBtn() {
+    document.getElementById('cardDetailModal').style.display = 'none';
+    updateModeUI(); // ★ 確保關閉卡片時，才去觸發地圖重新渲染與動畫
+}
+    
 function openCardModal(tab, roleId, taskIdx, absNum) {
   let role = (tab === 'beg' ? ROLES_DATA_BEG : ROLES_DATA_ADV).find(r => r.id === roleId); if (!role) return;
   id('modalIcon').textContent = role.icon; id('modalTitle').textContent = `#${absNum} ${role.subTasks[taskIdx].substring(3)}`; id('modalCategory').textContent = `${role.name} - ${role.subtitle}`;
