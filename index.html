@@ -173,7 +173,7 @@ body.mode-advanced .view-toggle-btn { background: linear-gradient(135deg, #f57f1
     <div class="stage">
       
       <section class="screen show" id="scrHome">
-        <div id="nodeMapContainer" style="display: none; flex: 1; min-height: 0; width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 70px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); position: relative;">
+        <div id="nodeMapContainer" style="display: none; flex: 1; min-height: 0; width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 85px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); position: relative;">
             <iframe id="ghibliHubFrame" src="hub_ghibli.html" style="width: 100%; height: 100%; border: none;"></iframe>
         </div>
 
@@ -282,6 +282,7 @@ body.mode-advanced .view-toggle-btn { background: linear-gradient(135deg, #f57f1
       </section>
 
       <nav class="bottom-nav" id="mainNav">
+        
         <div class="nav-item" id="navSlot2" onclick="handleNavSlot2()">
           <div class="icon" id="navSlot2Icon">📖</div><span id="navSlot2Text">中風歷程</span>
         </div>
@@ -360,9 +361,7 @@ body.mode-advanced .view-toggle-btn { background: linear-gradient(135deg, #f57f1
        <span style="color:#aaa; font-size:13px; font-weight:bold;">目前餘額</span>
        <span style="color:var(--good); font-size:16px; font-weight:900;" id="storeCoinDisplay">$ 0 幣</span>
     </div>
-    
-    <div style="max-height: 50vh; overflow-y: auto; padding-right: 5px;" id="storeListContent">
-        </div>
+    <div style="max-height: 50vh; overflow-y: auto; padding-right: 5px;" id="storeListContent"></div>
   </div>
 </div>
 
@@ -405,9 +404,6 @@ let currentGameInfo = null;
 let activeRoleId = null;
 let currentQIndex = 0; let currentAnswers = {}; let trendChartInstance = null;
 
-// ===============================================
-// 全域事件監聽 (接收 iframe 訊息)
-// ===============================================
 window.addEventListener('message', (event) => {
   if (!event.data) return;
 
@@ -493,6 +489,8 @@ window.addEventListener('message', (event) => {
           if (currentGameInfo && currentGameInfo.isChallenge) handleChallengeClear(currentGameInfo.id, event.data.score || 0);
           else handleGameClear(event.data.score || 1000);
       } else {
+          // 失敗也要清除動畫標記
+          sessionStorage.removeItem('index_isNewClear');
           updateModeUI();
           customAlert('任務模擬失敗，請再接再厲！', () => { currentGameInfo = null; }, "❌ 任務失敗");
       }
@@ -514,7 +512,10 @@ window.addEventListener('message', (event) => {
       }
   }
   
-  else if (event.data.type === 'CLOSE_IFRAME') { closeAllIframes(); exitFullscreenUI(); updateModeUI(); }
+  else if (event.data.type === 'CLOSE_IFRAME') { 
+      sessionStorage.removeItem('index_isNewClear');
+      closeAllIframes(); exitFullscreenUI(); updateModeUI(); 
+  }
   
   else if (event.data.type === 'PUZZLE_CLEAR') {
       const pid = event.data.puzzleId;
@@ -614,7 +615,7 @@ function renderNodeMap() {
                 firstUnclearedIdx = globalIndex;
             }
             
-            let statusStr = isLocked ? 'locked' : (isCleared ? 'cleared' : 'active'); // 給 active 狀態讓血管引擎好辨識
+            let statusStr = isLocked ? 'locked' : (isCleared ? 'cleared' : 'active');
             
             // 初階版的防呆：如果前一關沒破，標記為未完成解鎖狀態
             if (playerState.mode === 'beginner' && statusStr === 'active' && globalIndex > firstUnclearedIdx) {
@@ -631,19 +632,23 @@ function renderNodeMap() {
 
     const allCleared = clearedCount >= 25;
     
-    let targetIndex = 0;
-    // 取出並清空通關紀錄
-    let lastIdx = sessionStorage.getItem('index_lastPlayedIdx');
-    if (lastIdx !== null) {
-        targetIndex = parseInt(lastIdx) + 1;
-        // 把紀錄拿給引擎後就清除
-        sessionStorage.removeItem('index_lastPlayedIdx');
-    } else {
-        targetIndex = firstUnclearedIdx !== -1 ? firstUnclearedIdx : 0;
-    }
+    // ★ 判斷是否為首次通關 (決定是否播放雷射動畫)
+    let isNewClear = sessionStorage.getItem('index_isNewClear') === 'true';
+    let lastIdxStr = sessionStorage.getItem('index_lastPlayedIdx');
+    
+    let targetIndex = firstUnclearedIdx !== -1 ? firstUnclearedIdx : 25;
+    let playedIdx = null;
+    let spawnIdx = targetIndex;
 
+    if (lastIdxStr !== null) {
+        playedIdx = parseInt(lastIdxStr);
+        spawnIdx = playedIdx; // 如果剛玩完，強制出生在剛剛那一關
+        
+        sessionStorage.removeItem('index_lastPlayedIdx');
+        sessionStorage.removeItem('index_isNewClear');
+    }
+    
     if (allCleared) targetIndex = 25; 
-    else if (targetIndex >= 25) targetIndex = 24; 
 
     // 發送給血管引擎
     const frame = document.getElementById('ghibliHubFrame');
@@ -653,8 +658,9 @@ function renderNodeMap() {
             mode: playerState.mode,
             baseSeq: baseSeq,
             collectedCoins: playerState.dailyMapCoins.collected,
-            activeIndex: targetIndex, 
-            lastPlayedIndex: (lastIdx !== null) ? parseInt(lastIdx) : null,
+            activeIndex: targetIndex, // 真正的進度前線
+            lastPlayedIndex: isNewClear ? playedIdx : null, // 只有首通才傳入播放動畫
+            spawnIndex: spawnIdx, // 決定人物出現在哪裡
             allCleared: allCleared          
         }, '*');
     }
@@ -662,8 +668,10 @@ function renderNodeMap() {
 
 function handleHubNodeClickLogic(type, roleId, taskIdx, status, globalIdx) {
     if (type === 'random') {
+        if (status === 'locked') return customAlert('這是一道神秘的關卡，請先將前面 25 個任務全部過關後再來挑戰吧！', null, '🔒 尚未解鎖');
         startRandomPractice();
     } else if (type === 'comprehensive') {
+        if (status === 'locked') return customAlert('終極考驗尚未開放！請先將前面 25 個任務全部過關。', null, '🔒 尚未解鎖');
         openComprehensiveDrill();
     } else if (type === 'task') {
         if (status === 'locked') return customAlert('此區域尚未解鎖，請先完成前面的任務！', null, '🔒 區域未解鎖');
@@ -673,7 +681,6 @@ function handleHubNodeClickLogic(type, roleId, taskIdx, status, globalIdx) {
                 playerState.isReplaying = true;
                 playerState.replayProgression = globalIdx;
                 activeRoleId = roleId;
-                // 為了通關後能回顧，儲存點擊的位置
                 sessionStorage.setItem('index_lastPlayedIdx', globalIdx);
                 playTask(taskIdx); 
             }, null, '🎬 回顧任務', '開始回顧');
@@ -747,7 +754,7 @@ function showScreen(screenId) {
   }
 }
 
-function exitFullscreenUI() { isGlobalFs = false; if(id('mainHeader')) id('mainHeader').style.display = 'flex'; if(id('mainNav')) id('mainNav').style.display = 'flex'; if(id('homeMapContainer')) id('homeMapContainer').classList.remove('fullscreen-map'); updateModeUI(); }
+function exitFullscreenUI() { isGlobalFs = false; if(id('mainHeader')) id('mainHeader').style.display = 'flex'; if(id('mainNav')) id('mainNav').style.display = 'flex'; if(id('nodeMapContainer')) id('nodeMapContainer').classList.remove('fullscreen-map'); updateModeUI(); }
 
 function toggleMode() { 
     playerState.mode = playerState.mode === 'beginner' ? 'advanced' : 'beginner'; 
@@ -1031,6 +1038,9 @@ function handleGameClear(score) {
   const targetMap = playerState.mode === 'beginner' ? playerState.taskScoresBeg : playerState.taskScoresAdv;
   const isFirstClear = !targetMap.has(info.id);
   
+  // ★ 紀錄是否為首通 (供血管引擎判斷是否播動畫)
+  sessionStorage.setItem('index_isNewClear', isFirstClear ? 'true' : 'false');
+  
   if (isFirstClear && !info.isChallenge) playerState.coins += (playerState.mode === 'beginner' ? 100 : 150);
   
   if (!info.isChallenge) {
@@ -1048,7 +1058,6 @@ function handleGameClear(score) {
   
   saveGameData(); updateHUD(); 
 
-  // 隨機演練的結束提示
   if (info.isChallenge) {
       customAlert(`【隨機演練完成】\n\n🎯 關卡：${info.role.subTasks[info.taskIndex].substring(3)}\n💰 獲得 ${playerState.mode==='beginner'?100:150} 健康幣！`, () => { playerState.coins += (playerState.mode==='beginner'?100:150); saveGameData(); updateHUD(); }, "🎲 練習結束");
       currentGameInfo = null;
