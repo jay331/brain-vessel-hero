@@ -51,57 +51,6 @@ body.mode-advanced .view-toggle-btn { background: linear-gradient(135deg, #f57f1
 .screen.show { display: flex; }
 .screen.full-view { padding-top: 10px; padding-bottom: 10px; z-index: 200; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); }
 
-/* ★ 全新互動任務地圖 (橫向卷軸海陸空) */
-#nodeMapContainer { 
-    overflow: hidden; /* 關閉原本的 X Y 捲軸 */
-    position: relative; 
-    flex: 1;
-    border-radius: 8px; 
-    border: 1px solid var(--theme-dim); 
-    margin-bottom: 85px;
-    background: linear-gradient(180deg, 
-        #1e3c72 0%, #2a5298 40%,   /* 天空 */
-        #6d4c41 40%, #4e342e 75%,  /* 陸地 */
-        #006064 75%, #00838f 100%  /* 海洋 */
-    );
-    box-shadow: inset 0 0 20px rgba(0,0,0,0.6);
-}
-.hub-world { 
-    position: absolute; 
-    top: 0; left: 0; bottom: 0;
-    width: 1px; /* 元素由 left 往外撐，實際寬度無需固定 */
-    transition: transform 0.3s ease-out; /* 畫面跟隨的平滑過渡 */
-}
-
-/* 分界線 */
-.horizon-line {
-    position: absolute;
-    top: 40%; left: -50000px; width: 100000px;
-    height: 4px; background: rgba(0,0,0,0.3);
-    border-top: 1px solid rgba(255,255,255,0.1);
-}
-.sea-line {
-    position: absolute;
-    top: 75%; left: -50000px; width: 100000px;
-    height: 4px; background: rgba(255,255,255,0.2);
-    box-shadow: 0 0 10px rgba(255,255,255,0.3);
-}
-
-.hub-node { position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; cursor: pointer; z-index: 10; }
-.hub-node-circle { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 6px 12px rgba(0,0,0,0.8); border: 3px solid #fff; transition: transform 0.2s;}
-.hub-node:active .hub-node-circle { transform: scale(0.9); }
-.hub-node-text { margin-top: 6px; font-weight: 900; font-size: 13px; text-shadow: 1px 1px 4px #000; text-align: center; line-height: 1.2; padding: 2px 6px; background: rgba(0,0,0,0.5); border-radius: 6px;}
-.hub-coin { position: absolute; width: 30px; height: 30px; background: radial-gradient(circle, #ffeb3b, #fbc02d); border-radius: 50%; border: 2px solid #fff; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; font-weight: 900; color: #b71c1c; font-size: 14px; box-shadow: 0 0 15px rgba(255,235,59,0.8); cursor: pointer; animation: bounce 1.5s infinite alternate ease-in-out; z-index: 5;}
-.hub-player { position: absolute; transform: translate(-50%, -100%); z-index: 20; pointer-events: none; display: flex; flex-direction: column; align-items: center;}
-.hub-player-body { width: 22px; height: 24px; background: var(--theme-primary); border-radius: 6px 6px 4px 4px; border: 2px solid #333; margin-top: -4px; z-index: 1; box-shadow: inset -2px -2px 0 rgba(0,0,0,0.2);}
-.hub-player::before { content: ''; position: absolute; bottom: -4px; width: 24px; height: 8px; background: rgba(0,0,0,0.5); border-radius: 50%; z-index: 0; }
-
-@keyframes bounce { from { transform: translate(-50%, -50%); } to { transform: translate(-50%, -65%); } }
-@keyframes pulseActiveBeg { 0% { box-shadow: 0 0 0 0 rgba(100, 181, 246, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(100, 181, 246, 0); } 100% { box-shadow: 0 0 0 0 rgba(100, 181, 246, 0); } }
-@keyframes pulseActiveAdv { 0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(212, 175, 55, 0); } 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); } }
-body.mode-beginner .node-pulse { animation: pulseActiveBeg 2s infinite; }
-body.mode-advanced .node-pulse { animation: pulseActiveAdv 2s infinite; }
-
 /* ===== 元件 ===== */
 .panel { background: var(--theme-panel); border: 1px solid var(--theme-dim); border-radius: 12px; padding: 15px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; flex: 1; min-height: 0;}
 .panel h2 { color: var(--theme-primary); margin: 0 0 12px 0; font-size: 18px; text-align: center; border-bottom: 1px dashed var(--theme-dim); padding-bottom: 8px; flex-shrink: 0;}
@@ -173,7 +122,7 @@ body.mode-advanced .node-pulse { animation: pulseActiveAdv 2s infinite; }
 .nav-item.active { color: var(--theme-primary); }
 .nav-item.active .icon { transform: translateY(-2px); }
 
-/* 中央高亮按鈕 (置中微調) */
+/* 中央高亮按鈕 */
 .nav-item.highlight-action { 
     background: linear-gradient(180deg, var(--theme-dim), rgba(0,0,0,0.6));
     border: 1px solid var(--theme-primary);
@@ -184,9 +133,9 @@ body.mode-advanced .node-pulse { animation: pulseActiveAdv 2s infinite; }
     box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
     display: flex;
     flex-direction: column;
-    justify-content: center; /* 完全垂直置中 */
+    justify-content: center; 
     align-items: center;
-    gap: 2px; /* 縮小文字與 Icon 距離 */
+    gap: 2px; 
 }
 .nav-item.highlight-action .icon { color: var(--text-main); font-size: 24px; margin-bottom: 0;}
 .nav-item.highlight-action span:not(.icon) { color: var(--text-main); }
@@ -201,7 +150,6 @@ body.mode-advanced .node-pulse { animation: pulseActiveAdv 2s infinite; }
 
 <div class="app">
   <header id="mainHeader">
-      
       <div class="header-left">
         <div class="avatar-wrap" onclick="document.getElementById('profileModal').style.display='flex'">
           <img id="hudAvatar" src="https://i.pravatar.cc/150?img=11">
@@ -219,20 +167,17 @@ body.mode-advanced .node-pulse { animation: pulseActiveAdv 2s infinite; }
       <div class="header-right" id="uiStoryToggleWrap">
           <button id="btnViewToggle" class="view-toggle-btn" onclick="toggleViewMode()">切換為清單模式</button>
       </div>
-      
   </header>
 
   <div class="wrap">
     <div class="stage">
       
       <section class="screen show" id="scrHome">
-        
-<div id="nodeMapContainer" style="display: none; flex: 1; min-height: 0; width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 80px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); position: relative;">
-    <iframe id="ghibliHubFrame" src="hub_ghibli.html" style="width: 100%; height: 100%; border: none;"></iframe>
-</div>
+        <div id="nodeMapContainer" style="display: none; flex: 1; min-height: 0; width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); position: relative;">
+            <iframe id="ghibliHubFrame" src="hub_ghibli.html" style="width: 100%; height: 100%; border: none;"></iframe>
+        </div>
 
         <div class="role-list" id="roleListContainer" style="display: none;"></div>
-        
       </section>
 
       <section class="screen" id="scrCaseDex">
@@ -391,14 +336,6 @@ body.mode-advanced .node-pulse { animation: pulseActiveAdv 2s infinite; }
   </div>
 </div>
 
-<div class="modal-overlay" id="reviewModal">
-  <div class="modal-content" style="border-color: #ff9800; padding:20px; max-width: 320px;">
-    <button class="close-btn" onclick="document.getElementById('reviewModal').style.display='none'">✖</button>
-    <h3 style="color:#ff9800; margin: 0 0 15px 0; font-size: 18px;">📜 回顧已通關任務</h3>
-    <div id="reviewTaskList" style="display:flex; flex-direction:column; gap:8px; max-height:60vh; overflow-y:auto; text-align:left;"></div>
-  </div>
-</div>
-
 <div class="modal-overlay" id="profileModal">
   <div class="modal-content" style="border-color:#4fc3f7; padding:20px;">
     <h3 style="color:#fff; margin: 0 0 12px 0; font-size: 20px;">腦脈先鋒 登錄</h3>
@@ -546,7 +483,7 @@ window.addEventListener('message', (event) => {
   }
   
   else if (event.data.type === 'TOGGLE_FULLSCREEN') {
-      isGlobalFs = event.data.isFullscreen; const mapWrap = id('homeMapContainer');
+      isGlobalFs = event.data.isFullscreen; const mapWrap = id('nodeMapContainer');
       if (isGlobalFs) { if(mapWrap) mapWrap.classList.add('fullscreen-map'); id('mainHeader').style.display = 'none'; id('mainNav').style.display = 'none'; } 
       else { exitFullscreenUI(); }
   }
@@ -561,18 +498,15 @@ window.addEventListener('message', (event) => {
           customAlert('任務模擬失敗，請再接再厲！', () => { currentGameInfo = null; }, "❌ 任務失敗");
       }
   }
-// 請在原本龐大的 if...else 判斷式中，加入以下三個判斷：
 
+  // ★ 處理血管引擎 (hub_ghibli.html) 的通知
   else if (event.data.type === 'GHIBLI_HUB_READY') {
-      // 當大廳載入完成時，發送資料給它畫地圖
       if (playerState.storyMode) renderNodeMap();
   }
   else if (event.data.type === 'HUB_NODE_CLICK') {
-      // 處理大廳傳來的任務點擊
       handleHubNodeClickLogic(event.data.nodeType, event.data.roleId, event.data.taskIdx, event.data.status, event.data.globalIdx);
   }
   else if (event.data.type === 'COLLECT_HUB_COIN') {
-      // 處理大廳傳來的吃金幣
       if(!playerState.dailyMapCoins.collected.includes(event.data.coinIndex)) {
           playerState.dailyMapCoins.collected.push(event.data.coinIndex);
           playerState.coins += 50;
@@ -580,7 +514,6 @@ window.addEventListener('message', (event) => {
           customAlert("拾取健康幣！\n\n獲得 50 幣！", null, "💰 意外收穫");
       }
   }
-      
   
   else if (event.data.type === 'CLOSE_IFRAME') { closeAllIframes(); exitFullscreenUI(); updateModeUI(); }
   
@@ -644,34 +577,15 @@ function setHomeView(isMap) {
   
   if (isMap) {
       if(id('nodeMapContainer')) id('nodeMapContainer').style.display = 'flex';
-      renderNodeMap(); // 重新渲染循環地圖
+      renderNodeMap(); // 重新傳遞資料給血管引擎
   } else {
       if(id('roleListContainer')) id('roleListContainer').style.display = 'flex';
   }
 }
 
 // ===============================================
-// ★ 無縫橫向卷軸循環地圖 (Task Hub) 
+// ★ 與血管微觀世界的資料同步 
 // ===============================================
-let currentPlayerX = 0;
-let isPlayerMoving = false;
-let walkTimer = null;
-let jumpTimer1 = null;
-let jumpTimer2 = null;
-
-function getDailyCoinPositions() {
-    const dateStr = new Date().toLocaleDateString('zh-TW');
-    let seed = 0;
-    for(let i=0; i<dateStr.length; i++) seed += dateStr.charCodeAt(i);
-    const poses = [];
-    for(let i=0; i<5; i++) {
-        // x 在 0 到 1000 之間隨機分布
-        const x = 100 + Math.abs(Math.sin(seed + i * 1.2)) * 800;
-        poses.push({x});
-    }
-    return poses;
-}
-
 function renderNodeMap() {
     checkExtremeAttempts();
     let baseSeq = [];
@@ -681,7 +595,6 @@ function renderNodeMap() {
     let clearedCount = 0;
     let firstUnclearedIdx = -1;
 
-    // 1. 計算所有關卡狀態
     roles.forEach(role => {
         role.subTasks.forEach((subTask, idx) => {
             let isCleared = false, isLocked = false;
@@ -702,7 +615,13 @@ function renderNodeMap() {
                 firstUnclearedIdx = globalIndex;
             }
             
-            let statusStr = isLocked ? 'locked' : (isCleared ? 'cleared' : 'unlocked');
+            let statusStr = isLocked ? 'locked' : (isCleared ? 'cleared' : 'active'); // 給 active 狀態讓血管引擎好辨識
+            
+            // 初階版的防呆：如果前一關沒破，標記為未完成解鎖狀態
+            if (playerState.mode === 'beginner' && statusStr === 'active' && globalIndex > firstUnclearedIdx) {
+                statusStr = 'unlocked'; 
+            }
+
             baseSeq.push({ 
                 type: 'task', roleId: role.id, taskIdx: idx, globalIdx: globalIndex, 
                 status: statusStr, title: taskTitle, category: role.name 
@@ -713,37 +632,30 @@ function renderNodeMap() {
 
     const allCleared = clearedCount >= 25;
     
-    // 2. 隨機與綜合關卡狀態
-    const extraStatus = allCleared ? 'active' : 'locked';
-    baseSeq.push({ type: 'random', status: extraStatus });
-    baseSeq.push({ type: 'comprehensive', status: extraStatus });
-    
-    // === 3. 核心修改：決定人物出生點與光束位置 ===
     let targetIndex = 0;
-    
-    // (A) 如果有剛玩完的關卡紀錄，就站在它的「下一關」
-    if (window.lastPlayedGlobalIdx !== undefined) {
-        targetIndex = window.lastPlayedGlobalIdx + 1;
+    // 取出並清空通關紀錄
+    let lastIdx = sessionStorage.getItem('index_lastPlayedIdx');
+    if (lastIdx !== null) {
+        targetIndex = parseInt(lastIdx) + 1;
+        // 把紀錄拿給引擎後就清除
+        sessionStorage.removeItem('index_lastPlayedIdx');
     } else {
-        // (B) 如果是剛登入，就找第一個還沒破的關卡
         targetIndex = firstUnclearedIdx !== -1 ? firstUnclearedIdx : 0;
     }
 
-    // (C) 防呆與全破指引
-    if (allCleared) {
-        targetIndex = 26; // 全破直接指引去打最後的綜合演練
-    } else if (targetIndex >= 25) {
-        targetIndex = 24; // 尚未全破時，如果溢出最多只停在第 25 關
-    }
+    if (allCleared) targetIndex = 25; 
+    else if (targetIndex >= 25) targetIndex = 24; 
 
-    // 4. 將資料發送給吉卜力 Iframe
+    // 發送給血管引擎
     const frame = document.getElementById('ghibliHubFrame');
     if (frame && frame.contentWindow) {
         frame.contentWindow.postMessage({
             type: 'RENDER_MAP',
+            mode: playerState.mode,
             baseSeq: baseSeq,
             collectedCoins: playerState.dailyMapCoins.collected,
-            activeIndex: targetIndex, // 傳送計算好的下一關位置
+            activeIndex: targetIndex, 
+            lastPlayedIndex: (lastIdx !== null) ? parseInt(lastIdx) : null,
             allCleared: allCleared          
         }, '*');
     }
@@ -751,109 +663,6 @@ function renderNodeMap() {
 
 function handleHubNodeClickLogic(type, roleId, taskIdx, status, globalIdx) {
     if (type === 'random') {
-        if (status === 'locked') return customAlert('這是一道神秘的關卡，請先將前面 25 個任務全部過關後再來挑戰吧！', null, '🔒 尚未解鎖');
-        window.lastPlayedGlobalIdx = 25; // 紀錄足跡
-        startRandomPractice();
-    } else if (type === 'comprehensive') {
-        if (status === 'locked') return customAlert('終極考驗尚未開放！請先將前面 25 個任務全部過關。', null, '🔒 尚未解鎖');
-        window.lastPlayedGlobalIdx = 26; // 紀錄足跡
-        openComprehensiveDrill();
-    } else if (type === 'task') {
-        if (status === 'locked') return customAlert('此區域尚未解鎖，請先完成前面的任務！', null, '🔒 區域未解鎖');
-        
-        // ★ 核心修改：記錄當前點擊的關卡索引，出來時就會自動 +1
-        window.lastPlayedGlobalIdx = globalIdx;
-
-        if (status === 'cleared') {
-            customConfirm(`第 ${globalIdx + 1} 關已通關！\n是否要重新回顧此關卡的情境演練？`, () => {
-                playerState.isReplaying = true;
-                playerState.replayProgression = globalIdx;
-                activeRoleId = roleId;
-                playTask(taskIdx); 
-            }, null, '🎬 回顧任務', '開始回顧');
-        } else if (status === 'active' || status === 'unlocked') {
-            activeRoleId = roleId;
-            playTask(taskIdx);
-        }
-    }
-}
-
-function updateCamera(targetX, duration = 0) {
-    const container = id('nodeMapContainer');
-    if(!container) return;
-    const w = container.clientWidth || window.innerWidth;
-    const inner = id('hubWorldInner');
-    if(!inner) return;
-
-    inner.style.transition = duration > 0 ? `transform ${duration}s linear` : 'none';
-    inner.style.transform = `translateX(${w/2 - targetX}px)`;
-}
-
-function walkTo(targetX, callback) {
-    const player = id('hubPlayer');
-    if(!player) return;
-
-    clearTimeout(walkTimer); clearTimeout(jumpTimer1); clearTimeout(jumpTimer2);
-    player.style.top = '62%'; // 確保在地面
-
-    const dist = Math.abs(currentPlayerX - targetX);
-    const duration = Math.min(1.5, Math.max(0.2, dist / 400)); // 速度動態調整
-
-    player.style.transition = `left ${duration}s linear, top 0.3s ease`;
-    player.style.left = targetX + 'px';
-    currentPlayerX = targetX;
-
-    updateCamera(targetX, duration);
-
-    if(callback) {
-        walkTimer = setTimeout(() => { callback(); }, duration * 1000 + 20);
-    }
-}
-
-function onNodeInteraction(e, x, type, roleId, taskIdx, status, globalIdx) {
-    e.stopPropagation();
-    walkTo(x, () => {
-        const player = id('hubPlayer');
-        player.style.transition = 'top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-        player.style.top = '40%'; // 向上跳躍頂到關卡
-        
-        jumpTimer1 = setTimeout(() => {
-            player.style.transition = 'top 0.3s ease-in';
-            player.style.top = '62%'; // 掉回地面
-            
-            jumpTimer2 = setTimeout(() => {
-                handleHubNodeClickLogic(type, roleId, taskIdx, status, globalIdx);
-            }, 300);
-        }, 300);
-    });
-}
-
-function collectHubCoin(e, index, x, yPercent) {
-    e.stopPropagation();
-    walkTo(x, () => {
-        const player = id('hubPlayer');
-        player.style.transition = 'top 0.3s ease-out';
-        player.style.top = yPercent + '%';
-
-        setTimeout(() => {
-            const coinEl = id(`hubCoin_${index}`);
-            if(coinEl) coinEl.style.display = 'none';
-
-            if(!playerState.dailyMapCoins.collected.includes(index)) {
-                playerState.dailyMapCoins.collected.push(index);
-                playerState.coins += 50;
-                saveGameData(); updateHUD();
-                customAlert("拾取健康幣！\n\n獲得 50 幣！", null, "💰 意外收穫");
-            }
-
-            player.style.transition = 'top 0.3s ease-in';
-            player.style.top = '62%';
-        }, 300);
-    });
-}
-
-function handleHubNodeClickLogic(type, roleId, taskIdx, status, globalIdx) {
-    if (type === 'random') {
         startRandomPractice();
     } else if (type === 'comprehensive') {
         openComprehensiveDrill();
@@ -865,29 +674,34 @@ function handleHubNodeClickLogic(type, roleId, taskIdx, status, globalIdx) {
                 playerState.isReplaying = true;
                 playerState.replayProgression = globalIdx;
                 activeRoleId = roleId;
+                // 為了通關後能回顧，儲存點擊的位置
+                sessionStorage.setItem('index_lastPlayedIdx', globalIdx);
                 playTask(taskIdx); 
             }, null, '🎬 回顧任務', '開始回顧');
         } else if (status === 'active' || status === 'unlocked') {
-            // 加入了 status === 'unlocked' 的判斷，初階版的未完成關卡就能順利進入了！
             activeRoleId = roleId;
+            sessionStorage.setItem('index_lastPlayedIdx', globalIdx);
             playTask(taskIdx);
         }
     }
 }
 
+// ===============================================
+// 舊版功能保留
+// ===============================================
 function startRandomPractice() {
-    const roles = getActiveRoles();
-    const rRole = roles[Math.floor(Math.random() * roles.length)];
-    const rTaskIdx = Math.floor(Math.random() * rRole.totalTasks);
-    
-    customConfirm(`是否開始【隨機演練】？\n這將隨機挑選一個任務供您練習，完成可獲取健康幣，但不影響主線進度。`, () => {
-        activeRoleId = rRole.id;
-        currentGameInfo = { role: rRole, taskIndex: rTaskIdx, id: `${rRole.id}_${rTaskIdx}`, isLinear: false, isChallenge: true };
-        const gameUrl = typeof GAME_URLS !== 'undefined' ? GAME_URLS[currentGameInfo.id] : null;
-        
-        if (gameUrl) { if(id('gameFrame')) id('gameFrame').src = gameUrl; if(id('gameTitle')) id('gameTitle').textContent = "隨機演練：" + rRole.subTasks[rTaskIdx].substring(3); if(id('gameOverlay')) id('gameOverlay').style.display = 'flex'; } 
-        else { if(id('mapOverlayTitle')) id('mapOverlayTitle').textContent = `🎯 隨機演練：${rRole.subTasks[rTaskIdx].substring(3)}`; if(id('mapOverlay')) id('mapOverlay').style.display = 'flex'; if(id('mapFrame')) id('mapFrame').src = `rpg_loader.html?taskId=${currentGameInfo.id}`; }
-    }, null, '🎲 隨機練習');
+  const roles = getActiveRoles();
+  const rRole = roles[Math.floor(Math.random() * roles.length)];
+  const rTaskIdx = Math.floor(Math.random() * rRole.totalTasks);
+  
+  customConfirm(`是否開始【隨機演練】？\n這將隨機挑選一個任務供您練習，完成可獲取健康幣，但不影響主線進度。`, () => {
+      activeRoleId = rRole.id;
+      currentGameInfo = { role: rRole, taskIndex: rTaskIdx, id: `${rRole.id}_${rTaskIdx}`, isLinear: false, isChallenge: true };
+      const gameUrl = typeof GAME_URLS !== 'undefined' ? GAME_URLS[currentGameInfo.id] : null;
+      
+      if (gameUrl) { if(id('gameFrame')) id('gameFrame').src = gameUrl; if(id('gameTitle')) id('gameTitle').textContent = "隨機演練：" + rRole.subTasks[rTaskIdx].substring(3); if(id('gameOverlay')) id('gameOverlay').style.display = 'flex'; } 
+      else { if(id('mapOverlayTitle')) id('mapOverlayTitle').textContent = `🎯 隨機演練：${rRole.subTasks[rTaskIdx].substring(3)}`; if(id('mapOverlay')) id('mapOverlay').style.display = 'flex'; if(id('mapFrame')) id('mapFrame').src = `rpg_loader.html?taskId=${currentGameInfo.id}`; }
+  }, null, '🎲 隨機練習');
 }
 
 function openComprehensiveDrill() {
@@ -936,14 +750,10 @@ function showScreen(screenId) {
 
 function exitFullscreenUI() { isGlobalFs = false; if(id('mainHeader')) id('mainHeader').style.display = 'flex'; if(id('mainNav')) id('mainNav').style.display = 'flex'; if(id('homeMapContainer')) id('homeMapContainer').classList.remove('fullscreen-map'); updateModeUI(); }
 
-// ===============================================
-// UI 更新機制
-// ===============================================
 function toggleMode() { 
     playerState.mode = playerState.mode === 'beginner' ? 'advanced' : 'beginner'; 
     saveGameData(); 
     updateModeUI(); 
-    // 依需求移除 customAlert 提示
 }
 
 function updateModeUI() {
@@ -999,7 +809,6 @@ function updateHUD() {
   if (playerState.storyMode) renderNodeMap();
 }
 
-// 手風琴式類別與任務渲染
 function renderHomeRoles() {
   const container = id('roleListContainer'); if(!container) return;
   if (playerState.storyMode) { container.style.display = 'none'; return; }
@@ -1640,6 +1449,11 @@ function buyCarSkin(color, price) {
     playerState.carSkin = color; // 買完自動裝備
     saveGameData(); updateHUD(); openStoreUI(); customAlert('購買成功！已為您自動裝備專屬塗裝！', null, '🛍️ 交易成功');
   } else { customAlert(`健康幣不足！還差 ${price - playerState.coins} 幣。再去挑戰吧！`, null, '❌ 餘額不足'); }
+}
+
+function openChallengeStore() {
+    // 已整合進 openStoreUI，此函數保留避免報錯
+    openStoreUI();
 }
 
 function equipCarSkin(color) {
