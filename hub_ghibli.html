@@ -341,7 +341,7 @@
           let safeCoins = event.data.collectedCoins || [];
           let lastPlayedIdx = event.data.lastPlayedIndex; 
           let spawnIdx = event.data.spawnIndex;
-          
+          let attempts = event.data.challengeAttempts || { random: 3, comprehensive: 3, parkour: 3 };
           buildWorld(event.data.baseSeq, safeCoins, activeIdx, isAllCleared, lastPlayedIdx, spawnIdx);
       }
   });
@@ -355,7 +355,7 @@
       window.parent.postMessage({ type: 'GHIBLI_HUB_READY' }, '*');
   };
 
-  function autoBuildWorld() { buildWorld([], [], 0, false, null, 0); }
+  function autoBuildWorld() { buildWorld([], [], 0, false, null, 0, {random:3, comprehensive:3, parkour:3}); }
 
   function initParkourCells() {
       const numCells = Math.ceil(window.innerWidth / 150) + 2; 
@@ -385,7 +385,7 @@
       }
   }
 
-  function buildWorld(baseSeq, collectedCoins, activeIndex, allCleared, lastPlayedIdx, spawnIndex) {
+  function buildWorld(baseSeq, collectedCoins, activeIndex, allCleared, lastPlayedIdx, spawnIndex, attempts = {random: 3, comprehensive: 3, parkour: 3}) {
       if (!baseSeq || baseSeq.length === 0) return;
 
       topWallContainer.innerHTML = ''; bottomWallContainer.innerHTML = ''; 
@@ -425,9 +425,17 @@
               let titleColor = (t.status === 'locked') ? '#757575' : ((t.status === 'cleared') ? '#fff' : 'var(--current-theme)');
               bCell.innerHTML = `<div class="cell-text-title" style="color:${titleColor}">${t.title || '任務'}</div>`;
           } else if (isSpecial) {
-              bCell.innerHTML = `<div class="cell-text-title" style="color:#555; font-size:10px;">End-Game</div>`;
+              // ★ 把 End-Game 換成動態顯示剩餘次數
+              let remain = attempts[specialData.type] !== undefined ? attempts[specialData.type] : 3;
+              let numColor = remain > 0 ? '#ffeb3b' : '#ff5252'; // 還有次數顯示黃色，歸零顯示紅色
+              
+              bCell.innerHTML = `
+                  <div style="font-size: 11px; color: #aaa; margin-bottom: 2px; font-weight:bold;">今日剩餘</div>
+                  <div style="font-size: 15px; font-weight: 900; color: ${numColor}; text-shadow: 1px 1px 2px #000;">${remain} / 3</div>
+              `;
           }
           bottomWallContainer.appendChild(bCell);
+
 
           if (taskMap[cellX]) {
               const tData = taskMap[cellX]; const t = tData.task; const displayNum = t.taskIdx + 1; 
