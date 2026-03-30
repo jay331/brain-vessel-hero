@@ -669,13 +669,9 @@
                       let orb = b.element.querySelector('.energy-orb'); if(orb) orb.style.opacity = '0';
 
                       setTimeout(() => {
-                          if (b.itemData.type === 'parkour') {
-                              initParkour(); 
-                          } else {
-                              window.parent.postMessage({
-                                  type: 'HUB_NODE_CLICK', nodeType: b.itemData.type, roleId: b.itemData.roleId, taskIdx: b.itemData.taskIdx, globalIdx: b.itemData.globalIdx, status: b.itemData.status
-                              }, '*');
-                          }
+                          window.parent.postMessage({
+                              type: 'HUB_NODE_CLICK', nodeType: b.itemData.type, roleId: b.itemData.roleId, taskIdx: b.itemData.taskIdx, globalIdx: b.itemData.globalIdx, status: b.itemData.status
+                          }, '*');
                           b.element.classList.remove('active-hit'); 
                       }, 400);
                   }
