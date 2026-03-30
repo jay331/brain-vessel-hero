@@ -417,20 +417,16 @@
                       // [時間軸 5]：等待血栓推到底，收起雷射，前往下一關
                       setTimeout(() => {
                           player.classList.remove('player-firing');
+                          player.classList.remove('player-charged'); // ★ 雷射一射完，立刻變回灰色沒電狀態！
                           massiveThrombus.classList.remove('dissolving');
 
-                          // 解開移動限制，人物跑向下一關
+                          // 解開移動限制，人物跑向下一關 (X座標 +65 會精準對齊下一關的綠點正下方)
                           maxAllowedX = START_OFFSET + activeIndex * NODE_SPACING + 65; 
                           let finalTargetX = START_OFFSET + activeIndex * NODE_SPACING + 65; 
                           if (activeIndex >= TOTAL_NODES) finalTargetX = maxAllowedX; 
                           
                           targetPlayerX = finalTargetX; 
                           generateFastRBCs(startDropX, finalTargetX); 
-
-                          // 跑到後能量消耗完畢變回灰色
-                          setTimeout(() => {
-                              player.classList.remove('player-charged');
-                          }, 2000);
 
                       }, 2000); // 溶解推移耗時 2s
                       
