@@ -691,9 +691,10 @@ function handleHubNodeClickLogic(type, roleId, taskIdx, status, globalIdx) {
     } else if (type === 'comprehensive') {
         openComprehensiveDrill();
     } else if (type === 'parkour') {
+        // ★ 呼叫我們剛剛建立的獨立跑酷檔案
         currentGameInfo = { isChallenge: true, id: 'ch_parkour', title: '微觀血管跑酷' };
         if(id('gameTitle')) id('gameTitle').textContent = '🏃 微觀血管跑酷'; 
-        if(id('gameFrame')) id('gameFrame').src = 'game_parkour.html'; 
+        if(id('gameFrame')) id('gameFrame').src = 'game_parkour.html'; // 載入新遊戲
         if(id('gameOverlay')) id('gameOverlay').style.display = 'flex'; 
     } else if (type === 'task') {
         if (status === 'locked') return customAlert('此區域尚未解鎖，請先完成前面的任務！', null, '🔒 區域未解鎖');
