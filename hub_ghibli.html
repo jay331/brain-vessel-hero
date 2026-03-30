@@ -100,19 +100,33 @@
   }
   @keyframes orbFloat { from { bottom: -24px; opacity: 0.8; } to { bottom: -16px; opacity: 1; } }
 
+  /* ★ 擬真版巨型斑塊血栓 (主線用) */
   #massive-thrombus {
       position: absolute; top: 75px; bottom: 75px; right: 0; 
-      background-color: #5d4037; 
+      /* 生物感的暗紅底色 (血栓基底) */
+      background-color: #4a0e0e; 
+      /* 不規則的脂質沉積與發炎組織交織 (不重複) */
       background-image: 
-          radial-gradient(circle at 20% 30%, rgba(251, 192, 45, 0.8) 0%, transparent 50%),
-          radial-gradient(circle at 70% 60%, rgba(245, 127, 23, 0.9) 0%, transparent 60%),
-          radial-gradient(circle at 40% 80%, rgba(139, 42, 42, 0.7) 0%, transparent 50%);
-      background-size: 60px 60px;
-      border-left: 6px solid #f57f17; 
-      box-shadow: inset 20px 0 30px rgba(0,0,0,0.8), -15px 0 25px rgba(0,0,0,0.9);
+          radial-gradient(ellipse at 10% 40%, rgba(255, 235, 59, 0.6) 0%, transparent 60%),
+          radial-gradient(ellipse at 80% 20%, rgba(245, 127, 23, 0.7) 0%, transparent 50%),
+          radial-gradient(ellipse at 30% 80%, rgba(139, 42, 42, 0.8) 0%, transparent 60%),
+          linear-gradient(135deg, rgba(0,0,0,0.4) 0%, transparent 40%, rgba(0,0,0,0.6) 100%);
+      /* 拔除 background-size 的名牌包重複設定，改為全版延伸 */
+      background-size: cover; 
+      /* 左側邊緣稍微圓潤，像是一坨腫脹的肉瘤塞住血管 */
+      border-radius: 40px 0 0 40px;
+      /* 邊緣改成不規則的發炎紅斑感，而非死板的橘線 */
+      border-left: 4px solid #8c2a2a; 
+      /* 陰影營造立體腫脹感 */
+      box-shadow: inset 30px 0 40px rgba(0,0,0,0.8), -15px 0 35px rgba(0,0,0,0.8);
       z-index: 12;
   }
-  #massive-thrombus::before { content: ''; position: absolute; inset: 0; left:0; width: 30px; background: linear-gradient(90deg, rgba(0, 230, 118, 0.8), transparent); opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+  #massive-thrombus::before { 
+      content: ''; position: absolute; inset: 0; left:0; width: 40px; 
+      background: linear-gradient(90deg, rgba(0, 230, 118, 0.9), transparent); 
+      opacity: 0; transition: opacity 0.3s; pointer-events: none; 
+      border-radius: 40px 0 0 40px; /* 跟隨父元素的圓潤感 */
+  }
   #massive-thrombus.dissolving::before { opacity: 1; }
 
   .cell-track { position: absolute; left: 0; width: 200%; height: 50px; display: none; z-index: 5; will-change: transform; } 
