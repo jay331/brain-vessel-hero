@@ -111,7 +111,7 @@
 
 <div id="start-screen" class="overlay">
     <h1>🏃 微觀血管跑酷</h1>
-    <p>在血管裡極速衝刺！<br><br>⚠️ <b>求生法則：</b><br>【輕觸】小跳躍，閃避下方斑塊<br>【長按】大跳躍，吃取高空金幣<br>每 30 秒速度將會暴增！</p>
+    <p>在血管裡極速衝刺！<br><br>⚠️ <b>求生法則：</b><br>【輕觸】小跳躍，閃避下方斑塊<br>【長按】大跳躍，吃取高空金幣<br>每 20 秒速度將會暴增！</p>
     <button class="action-btn" onclick="startGame()">極速啟動</button>
 </div>
 
@@ -258,7 +258,7 @@
         frames++; 
         aliveSeconds = Math.floor((Date.now() - startTime) / 1000);
 
-        if (aliveSeconds > 0 && aliveSeconds % 30 === 0 && lastSpeedUpSec !== aliveSeconds) {
+        if (aliveSeconds > 0 && aliveSeconds % 20 === 0 && lastSpeedUpSec !== aliveSeconds) {
             lastSpeedUpSec = aliveSeconds;
             triggerSpeedUp();
         }
