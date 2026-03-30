@@ -146,7 +146,10 @@
   @keyframes corePulse { from { opacity: 0.6; } to { opacity: 1; box-shadow: 0 0 15px #69f0ae; } }
 
   .drop-in { animation: injectCapsule 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
-  @keyframes injectCapsule { 0% { transform: translate(-200px, 200px) scale(0.5); opacity: 0; } 100% { transform: translate(0, 0) scale(1); opacity: 1; } }
+  @keyframes injectCapsule { 
+    0% { transform: translate(-50%, -200px) scale(0.5); opacity: 0; } 
+    100% { transform: translate(-50%, 0) scale(1); opacity: 1; } 
+}
 
   .enzyme-beam {
       position: absolute; left: 100%; top: 25%; transform: translateY(-50%);
