@@ -108,7 +108,13 @@
   #massive-thrombus::before { content: ''; position: absolute; inset: 0; left:0; width: 30px; background: linear-gradient(90deg, rgba(0, 230, 118, 0.8), transparent); opacity: 0; transition: opacity 0.3s; pointer-events: none; }
   #massive-thrombus.dissolving::before { opacity: 1; }
 
-  /* ★ 跑酷專用斑塊障礙物 */
+  /* ★ 跑酷專用：隱藏背景與斑塊 */
+  .cell-track { position: absolute; left: 0; width: 200%; height: 50px; display: none; z-index: 5; } /* 預設隱藏，跑酷才開 */
+  .cell-track.top { top: 25px; }
+  .cell-track.bottom { bottom: 25px; }
+  .cell-track .endo-cell { position: relative; left: auto; top: auto; bottom: auto; margin-right: 20px; }
+  .cell-text { font-size: 11px; font-weight: 900; color: #ffcdd2; opacity: 0.3; text-align: center; }
+
   .pk-obstacle {
       position: absolute; background-color: #5d4037; 
       background-image: radial-gradient(circle at 20% 30%, rgba(251, 192, 45, 0.8) 0%, transparent 50%), radial-gradient(circle at 70% 60%, rgba(245, 127, 23, 0.9) 0%, transparent 60%); 
@@ -188,6 +194,9 @@
       <div class="vessel-wall top"></div>
       <div class="vessel-wall bottom"></div>
       
+      <div id="bg-cells-top" class="cell-track top"></div>
+      <div id="bg-cells-bottom" class="cell-track bottom"></div>
+      
       <div id="world">
         <div id="effects-mask">
             <div id="light-zones-container"></div>
@@ -221,7 +230,7 @@
 
   <div id="parkour-start" class="pk-overlay">
       <h1 style="color:#00b0ff; text-shadow:0 0 15px rgba(0,176,255,0.5);">🏃 微觀血管跑酷</h1>
-      <p>跳過下方斑塊，貼地閃避上方斑塊<br>抓準時機吃掉上方的健康幣！</p>
+      <p>在血管裡極速衝刺！<br><br>⚠️ <b>求生法則：</b><br>跳過下方斑塊，貼地閃避上方斑塊<br>抓準時機吃掉上方的健康幣！</p>
       <button class="pk-btn pk-btn-start" onclick="startParkour()">極速啟動</button>
   </div>
 
@@ -251,6 +260,9 @@
   const particlesContainer = document.getElementById('particles-container');
   const effectsMask = document.getElementById('effects-mask');
   
+  const cellsTopTrack = document.getElementById('bg-cells-top');
+  const cellsBottomTrack = document.getElementById('bg-cells-bottom');
+  
   let targetPlayerX = 150; 
   let playerX = 150; 
   let isJumping = false;
@@ -273,11 +285,11 @@
   let isParkourMode = false;
   let pkDistance = 0;
   let pkCoins = 0;
-  let pkSpeed = 9;
+  let pkSpeed = 5.5; // 初始速度調慢，給玩家適應時間
   let pkFrames = 0;
   let pkObstacles = [];
   let pkCoinsArr = [];
-  let pkLastCellX = 0;
+  let pkBgPos = 0;
   let pkJumpDistance = 90;
 
   window.addEventListener('message', (event) => {
@@ -300,12 +312,20 @@
   window.onload = () => {
       setTimeout(() => { if (nodesData.length === 0) autoBuildWorld(); }, 500); 
       setupVirtualControls();
+      initParkourCells();
       requestAnimationFrame(gameLoop);
       window.parent.postMessage({ type: 'GHIBLI_HUB_READY' }, '*');
   };
 
-  function autoBuildWorld() {
-      buildWorld([], [], 0, false, null, 0);
+  function autoBuildWorld() { buildWorld([], [], 0, false, null, 0); }
+
+  function initParkourCells() {
+      const numCells = Math.ceil(window.innerWidth / 150) + 2; 
+      cellsTopTrack.innerHTML = ''; cellsBottomTrack.innerHTML = '';
+      for(let i=0; i<numCells; i++) {
+          cellsTopTrack.innerHTML += '<div class="endo-cell"><div class="cell-text">Endothelium</div></div>';
+          cellsBottomTrack.innerHTML += '<div class="endo-cell"><div class="cell-text">Endothelium</div></div>';
+      }
   }
 
   function buildWorld(baseSeq, collectedCoins, activeIndex, allCleared, lastPlayedIdx, spawnIndex) {
@@ -431,10 +451,8 @@
 
   // === ★ 跑酷核心系統 ===
   function initParkour() {
-      // 發送啟動訊號給主程式，設定挑戰資料
       window.parent.postMessage({ type: 'START_PARKOUR' }, '*');
       
-      // UI 切換：隱藏左右鍵、放大 JUMP
       document.getElementById('btn-left').style.opacity = '0';
       document.getElementById('btn-right').style.opacity = '0';
       document.getElementById('btn-jump').style.width = '180px';
@@ -446,15 +464,30 @@
       document.getElementById('parkour-result').style.display = 'none';
       document.getElementById('parkour-hud').style.display = 'flex';
       
-      // 初始化跑酷狀態
-      isParkourMode = true; pkDistance = 0; pkCoins = 0; pkSpeed = 8; pkFrames = 0;
+      // 隱藏一般地圖，展現無限空白細胞
+      topWallContainer.style.display = 'none';
+      bottomWallContainer.style.display = 'none';
+      massiveThrombus.style.display = 'none';
+      lightZonesContainer.style.display = 'none';
+      coinsContainer.style.display = 'none';
+      
+      cellsTopTrack.style.display = 'flex';
+      cellsBottomTrack.style.display = 'flex';
+      
+      // 跑酷變數初始化
+      isParkourMode = true; 
+      pkDistance = 0; pkCoins = 0; 
+      pkSpeed = 5.5; // 初始速度調慢
+      pkFrames = 0; pkBgPos = 0;
+      
       pkObjectsContainer.innerHTML = '';
       pkObstacles = []; pkCoinsArr = [];
       
-      // 將生成起點設定在玩家前方
-      pkLastCellX = Math.floor(playerX / CELL_WIDTH) * CELL_WIDTH + window.innerWidth + 500;
-      maxAllowedX = Infinity; 
-      isMovingLeft = false; isMovingRight = false;
+      // ★ 玩家退回畫面左邊固定點，給予最長反應時間
+      playerX = 100;
+      targetPlayerX = 100;
+      world.style.transform = `translate3d(0px, 0, 0)`;
+      player.style.left = `100px`;
       
       updateParkourUI();
   }
@@ -472,16 +505,23 @@
       document.getElementById('btn-right').style.opacity = '1';
       document.getElementById('btn-jump').style.width = '95px';
       
+      topWallContainer.style.display = 'block';
+      bottomWallContainer.style.display = 'block';
+      massiveThrombus.style.display = 'block';
+      lightZonesContainer.style.display = 'block';
+      coinsContainer.style.display = 'block';
+      
+      cellsTopTrack.style.display = 'none';
+      cellsBottomTrack.style.display = 'none';
+      
       isParkourMode = false;
       player.style.filter = 'none';
-      pkObjectsContainer.innerHTML = ''; // 清除跑酷物件
+      pkObjectsContainer.innerHTML = ''; 
       
-      // 將玩家精準瞬移回跑酷節點前方，避免無限數字造成攝影機暴衝
       let snapX = 54 * CELL_WIDTH + 65;
       targetPlayerX = snapX; playerX = snapX;
       maxAllowedX = WORLD_MAX_WIDTH;
       
-      // 結算分數傳回主程式
       if (pkCoins > 0) window.parent.postMessage({ type: 'ADD_COINS', amount: pkCoins }, '*');
       window.parent.postMessage({ type: 'GAME_CLEAR', score: Math.floor(pkDistance) }, '*');
   }
@@ -492,44 +532,43 @@
   }
 
   function spawnParkourObjects() {
-      // 1. 動態生成無窮的背景細胞
-      while (pkLastCellX < playerX + window.innerWidth + 500) {
-          pkLastCellX += CELL_WIDTH;
-          const tCell = document.createElement('div'); tCell.className = 'endo-cell top'; tCell.style.left = pkLastCellX + 'px'; topWallContainer.appendChild(tCell);
-          const bCell = document.createElement('div'); bCell.className = 'endo-cell bottom'; bCell.style.left = pkLastCellX + 'px'; bottomWallContainer.appendChild(bCell);
-      }
+      // 動態難度間隔：一開始慢，越久越快
+      let spawnInterval = Math.max(60, 140 - Math.floor(pkFrames / 30)); 
       
-      // 2. 生成障礙物
-      if (pkFrames % Math.floor(Math.random() * 40 + 50) === 0) {
-          const isTop = Math.random() > 0.5;
+      if (pkFrames > 120 && pkFrames % spawnInterval === 0) {
+          // ★ 前 12 秒 (約 720 幀) 絕對只有下方障礙，之後慢慢混入上方障礙
+          let allowTop = pkFrames > 720;
+          let isTop = allowTop ? Math.random() > 0.6 : false; // 上方障礙佔 40%
+          
           const obs = document.createElement('div');
           obs.className = `pk-obstacle ${isTop ? 'pk-obs-top' : 'pk-obs-bottom'}`;
           
           const vh = document.getElementById('bv-viewport').offsetHeight;
-          const maxH = (vh - 150) * 0.55; const minH = (vh - 150) * 0.35;
+          const maxH = (vh - 150) * 0.45; // 稍微調低障礙物上限，避免太難
+          const minH = (vh - 150) * 0.25;
           const h = minH + Math.random() * (maxH - minH);
-          const w = 40 + Math.random() * 30;
+          const w = 35 + Math.random() * 20;
           
-          obs.style.width = w + 'px'; obs.style.height = h + 'px';
-          obs.style.left = (playerX + window.innerWidth + 100) + 'px';
+          obs.style.width = w + 'px'; 
+          obs.style.height = h + 'px';
+          obs.style.left = window.innerWidth + 'px'; // 從畫面最右邊誕生
           
           pkObjectsContainer.appendChild(obs);
-          pkObstacles.push({ el: obs, x: playerX + window.innerWidth + 100, w: w, h: h, isTop: isTop });
+          pkObstacles.push({ el: obs, x: window.innerWidth, w: w, h: h, isTop: isTop });
       }
       
-      // 3. 生成金幣
-      if (pkFrames % Math.floor(Math.random() * 60 + 80) === 0) {
+      // 金幣生成 (放在上方細胞處)
+      if (pkFrames > 150 && pkFrames % 130 === 0) {
           const coin = document.createElement('div'); coin.className = 'health-coin'; coin.innerText = '$';
-          coin.style.left = (playerX + window.innerWidth + 200) + 'px';
-          // top: 35px 剛好鑲嵌在上方的細胞內
+          coin.style.left = window.innerWidth + 50 + 'px';
           coin.style.top = '35px'; 
           
           pkObjectsContainer.appendChild(coin);
-          pkCoinsArr.push({ el: coin, x: playerX + window.innerWidth + 200, collected: false });
+          pkCoinsArr.push({ el: coin, x: window.innerWidth + 50, collected: false });
       }
   }
 
-  // 取得玩家即時 CSS Y軸位移高度 (用於極度精準碰撞偵測)
+  // 取得玩家即時 CSS Y軸位移高度
   function getPlayerVisualY() {
       const matrix = window.getComputedStyle(player).transform;
       if (matrix !== 'none') {
@@ -539,45 +578,57 @@
       return 0;
   }
 
-  // 控制綁定
   function setupVirtualControls() {
       const btnLeft = document.getElementById('btn-left'); const btnRight = document.getElementById('btn-right'); const btnJump = document.getElementById('btn-jump');
       const addHoldEvent = (el, setTrue, setFalse) => { el.addEventListener('pointerdown', (e) => { e.preventDefault(); setTrue(); }); el.addEventListener('pointerup', (e) => { e.preventDefault(); setFalse(); }); el.addEventListener('pointercancel', (e) => { e.preventDefault(); setFalse(); }); el.addEventListener('pointerleave', (e) => { e.preventDefault(); setFalse(); }); };
       addHoldEvent(btnLeft, () => { if(!isParkourMode) isMovingLeft = true; }, () => isMovingLeft = false);
       addHoldEvent(btnRight, () => { if(!isParkourMode) isMovingRight = true; }, () => isMovingRight = false);
+      
+      // 綁定全螢幕點擊也可跳躍 (更直覺)
+      document.addEventListener('pointerdown', (e) => {
+          if (e.target.tagName !== 'BUTTON' && !e.target.closest('.v-btn')) {
+             if(isParkourMode) jump();
+          }
+      });
       btnJump.addEventListener('pointerdown', (e) => { e.preventDefault(); jump(); });
   }
 
-  // 主迴圈
   function gameLoop() {
       if (isParkourMode) {
-          // --- 無縫跑酷邏輯 ---
           pkFrames++;
-          targetPlayerX += pkSpeed;
           pkDistance += pkSpeed * 0.015;
-          if (pkFrames % 500 === 0) pkSpeed += 0.5; // 逐漸加速
+          if (pkFrames % 300 === 0) pkSpeed += 0.3; // 逐漸加速
           
           spawnParkourObjects();
           updateParkourUI();
           
+          // 無縫細胞滾動
+          pkBgPos -= pkSpeed * 0.5; 
+          if(pkBgPos <= -150) pkBgPos += 150; 
+          cellsTopTrack.style.transform = `translateX(${pkBgPos}px)`;
+          cellsBottomTrack.style.transform = `translateX(${pkBgPos}px)`;
+          
           let currentJumpY = getPlayerVisualY();
           const vh = document.getElementById('bv-viewport').offsetHeight;
-          const maxJ = vh - 150 - 45 + 15; // 極限跳躍高度
+          const maxJ = vh - 150 - 45 + 15; 
+          
+          // 玩家固定在左側 X = 100
+          const pLeft = 100 - 14, pRight = 100 + 14;
           
           // 障礙物碰撞
           for (let i = pkObstacles.length - 1; i >= 0; i--) {
               let o = pkObstacles[i];
-              if (o.x < playerX - window.innerWidth/2 - 100) { o.el.remove(); pkObstacles.splice(i, 1); } 
+              o.x -= pkSpeed;
+              o.el.style.left = o.x + 'px';
+              
+              if (o.x < -100) { o.el.remove(); pkObstacles.splice(i, 1); } 
               else {
-                  const pLeft = playerX - 14, pRight = playerX + 14;
                   let hitX = pRight > (o.x + 5) && pLeft < (o.x + o.w - 5);
                   let hitY = false;
                   
                   if (o.isTop) {
-                      // 上方障礙：玩家太高會撞到 (120 是底距 75 + 人高 45)
-                      hitY = (120 + currentJumpY - 10) > (vh - 75 - o.h); 
+                      hitY = (currentJumpY + 45 - 10) > (vh - 150 - o.h); 
                   } else {
-                      // 下方障礙：玩家太低會撞到
                       hitY = (currentJumpY + 10) < o.h;
                   }
                   
@@ -594,11 +645,13 @@
           // 金幣碰撞
           for (let i = pkCoinsArr.length - 1; i >= 0; i--) {
               let c = pkCoinsArr[i];
-              if (c.x < playerX - window.innerWidth/2 - 100) { c.el.remove(); pkCoinsArr.splice(i, 1); } 
+              c.x -= pkSpeed;
+              c.el.style.left = c.x + 'px';
+
+              if (c.x < -100) { c.el.remove(); pkCoinsArr.splice(i, 1); } 
               else if (!c.collected) {
-                  const pLeft = playerX - 14, pRight = playerX + 14;
                   let hitX = pRight > c.x && pLeft < (c.x + 30);
-                  let hitY = currentJumpY > (maxJ * 0.75); // 必須跳很高才能吃到
+                  let hitY = currentJumpY > (maxJ * 0.6); 
                   
                   if (hitX && hitY) {
                       c.collected = true; c.el.classList.add('collected');
@@ -607,11 +660,10 @@
               }
           }
       } else {
-          // --- 一般探索邏輯 ---
+          // 一般探索邏輯
           if (isMovingLeft) targetPlayerX -= 8;
           if (isMovingRight) targetPlayerX += 8;
           
-          // 地球村環形無縫接軌
           if (isAllCleared) {
               if (targetPlayerX > 56 * CELL_WIDTH + 100) { targetPlayerX = 50; playerX = 50; } 
               else if (targetPlayerX < 0) { targetPlayerX = 56 * CELL_WIDTH; playerX = 56 * CELL_WIDTH; }
@@ -619,18 +671,17 @@
               if (targetPlayerX < minPlayerX) targetPlayerX = minPlayerX; 
               if (targetPlayerX > maxAllowedX) targetPlayerX = maxAllowedX; 
           }
-      }
 
-      if (!isNaN(targetPlayerX)) {
-          // 攝影機跟隨
-          playerX += (targetPlayerX - playerX) * 0.15; 
-          let camX = (window.innerWidth / 2) - playerX - 20; 
-          if (camX > 0) camX = 0; 
-          const maxScroll = -(WORLD_MAX_WIDTH - window.innerWidth + 100);
-          if (camX < maxScroll && !isParkourMode) camX = maxScroll; // 跑酷時無限延伸
-          
-          world.style.transform = `translate3d(${camX}px, 0, 0)`;
-          player.style.left = `${playerX}px`;
+          if (!isNaN(targetPlayerX)) {
+              playerX += (targetPlayerX - playerX) * 0.15; 
+              let camX = (window.innerWidth / 2) - playerX - 20; 
+              if (camX > 0) camX = 0; 
+              const maxScroll = -(WORLD_MAX_WIDTH - window.innerWidth + 100);
+              if (camX < maxScroll) camX = maxScroll; 
+              
+              world.style.transform = `translate3d(${camX}px, 0, 0)`;
+              player.style.left = `${playerX}px`;
+          }
       }
       
       requestAnimationFrame(gameLoop);
@@ -655,7 +706,7 @@
 
                       setTimeout(() => {
                           if (b.itemData.type === 'parkour') {
-                              initParkour(); // 撞擊跑酷點直接啟動
+                              initParkour(); 
                           } else {
                               window.parent.postMessage({
                                   type: 'HUB_NODE_CLICK', nodeType: b.itemData.type, roleId: b.itemData.roleId, taskIdx: b.itemData.taskIdx, globalIdx: b.itemData.globalIdx, status: b.itemData.status
