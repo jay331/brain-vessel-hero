@@ -625,7 +625,7 @@ else if (event.data.type === 'START_PARKOUR') {
       if(!playerState.dailyMapCoins.collected.includes(event.data.coinIndex)) {
           playerState.dailyMapCoins.collected.push(event.data.coinIndex);
           playerState.coins += 50;
-          saveGameData(); updateHUD();
+          saveGameData(); updateHUD(true);
          // customAlert("拾取健康幣！\n\n獲得 50 幣！", null, "💰 意外收穫");
       }
   }
