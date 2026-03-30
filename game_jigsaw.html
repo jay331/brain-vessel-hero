@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-<title>5x5 滿版沉浸拖曳版 (智慧預覽機制)</title>
+<title>5x5 滿版沉浸拖曳版（手機最終優化）</title>
 <style>
   :root {
     --bg1: #0f172a;
@@ -12,6 +12,8 @@
     --muted: #94a3b8;
     --accent: #38bdf8;
     --tray-bg: rgba(30, 41, 59, 0.95);
+    --ok-glow: rgba(56, 189, 248, 0.35);
+    --snap-glow: rgba(255,255,255,0.22);
   }
 
   * {
@@ -31,6 +33,10 @@
     font-family: "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
   }
 
+  body {
+    touch-action: none;
+  }
+
   .game-app {
     display: flex;
     flex-direction: column;
@@ -38,6 +44,7 @@
     max-width: 600px;
     margin: 0 auto;
     position: relative;
+    overflow: hidden;
   }
 
   .top-nav {
@@ -140,6 +147,7 @@
     padding: 65px 4px 10px 4px;
     min-height: 0;
     position: relative;
+    touch-action: none;
   }
 
   .board {
@@ -173,6 +181,20 @@
     opacity: 0.5;
   }
 
+  .board-snap-preview {
+    position: absolute;
+    pointer-events: none;
+    z-index: 20;
+    border-radius: 10px;
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.25), 0 0 18px var(--snap-glow);
+    opacity: 0;
+    transition: opacity 0.08s linear;
+  }
+
+  .board-snap-preview.show {
+    opacity: 1;
+  }
+
   .tray-area {
     flex-shrink: 0;
     height: 120px;
@@ -185,7 +207,9 @@
     overflow-y: hidden;
     white-space: nowrap;
     gap: 8px;
-    touch-action: pan-x; 
+    touch-action: pan-x;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
   }
 
   .tray-area::-webkit-scrollbar {
@@ -199,10 +223,12 @@
     touch-action: none;
     cursor: grab;
     filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+    transform: translate3d(0,0,0);
   }
 
-  .tray-area .piece {
-    touch-action: pan-x; 
+  .piece.drag-ready {
+    outline: 2px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
   }
 
   .piece.floating {
@@ -210,13 +236,21 @@
     margin: 0 !important;
     cursor: grabbing;
     filter: drop-shadow(0 15px 20px rgba(0,0,0,0.6));
-    opacity: 0.95; 
+    opacity: 0.97;
+    will-change: transform;
+    left: 0 !important;
+    top: 0 !important;
   }
 
   .piece.locked {
     position: absolute !important;
     cursor: default;
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    transition: transform 0.16s ease, filter 0.16s ease;
+  }
+
+  .piece.near-snap {
+    filter: drop-shadow(0 0 16px var(--ok-glow)) drop-shadow(0 10px 14px rgba(0,0,0,0.45));
   }
 
   .piece svg {
@@ -260,11 +294,11 @@
     pointer-events: none;
   }
 
-.modal-content {
+  .modal-content {
     background: #1e293b;
     border: 1px solid rgba(255,255,255,0.15);
     border-radius: 24px;
-    padding: 24px 20px; /* 左右內距稍微縮小，讓出更多空間給圖片 */
+    padding: 24px 20px;
     width: 85%;
     max-width: 360px;
     text-align: center;
@@ -279,26 +313,25 @@
 
   .modal-content h2 {
     margin: 0 0 16px 0;
-    font-size: 22px; /* 稍微縮小標題 */
+    font-size: 22px;
     color: #f8fafc;
   }
 
   .modal-content .full-image {
     width: 100%;
     border-radius: 12px;
-    margin-bottom: 12px; /* 縮小與下方文字的距離 */
+    margin-bottom: 12px;
     border: 2px solid rgba(255,255,255,0.1);
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   }
-  
-  /* ★ 新增：專門給拼圖說明的文字樣式 */
+
   .modal-desc {
     color: #94a3b8;
     font-size: 14px;
     line-height: 1.5;
     margin: 0 0 20px 0;
     font-weight: bold;
-    min-height: 21px; /* 避免沒文字時跑版 */
+    min-height: 21px;
   }
 
   .btn-finish {
@@ -317,7 +350,6 @@
 </head>
 <body>
 <div class="game-app">
-  
   <div class="top-nav">
     <div class="status-pill" id="status">0 / 25</div>
     <button class="icon-btn" id="btnMenu">☰</button>
@@ -334,16 +366,18 @@
       <div class="board-bg">
         <div class="boardGrid"></div>
       </div>
+      <div id="snapPreview" class="board-snap-preview"></div>
     </div>
   </main>
 
   <footer class="tray-area" id="tray"></footer>
 
-<div id="introModal" class="modal-overlay hidden">
+  <div id="introModal" class="modal-overlay hidden">
     <div class="modal-content">
       <h2 id="introTitle">🧩 拼圖畫廊</h2>
       <img id="introImage" class="full-image" alt="完整原圖預覽">
-      <p id="introDesc" class="modal-desc"></p> <button class="btn-finish" id="btnStart">重溫挑戰 (打亂)</button>
+      <p id="introDesc" class="modal-desc"></p>
+      <button class="btn-finish" id="btnStart">重溫挑戰（打亂）</button>
     </div>
   </div>
 
@@ -351,10 +385,10 @@
     <div class="modal-content">
       <h2>🎉 恭喜完成！</h2>
       <img id="modalImage" class="full-image" alt="完整原圖">
-      <p id="modalDesc" class="modal-desc"></p> <button class="btn-finish" id="btnFinish">領取獎勵並離開</button>
+      <p id="modalDesc" class="modal-desc"></p>
+      <button class="btn-finish" id="btnFinish">領取獎勵並離開</button>
     </div>
   </div>
-
 </div>
 
 <script>
@@ -362,14 +396,15 @@
   const ROWS = 5;
   const COLS = 5;
   const TOTAL = ROWS * COLS;
-  
-  // ★ 解析主系統傳遞過來的暗號
+  const DRAG_THRESHOLD = 12;
+  const LONG_PRESS_MS = 120;
+
   const urlParams = new URLSearchParams(window.location.search);
-  const imgId = urlParams.get('imgId') || '1'; 
-  const isReplay = urlParams.get('isReplay') === 'true'; // 是否為複習模式
-  
+  const imgId = urlParams.get('imgId') || '1';
+  const isReplay = urlParams.get('isReplay') === 'true';
+
   const IMG_SRC = `assets/puzzle_${imgId}.png`;
-  const puzzleId = parseInt(imgId);
+  const puzzleId = parseInt(imgId, 10);
 
   const puzzleTitles = [
     "神經內科醫師是腦中風病人主要診療者", "急診醫師與神經內科醫師交接急診中風病人", "中風病房護理師專精於中風病人照護", "動脈取栓醫師負責腦血管導管治療", "語言治療師訓練中風病人發音及語言表達",
@@ -378,7 +413,6 @@
     "物理治療師使用下肢機器人協助中風步態訓練", "個管師電訪關心中風病人出院後恢復狀態", "社工師協助長照資源及社會福利申請", "中風後吞嚥困難使用鼻胃管協助進食", "職能治療師協助精細動作及日常功能訓練"
   ];
 
-  // 透過 ID 抓出對應的文字 (因為陣列從 0 開始，所以 ID 要減 1)
   const currentPuzzleText = puzzleTitles[puzzleId - 1] || "未知名稱";
 
   const boardArea = document.getElementById("boardArea");
@@ -389,22 +423,23 @@
   const menuPanel = document.getElementById("menuPanel");
   const btnShuffle = document.getElementById("btnShuffle");
   const btnHint = document.getElementById("btnHint");
-  
+  const snapPreview = document.getElementById("snapPreview");
+
   const introModal = document.getElementById("introModal");
-  const introTitle = document.getElementById("introTitle"); // ★ 抓取畫廊標題
+  const introTitle = document.getElementById("introTitle");
   const introImage = document.getElementById("introImage");
-  const introDesc = document.getElementById("introDesc");   // ★ 抓取畫廊說明
+  const introDesc = document.getElementById("introDesc");
   const btnStart = document.getElementById("btnStart");
 
   const completionModal = document.getElementById("completionModal");
   const modalImage = document.getElementById("modalImage");
-  const modalDesc = document.getElementById("modalDesc");   // ★ 抓取過關說明
+  const modalDesc = document.getElementById("modalDesc");
   const btnFinish = document.getElementById("btnFinish");
 
   let BOARD_SIZE = 300;
   let CELL = 60;
   let TAB = 15;
-  let SNAP = 25;
+  let SNAP = 32;
   let showHint = false;
   let highestZ = 1000;
 
@@ -414,47 +449,40 @@
 
   image.onload = () => init();
   image.onerror = () => {
-    introModal.classList.add("hidden"); 
+    introModal.classList.add("hidden");
     statusEl.textContent = "載入失敗";
     board.innerHTML = `<div class="error-msg">找不到圖片：<br><span style="color:#fff;">${IMG_SRC}</span><br><br><span style="font-size:12px; color:#aaa;">請確認 assets 資料夾內有這張圖片，且副檔名正確！</span></div>`;
   };
-  
   image.src = IMG_SRC;
 
-function init(){
+  function init() {
     updateSizes();
     generateEdgeMap();
-    buildPieces(); 
+    buildPieces();
 
     board.style.setProperty("--board-preview", `url("${IMG_SRC}")`);
-    introImage.src = IMG_SRC;  
-    modalImage.src = IMG_SRC;  
-    
-    // ★ 動態塞入專屬標題與說明文字
+    introImage.src = IMG_SRC;
+    modalImage.src = IMG_SRC;
     introTitle.textContent = `欣賞拼圖 #${puzzleId}`;
     introDesc.textContent = currentPuzzleText;
     modalDesc.textContent = currentPuzzleText;
 
-    // ★ 修正：這裡只能有一組 resize 監聽器
     window.addEventListener("resize", () => {
       const oldBoard = BOARD_SIZE;
       updateSizes();
       rescalePieces(oldBoard, BOARD_SIZE);
+      hideSnapPreview();
     });
 
-    // ★ 智慧判斷開場模式
     if (isReplay) {
-      // 從圖鑑進來：秀出畫廊預覽
       introModal.classList.remove("hidden");
     } else {
-      // 第一次挑戰：不秀預覽，直接炸開打亂
       setTimeout(() => {
         scatterPieces();
         updateStatus();
-      }, 50); // 給予 50 毫秒渲染緩衝，確保動畫順暢
+      }, 50);
     }
 
-    // 畫廊模式下的「開始打亂」按鈕
     btnStart.addEventListener("click", () => {
       introModal.classList.add("hidden");
       scatterPieces();
@@ -467,14 +495,17 @@ function init(){
     });
 
     document.body.addEventListener("click", (e) => {
-      if (!menuPanel.classList.contains("hidden") && !menuPanel.contains(e.target)) {
+      if (!menuPanel.classList.contains("hidden") && !menuPanel.contains(e.target) && e.target !== btnMenu) {
         menuPanel.classList.add("hidden");
       }
     });
 
     btnShuffle.addEventListener("click", () => {
-      pieces.forEach(p => p.el.dispatchEvent(new PointerEvent("pointercancel")));
+      pieces.forEach(p => {
+        if (p.dragState && p.dragState.cleanup) p.dragState.cleanup();
+      });
       scatterPieces();
+      hideSnapPreview();
       updateStatus();
       menuPanel.classList.add("hidden");
     });
@@ -485,7 +516,6 @@ function init(){
       btnHint.textContent = showHint ? "隱藏底圖提示" : "顯示底圖提示";
     });
 
-    // ★ 結算：按下按鈕後才通知主系統發獎勵跟關閉
     btnFinish.addEventListener("click", () => {
       completionModal.classList.add("hidden");
       window.parent.postMessage({ type: 'PUZZLE_CLEAR', puzzleId: puzzleId }, '*');
@@ -493,7 +523,7 @@ function init(){
     });
   }
 
-  function updateSizes(){
+  function updateSizes() {
     const style = window.getComputedStyle(boardArea);
     const pLeft = parseFloat(style.paddingLeft);
     const pRight = parseFloat(style.paddingRight);
@@ -502,29 +532,27 @@ function init(){
 
     const maxWidth = boardArea.clientWidth - pLeft - pRight;
     const maxHeight = boardArea.clientHeight - pTop - pBottom;
-    
+
     BOARD_SIZE = Math.min(maxWidth, maxHeight);
-    
     board.style.width = BOARD_SIZE + "px";
     board.style.height = BOARD_SIZE + "px";
 
     CELL = BOARD_SIZE / COLS;
     TAB = Math.round(CELL * 0.22);
-    SNAP = Math.max(20, CELL * 0.25);
+    SNAP = Math.max(30, CELL * 0.35);
   }
 
-  function rescalePieces(oldBoard, newBoard){
+  function rescalePieces(oldBoard, newBoard) {
     const scale = newBoard / oldBoard;
-    
+
     pieces.forEach(p => {
       p.correctX = p.col * CELL - TAB;
       p.correctY = p.row * CELL - TAB;
       p.width = CELL + TAB * 2;
       p.height = CELL + TAB * 2;
-
       renderPieceSVG(p);
 
-      if(p.locked){
+      if (p.locked) {
         p.el.style.left = p.correctX + "px";
         p.el.style.top = p.correctY + "px";
       } else if (p.el.parentElement === board) {
@@ -536,14 +564,14 @@ function init(){
     });
   }
 
-  function randSign(){
+  function randSign() {
     return Math.random() > 0.5 ? 1 : -1;
   }
 
-  function generateEdgeMap(){
-    for(let r = 0; r < ROWS; r++){
+  function generateEdgeMap() {
+    for (let r = 0; r < ROWS; r++) {
       edgeMap[r] = [];
-      for(let c = 0; c < COLS; c++){
+      for (let c = 0; c < COLS; c++) {
         const top = r === 0 ? 0 : -edgeMap[r - 1][c].bottom;
         const left = c === 0 ? 0 : -edgeMap[r][c - 1].right;
         const right = c === COLS - 1 ? 0 : randSign();
@@ -553,13 +581,13 @@ function init(){
     }
   }
 
-  function buildPieces(){
+  function buildPieces() {
     board.querySelectorAll(".piece").forEach(el => el.remove());
     tray.innerHTML = "";
     pieces.length = 0;
 
-    for(let r = 0; r < ROWS; r++){
-      for(let c = 0; c < COLS; c++){
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
         const id = r * COLS + c;
         const piece = {
           id,
@@ -571,24 +599,24 @@ function init(){
           correctX: c * CELL - TAB,
           correctY: r * CELL - TAB,
           locked: false,
-          el: document.createElement("div")
+          el: document.createElement("div"),
+          dragState: null
         };
 
         piece.el.className = "piece";
         renderPieceSVG(piece);
         attachDrag(piece);
-
         pieces.push(piece);
       }
     }
   }
 
-  function renderPieceSVG(piece){
+  function renderPieceSVG(piece) {
     piece.el.style.width = (CELL + TAB * 2) + "px";
     piece.el.style.height = (CELL + TAB * 2) + "px";
 
     const path = makePiecePath(piece.edges, CELL, TAB);
-    const uid = `clip_${piece.id}_${Math.random().toString(36).slice(2,10)}`;
+    const uid = `clip_${piece.id}_${Math.random().toString(36).slice(2, 10)}`;
     const viewW = CELL + TAB * 2;
     const viewH = CELL + TAB * 2;
 
@@ -606,125 +634,195 @@ function init(){
     width="${BOARD_SIZE}" height="${BOARD_SIZE}"
     preserveAspectRatio="none" clip-path="url(#${uid})"></image>
   <path d="${path}" fill="none" stroke="rgba(0,0,0,0.3)" stroke-width="1.5"></path>
-</svg>
-`;
+</svg>`;
   }
 
-  function makePiecePath(edges, cell, tab){
+  function makePiecePath(edges, cell, tab) {
     const x0 = tab, y0 = tab;
     const x1 = tab + cell, y1 = tab + cell;
     const midX = tab + cell / 2, midY = tab + cell / 2;
     const knobW = cell * 0.22, knobH = tab * 0.95;
 
-    function topSeg(type){
-      if(type === 0) return `L ${x1} ${y0}`;
+    function topSeg(type) {
+      if (type === 0) return `L ${x1} ${y0}`;
       const dir = -type;
       return `L ${midX - knobW} ${y0} C ${midX - knobW*0.55} ${y0}, ${midX - knobW*0.65} ${y0 + dir*knobH}, ${midX} ${y0 + dir*knobH} C ${midX + knobW*0.65} ${y0 + dir*knobH}, ${midX + knobW*0.55} ${y0}, ${midX + knobW} ${y0} L ${x1} ${y0}`;
     }
-    function rightSeg(type){
-      if(type === 0) return `L ${x1} ${y1}`;
+    function rightSeg(type) {
+      if (type === 0) return `L ${x1} ${y1}`;
       const dir = type;
       return `L ${x1} ${midY - knobW} C ${x1} ${midY - knobW*0.55}, ${x1 + dir*knobH} ${midY - knobW*0.65}, ${x1 + dir*knobH} ${midY} C ${x1 + dir*knobH} ${midY + knobW*0.65}, ${x1} ${midY + knobW*0.55}, ${x1} ${midY + knobW} L ${x1} ${y1}`;
     }
-    function bottomSeg(type){
-      if(type === 0) return `L ${x0} ${y1}`;
+    function bottomSeg(type) {
+      if (type === 0) return `L ${x0} ${y1}`;
       const dir = type;
       return `L ${midX + knobW} ${y1} C ${midX + knobW*0.55} ${y1}, ${midX + knobW*0.65} ${y1 + dir*knobH}, ${midX} ${y1 + dir*knobH} C ${midX - knobW*0.65} ${y1 + dir*knobH}, ${midX - knobW*0.55} ${y1}, ${midX - knobW} ${y1} L ${x0} ${y1}`;
     }
-    function leftSeg(type){
-      if(type === 0) return `L ${x0} ${y0}`;
+    function leftSeg(type) {
+      if (type === 0) return `L ${x0} ${y0}`;
       const dir = -type;
       return `L ${x0} ${midY + knobW} C ${x0} ${midY + knobW*0.55}, ${x0 + dir*knobH} ${midY + knobW*0.65}, ${x0 + dir*knobH} ${midY} C ${x0 + dir*knobH} ${midY - knobW*0.65}, ${x0} ${midY - knobW*0.55}, ${x0} ${midY - knobW} L ${x0} ${y0}`;
     }
     return `M ${x0} ${y0} ${topSeg(edges.top)} ${rightSeg(edges.right)} ${bottomSeg(edges.bottom)} ${leftSeg(edges.left)} Z`;
   }
 
-  function scatterPieces(){
+  function scatterPieces() {
     const shuffled = [...pieces].sort(() => Math.random() - 0.5);
-    
     shuffled.forEach((p) => {
       p.locked = false;
-      p.el.classList.remove("locked", "correctPulse", "floating");
-      
+      p.el.classList.remove("locked", "correctPulse", "floating", "near-snap", "drag-ready");
       p.el.style.position = "";
       p.el.style.left = "";
       p.el.style.top = "";
-      
+      p.el.style.transform = "translate3d(0,0,0)";
       tray.appendChild(p.el);
     });
     tray.scrollLeft = 0;
   }
 
-  function attachDrag(piece){
-    let isPressing = false;
-    let dragging = false;
-    let startX = 0;
-    let startY = 0;
-    let offsetX = 0;
-    let offsetY = 0;
-    let initLeft = 0;
-    let initTop = 0;
+  function attachDrag(piece) {
+    const state = {
+      isPointerDown: false,
+      dragArmed: false,
+      dragging: false,
+      pointerId: null,
+      pressTimer: null,
+      startX: 0,
+      startY: 0,
+      offsetX: 0,
+      offsetY: 0,
+      currentX: 0,
+      currentY: 0,
+      rafId: 0
+    };
+    piece.dragState = state;
+
+    const renderFloating = () => {
+      state.rafId = 0;
+      piece.el.style.transform = `translate3d(${state.currentX}px, ${state.currentY}px, 0)`;
+      updateSnapFeedback(piece, state.currentX, state.currentY);
+    };
+
+    const scheduleRender = () => {
+      if (!state.rafId) {
+        state.rafId = requestAnimationFrame(renderFloating);
+      }
+    };
+
+    const clearPress = () => {
+      if (state.pressTimer) {
+        clearTimeout(state.pressTimer);
+        state.pressTimer = null;
+      }
+    };
+
+    const cleanupClasses = () => {
+      piece.el.classList.remove("drag-ready", "near-snap", "floating");
+      hideSnapPreview();
+    };
+
+    const cleanupPointer = () => {
+      clearPress();
+      if (state.rafId) {
+        cancelAnimationFrame(state.rafId);
+        state.rafId = 0;
+      }
+      state.isPointerDown = false;
+      state.dragArmed = false;
+      state.dragging = false;
+      state.pointerId = null;
+      cleanupClasses();
+    };
+
+    state.cleanup = cleanupPointer;
 
     piece.el.addEventListener("pointerdown", (e) => {
-      if(piece.locked || dragging) return;
-      isPressing = true;
-      startX = e.clientX;
-      startY = e.clientY;
+      if (piece.locked || state.dragging) return;
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+
+      state.isPointerDown = true;
+      state.pointerId = e.pointerId;
+      state.startX = e.clientX;
+      state.startY = e.clientY;
 
       const rect = piece.el.getBoundingClientRect();
-      initLeft = rect.left;
-      initTop = rect.top;
-      offsetX = startX - initLeft;
-      offsetY = startY - initTop;
-    });
+      state.offsetX = e.clientX - rect.left;
+      state.offsetY = e.clientY - rect.top;
+
+      if (piece.el.parentElement === tray) {
+        state.pressTimer = setTimeout(() => {
+          if (!state.isPointerDown || piece.locked) return;
+          state.dragArmed = true;
+          piece.el.classList.add("drag-ready");
+          if (navigator.vibrate) navigator.vibrate(8);
+        }, LONG_PRESS_MS);
+      } else {
+        state.dragArmed = true;
+      }
+    }, { passive: true });
 
     piece.el.addEventListener("pointermove", (e) => {
-      if(!isPressing) return;
+      if (!state.isPointerDown || state.pointerId !== e.pointerId) return;
 
-      if(!dragging){
-        const dx = e.clientX - startX;
-        const dy = e.clientY - startY;
+      const dx = e.clientX - state.startX;
+      const dy = e.clientY - state.startY;
+      const distance = Math.hypot(dx, dy);
 
-        if(Math.hypot(dx, dy) > 5){
-          if(piece.el.parentElement === tray && Math.abs(dx) > Math.abs(dy)){
-            isPressing = false; 
+      if (!state.dragging) {
+        if (piece.el.parentElement === tray && !state.dragArmed) {
+          if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 8) {
+            clearPress();
+            state.isPointerDown = false;
+            piece.el.classList.remove("drag-ready");
             return;
           }
-
-          dragging = true;
-          piece.el.setPointerCapture(e.pointerId);
-          highestZ++;
-
-          piece.el.style.position = "fixed";
-          piece.el.style.left = (e.clientX - offsetX) + "px";
-          piece.el.style.top = (e.clientY - offsetY) + "px";
-          piece.el.style.zIndex = highestZ;
-          
-          if(!menuPanel.classList.contains("hidden")){
-            menuPanel.classList.add("hidden");
-          }
-
-          document.body.appendChild(piece.el);
-          piece.el.classList.add("floating");
+          if (distance < DRAG_THRESHOLD) return;
+          if (!state.dragArmed) return;
+        } else {
+          if (distance < DRAG_THRESHOLD) return;
         }
+
+        state.dragging = true;
+        clearPress();
+        piece.el.classList.remove("drag-ready");
+
+        try {
+          piece.el.setPointerCapture(e.pointerId);
+        } catch (_) {}
+
+        if (!menuPanel.classList.contains("hidden")) {
+          menuPanel.classList.add("hidden");
+        }
+
+        highestZ++;
+        piece.el.style.position = "fixed";
+        piece.el.style.left = "0px";
+        piece.el.style.top = "0px";
+        piece.el.style.zIndex = highestZ;
+        piece.el.classList.add("floating");
+        document.body.appendChild(piece.el);
       }
 
-      if(dragging){
-        piece.el.style.left = (e.clientX - offsetX) + "px";
-        piece.el.style.top = (e.clientY - offsetY) + "px";
+      if (state.dragging) {
+        e.preventDefault();
+        state.currentX = e.clientX - state.offsetX;
+        state.currentY = e.clientY - state.offsetY;
+        scheduleRender();
       }
-    });
+    }, { passive: false });
 
-    function endDrag(e){
-      isPressing = false;
-      if(!dragging) return;
-      dragging = false;
-      piece.el.classList.remove("floating");
+    const endDrag = (e) => {
+      if (state.pointerId !== null && e.pointerId !== undefined && state.pointerId !== e.pointerId) return;
+      clearPress();
 
+      if (!state.dragging) {
+        cleanupPointer();
+        return;
+      }
+
+      const pieceLeft = state.currentX;
+      const pieceTop = state.currentY;
       const boardRect = board.getBoundingClientRect();
-      const pieceLeft = e.clientX - offsetX;
-      const pieceTop = e.clientY - offsetY;
-      
       const pieceCenterX = pieceLeft + piece.width / 2;
       const pieceCenterY = pieceTop + piece.height / 2;
 
@@ -735,74 +833,122 @@ function init(){
         pieceCenterY <= boardRect.bottom
       );
 
-      if(isOverBoard){
+      piece.el.style.transform = "translate3d(0,0,0)";
+
+      if (isOverBoard) {
         const boardX = pieceLeft - boardRect.left;
         const boardY = pieceTop - boardRect.top;
-        
         const dx = boardX - piece.correctX;
         const dy = boardY - piece.correctY;
         const dist = Math.hypot(dx, dy);
 
-        if(dist < SNAP){
-          lockPiece(piece); 
+        if (dist < SNAP) {
+          lockPiece(piece);
         } else {
           const minX = -TAB;
           const minY = -TAB;
           const maxX = board.clientWidth - piece.width + TAB;
           const maxY = board.clientHeight - piece.height + TAB;
-
           const clampedX = Math.min(Math.max(minX, boardX), maxX);
           const clampedY = Math.min(Math.max(minY, boardY), maxY);
-
-          leaveOnBoard(piece, clampedX, clampedY); 
+          leaveOnBoard(piece, clampedX, clampedY);
         }
       } else {
         returnToTray(piece);
       }
 
+      cleanupPointer();
       updateStatus();
-    }
+    };
 
     piece.el.addEventListener("pointerup", endDrag);
     piece.el.addEventListener("pointercancel", endDrag);
+    piece.el.addEventListener("lostpointercapture", () => {
+      if (!state.dragging) return;
+    });
   }
 
-  function lockPiece(piece){
+  function updateSnapFeedback(piece, pageX, pageY) {
+    const boardRect = board.getBoundingClientRect();
+    const boardX = pageX - boardRect.left;
+    const boardY = pageY - boardRect.top;
+    const dx = boardX - piece.correctX;
+    const dy = boardY - piece.correctY;
+    const dist = Math.hypot(dx, dy);
+
+    const pieceCenterX = pageX + piece.width / 2;
+    const pieceCenterY = pageY + piece.height / 2;
+    const isOverBoard = (
+      pieceCenterX >= boardRect.left &&
+      pieceCenterX <= boardRect.right &&
+      pieceCenterY >= boardRect.top &&
+      pieceCenterY <= boardRect.bottom
+    );
+
+    if (isOverBoard && dist < SNAP) {
+      piece.el.classList.add("near-snap");
+      showSnapPreview(piece);
+    } else {
+      piece.el.classList.remove("near-snap");
+      hideSnapPreview();
+    }
+  }
+
+  function showSnapPreview(piece) {
+    snapPreview.style.left = piece.correctX + "px";
+    snapPreview.style.top = piece.correctY + "px";
+    snapPreview.style.width = piece.width + "px";
+    snapPreview.style.height = piece.height + "px";
+    snapPreview.classList.add("show");
+  }
+
+  function hideSnapPreview() {
+    snapPreview.classList.remove("show");
+  }
+
+  function lockPiece(piece) {
     piece.locked = true;
     board.appendChild(piece.el);
-    
     piece.el.style.position = "absolute";
     piece.el.style.left = piece.correctX + "px";
     piece.el.style.top = piece.correctY + "px";
     piece.el.style.zIndex = 500 + piece.id;
-    
+    piece.el.style.transform = "translate3d(0,0,0)";
     piece.el.classList.add("locked", "correctPulse");
+    piece.el.classList.remove("near-snap");
+    hideSnapPreview();
+
+    if (navigator.vibrate) navigator.vibrate(12);
     setTimeout(() => piece.el.classList.remove("correctPulse"), 260);
   }
 
-  function leaveOnBoard(piece, x, y){
+  function leaveOnBoard(piece, x, y) {
     board.appendChild(piece.el);
     piece.el.style.position = "absolute";
     piece.el.style.left = x + "px";
     piece.el.style.top = y + "px";
     piece.el.style.zIndex = highestZ;
+    piece.el.style.transform = "translate3d(0,0,0)";
+    piece.el.classList.remove("near-snap");
   }
 
-  function returnToTray(piece){
+  function returnToTray(piece) {
     piece.el.style.position = "";
     piece.el.style.left = "";
     piece.el.style.top = "";
+    piece.el.style.transform = "translate3d(0,0,0)";
+    piece.el.classList.remove("near-snap");
     tray.appendChild(piece.el);
   }
 
-  function updateStatus(){
+  function updateStatus() {
     const done = pieces.filter(p => p.locked).length;
     statusEl.textContent = `${done} / ${TOTAL}`;
-    
-    if(done === TOTAL){
+
+    if (done === TOTAL) {
       setTimeout(() => {
         completionModal.classList.remove("hidden");
-      }, 400); 
+      }, 400);
     }
   }
 })();
