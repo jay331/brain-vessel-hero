@@ -34,7 +34,7 @@
   }
 
   body {
-    touch-action: none;
+    touch-action: manipulation;
   }
 
   .game-app {
@@ -181,19 +181,6 @@
     opacity: 0.5;
   }
 
-  .board-snap-preview {
-    position: absolute;
-    pointer-events: none;
-    z-index: 20;
-    border-radius: 10px;
-    box-shadow: 0 0 0 2px rgba(255,255,255,0.25), 0 0 18px var(--snap-glow);
-    opacity: 0;
-    transition: opacity 0.08s linear;
-  }
-
-  .board-snap-preview.show {
-    opacity: 1;
-  }
 
   .tray-area {
     flex-shrink: 0;
@@ -226,6 +213,10 @@
     transform: translate3d(0,0,0);
   }
 
+  .tray-area .piece {
+    touch-action: pan-x;
+  }
+
   .piece.drag-ready {
     outline: 2px solid rgba(255,255,255,0.15);
     border-radius: 10px;
@@ -247,10 +238,6 @@
     cursor: default;
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
     transition: transform 0.16s ease, filter 0.16s ease;
-  }
-
-  .piece.near-snap {
-    filter: drop-shadow(0 0 16px var(--ok-glow)) drop-shadow(0 10px 14px rgba(0,0,0,0.45));
   }
 
   .piece svg {
@@ -366,7 +353,6 @@
       <div class="board-bg">
         <div class="boardGrid"></div>
       </div>
-      <div id="snapPreview" class="board-snap-preview"></div>
     </div>
   </main>
 
@@ -423,7 +409,6 @@
   const menuPanel = document.getElementById("menuPanel");
   const btnShuffle = document.getElementById("btnShuffle");
   const btnHint = document.getElementById("btnHint");
-  const snapPreview = document.getElementById("snapPreview");
 
   const introModal = document.getElementById("introModal");
   const introTitle = document.getElementById("introTitle");
@@ -471,7 +456,6 @@
       const oldBoard = BOARD_SIZE;
       updateSizes();
       rescalePieces(oldBoard, BOARD_SIZE);
-      hideSnapPreview();
     });
 
     if (isReplay) {
@@ -670,7 +654,7 @@
     const shuffled = [...pieces].sort(() => Math.random() - 0.5);
     shuffled.forEach((p) => {
       p.locked = false;
-      p.el.classList.remove("locked", "correctPulse", "floating", "near-snap", "drag-ready");
+      p.el.classList.remove("locked", "correctPulse", "floating", "drag-ready");
       p.el.style.position = "";
       p.el.style.left = "";
       p.el.style.top = "";
@@ -700,7 +684,6 @@
     const renderFloating = () => {
       state.rafId = 0;
       piece.el.style.transform = `translate3d(${state.currentX}px, ${state.currentY}px, 0)`;
-      updateSnapFeedback(piece, state.currentX, state.currentY);
     };
 
     const scheduleRender = () => {
@@ -717,7 +700,7 @@
     };
 
     const cleanupClasses = () => {
-      piece.el.classList.remove("drag-ready", "near-snap", "floating");
+      piece.el.classList.remove("drag-ready", "floating");
       hideSnapPreview();
     };
 
@@ -868,43 +851,6 @@
     });
   }
 
-  function updateSnapFeedback(piece, pageX, pageY) {
-    const boardRect = board.getBoundingClientRect();
-    const boardX = pageX - boardRect.left;
-    const boardY = pageY - boardRect.top;
-    const dx = boardX - piece.correctX;
-    const dy = boardY - piece.correctY;
-    const dist = Math.hypot(dx, dy);
-
-    const pieceCenterX = pageX + piece.width / 2;
-    const pieceCenterY = pageY + piece.height / 2;
-    const isOverBoard = (
-      pieceCenterX >= boardRect.left &&
-      pieceCenterX <= boardRect.right &&
-      pieceCenterY >= boardRect.top &&
-      pieceCenterY <= boardRect.bottom
-    );
-
-    if (isOverBoard && dist < SNAP) {
-      piece.el.classList.add("near-snap");
-      showSnapPreview(piece);
-    } else {
-      piece.el.classList.remove("near-snap");
-      hideSnapPreview();
-    }
-  }
-
-  function showSnapPreview(piece) {
-    snapPreview.style.left = piece.correctX + "px";
-    snapPreview.style.top = piece.correctY + "px";
-    snapPreview.style.width = piece.width + "px";
-    snapPreview.style.height = piece.height + "px";
-    snapPreview.classList.add("show");
-  }
-
-  function hideSnapPreview() {
-    snapPreview.classList.remove("show");
-  }
 
   function lockPiece(piece) {
     piece.locked = true;
@@ -915,8 +861,7 @@
     piece.el.style.zIndex = 500 + piece.id;
     piece.el.style.transform = "translate3d(0,0,0)";
     piece.el.classList.add("locked", "correctPulse");
-    piece.el.classList.remove("near-snap");
-    hideSnapPreview();
+        hideSnapPreview();
 
     if (navigator.vibrate) navigator.vibrate(12);
     setTimeout(() => piece.el.classList.remove("correctPulse"), 260);
@@ -929,16 +874,14 @@
     piece.el.style.top = y + "px";
     piece.el.style.zIndex = highestZ;
     piece.el.style.transform = "translate3d(0,0,0)";
-    piece.el.classList.remove("near-snap");
-  }
+      }
 
   function returnToTray(piece) {
     piece.el.style.position = "";
     piece.el.style.left = "";
     piece.el.style.top = "";
     piece.el.style.transform = "translate3d(0,0,0)";
-    piece.el.classList.remove("near-snap");
-    tray.appendChild(piece.el);
+        tray.appendChild(piece.el);
   }
 
   function updateStatus() {
