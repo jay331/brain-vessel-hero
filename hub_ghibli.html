@@ -11,8 +11,7 @@
     --vessel-dark: #2d0b0b;
     --vessel-light: #8c2a2a;
     --vessel-edge: #ff8a8a;
-    --thrombus-core: #2b1713;
-    --thrombus-edge: #4e2920;
+    --thrombus-core: #2b0a0a;
     --theme-beg: #64b5f6;
     --theme-beg-glow: rgba(100, 181, 246, 0.8);
     --theme-adv: #ffd54f;
@@ -26,28 +25,18 @@
   
   #game-window { position: absolute; inset: 0; overflow: hidden; }
 
-  /* === 上半部：血管遊戲視角區 === */
   #bv-viewport {
       position: absolute; top: 0; bottom: 60px; left: 0; right: 0;
       background: radial-gradient(ellipse 150% 100% at 50% 50%, var(--bg-light) 0%, var(--bg-dark) 100%); 
       overflow: hidden;
   }
 
-  /* === 血管外層肌肉組織與外圍界限 === */
   .vessel-wall { 
       position: absolute; width: 100%; height: 65px; left: 0; z-index: 1; 
       background: #3a0d0d; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); 
   }
-  .vessel-wall.top { 
-      top: 0; 
-      border-top: 2px solid rgba(255, 138, 138, 0.5); 
-      border-bottom: 5px solid rgba(255, 138, 138, 0.2); 
-  }
-  .vessel-wall.bottom { 
-      bottom: 0; 
-      border-bottom: 2px solid rgba(255, 138, 138, 0.5); 
-      border-top: 5px solid rgba(255, 138, 138, 0.2); 
-  }
+  .vessel-wall.top { top: 0; border-top: 2px solid rgba(255, 138, 138, 0.5); border-bottom: 5px solid rgba(255, 138, 138, 0.2); }
+  .vessel-wall.bottom { bottom: 0; border-bottom: 2px solid rgba(255, 138, 138, 0.5); border-top: 5px solid rgba(255, 138, 138, 0.2); }
   .vessel-wall::after {
       content: ''; position: absolute; inset: 0; pointer-events: none;
       background-image: 
@@ -60,32 +49,21 @@
       transition: transform 0.05s linear;
   }
 
-  /* === 懸浮的內皮細胞層 === */
   #wall-container { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
   .endo-cell {
-      position: absolute; 
-      width: 130px;  
-      height: 50px;  
-      border-radius: 25px !important; 
+      position: absolute; width: 130px; height: 50px; border-radius: 25px !important; 
       background: radial-gradient(circle at 50% 50%, var(--vessel-light) 0%, var(--vessel-dark) 100%);
       border: 2px solid var(--vessel-edge) !important;
       z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center;
   }
-  
-  .endo-cell.top { 
-      top: 25px; box-shadow: inset 0 -4px 8px rgba(0,0,0,0.6), 0 10px 18px rgba(0,0,0,0.7); 
-  }
-  .endo-cell.bottom { 
-      bottom: 25px; box-shadow: inset 0 4px 8px rgba(0,0,0,0.6), 0 -10px 18px rgba(0,0,0,0.7); 
-  }
+  .endo-cell.top { top: 25px; box-shadow: inset 0 -4px 8px rgba(0,0,0,0.6), 0 10px 18px rgba(0,0,0,0.7); }
+  .endo-cell.bottom { bottom: 25px; box-shadow: inset 0 4px 8px rgba(0,0,0,0.6), 0 -10px 18px rgba(0,0,0,0.7); }
 
   .cell-text-title { font-size: 13px; font-weight: 900; color: #ffcdd2; line-height: 1.2; text-shadow: 1px 1px 2px #000; white-space: normal; text-align: center; padding: 0 4px; pointer-events: none;}
 
-  /* 關卡節點 */
   .cell-node { 
       background: radial-gradient(circle at 50% 20%, #5d4037 0%, #3e2723 100%); 
-      color: #aaa; text-shadow: 1px 1px 2px #000; 
-      transition: all 0.3s; z-index: 20; cursor: pointer; pointer-events: auto;
+      color: #aaa; text-shadow: 1px 1px 2px #000; transition: all 0.3s; z-index: 20; cursor: pointer; pointer-events: auto;
   }
   .node-locked { filter: grayscale(100%) brightness(0.6); }
   .node-active { 
@@ -93,10 +71,8 @@
       color: #fff; animation: activeCellPulse 2s infinite alternate ease-in-out; 
       border-color: var(--current-theme) !important;
   }
-  @keyframes activeCellPulse { 
-      0% { box-shadow: 0 5px 15px rgba(0,0,0,0.8), 0 0 15px var(--current-glow); } 
-      100% { box-shadow: 0 10px 25px rgba(0,0,0,0.9), 0 0 35px var(--current-glow); } 
-  }
+  @keyframes activeCellPulse { 0% { box-shadow: 0 5px 15px rgba(0,0,0,0.8), 0 0 15px var(--current-glow); } 100% { box-shadow: 0 10px 25px rgba(0,0,0,0.9), 0 0 35px var(--current-glow); } }
+  
   .node-cleared {
       background: radial-gradient(circle at 50% 20%, #fff 0%, var(--current-theme) 100%) !important;
       color: #000 !important; border-color: #fff !important; text-shadow: 1px 1px 0 rgba(255,255,255,0.8) !important;
@@ -104,30 +80,40 @@
   }
   .active-hit { transform: scale(1.1) !important; background: #fff !important; box-shadow: 0 0 50px #fff !important; transition: all 0.1s !important; animation: none !important; }
 
-  /* === ★ 無盡的巨型血栓 (取代原本的一截一截) === */
+  /* ★ 懸浮的綠色能量球 (等待被吸收) */
+  .energy-orb {
+      position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%);
+      width: 14px; height: 14px; background: #00e676; border-radius: 50%;
+      box-shadow: 0 0 10px #00e676, 0 0 20px #69f0ae;
+      animation: orbFloat 1s infinite alternate ease-in-out;
+  }
+  @keyframes orbFloat { from { bottom: -24px; opacity: 0.8; } to { bottom: -16px; opacity: 1; } }
+
+  /* === ★ 寫實版巨型斑塊血栓 (Organic Plaque Texture) === */
   #massive-thrombus {
       position: absolute; top: 75px; bottom: 75px; right: 0; 
-      /* 動態控制 left 位置，實現鑽開的效果 */
-      background: repeating-linear-gradient(45deg, var(--thrombus-core), var(--thrombus-core) 15px, var(--thrombus-edge) 15px, var(--thrombus-edge) 30px);
-      border-left: 4px solid rgba(255, 138, 138, 0.4);
-      box-shadow: inset 10px 0 30px rgba(0,0,0,0.95), -20px 0 40px rgba(0,0,0,0.95);
+      background-color: var(--thrombus-core);
+      /* 多重徑向漸層，創造凹凸不平的肉塊與脂肪堆積感 */
+      background-image: 
+          radial-gradient(circle at 20% 30%, rgba(139, 42, 42, 0.6) 0%, transparent 40%),
+          radial-gradient(circle at 70% 60%, rgba(184, 134, 11, 0.4) 0%, transparent 50%), /* 脂肪斑塊黃色 */
+          radial-gradient(circle at 40% 80%, rgba(92, 30, 30, 0.8) 0%, transparent 45%);
+      background-size: 80px 80px;
+      border-left: 5px solid #5c1e1e;
+      box-shadow: inset 20px 0 30px rgba(0,0,0,0.9), -15px 0 25px rgba(0,0,0,0.9);
       z-index: 12;
-      /* 預設動畫會由 JS 動態接管 */
   }
-  /* 血栓被溶解時的邊緣高溫螢光效果 */
   #massive-thrombus::before {
       content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 30px;
-      background: linear-gradient(90deg, rgba(0, 230, 118, 0.7), transparent);
+      background: linear-gradient(90deg, rgba(0, 230, 118, 0.8), transparent);
       opacity: 0; transition: opacity 0.3s; pointer-events: none;
   }
   #massive-thrombus.dissolving::before { opacity: 1; }
 
-  /* 裁切遮罩與光暈 */
-  #effects-mask { position: absolute; inset: 0; overflow: hidden; z-index: 2; }
+  #effects-mask { position: absolute; inset: 0; overflow: hidden; z-index: 2; transition: clip-path 1.5s ease-in-out; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
   #light-zones-container { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
   .cleared-light-zone { position: absolute; top: 0; bottom: 0; background: radial-gradient(ellipse at center, rgba(138, 42, 42, 0.4) 0%, transparent 80%); filter: blur(20px); transition: opacity 1.5s ease-in-out; }
 
-  /* 微觀粒子與血球 */
   #particles-container { position: absolute; inset: 0; pointer-events: none; z-index: 2; overflow: hidden; }
   .red-blood-cell { position: absolute; width: 30px; height: 30px; background: radial-gradient(circle at 30% 30%, #ff5252 0%, #d32f2f 60%, #b71c1c 100%); border-radius: 50%; box-shadow: inset 0 0 10px rgba(100,0,0,0.8), 2px 4px 6px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center;}
   .red-blood-cell::after { content: ''; width: 40%; height: 40%; border-radius: 50%; background: rgba(150,0,0,0.4); box-shadow: inset 2px 2px 4px rgba(0,0,0,0.5); }
@@ -145,24 +131,30 @@
       width: 100%; height: 100%; border-radius: 20px; background: linear-gradient(180deg, #eceff1 50%, var(--current-theme) 50%);
       border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.8), inset -3px -3px 6px rgba(0,0,0,0.3); position: relative; overflow: hidden;
   }
-  .capsule-core { position: absolute; top: 25%; left: 50%; transform: translate(-50%, -50%); width: 10px; height: 10px; background: #00e676; border-radius: 50%; box-shadow: 0 0 10px #00e676; animation: corePulse 1s infinite alternate; }
-  @keyframes corePulse { from { opacity: 0.5; } to { opacity: 1; box-shadow: 0 0 15px #69f0ae; } }
+  /* ★ 預設為黑點，充能後變綠 */
+  .capsule-core { 
+      position: absolute; top: 25%; left: 50%; transform: translate(-50%, -50%); 
+      width: 10px; height: 10px; border-radius: 50%; 
+      background: #222; box-shadow: inset 0 2px 4px rgba(0,0,0,0.8); 
+      transition: background 0.3s, box-shadow 0.3s;
+  }
+  .player-charged .capsule-core {
+      background: #00e676; box-shadow: 0 0 10px #00e676, 0 0 20px #69f0ae;
+      animation: corePulse 1s infinite alternate; 
+  }
+  @keyframes corePulse { from { opacity: 0.6; } to { opacity: 1; box-shadow: 0 0 15px #69f0ae; } }
+
   .drop-in { animation: injectCapsule 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
   @keyframes injectCapsule { 0% { transform: translate(-200px, 200px) scale(0.5); opacity: 0; } 100% { transform: translate(0, 0) scale(1); opacity: 1; } }
 
-  /* ★ 溶解酶發射光束 (裝載於玩家膠囊上) */
   .enzyme-beam {
-      position: absolute; left: 100%; top: 50%; transform: translateY(-50%);
+      position: absolute; left: 100%; top: 25%; transform: translateY(-50%);
       width: 0; height: 8px; border-radius: 4px;
       background: linear-gradient(90deg, #00e676, rgba(0, 230, 118, 0.8), transparent);
-      box-shadow: 0 0 10px #00e676;
-      opacity: 0; transition: width 0.3s, opacity 0.3s;
+      box-shadow: 0 0 10px #00e676; opacity: 0; transition: width 0.3s, opacity 0.3s;
       z-index: 31; pointer-events: none; transform-origin: left center;
   }
-  .player-firing .enzyme-beam {
-      width: 120px; /* 光束射程 */
-      opacity: 1; animation: beamPulse 0.1s infinite alternate;
-  }
+  .player-firing .enzyme-beam { width: 120px; opacity: 1; animation: beamPulse 0.1s infinite alternate; }
   @keyframes beamPulse { from { opacity: 0.7; filter: brightness(1); } to { opacity: 1; filter: brightness(1.5); } }
 
   .health-coin { position: absolute; width: 30px; height: 30px; background: radial-gradient(circle, var(--coin-gold), #b8860b); border: 2px solid #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #8b4513; font-weight: bold; font-size: 16px; z-index: 25; box-shadow: 0 0 10px rgba(255,215,0,0.7); animation: floatCoin 1.5s ease-in-out infinite alternate; }
@@ -170,7 +162,6 @@
   .health-coin.collected { animation: collectEffect 0.5s ease-out forwards; pointer-events: none; }
   @keyframes collectEffect { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-50px) scale(1.5); opacity: 0; } }
 
-  /* 獨立虛擬控制台 */
   #control-bar {
       position: absolute; bottom: 0; left: 0; right: 0; height: 60px; 
       background: transparent; z-index: 100; display: flex; justify-content: center; align-items: center;
@@ -187,7 +178,6 @@
   .v-btn:active { background: rgba(0, 0, 0, 0.6); color: rgba(255,255,255,0.8); border-color: rgba(255, 255, 255, 0.3); }
   #btn-left { left: 25px; } #btn-left:active { transform: translateY(-50%) scale(0.92); }
   #btn-right { right: 25px; } #btn-right:active { transform: translateY(-50%) scale(0.92); }
-  
   #btn-jump { 
       left: 50%; transform: translate(-50%, -50%); width: 95px; border-radius: 20px; font-size: 15px; letter-spacing: 2px; 
       background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.6); box-shadow: none; 
@@ -303,8 +293,8 @@
       document.documentElement.style.setProperty('--current-glow', isAdv ? 'var(--theme-adv-glow)' : 'var(--theme-beg-glow)');
 
       const dummyTasks = [
-          { roleId: 'r1', category: '急診科', title: '檢傷分類' },
-          { roleId: 'r1', category: '急診科', title: '緊急給藥' },
+          { roleId: 'r1', category: '中風補習班', title: '什麼是腦中風？' },
+          { roleId: 'r1', category: '中風補習班', title: '認識中風團隊人員' },
           { roleId: 'r2', category: '神經科', title: '安排CT' },
           { roleId: 'r2', category: '神經科', title: '血栓溶解' },
           { roleId: 'r3', category: '復健科', title: '物理治療' }
@@ -338,12 +328,7 @@
       world.style.width = WORLD_MAX_WIDTH + 'px';
       
       minPlayerX = 50; 
-      if (allCleared || activeIndex >= TOTAL_NODES) {
-          maxAllowedX = WORLD_MAX_WIDTH - 100; 
-      } else {
-          maxAllowedX = START_OFFSET + activeIndex * NODE_SPACING + CELL_WIDTH + 20; 
-      }
-
+      
       let taskMap = {}; 
       baseSeq.forEach((t, i) => { taskMap[START_OFFSET + i * NODE_SPACING] = { task: t, index: i }; });
 
@@ -362,16 +347,23 @@
 
           if (taskMap[cellX]) {
               const tData = taskMap[cellX]; const t = tData.task; 
-              const displayNum = t.taskIdx + 1;
+              const displayNum = t.taskIdx + 1; 
 
               const node = document.createElement('div');
               node.className = 'endo-cell top cell-node'; node.style.left = cellX + 'px';
               
-              if (t.status === 'cleared') { node.classList.add('node-cleared'); node.style.color = "#000"; }
-              else if (t.status === 'active' || t.status === 'unlocked') node.classList.add('node-active');
+              if (t.status === 'cleared') {
+                  node.classList.add('node-cleared');
+                  node.style.color = "#000";
+              }
+              else if (t.status === 'active' || t.status === 'unlocked') {
+                  node.classList.add('node-active');
+                  // ★ 增加綠色能量球，懸浮於尚未過關的節點下方
+                  node.innerHTML += `<div class="energy-orb"></div>`;
+              }
               else node.classList.add('node-locked');
 
-              node.innerHTML = `
+              node.innerHTML += `
                   <div style="font-size: 10px; opacity: 0.8; margin-bottom: 2px;">${t.category || '演練'}</div>
                   <div style="font-size: 15px; font-weight: 900; letter-spacing: 1px;">第 ${displayNum} 關</div>
               `;
@@ -395,42 +387,48 @@
           }
       });
 
-      // ★ 計算巨型血栓的最終位置 (就在 activeIndex 後方)
+      // ★ 精準防穿模：計算玩家能走到的極限位置 (血栓前)
       let finalThrombusLeft = (allCleared || activeIndex >= TOTAL_NODES) ? WORLD_MAX_WIDTH : (START_OFFSET + activeIndex * NODE_SPACING + 110);
       let initialThrombusLeft = finalThrombusLeft;
 
-      // === ★ 動畫演出版：鑽開無盡血栓 ===
+      // === ★ 終極重構的通關動畫時間軸 ===
       if (lastPlayedIdx !== undefined && lastPlayedIdx !== null) {
-          // 初期：血栓堵在剛剛過關的那一關前面
+          // 初期設定：血栓堵在剛剛過關的那一關前方
           initialThrombusLeft = START_OFFSET + lastPlayedIdx * NODE_SPACING + 110;
-          let startDropX = (START_OFFSET + lastPlayedIdx * NODE_SPACING) + 30;
-          targetPlayerX = startDropX; playerX = startDropX;
+          let startDropX = (START_OFFSET + lastPlayedIdx * NODE_SPACING) + 30; // 降落在剛打完的地方
           
-          // 關閉過渡，強制就位
+          targetPlayerX = startDropX; 
+          playerX = startDropX;
+          maxAllowedX = startDropX; // 動畫期間鎖死移動
+
           massiveThrombus.style.transition = 'none';
           effectsMask.style.transition = 'none';
           massiveThrombus.style.left = initialThrombusLeft + 'px';
           effectsMask.style.clipPath = `polygon(0 0, ${initialThrombusLeft}px 0, ${initialThrombusLeft}px 100%, 0 100%)`;
           massiveThrombus.offsetHeight; // Force reflow
           
-          // 重新開啟 2秒 的平滑過渡
+          // 開啟過渡動畫
           massiveThrombus.style.transition = 'left 2s cubic-bezier(0.4, 0, 0.2, 1)';
           effectsMask.style.transition = 'clip-path 2s cubic-bezier(0.4, 0, 0.2, 1)';
 
-          // 1. 降落
+          // [時間軸 1]：人物降落
+          player.classList.remove('player-charged');
           player.classList.add('drop-in');
 
           setTimeout(() => {
               player.classList.remove('drop-in');
               
-              // 2. 等待 1 秒讓玩家看清楚
+              // [時間軸 2]：獲得能量，充能變綠！
+              player.classList.add('player-charged');
+
+              // 稍微蓄力 0.6 秒
               setTimeout(() => {
                   
-                  // 3. 發射溶解酶光束！
+                  // [時間軸 3]：發射溶解雷射！
                   player.classList.add('player-firing');
                   massiveThrombus.classList.add('dissolving');
 
-                  // 4. 血栓開始被推向下一關 (耗時 2s)
+                  // [時間軸 4]：血栓開始溶解、被推開
                   setTimeout(() => {
                       massiveThrombus.style.left = finalThrombusLeft + 'px';
                       effectsMask.style.clipPath = `polygon(0 0, ${finalThrombusLeft}px 0, ${finalThrombusLeft}px 100%, 0 100%)`;
@@ -442,29 +440,43 @@
                       lightZone.style.width = NODE_SPACING + 'px';
                       lightZonesContainer.appendChild(lightZone);
 
-                      // 5. 鑽探完成，收起光束，前往下一關
+                      // [時間軸 5]：等待血栓推到底，收起雷射，前往下一關
                       setTimeout(() => {
                           player.classList.remove('player-firing');
                           massiveThrombus.classList.remove('dissolving');
 
-                          let finalTargetX = (START_OFFSET + activeIndex * NODE_SPACING) + 30; 
-                          if (activeIndex >= TOTAL_NODES) finalTargetX = START_OFFSET + (TOTAL_NODES - 1) * NODE_SPACING + 30; 
+                          // 解開移動限制，讓人物跑向下一關
+                          maxAllowedX = START_OFFSET + activeIndex * NODE_SPACING + 95; 
+                          let finalTargetX = START_OFFSET + activeIndex * NODE_SPACING + 30; 
+                          if (activeIndex >= TOTAL_NODES) finalTargetX = maxAllowedX; 
+                          
                           targetPlayerX = finalTargetX; 
                           generateFastRBCs(startDropX, finalTargetX); 
-                      }, 2000); // 等待移動 2s 結束
+
+                          // 跑到後能量消耗完畢變回黑色
+                          setTimeout(() => {
+                              player.classList.remove('player-charged');
+                          }, 2000);
+
+                      }, 2000); // 溶解推移耗時 2s
                       
-                  }, 300); // 醞釀 0.3s 後開推
-              }, 1000); // 原地停留 1s
-          }, 800); // 降落 0.8s
+                  }, 400); // 雷射預熱時間 0.4s
+              }, 600); // 充能發光展示時間 0.6s
+          }, 800); // 降落耗時 0.8s
+
       } else {
-          // 一般讀取，直接跳至進度
+          // 一般讀取，直接跳至進度並解鎖最大移動範圍
           activeIndex = parseInt(activeIndex) || 0;
-          let finalTargetX = (START_OFFSET + activeIndex * NODE_SPACING) + 30; 
-          if (activeIndex >= TOTAL_NODES) finalTargetX = START_OFFSET + (TOTAL_NODES - 1) * NODE_SPACING + 30; 
+          maxAllowedX = START_OFFSET + activeIndex * NODE_SPACING + 95; // ★ 精準防穿模限制
+          let finalTargetX = START_OFFSET + activeIndex * NODE_SPACING + 30; 
+          if (activeIndex >= TOTAL_NODES) finalTargetX = maxAllowedX - 20; 
+          
           targetPlayerX = finalTargetX; playerX = targetPlayerX;
           
-          massiveThrombus.style.left = initialThrombusLeft + 'px';
-          effectsMask.style.clipPath = `polygon(0 0, ${initialThrombusLeft}px 0, ${initialThrombusLeft}px 100%, 0 100%)`;
+          massiveThrombus.style.transition = 'none';
+          massiveThrombus.style.left = finalThrombusLeft + 'px';
+          effectsMask.style.transition = 'none';
+          effectsMask.style.clipPath = `polygon(0 0, ${finalThrombusLeft}px 0, ${finalThrombusLeft}px 100%, 0 100%)`;
       }
 
       generateParticles(WORLD_MAX_WIDTH); 
