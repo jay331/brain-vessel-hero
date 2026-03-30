@@ -80,7 +80,10 @@
   }
   .active-hit { transform: scale(1.1) !important; background: #fff !important; box-shadow: 0 0 50px #fff !important; transition: all 0.1s !important; animation: none !important; }
 
-  /* ★ 懸浮的綠色能量球 (等待被吸收) */
+  /* ★ 發光特效：終局特殊節點 */
+  .special-node-pulse { animation: specialPulse 2s infinite alternate ease-in-out; }
+  @keyframes specialPulse { 0% { filter: brightness(1); } 100% { filter: brightness(1.3); } }
+
   .energy-orb {
       position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%);
       width: 14px; height: 14px; background: #00e676; border-radius: 50%;
@@ -90,17 +93,16 @@
   }
   @keyframes orbFloat { from { bottom: -24px; opacity: 0.8; } to { bottom: -16px; opacity: 1; } }
 
-  /* === ★ 寫實版巨型斑塊血栓 (Organic Plaque Texture) === */
+  /* === 寫實版巨型斑塊血栓 === */
   #massive-thrombus {
       position: absolute; top: 75px; bottom: 75px; right: 0; 
-      background-color: #5d4037; /* 底色改為偏脂肪的暗棕色 */
-      /* 加入大量黃色、橘黃色的脂肪斑塊漸層 */
+      background-color: #5d4037; 
       background-image: 
           radial-gradient(circle at 20% 30%, rgba(251, 192, 45, 0.8) 0%, transparent 50%),
           radial-gradient(circle at 70% 60%, rgba(245, 127, 23, 0.9) 0%, transparent 60%),
           radial-gradient(circle at 40% 80%, rgba(139, 42, 42, 0.7) 0%, transparent 50%);
       background-size: 60px 60px;
-      border-left: 6px solid #f57f17; /* 邊緣改成明顯的橘黃色 */
+      border-left: 6px solid #f57f17; 
       box-shadow: inset 20px 0 30px rgba(0,0,0,0.8), -15px 0 25px rgba(0,0,0,0.9);
       z-index: 12;
   }
@@ -125,14 +127,14 @@
 
   /* === 玩家 (奈米膠囊) === */
   #player { 
-      position: absolute; bottom: 75px; transform: translateX(-50%); width: 28px; height: 45px; 
+      position: absolute; bottom: 75px; width: 28px; height: 45px; 
       z-index: 30; transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); will-change: left, transform; 
+      transform: translate(-50%, 0); /* ★ 確保中心點對齊 */
   }
   .capsule-body {
       width: 100%; height: 100%; border-radius: 20px; background: linear-gradient(180deg, #eceff1 50%, var(--current-theme) 50%);
       border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.8), inset -3px -3px 6px rgba(0,0,0,0.3); position: relative; overflow: hidden;
   }
-  /* ★ 預設為灰色，充能後變綠 */
   .capsule-core { 
       position: absolute; top: 25%; left: 50%; transform: translate(-50%, -50%); 
       width: 10px; height: 10px; border-radius: 50%; 
@@ -145,11 +147,13 @@
   }
   @keyframes corePulse { from { opacity: 0.6; } to { opacity: 1; box-shadow: 0 0 15px #69f0ae; } }
 
+  /* 空降動畫修正 */
   .drop-in { animation: injectCapsule 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
   @keyframes injectCapsule { 
-    0% { transform: translate(-50%, -200px) scale(0.5); opacity: 0; } 
-    100% { transform: translate(-50%, 0) scale(1); opacity: 1; } 
-}
+      0% { transform: translate(-50%, -120px) scale(0.2); opacity: 0; } 
+      70% { transform: translate(-50%, -20px) scale(1.05); opacity: 1; }
+      100% { transform: translate(-50%, 0) scale(1); opacity: 1; } 
+  }
 
   .enzyme-beam {
       position: absolute; left: 100%; top: 25%; transform: translateY(-50%);
@@ -161,10 +165,9 @@
   .player-firing .enzyme-beam { width: 120px; opacity: 1; animation: beamPulse 0.1s infinite alternate; }
   @keyframes beamPulse { from { opacity: 0.7; filter: brightness(1); } to { opacity: 1; filter: brightness(1.5); } }
 
-  /* ★ 綠色健康幣，並支援放在細胞內的定位 */
   .health-coin { 
       position: absolute; width: 30px; height: 30px; 
-      background: radial-gradient(circle, #69f0ae, #00b259); /* 改為發光綠色 */
+      background: radial-gradient(circle, #69f0ae, #00b259); 
       border: 2px solid #fff; border-radius: 50%; 
       display: flex; align-items: center; justify-content: center; 
       color: #004d26; font-weight: 900; font-size: 16px; z-index: 25; 
@@ -172,9 +175,8 @@
       animation: floatCoin 1.5s ease-in-out infinite alternate; 
   }
   .endo-cell .health-coin {
-      position: relative; /* 覆蓋 absolute，讓它乖乖待在細胞正中央 */
-      left: auto !important; bottom: auto !important;
-      animation: none; /* 在細胞內不需要上下浮動 */
+      position: relative; left: auto !important; bottom: auto !important;
+      animation: none; 
       box-shadow: inset 0 -2px 4px rgba(0,0,0,0.3), 0 0 15px rgba(0, 230, 118, 0.9);
   }
   .health-coin.collected { animation: collectEffect 0.5s ease-out forwards; pointer-events: none; }
@@ -257,8 +259,9 @@
   let targetPlayerX = 150; 
   let playerX = 150; 
   let isJumping = false;
-  let minPlayerX = 50; 
+  let minPlayerX = 0; // 改為0方便無縫接軌
   let maxAllowedX = 5000; 
+  let isAllCleared = false; // 紀錄全通關狀態
   
   let isMovingLeft = false;
   let isMovingRight = false;
@@ -278,14 +281,13 @@
           document.documentElement.style.setProperty('--current-glow', isAdv ? 'var(--theme-adv-glow)' : 'var(--theme-beg-glow)');
 
           let activeIdx = event.data.activeIndex !== undefined ? event.data.activeIndex : (event.data.progressIndex || 0);
-          let isCleared = event.data.allCleared || false;
+          isAllCleared = event.data.allCleared || false;
           let safeCoins = event.data.collectedCoins || [];
           
-          // 接收來自 index.html 嚴謹的動畫參數
           let lastPlayedIdx = event.data.lastPlayedIndex; 
           let spawnIdx = event.data.spawnIndex;
           
-          buildWorld(event.data.baseSeq, safeCoins, activeIdx, isCleared, lastPlayedIdx, spawnIdx);
+          buildWorld(event.data.baseSeq, safeCoins, activeIdx, isAllCleared, lastPlayedIdx, spawnIdx);
       }
   });
 
@@ -297,7 +299,6 @@
   };
 
   function autoBuildWorld() {
-      // 開發除錯用
       buildWorld([], [], 0, false, null, 0);
   }
 
@@ -309,21 +310,21 @@
       nodesData.length = 0; coinsData.length = 0;
 
       const TOTAL_NODES = baseSeq.length; 
-      const totalCellsNeeded = 1 + (TOTAL_NODES * CELLS_BETWEEN_NODES) + 2; 
+      
+      // ★ 終局地圖擴建：如果全通關，將地圖擴充到 57 個細胞的寬度 (0 ~ 56)
+      let totalCellsNeeded = allCleared ? 57 : 1 + (TOTAL_NODES * CELLS_BETWEEN_NODES) + 2; 
       WORLD_MAX_WIDTH = totalCellsNeeded * CELL_WIDTH;
       world.style.width = WORLD_MAX_WIDTH + 'px';
-      
-      minPlayerX = 50; 
       
       let taskMap = {}; 
       baseSeq.forEach((t, i) => { taskMap[START_OFFSET + i * NODE_SPACING] = { task: t, index: i }; });
 
-      let blankCellIdx = 0; // ★ 用來計算空白細胞的專屬硬幣 ID
+      let blankCellIdx = 0; 
 
       for (let i = 0; i < totalCellsNeeded; i++) {
           const cellX = i * CELL_WIDTH;
           
-          // 下方細胞
+          // --- 下方細胞 ---
           const bCell = document.createElement('div');
           bCell.className = 'endo-cell bottom'; bCell.style.left = cellX + 'px';
           if (taskMap[cellX]) {
@@ -333,8 +334,18 @@
           }
           bottomWallContainer.appendChild(bCell);
 
-          // 上方細胞
+          // --- ★ 終局特殊節點配置 ---
+          let isSpecial = false;
+          let specialData = null;
+          if (allCleared) {
+              if (i === 52) { isSpecial = true; specialData = { type: 'random', title: '隨機演練', icon: '🎲', color: '#ab47bc' }; } // 左邊
+              if (i === 53) { isSpecial = true; specialData = { type: 'comprehensive', title: '綜合演練', icon: '🛡️', color: '#f57c00' }; } // 正上方
+              if (i === 54) { isSpecial = true; specialData = { type: 'parkour', title: '跑酷挑戰', icon: '🏃', color: '#00b0ff' }; } // 右邊
+          }
+
+          // --- 上方細胞 ---
           if (taskMap[cellX]) {
+              // 一般任務節點
               const tData = taskMap[cellX]; const t = tData.task; 
               const displayNum = t.taskIdx + 1; 
 
@@ -352,110 +363,123 @@
               topWallContainer.appendChild(node);
               nodesData.push({ x: cellX, element: node, itemData: t });
 
+          } else if (isSpecial) {
+              // ★ 終局特殊節點 (跑酷、隨機、綜合)
+              const node = document.createElement('div');
+              node.className = 'endo-cell top cell-node special-node-pulse';
+              node.style.left = cellX + 'px';
+              node.style.background = `radial-gradient(circle at 50% 20%, ${specialData.color} 0%, #222 100%)`;
+              node.style.borderColor = '#fff';
+              node.style.boxShadow = `0 5px 15px rgba(0,0,0,0.8), 0 0 25px ${specialData.color}`;
+              
+              node.innerHTML = `
+                  <div style="font-size: 22px; margin-bottom: 2px; text-shadow: 0 0 10px #fff;">${specialData.icon}</div>
+                  <div style="font-size: 14px; font-weight: 900; letter-spacing: 1px; color:#fff; text-shadow: 1px 1px 2px #000;">${specialData.title}</div>
+              `;
+              topWallContainer.appendChild(node);
+              // 寫入 nodeType 給碰撞偵測傳送
+              nodesData.push({ x: cellX, element: node, itemData: { type: specialData.type, status: 'unlocked' } });
+              
           } else {
-              // ★ 這裡是「空白的上方細胞」
+              // 一般空白細胞 (鑲嵌金幣)
               const tCell = document.createElement('div');
               tCell.className = 'endo-cell top'; tCell.style.left = cellX + 'px';
               
-              // ★ 在此動態塞入綠色健康幣
-              // 條件：硬幣沒被吃過，且進度不能超過當前解鎖的關卡
-              if (!collectedCoins.includes(blankCellIdx) && cellX <= START_OFFSET + activeIndex * NODE_SPACING) {
-                  const coin = document.createElement('div'); 
-                  coin.className = 'health-coin'; 
-                  coin.innerText = '$';
-                  tCell.appendChild(coin);
-                  
-                  // 將硬幣加入碰撞偵測陣列 (X座標為細胞中心)
-                  coinsData.push({ id: blankCellIdx, x: cellX + 65, element: coin, isCollected: false });
+              // 全通關後，終局區域不產生一般金幣，以免畫面太亂
+              if (!allCleared || i < 50) {
+                  if (!collectedCoins.includes(blankCellIdx) && cellX <= START_OFFSET + activeIndex * NODE_SPACING) {
+                      const coin = document.createElement('div'); 
+                      coin.className = 'health-coin'; 
+                      coin.innerText = '$';
+                      tCell.appendChild(coin);
+                      coinsData.push({ id: blankCellIdx, x: cellX + 65, element: coin, isCollected: false });
+                  }
+                  blankCellIdx++; 
               }
               topWallContainer.appendChild(tCell);
-              blankCellIdx++; // ID 遞增
           }
       }
-      
-      // (舊的 coinLocations 陣列已經被我們刪除了，因為不需要了);
 
-      // ★ 計算巨型血栓的最終位置
-      let finalThrombusLeft = (allCleared || activeIndex >= TOTAL_NODES) ? WORLD_MAX_WIDTH : (START_OFFSET + activeIndex * NODE_SPACING + 115);
+      // 計算血栓位置 (全破後血栓退到畫面最右邊消失)
+      let finalThrombusLeft = allCleared ? WORLD_MAX_WIDTH : (START_OFFSET + activeIndex * NODE_SPACING + 115);
       let initialThrombusLeft = finalThrombusLeft;
 
-      // === ★ 終極版通關動畫時間軸 ===
+      // === ★ 終極版通關動畫與重生點配置 ===
       if (lastPlayedIdx !== undefined && lastPlayedIdx !== null) {
-          // 初期設定：血栓堵在剛剛過關的那一關前方
+          
           initialThrombusLeft = START_OFFSET + lastPlayedIdx * NODE_SPACING + 115;
           let startDropX = START_OFFSET + lastPlayedIdx * NODE_SPACING + 65; 
           
           targetPlayerX = startDropX; 
           playerX = startDropX;
-          maxAllowedX = startDropX; // 動畫期間鎖死移動不能亂跑
+          maxAllowedX = startDropX; // 鎖死
 
           massiveThrombus.style.transition = 'none';
           effectsMask.style.transition = 'none';
           massiveThrombus.style.left = initialThrombusLeft + 'px';
           effectsMask.style.clipPath = `polygon(0 0, ${initialThrombusLeft}px 0, ${initialThrombusLeft}px 100%, 0 100%)`;
-          massiveThrombus.offsetHeight; // Force reflow
+          massiveThrombus.offsetHeight; 
           
-          // 開啟過渡動畫
           massiveThrombus.style.transition = 'left 2s cubic-bezier(0.4, 0, 0.2, 1)';
           effectsMask.style.transition = 'clip-path 2s cubic-bezier(0.4, 0, 0.2, 1)';
 
-          // [時間軸 1]：人物降落在剛通關的節點
           player.classList.remove('player-charged');
           player.classList.add('drop-in');
 
           setTimeout(() => {
               player.classList.remove('drop-in');
-              
-              // [時間軸 2]：吸收過關能量，充能變綠！
               player.classList.add('player-charged');
 
-              // 稍微蓄力 0.6 秒
               setTimeout(() => {
-                  
-                  // [時間軸 3]：發射溶解雷射！
                   player.classList.add('player-firing');
                   massiveThrombus.classList.add('dissolving');
 
-                  // [時間軸 4]：血栓開始溶解、被推開
                   setTimeout(() => {
                       massiveThrombus.style.left = finalThrombusLeft + 'px';
                       effectsMask.style.clipPath = `polygon(0 0, ${finalThrombusLeft}px 0, ${finalThrombusLeft}px 100%, 0 100%)`;
 
-                      // 打亮光暈
                       const lightZone = document.createElement('div');
                       lightZone.className = 'cleared-light-zone'; 
                       lightZone.style.left = (START_OFFSET + lastPlayedIdx * NODE_SPACING) + 'px'; 
                       lightZone.style.width = NODE_SPACING + 'px';
                       lightZonesContainer.appendChild(lightZone);
 
-                      // [時間軸 5]：等待血栓推到底，收起雷射，前往下一關
                       setTimeout(() => {
                           player.classList.remove('player-firing');
-                          player.classList.remove('player-charged'); // ★ 雷射一射完，立刻變回灰色沒電狀態！
+                          player.classList.remove('player-charged'); 
                           massiveThrombus.classList.remove('dissolving');
 
-                          // 解開移動限制，人物跑向下一關 (X座標 +65 會精準對齊下一關的綠點正下方)
-                          maxAllowedX = START_OFFSET + activeIndex * NODE_SPACING + 65; 
-                          let finalTargetX = START_OFFSET + activeIndex * NODE_SPACING + 65; 
-                          if (activeIndex >= TOTAL_NODES) finalTargetX = maxAllowedX; 
-                          
-                          targetPlayerX = finalTargetX; 
-                          generateFastRBCs(startDropX, finalTargetX); 
+                          // ★ 如果是剛剛打破第25關，目的地就是「綜合演練 (細胞 53)」
+                          if (allCleared) {
+                              maxAllowedX = WORLD_MAX_WIDTH; // 全通關無限延伸
+                              let finalTargetX = 53 * CELL_WIDTH + 65; // 目標：綜合演練的正中央
+                              targetPlayerX = finalTargetX; 
+                              generateFastRBCs(startDropX, finalTargetX); 
+                          } else {
+                              maxAllowedX = START_OFFSET + activeIndex * NODE_SPACING + 65; 
+                              let finalTargetX = maxAllowedX; 
+                              targetPlayerX = finalTargetX; 
+                              generateFastRBCs(startDropX, finalTargetX); 
+                          }
 
-                      }, 2000); // 溶解推移耗時 2s
-                      
-                  }, 400); // 雷射預熱時間 0.4s
-              }, 600); // 充能發光展示時間 0.6s
-          }, 800); // 降落耗時 0.8s
+                      }, 2000); 
+                  }, 400); 
+              }, 600); 
+          }, 800); 
 
       } else {
-          // 一般讀取，直接跳至當前進度並解鎖最大移動範圍 (精準防穿模限制)
-          spawnIndex = spawnIndex !== undefined ? spawnIndex : activeIndex;
-          let startX = START_OFFSET + spawnIndex * NODE_SPACING + 65;
-          targetPlayerX = startX; playerX = startX;
-          
-          // ★ maxAllowedX 嚴格限制在最新關卡的正中央，絕不穿模！
-          maxAllowedX = START_OFFSET + activeIndex * NODE_SPACING + 65; 
+          // 一般讀取
+          if (allCleared) {
+              // ★ 全通關後，預設重生點為「第25關往右數第4個細胞正中央」(細胞53，綜合演練下方)
+              let startX = 53 * CELL_WIDTH + 65;
+              targetPlayerX = startX; playerX = startX;
+              maxAllowedX = WORLD_MAX_WIDTH; 
+          } else {
+              spawnIndex = spawnIndex !== undefined ? spawnIndex : activeIndex;
+              let startX = START_OFFSET + spawnIndex * NODE_SPACING + 65;
+              targetPlayerX = startX; playerX = startX;
+              maxAllowedX = START_OFFSET + activeIndex * NODE_SPACING + 65; 
+          }
           
           massiveThrombus.style.transition = 'none';
           massiveThrombus.style.left = finalThrombusLeft + 'px';
@@ -488,8 +512,23 @@
       if (isMovingLeft) targetPlayerX -= 8;
       if (isMovingRight) targetPlayerX += 8;
       
-      if (targetPlayerX < minPlayerX) targetPlayerX = minPlayerX; 
-      if (targetPlayerX > maxAllowedX) targetPlayerX = maxAllowedX; 
+      // ★ 無縫接軌 (Endless Loop) 邏輯
+      if (isAllCleared) {
+          // 如果超過第 56 個細胞 (7280px)，回到原點
+          if (targetPlayerX > 56 * CELL_WIDTH + 100) {
+              targetPlayerX = 50;
+              playerX = 50;
+          } 
+          // 如果從原點往左走，退回跑酷挑戰的右方
+          else if (targetPlayerX < 0) {
+              targetPlayerX = 56 * CELL_WIDTH;
+              playerX = 56 * CELL_WIDTH;
+          }
+      } else {
+          // 一般限制
+          if (targetPlayerX < minPlayerX) targetPlayerX = minPlayerX; 
+          if (targetPlayerX > maxAllowedX) targetPlayerX = maxAllowedX; 
+      }
 
       if (!isNaN(targetPlayerX)) {
           playerX += (targetPlayerX - playerX) * 0.15; 
@@ -514,43 +553,41 @@
       let jumpDistance = viewportHeight - 150 - 45 + 15; 
       if (jumpDistance < 90) jumpDistance = 90; 
       
-     player.style.transform = `translate(-50%, -${jumpDistance}px) scale(1.2)`;
+      // 確保跳躍時人物中心點維持 -50%
+      player.style.transform = `translate(-50%, -${jumpDistance}px) scale(1.2)`;
       
       setTimeout(() => {
-          // 原本的關卡節點撞擊偵測
+          // 偵測撞擊細胞
           nodesData.forEach(b => {
-              if (Math.abs((playerX) - (b.x + 65)) < 70) {
+              if (Math.abs(playerX - (b.x + 65)) < 70) {
                   b.element.classList.add('active-hit'); 
+                  
                   let orb = b.element.querySelector('.energy-orb');
                   if(orb) orb.style.opacity = '0';
 
                   setTimeout(() => {
                       window.parent.postMessage({
                           type: 'HUB_NODE_CLICK',
-                          nodeType: 'task', roleId: b.itemData.roleId,
-                          taskIdx: b.itemData.taskIdx, globalIdx: b.itemData.globalIdx, status: b.itemData.status
+                          nodeType: b.itemData.type, // ★ 會正確傳送 'task', 'random', 'comprehensive', 'parkour'
+                          roleId: b.itemData.roleId,
+                          taskIdx: b.itemData.taskIdx, 
+                          globalIdx: b.itemData.globalIdx, 
+                          status: b.itemData.status
                       }, '*');
                       b.element.classList.remove('active-hit'); 
                   }, 400);
               }
           });
 
-          // ★ 新增的：健康幣撞擊偵測！
+          // 偵測撞擊金幣
           coinsData.forEach(c => {
               if (!c.isCollected && Math.abs(playerX - c.x) < 60) {
                   c.isCollected = true;
-                  c.element.classList.add('collected'); // 觸發往上飛的吃幣動畫
+                  c.element.classList.add('collected'); 
                   
-                  // 傳送吃幣訊號給主程式 (index.html)
-                  window.parent.postMessage({
-                      type: 'COLLECT_HUB_COIN',
-                      coinIndex: c.id
-                  }, '*');
+                  window.parent.postMessage({ type: 'COLLECT_HUB_COIN', coinIndex: c.id }, '*');
                   
-                  // 延遲後將硬幣從 DOM 移除
-                  setTimeout(() => {
-                      if (c.element.parentNode) c.element.parentNode.removeChild(c.element);
-                  }, 500);
+                  setTimeout(() => { if (c.element.parentNode) c.element.parentNode.removeChild(c.element); }, 500);
               }
           });
       }, 300);
@@ -564,7 +601,6 @@
   function generateParticles(brightLimitX) {
       const pContainer = document.getElementById('particles-container');
       pContainer.innerHTML = '';
-      
       for(let i=0; i<15; i++) { 
           const rbc = document.createElement('div'); rbc.className = 'red-blood-cell rbc-slow'; 
           rbc.style.left = `${Math.random() * brightLimitX}px`;
