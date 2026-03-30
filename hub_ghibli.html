@@ -438,9 +438,12 @@ buildWorld(event.data.baseSeq, safeCoins, activeIdx, isAllCleared, lastPlayedIdx
               let titleColor = (t.status === 'locked') ? '#757575' : ((t.status === 'cleared') ? '#fff' : 'var(--current-theme)');
               bCell.innerHTML = `<div class="cell-text-title" style="color:${titleColor}">${t.title || '任務'}</div>`;
           } else if (isSpecial) {
-              // ★ 把 End-Game 換成動態顯示剩餘次數
+              // ★ 這裡強制把這三顆底部細胞的底色與邊框調暗
+              bCell.style.background = 'radial-gradient(circle at 50% 50%, #3a0d0d 0%, #0a0000 100%)';
+              bCell.style.borderColor = '#4a1515';
+              bCell.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.8)'; // 讓它看起來有點往內凹，不那麼搶眼
+
               let remain = attempts[specialData.type] !== undefined ? attempts[specialData.type] : 3;
-              // ★ 改成低調的藍灰色與暗紅色
               let numColor = remain > 0 ? '#90a4ae' : '#8c2a2a'; 
               
               bCell.innerHTML = `
