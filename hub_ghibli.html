@@ -22,33 +22,35 @@
     --coin-gold: #ffd700;
   }
 
-  /* ★ 全域加入 touch-action: none 徹底阻斷手勢 */
-  body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; touch-action: none; font-family: "PingFang TC", sans-serif; user-select: none; -webkit-user-select: none; background: #000; }
+  /* ★ 加入 touch-action: manipulation 防止雙擊放大 */
+  body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; touch-action: manipulation; font-family: "PingFang TC", sans-serif; user-select: none; -webkit-user-select: none; background: #000; }
   
   #game-window { position: absolute; inset: 0; overflow: hidden; }
 
-  /* === 上半部：血管遊戲視角區 (拉大空間) === */
+  /* === 上半部：血管遊戲視角區 (留出底部 60px 給控制台) === */
   #bv-viewport {
-      position: absolute; top: 0; bottom: 62px; left: 0; right: 0;
+      position: absolute; top: 0; bottom: 60px; left: 0; right: 0;
       background: var(--bg-dark); 
       overflow: hidden;
   }
 
+  /* 血管外層邊界背景 */
   .vessel-wall { position: absolute; width: 100%; height: 35px; left: 0; z-index: 1; background: var(--vessel-dark); box-shadow: 0 0 20px rgba(0,0,0,0.8); }
-  .vessel-wall.top { top: 20px; border-bottom: 2px solid rgba(255,138,138,0.1); }
-  .vessel-wall.bottom { bottom: 20px; border-top: 2px solid rgba(255,138,138,0.1); }
+  .vessel-wall.top { top: 12px; border-bottom: 2px solid rgba(255,138,138,0.1); }
+  .vessel-wall.bottom { bottom: 12px; border-top: 2px solid rgba(255,138,138,0.1); }
 
   #world { 
       position: absolute; left: 0; top: 0; height: 100%; will-change: transform; z-index: 10; 
       transition: transform 0.05s linear;
   }
 
+  /* ★ 一顆顆無縫排列的內皮細胞 (加胖版，統一形狀) */
   #wall-container { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
   .endo-cell {
       position: absolute; 
-      width: 120px; 
-      height: 42px;
-      border-radius: 21px; 
+      width: 130px;  /* 加寬，字才不會擠 */
+      height: 50px;  /* 加厚 */
+      border-radius: 25px !important; /* 完美的膠囊形狀 */
       background: radial-gradient(circle at 50% 50%, var(--vessel-light) 0%, var(--vessel-dark) 100%);
       border-left: 1px solid rgba(0,0,0,0.5); 
       border-right: 1px solid rgba(0,0,0,0.5);
@@ -58,45 +60,35 @@
       z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center;
   }
   
-  .endo-cell.top { top: 18px; }
-  .endo-cell.bottom { bottom: 18px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8), 0 -5px 10px rgba(0,0,0,0.5); }
+  .endo-cell.top { top: 12px; }
+  .endo-cell.bottom { bottom: 12px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8), 0 -5px 10px rgba(0,0,0,0.5); }
 
-  .cell-text-cat { font-size: 10px; color: #aaa; margin-bottom: 2px; line-height: 1; text-shadow: 1px 1px 1px #000; }
-  .cell-text-title { font-size: 13px; font-weight: 900; color: #ffcdd2; line-height: 1; text-shadow: 1px 1px 2px #000; white-space: nowrap;}
-
+  /* ★ 關卡節點 (特殊的變異細胞，不改變長寬與圓角，保持與普通細胞一致) */
   .cell-node { 
-      height: 60px; top: 18px; width: 90px;
-      border-radius: 30px; 
       background: radial-gradient(circle at 50% 20%, #5d4037 0%, #3e2723 100%); 
-      color: #aaa; font-weight: 900; text-shadow: 1px 1px 2px #000; 
-      transition: all 0.3s; z-index: 20; cursor: pointer; pointer-events: auto;
-      flex-direction: row; gap: 6px;
+      color: #aaa; transition: all 0.3s; z-index: 20; cursor: pointer; pointer-events: auto;
   }
-  .node-icon { font-size: 22px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); margin-top: 5px;}
-  .node-num { font-size: 14px; font-weight: bold; margin-top: 2px; color:#fff;}
-
   .node-locked { filter: grayscale(100%) brightness(0.6); }
   .node-active { 
       background: radial-gradient(circle at 50% 20%, #795548 0%, #4e342e 100%); 
       color: #fff; animation: activeCellPulse 2s infinite alternate ease-in-out; 
-      border-color: var(--current-theme);
+      border-color: var(--current-theme) !important;
   }
   @keyframes activeCellPulse { 
       0% { box-shadow: 0 5px 15px rgba(0,0,0,0.8), 0 0 15px var(--current-glow); } 
-      100% { box-shadow: 0 10px 25px rgba(0,0,0,0.9), 0 0 35px var(--current-glow); transform: scale(1.05); } 
+      100% { box-shadow: 0 10px 25px rgba(0,0,0,0.9), 0 0 35px var(--current-glow); } 
   }
-
   .node-cleared {
       background: radial-gradient(circle at 50% 20%, #fff 0%, var(--current-theme) 100%) !important;
-      color: #000 !important; border-color: #fff !important; text-shadow: 1px 1px 0 rgba(255,255,255,0.8) !important;
+      border-color: #fff !important; 
       box-shadow: 0 5px 15px rgba(0,0,0,0.5), 0 0 40px var(--current-glow), inset 0 -3px 10px rgba(0,0,0,0.3) !important;
   }
-  .active-hit { transform: scale(1.15) !important; background: #fff !important; box-shadow: 0 0 50px #fff !important; transition: all 0.1s !important; animation: none !important; }
+  .active-hit { transform: scale(1.1) !important; background: #fff !important; box-shadow: 0 0 50px #fff !important; transition: all 0.1s !important; animation: none !important; }
 
   /* 血栓 */
   .thrombus-block {
-      position: absolute; top: 60px; bottom: 60px; 
-      width: 80px; background: repeating-linear-gradient(45deg, var(--thrombus-core), var(--thrombus-core) 10px, var(--thrombus-edge) 10px, var(--thrombus-edge) 20px);
+      position: absolute; top: 62px; bottom: 62px; /* 剛好接在上下細胞邊緣 */
+      width: 60px; background: repeating-linear-gradient(45deg, var(--thrombus-core), var(--thrombus-core) 10px, var(--thrombus-edge) 10px, var(--thrombus-edge) 20px);
       border-left: 2px solid #111; border-right: 2px solid #111; border-radius: 8px;
       z-index: 12; opacity: 1;
       box-shadow: -15px 0 30px rgba(0,0,0,0.9), inset 0 0 30px rgba(0,0,0,0.9);
@@ -117,9 +109,9 @@
   .rbc-fast { animation: dashRbcFast 3s linear forwards; z-index: 15; }
   @keyframes dashRbcFast { 0% { transform: translateX(0) rotate(0deg) scale(1.2); opacity: 1; } 100% { transform: translateX(800px) rotate(360deg) scale(0.8); opacity: 0; } }
 
-  /* 玩家 */
+  /* ★ 玩家 (奈米膠囊)：完美貼合細胞上方 (底邊距12 + 細胞高50 = 62px) */
   #player { 
-      position: absolute; bottom: 50px; transform: translateX(-50%); width: 28px; height: 45px; 
+      position: absolute; bottom: 62px; transform: translateX(-50%); width: 28px; height: 45px; 
       z-index: 30; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); will-change: left, transform; 
   }
   .capsule-body {
@@ -136,25 +128,22 @@
   .health-coin.collected { animation: collectEffect 0.5s ease-out forwards; pointer-events: none; }
   @keyframes collectEffect { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-50px) scale(1.5); opacity: 0; } }
 
-  /* === 下半部：獨立的虛擬控制台 (★ 壓低高度、移除多餘底邊) === */
+  /* === 下半部：獨立的虛擬控制台 (★ 壓低高度到 60px、徹底去除廢白界線) === */
   #control-bar {
-      position: absolute; bottom: 0; left: 0; right: 0; height: 62px; 
+      position: absolute; bottom: 0; left: 0; right: 0; height: 60px; 
       background: linear-gradient(to bottom, #1a0505, #0a0202); border-top: 2px solid var(--vessel-dark);
       z-index: 100; display: flex; justify-content: center; align-items: center;
       box-shadow: 0 -5px 15px rgba(0,0,0,0.8);
-      /* 取消 env safe-area 以免主程式 iframe 疊加產生黑邊 */
-      touch-action: none;
   }
   #virtual-controls { position: relative; width: 100%; max-width: 400px; height: 100%; pointer-events: none; }
   
   .v-btn {
       pointer-events: auto; background: rgba(93, 64, 55, 0.6); border: 2px solid rgba(255, 138, 138, 0.3); 
       color: #ffcdd2; border-radius: 50%;
-      width: 46px; height: 46px; font-size: 18px; font-weight: bold;
+      width: 44px; height: 44px; font-size: 18px; font-weight: bold;
       display: flex; justify-content: center; align-items: center;
       backdrop-filter: blur(4px); box-shadow: 0 4px 10px rgba(0,0,0,0.5);
       position: absolute; top: 50%; transform: translateY(-50%);
-      touch-action: none; /* ★ 徹底阻絕按鈕放大手勢 */
   }
   .v-btn:active { background: rgba(93, 64, 55, 0.9); border-color: rgba(255, 138, 138, 0.8); }
   #btn-left { left: 25px; } #btn-left:active { transform: translateY(-50%) scale(0.92); }
@@ -199,8 +188,9 @@
 </div>
 
 <script>
-  // ★ 全域禁止雙擊放大，徹底解決手機縮放問題
+  // ★ 強力禁止手機版網頁雙擊與縮放行為
   document.addEventListener('dblclick', function(event) { event.preventDefault(); }, { passive: false });
+  document.addEventListener('gesturestart', function(event) { event.preventDefault(); }, { passive: false });
 
   const player = document.getElementById('player');
   const world = document.getElementById('world');
@@ -221,8 +211,8 @@
   let isMovingLeft = false;
   let isMovingRight = false;
   
-  const CELL_WIDTH = 120; 
-  const CELLS_BETWEEN_NODES = 2;
+  const CELL_WIDTH = 130; // ★ 細胞加寬
+  const CELLS_BETWEEN_NODES = 2; 
   const NODE_SPACING = CELL_WIDTH * CELLS_BETWEEN_NODES; 
   const START_OFFSET = CELL_WIDTH; 
   let WORLD_MAX_WIDTH = 5000;
@@ -269,11 +259,11 @@
       document.documentElement.style.setProperty('--current-glow', isAdv ? 'var(--theme-adv-glow)' : 'var(--theme-beg-glow)');
 
       const dummyTasks = [
-          { roleId: 'r1', category: '急診科', title: '檢傷分類', icon: '🚑' },
-          { roleId: 'r1', category: '急診科', title: '緊急給藥', icon: '💉' },
-          { roleId: 'r2', category: '神經科', title: '安排CT', icon: '🏥' },
-          { roleId: 'r2', category: '神經科', title: '血栓溶解', icon: '💊' },
-          { roleId: 'r3', category: '復健科', title: '物理治療', icon: '💪' }
+          { roleId: 'r1', category: '中風補習班', title: '什麼是腦中風？' },
+          { roleId: 'r1', category: '中風補習班', title: '認識中風團隊人員' },
+          { roleId: 'r2', category: '神經科', title: '安排CT' },
+          { roleId: 'r2', category: '神經科', title: '血栓溶解' },
+          { roleId: 'r3', category: '復健科', title: '物理治療' }
       ];
 
       let flatTasks = [];
@@ -317,34 +307,43 @@
       for (let i = 0; i < totalCellsNeeded; i++) {
           const cellX = i * CELL_WIDTH;
           
+          // 1. 下方細胞
           const bCell = document.createElement('div');
           bCell.className = 'endo-cell bottom'; bCell.style.left = cellX + 'px';
           
           if (taskMap[cellX]) {
               const tData = taskMap[cellX]; const t = tData.task;
               let titleColor = (t.status === 'locked') ? '#757575' : ((t.status === 'cleared') ? '#fff' : 'var(--current-theme)');
-              bCell.innerHTML = `<div class="cell-text-cat">${t.category || '演練'}</div><div class="cell-text-title" style="color:${titleColor}">${t.title || '任務'}</div>`;
+              // ★ 文字排版優化，允許折行置中
+              bCell.innerHTML = `
+                <div style="font-size: 10px; color: #ffcdd2; margin-bottom: 2px;">${t.category || '演練'}</div>
+                <div style="font-size: 11px; font-weight: 900; color: ${titleColor}; white-space: normal; text-align: center; line-height: 1.1; padding: 0 4px; text-shadow: 1px 1px 2px #000;">${t.title || '任務'}</div>
+              `;
           }
           bottomWallContainer.appendChild(bCell);
 
+          // 2. 上方細胞
           if (taskMap[cellX]) {
               const tData = taskMap[cellX]; const t = tData.task; 
               const displayNum = (t.globalIdx !== undefined) ? (t.globalIdx + 1) : (tData.index + 1);
-              const displayIcon = t.icon || '🎯'; 
 
               const node = document.createElement('div');
               node.className = 'endo-cell top cell-node'; node.style.left = cellX + 'px';
               
-              if (t.status === 'cleared') node.classList.add('node-cleared');
+              if (t.status === 'cleared') {
+                  node.classList.add('node-cleared');
+                  node.style.color = "#000";
+              }
               else if (t.status === 'active' || t.status === 'unlocked') node.classList.add('node-active');
               else node.classList.add('node-locked');
 
-              node.innerHTML = `<div class="node-icon">${displayIcon}</div><div class="node-num">${displayNum}</div>`;
+              // ★ 取消圖示，只顯示乾淨的 關卡 1、關卡 2
+              node.innerHTML = `<div style="font-size: 15px; font-weight: 900; letter-spacing: 1px;">關卡 ${displayNum}</div>`;
               topWallContainer.appendChild(node);
               nodesData.push({ x: cellX, element: node, itemData: t });
 
               if (tData.index < TOTAL_NODES - 1) {
-                  const trbX = cellX + CELL_WIDTH + 20; 
+                  const trbX = cellX + CELL_WIDTH + 35; // 剛好塞在兩顆細胞之間
                   const thrombus = document.createElement('div');
                   thrombus.className = 'thrombus-block'; 
                   thrombus.style.left = trbX + 'px';
@@ -425,12 +424,10 @@
       const btnRight = document.getElementById('btn-right');
       const btnJump = document.getElementById('btn-jump');
 
-      // ★ 嚴格使用 touchstart 阻絕預設手勢行為
       const addHoldEvent = (el, setTrue, setFalse) => {
           el.addEventListener('touchstart', (e) => { e.preventDefault(); setTrue(); }, {passive: false});
           el.addEventListener('touchend', (e) => { e.preventDefault(); setFalse(); }, {passive: false});
           el.addEventListener('touchcancel', (e) => { e.preventDefault(); setFalse(); }, {passive: false});
-          // 保留電腦版滑鼠操作
           el.addEventListener('mousedown', (e) => { e.preventDefault(); setTrue(); });
           el.addEventListener('mouseup', (e) => { e.preventDefault(); setFalse(); });
           el.addEventListener('mouseleave', (e) => { e.preventDefault(); setFalse(); });
@@ -462,7 +459,7 @@
           player.style.left = `${playerX}px`;
       }
       
-      checkCoinCollisions(isJumping ? document.getElementById('bv-viewport').offsetHeight * 0.4 : 0);
+      checkCoinCollisions(isJumping ? document.getElementById('bv-viewport').offsetHeight * 0.45 : 0);
       requestAnimationFrame(gameLoop);
   }
 
@@ -471,12 +468,12 @@
       isJumping = true;
       
       const viewportHeight = document.getElementById('bv-viewport').offsetHeight;
-      let jumpDistance = Math.min(viewportHeight * 0.4, 120);
+      let jumpDistance = Math.min(viewportHeight * 0.5, 150);
       player.style.transform = `translateY(-${jumpDistance}px) scale(1.2)`;
       
       setTimeout(() => {
           nodesData.forEach(b => {
-              if (Math.abs((playerX + 14) - (b.x + 60)) < 80) {
+              if (Math.abs((playerX + 14) - (b.x + 65)) < 70) {
                   b.element.classList.add('active-hit'); 
 
                   setTimeout(() => {
