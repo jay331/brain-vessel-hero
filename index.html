@@ -78,7 +78,13 @@ header {
 }
 
 /* 右側：單一視角切換鈕 (微玻璃質感) */
-.header-right { display: flex; justify-content: flex-end; align-items: center; }
+.header-right { 
+    display: flex; 
+    flex-direction: column; /* ★ 讓裡面的東西垂直堆疊 */
+    align-items: flex-end;  /* ★ 靠右對齊 */
+    justify-content: center;
+    gap: 6px;               /* ★ 按鈕與金幣之間的垂直距離 */
+}
 .view-toggle-btn { 
     background: linear-gradient(135deg, rgba(25, 118, 210, 0.8), rgba(13, 71, 161, 0.9)); 
     border: 1px solid rgba(100, 181, 246, 0.5); 
@@ -112,7 +118,7 @@ body.mode-advanced .view-toggle-btn {
 .btn-rescue { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border: none; color: #004d26; font-weight: 900; text-shadow: 0 1px 1px rgba(255,255,255,0.4); padding: 12px; font-size: 14px; border-radius: 8px; box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4), inset 0 -3px 0 rgba(0,0,0,0.15); transition: all 0.2s; margin-bottom: 4px;}
 
 /* ===== 主畫面清單模式 ===== */
-#scrHome { justify-content: flex-start; padding: 8px 10px;} 
+#scrHome { justify-content: flex-start; padding: 8px 2px;} 
 .role-list { display: flex; flex-direction: column; gap: 8px; margin: 0; flex: 1; overflow-y:auto; padding-bottom: 120px;} 
 .role-card { display: flex; align-items: center; gap: 10px; padding: 0 12px; background: var(--theme-grad); border: 1px solid var(--theme-dim); border-radius: 8px; position: relative; cursor: pointer; flex-shrink: 0; min-height: 60px; transition: border-radius 0.2s;} 
 .role-card.expanded { border-radius: 8px 8px 0 0; background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent); border-bottom-color: transparent;}
@@ -252,15 +258,15 @@ body.mode-advanced .view-toggle-btn {
         
         <div class="player-info-col">
             <div class="player-name" id="uiPlayerName" onclick="openSettings()">急救新星</div>
-            <div class="coin-row" onclick="openStoreUI()">
-                <span class="coin-title">健康幣</span>
-                <span class="coin-value" id="uiCoins">0</span>
             </div>
-        </div>
       </div>
       
       <div class="header-right" id="uiStoryToggleWrap">
           <button id="btnViewToggle" class="view-toggle-btn" onclick="toggleViewMode()">切換為清單模式</button>
+          <div class="coin-row" onclick="openStoreUI()">
+              <span class="coin-title">健康幣</span>
+              <span class="coin-value" id="uiCoins">0</span>
+          </div>
       </div>
   </header>
 
