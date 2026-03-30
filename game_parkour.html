@@ -31,19 +31,21 @@
   .endo-cell.bottom { bottom: 25px; box-shadow: inset 0 4px 8px rgba(0,0,0,0.6), 0 -10px 18px rgba(0,0,0,0.7); }
   .cell-text { font-size: 11px; font-weight: 900; color: #ffcdd2; opacity: 0.15; }
 
-  /* 玩家 */
+  /* 玩家 (退到極左側 X = 40px) */
   #player { position: absolute; left: 40px; bottom: 75px; width: 28px; height: 45px; z-index: 30; transform: translateX(-50%); will-change: transform; }
   .capsule-body { width: 100%; height: 100%; border-radius: 20px; background: linear-gradient(180deg, #eceff1 50%, var(--theme-beg) 50%); border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.8), inset -3px -3px 6px rgba(0,0,0,0.3); position: relative; overflow: hidden; }
   .capsule-core { position: absolute; top: 25%; left: 50%; transform: translate(-50%, -50%); width: 10px; height: 10px; border-radius: 50%; background: #00e676; box-shadow: 0 0 10px #00e676, 0 0 20px #69f0ae; }
 
   /* 障礙物與金幣 */
   #objects-container { position: absolute; inset: 0; z-index: 20; }
+  
+  /* ★ 修正：移除了 display: none 和 visibility: hidden */
   .obstacle { 
-      position: absolute; display: none; left: 0; bottom: 75px; background-color: #5d2020; 
+      position: absolute; left: 0; bottom: 75px; background-color: #5d2020; 
       background-image: radial-gradient(ellipse at 40% 30%, rgba(255, 235, 59, 0.9) 10%, transparent 60%), radial-gradient(ellipse at 80% 70%, rgba(255, 241, 118, 0.8) 10%, transparent 50%), linear-gradient(135deg, rgba(139, 42, 42, 0.4) 0%, rgba(245, 127, 23, 0.6) 50%, rgba(93, 32, 32, 0.5) 100%); 
       background-size: cover; border: 3px solid #8c2a2a; border-top: 4px solid #fbc02d; z-index: 12; 
       box-shadow: inset 15px 0 25px rgba(0,0,0,0.7), inset -5px 0 10px rgba(0,0,0,0.5), -10px 0 15px rgba(0,0,0,0.6); 
-      border-radius: 50% 50% 10px 10px; border-bottom: none; will-change: transform; visibility: hidden;
+      border-radius: 50% 50% 10px 10px; border-bottom: none; will-change: transform;
   }
   .obs-top { bottom: auto; top: 75px; border-radius: 10px 10px 50% 50%; border-top: none; border-bottom: 4px solid #fbc02d; box-shadow: inset 15px -10px 25px rgba(0,0,0,0.7), inset -5px 0 10px rgba(0,0,0,0.5), -10px 10px 15px rgba(0,0,0,0.6); }
   
@@ -57,7 +59,7 @@
   #hud { position: absolute; top: 15px; left: 20px; right: 20px; display: flex; justify-content: space-between; z-index: 100; color: #fff; font-weight: bold; font-size: 16px; text-shadow: 1px 1px 2px #000; pointer-events: none;}
   .val { color: #69f0ae; font-size: 22px; margin-left: 5px; }
 
-  /* ★ 新增：加速警告文字 */
+  /* 加速警告文字 */
   #speedup-notice { 
       position: absolute; top: 30%; left: 50%; transform: translate(-50%, 0) scale(0.8); 
       font-size: 28px; font-weight: 900; color: #ff1744; text-shadow: 0 0 20px rgba(255,23,68,0.8), 2px 2px 5px #000; 
@@ -65,22 +67,17 @@
   }
   .show-notice { opacity: 1 !important; transform: translate(-50%, -20px) scale(1.1) !important; }
 
-  /* ★ 控制欄：佔據下方 1/3 的超大點擊區，移除外框 */
+  /* 控制欄：佔據下方 1/3 的超大點擊區 */
   #control-bar { 
       position: absolute; bottom: 0; left: 0; right: 0; height: 33.33%; 
       z-index: 100; display: flex; justify-content: center; align-items: center; 
-      cursor: pointer; touch-action: none; 
-      /* 微弱的上邊緣反光，區分觸控區 */
-      border-top: 1px solid rgba(255,255,255,0.05);
+      cursor: pointer; touch-action: none; border-top: 1px solid rgba(255,255,255,0.05);
   }
   #btn-jump { 
       color: rgba(255,255,255,0.4); font-size: 26px; font-weight: 900; letter-spacing: 6px; 
       transition: transform 0.1s, color 0.1s, text-shadow 0.1s; pointer-events: none; 
   }
-  /* 當按住這塊黑區時，文字的回饋效果 */
-  #control-bar:active #btn-jump { 
-      transform: scale(0.9); color: var(--theme-beg); text-shadow: 0 0 15px var(--theme-beg); 
-  }
+  #control-bar:active #btn-jump { transform: scale(0.9); color: var(--theme-beg); text-shadow: 0 0 15px var(--theme-beg); }
 
   /* 開始與結算畫面 */
   .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; text-align: center; padding: 20px; backdrop-filter: blur(5px);}
@@ -140,6 +137,10 @@
     let coins = 0, speed = 4.5, frames = 0;
     let startTime = 0, aliveSeconds = 0, lastSpeedUpSec = 0;
 
+    // ★ 新的生成計時器 (解決加速時算數錯過的問題)
+    let nextObstacleFrame = 120;
+    let nextCoinFrame = 180;
+
     // 物理與長短跳躍判定
     let playerY = 0, velocityY = 0;
     let isJumping = false, isHoldingJump = false;
@@ -150,13 +151,12 @@
 
     function initCells() {
         bgContainer.innerHTML = ''; cells = [];
-        // ★ 修正：除以正確的寬度 130，保證無縫接軌
         const cellCount = Math.ceil(window.innerWidth / 130) + 2; 
         for (let i = 0; i < cellCount; i++) {
             const topCell = document.createElement('div'); topCell.className = 'endo-cell top'; topCell.innerHTML = '<div class="cell-text">Endothelium</div>';
             const botCell = document.createElement('div'); botCell.className = 'endo-cell bottom'; botCell.innerHTML = '<div class="cell-text">Endothelium</div>';
             
-            let x = i * 130; // ★ 改為 130px
+            let x = i * 130; 
             topCell.style.transform = `translateX(${x}px)`; botCell.style.transform = `translateX(${x}px)`;
             bgContainer.appendChild(topCell); bgContainer.appendChild(botCell);
             
@@ -187,6 +187,9 @@
         startTime = Date.now();
         aliveSeconds = 0; lastSpeedUpSec = 0;
 
+        nextObstacleFrame = 120;
+        nextCoinFrame = 180;
+
         playerY = 0; velocityY = 0; isJumping = false; isHoldingJump = false;
         player.style.transform = `translate(-50%, 0)`;
         player.style.filter = 'none';
@@ -204,9 +207,8 @@
     }
 
     function spawnObjects() {
-        let spawnInterval = Math.max(80, 160 - Math.floor(frames / 30)); 
-        
-        if (frames > 120 && frames % spawnInterval === 0) {
+        // ★ 使用穩定的 Frame 倒數，不再因速度暴增而錯過生成
+        if (frames >= nextObstacleFrame) {
             let allowTop = frames > 900; 
             let isTop = allowTop ? Math.random() > 0.5 : false; 
             
@@ -225,9 +227,13 @@
             
             objContainer.appendChild(obs);
             obstacles.push({ el: obs, x: startX, w: w, h: h, isTop: isTop });
+
+            // 計算下一個障礙物要多久後出現 (車速越快，間距也稍微縮短)
+            let spawnInterval = Math.max(60, 150 - Math.floor(frames / 40)); 
+            nextObstacleFrame = frames + spawnInterval;
         }
 
-        if (frames > 180 && frames % 140 === 0) {
+        if (frames >= nextCoinFrame) {
             const coin = document.createElement('div');
             coin.className = 'health-coin'; coin.innerText = '$';
             let startX = window.innerWidth + 50;
@@ -236,11 +242,13 @@
             
             objContainer.appendChild(coin);
             coinsArr.push({ el: coin, x: startX, collected: false });
+
+            nextCoinFrame = frames + 140; // 金幣固定間距
         }
     }
 
     function triggerSpeedUp() {
-        speed += 1.5; // 暴增速度
+        speed += 1.5; 
         speedNotice.classList.add('show-notice');
         setTimeout(() => { speedNotice.classList.remove('show-notice'); }, 1500);
     }
@@ -250,28 +258,24 @@
         frames++; 
         aliveSeconds = Math.floor((Date.now() - startTime) / 1000);
 
-        // ★ 30秒極限飆車：每過 30 秒暴增一次速度並提醒
         if (aliveSeconds > 0 && aliveSeconds % 30 === 0 && lastSpeedUpSec !== aliveSeconds) {
             lastSpeedUpSec = aliveSeconds;
             triggerSpeedUp();
         }
 
-        // 背景滾動
         cells.forEach(c => {
             c.x -= speed;
-            if (c.x <= -130) c.x += cells.length * 130; // ★ 無縫接軌修正
+            if (c.x <= -130) c.x += cells.length * 130; 
             c.top.style.transform = `translateX(${c.x}px)`;
             c.bot.style.transform = `translateX(${c.x}px)`;
         });
 
-        // 粒子滾動
         particles.forEach(p => {
             p.x -= speed * p.speedMult;
             if (p.x <= -50) p.x = window.innerWidth + 50;
             p.el.style.transform = `translateX(${p.x}px)`;
         });
 
-        // 跳躍物理
         if (isJumping) {
             playerY += velocityY; velocityY -= gravity;
             if (playerY <= 0) { playerY = 0; velocityY = 0; isJumping = false; }
@@ -321,7 +325,6 @@
 
     function updateUI() { uiTime.innerText = aliveSeconds; uiCoins.innerText = coins; }
 
-    // ★ 動態長短跳躍實作：按下去給予向上的初速
     function jumpStart(e) {
         if(e && e.target.tagName === 'BUTTON') return;
         if (isPlaying && !isJumping && !isGameOver) {
@@ -329,7 +332,6 @@
         }
     }
     
-    // ★ 放開時，如果還在往上飛，就直接把速度砍半 (重力提早起作用 = 小跳躍)
     function jumpEnd(e) {
         isHoldingJump = false;
         if (isJumping && velocityY > 0) {
@@ -337,7 +339,6 @@
         }
     }
 
-    // 綁定整個 document 的按壓與放開事件
     document.addEventListener('pointerdown', jumpStart);
     document.addEventListener('pointerup', jumpEnd);
     document.addEventListener('pointercancel', jumpEnd);
