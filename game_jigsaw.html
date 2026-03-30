@@ -213,10 +213,6 @@
     transform: translate3d(0,0,0);
   }
 
-  .tray-area .piece {
-    touch-action: pan-x;
-  }
-
   .piece.drag-ready {
     outline: 2px solid rgba(255,255,255,0.15);
     border-radius: 10px;
@@ -742,6 +738,9 @@
       } else {
         state.dragArmed = true;
       }
+
+      state.currentX = rect.left;
+      state.currentY = rect.top;
     }, { passive: true });
 
     piece.el.addEventListener("pointermove", (e) => {
@@ -755,7 +754,6 @@
         if (piece.el.parentElement === tray && !state.dragArmed) {
           if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 8) {
             clearPress();
-            state.isPointerDown = false;
             piece.el.classList.remove("drag-ready");
             return;
           }
@@ -768,6 +766,8 @@
         state.dragging = true;
         clearPress();
         piece.el.classList.remove("drag-ready");
+        state.currentX = e.clientX - state.offsetX;
+        state.currentY = e.clientY - state.offsetY;
 
         try {
           piece.el.setPointerCapture(e.pointerId);
