@@ -721,8 +721,9 @@ function renderNodeMap() {
 
     let clearedCount = 0;
     let firstUnclearedIdx = -1;
+    const chNums = ['一', '二', '三', '四', '五'];
 
-    roles.forEach(role => {
+    roles.forEach((role, rIdx) => {
         role.subTasks.forEach((subTask, idx) => {
             let isCleared = false, isLocked = false;
             const taskTitle = subTask.substring(3);
@@ -749,9 +750,11 @@ function renderNodeMap() {
                 statusStr = 'unlocked'; 
             }
 
+            // ★ 修改 category 讓它加上中文數字前綴
             baseSeq.push({ 
                 type: 'task', roleId: role.id, taskIdx: idx, globalIdx: globalIndex, 
-                status: statusStr, title: taskTitle, category: role.name 
+                status: statusStr, title: taskTitle, 
+                category: chNums[rIdx] + '、' + role.name 
             });
             globalIndex++;
         });
