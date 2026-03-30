@@ -528,6 +528,13 @@ window.addEventListener('message', (event) => {
           setTimeout(() => { customAlert(`拼圖 #${pid} 挑戰成功！已為您正式加入收藏！`, null, "🎉 拼圖收藏成功"); }, 500);
       }
   }
+  // ★ 接收跑酷遊戲裡吃到的金幣，直接存入錢包
+  else if (event.data.type === 'ADD_COINS') {
+      playerState.coins += event.data.amount;
+      saveGameData();
+      updateHUD(true); // 只更新數字，不重刷地圖
+      customAlert(`結算完畢！\n\n您在跑酷中收集了 ${event.data.amount} 枚健康幣，已存入您的錢包！`, null, '💰 獲得獎金');
+  }    
   else if (event.data.type === 'ACTION_STORE') openStoreUI();
   else if (event.data.type === 'ACTION_WARDROBE') openWardrobeUI();
   else if (event.data.type === 'ACTION_WATCH_TV') window.open('https://www.youtube.com/@femhospital4347/videos', '_blank');
@@ -672,8 +679,10 @@ function handleHubNodeClickLogic(type, roleId, taskIdx, status, globalIdx) {
     } else if (type === 'comprehensive') {
         openComprehensiveDrill();
     } else if (type === 'parkour') {
-        // ★ 新增的跑酷按鈕點擊回應！
-        customAlert('🏃 跑酷挑戰模式積極開發中！\n未來將解鎖更多考驗反應神經的動作關卡，敬請期待！', null, '跑酷挑戰預告');
+        currentGameInfo = { isChallenge: true, id: 'ch_parkour', title: '微觀血管跑酷' };
+        if(id('gameTitle')) id('gameTitle').textContent = '🏃 微觀血管跑酷'; 
+        if(id('gameFrame')) id('gameFrame').src = 'game_parkour.html'; 
+        if(id('gameOverlay')) id('gameOverlay').style.display = 'flex'; 
     } else if (type === 'task') {
         if (status === 'locked') return customAlert('此區域尚未解鎖，請先完成前面的任務！', null, '🔒 區域未解鎖');
         
@@ -1253,7 +1262,9 @@ const CHALLENGE_GAMES = [
   { id: 'ch_freecell', roleId: 'all', title: '【極限】腦脈新接龍', desc: '經典紙牌遊戲，用最少步驟完成挑戰！', icon: '🃏', url: 'game_freecell.html', unit: '步', order: 'desc' },
   { id: 'ch_racing_dist', roleId: 'ems', title: '【極限】長程救護拉力賽', desc: '在無盡的車流中行駛最長距離，測試穩定度！', icon: '🏎️', url: 'game_racing_infinite.html', unit: '公尺', order: 'asc' },
   { id: 'ch_racing_speed', roleId: 'ems', title: '【極限】黃金秒數速飆賽', desc: '極速避開障礙，挑戰全院最快到達紀錄！', icon: '⚡', url: 'game_racing_speed.html', unit: 'km/h', order: 'asc' },
-  { id: 'ch_sorting_endless', roleId: 'nurse', title: '【極限】地獄檢傷分類', desc: '永無止盡的病患湧入，挑戰你的判斷精準與速度！', icon: '🏥', url: 'game_sorting_endless.html', unit: '人次', order: 'asc' }
+  { id: 'ch_sorting_endless', roleId: 'nurse', title: '【極限】地獄檢傷分類', desc: '永無止盡的病患湧入，挑戰你的判斷精準與速度！', icon: '🏥', url: 'game_sorting_endless.html', unit: '人次', order: 'asc' },
+  // 👇 把跑酷加入這裡 👇
+  { id: 'ch_parkour', roleId: 'all', title: '【極限】微觀血管跑酷', desc: '在血管中極速奔跑，閃避斑塊並收集金幣！', icon: '🏃', url: 'game_parkour.html', unit: 'm', order: 'asc' }
 ];
 
 function renderTotalScoreLeaderboard() {
