@@ -26,34 +26,35 @@
   
   #game-window { position: absolute; inset: 0; overflow: hidden; }
 
-  /* === 上半部：血管遊戲視角區 (加入深邃管腔的 3D 漸層) === */
+  /* === 上半部：血管遊戲視角區 (深邃管腔的 3D 漸層) === */
   #bv-viewport {
       position: absolute; top: 0; bottom: 60px; left: 0; right: 0;
       background: radial-gradient(ellipse 150% 100% at 50% 50%, var(--bg-light) 0%, var(--bg-dark) 100%); 
       overflow: hidden;
   }
 
-  /* === ★ 血管外層肌肉組織 (The Outer Wall) === */
+  /* === ★ 加強後的血管外層肌肉組織 (The Outer Wall) === */
   .vessel-wall { 
-      position: absolute; width: 100%; height: 75px; left: 0; z-index: 1; 
-      box-shadow: 0 0 30px rgba(0,0,0,0.9); 
+      position: absolute; width: 100%; height: 100px; /* ★ 加厚外壁組織 */
+      left: 0; z-index: 1; 
+      box-shadow: 0 0 35px rgba(0,0,0,0.95); 
   }
   .vessel-wall.top { 
       top: 0; 
       background: linear-gradient(to bottom, #000 0%, #1a0505 50%, var(--vessel-dark) 100%);
-      border-bottom: 4px solid rgba(255, 138, 138, 0.15); 
+      border-bottom: 5px solid rgba(255, 138, 138, 0.2); 
   }
   .vessel-wall.bottom { 
       bottom: 0; 
       background: linear-gradient(to top, #000 0%, #1a0505 50%, var(--vessel-dark) 100%);
-      border-top: 4px solid rgba(255, 138, 138, 0.15); 
+      border-top: 5px solid rgba(255, 138, 138, 0.2); 
   }
-  /* ★ 肌肉束與微血管紋理 */
+  /* === ★ 清晰的肌肉束與微血管網紋理 === */
   .vessel-wall::after {
       content: ''; position: absolute; inset: 0; pointer-events: none;
       background-image: 
-          repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.4) 3px, rgba(0,0,0,0.4) 6px),
-          repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,138,138,0.03) 20px, rgba(255,138,138,0.03) 22px);
+          repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.5) 3px, rgba(0,0,0,0.5) 6px), /* ★ 肌肉紋理加清晰 */
+          repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,138,138,0.05) 20px, rgba(255,138,138,0.05) 22px); /* ★ 微血管網加強 */
   }
 
   #world { 
@@ -61,7 +62,7 @@
       transition: transform 0.05s linear;
   }
 
-  /* === ★ 懸浮的內皮細胞層 (往管腔內縮，展現立體感) === */
+  /* === 懸浮的內皮細胞層 (往管腔內縮，展現立體感) === */
   #wall-container { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
   .endo-cell {
       position: absolute; 
@@ -73,14 +74,14 @@
       z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center;
   }
   
-  /* 距離邊界 40px，讓外壁組織可以被看見，並加上強烈懸浮陰影 */
+  /* 距離邊界 50px，讓外壁組織可以被看見，並加上更強懸浮陰影 */
   .endo-cell.top { 
-      top: 40px; 
-      box-shadow: inset 0 -4px 8px rgba(0,0,0,0.6), 0 8px 15px rgba(0,0,0,0.7); 
+      top: 50px; 
+      box-shadow: inset 0 -4px 8px rgba(0,0,0,0.6), 0 10px 18px rgba(0,0,0,0.7); 
   }
   .endo-cell.bottom { 
-      bottom: 40px; 
-      box-shadow: inset 0 4px 8px rgba(0,0,0,0.6), 0 -8px 15px rgba(0,0,0,0.7); 
+      bottom: 50px; 
+      box-shadow: inset 0 4px 8px rgba(0,0,0,0.6), 0 -10px 18px rgba(0,0,0,0.7); 
   }
 
   /* 下壁細胞文字 */
@@ -109,10 +110,10 @@
   }
   .active-hit { transform: scale(1.1) !important; background: #fff !important; box-shadow: 0 0 50px #fff !important; transition: all 0.1s !important; animation: none !important; }
 
-  /* === 完全阻塞的巨大血栓 === */
+  /* 完全阻塞的巨大血栓 */
   .thrombus-block {
-      /* 頂著上下內皮細胞的邊緣 (40 + 50 = 90px) */
-      position: absolute; top: 90px; bottom: 90px; 
+      /* 頂著上下內皮細胞的邊緣 (50 + 50 = 100px) */
+      position: absolute; top: 100px; bottom: 100px; 
       width: 70px; background: repeating-linear-gradient(45deg, var(--thrombus-core), var(--thrombus-core) 10px, var(--thrombus-edge) 10px, var(--thrombus-edge) 20px);
       border-left: 3px solid #111; border-right: 3px solid #111; border-radius: 8px;
       z-index: 12; opacity: 1;
@@ -136,10 +137,14 @@
   .rbc-fast { animation: dashRbcFast 3s linear forwards; z-index: 15; }
   @keyframes dashRbcFast { 0% { transform: translateX(0) rotate(0deg) scale(1.2); opacity: 1; } 100% { transform: translateX(800px) rotate(360deg) scale(0.8); opacity: 0; } }
 
-  /* ★ 玩家 (奈米膠囊) - 精準站在細胞上 (40 + 50 = 90px) */
+  /* ★ 玩家 (奈米膠囊) - 修正高度與跳躍流暢度 */
   #player { 
-      position: absolute; bottom: 90px; transform: translateX(-50%); width: 28px; height: 45px; 
-      z-index: 30; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); will-change: left, transform; 
+      position: absolute; 
+      bottom: 98px; /* ★ 再調高 8px，不陷底 (50 + 50 = 100px - 2px) */
+      transform: translateX(-50%); width: 28px; height: 45px; 
+      z-index: 30; 
+      transition: transform 0.5s cubic-bezier(0.1, 0.7, 0.1, 1); /* ★ 優化曲線，提升流暢度 */
+      will-change: left, transform; 
   }
   .capsule-body {
       width: 100%; height: 100%; border-radius: 20px; background: linear-gradient(180deg, #eceff1 50%, var(--current-theme) 50%);
@@ -155,7 +160,7 @@
   .health-coin.collected { animation: collectEffect 0.5s ease-out forwards; pointer-events: none; }
   @keyframes collectEffect { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-50px) scale(1.5); opacity: 0; } }
 
-  /* === 獨立的虛擬控制台 (極簡低調) === */
+  /* 獨立的虛擬控制台 (極簡低調) */
   #control-bar {
       position: absolute; bottom: 0; left: 0; right: 0; height: 60px; 
       background: transparent; z-index: 100; display: flex; justify-content: center; align-items: center;
@@ -290,11 +295,11 @@
       document.documentElement.style.setProperty('--current-glow', isAdv ? 'var(--theme-adv-glow)' : 'var(--theme-beg-glow)');
 
       const dummyTasks = [
-          { roleId: 'r1', category: '急診科', title: '檢傷分類', icon: '🚑' },
-          { roleId: 'r1', category: '急診科', title: '緊急給藥', icon: '💉' },
-          { roleId: 'r2', category: '神經科', title: '安排CT', icon: '🏥' },
-          { roleId: 'r2', category: '神經科', title: '血栓溶解', icon: '💊' },
-          { roleId: 'r3', category: '復健科', title: '物理治療', icon: '💪' }
+          { roleId: 'r1', category: '中風補習班', title: '什麼是腦中風？' },
+          { roleId: 'r1', category: '中風補習班', title: '認識中風團隊人員' },
+          { roleId: 'r2', category: '神經科', title: '安排CT' },
+          { roleId: 'r2', category: '神經科', title: '血栓溶解' },
+          { roleId: 'r3', category: '復健科', title: '物理治療' }
       ];
 
       let flatTasks = [];
@@ -409,16 +414,14 @@
       let finalBrightLimit = (allCleared || activeIndex >= TOTAL_NODES) ? WORLD_MAX_WIDTH : (START_OFFSET + activeIndex * NODE_SPACING + CELL_WIDTH + 60);
       let initialBrightLimit = finalBrightLimit;
 
-      // === ★ 完美過關動畫時間軸 ===
+      // === 過關動畫時間軸 ===
       if (lastPlayedIdx !== undefined && lastPlayedIdx !== null) {
           initialBrightLimit = START_OFFSET + lastPlayedIdx * NODE_SPACING + CELL_WIDTH + 60;
           let startDropX = (START_OFFSET + lastPlayedIdx * NODE_SPACING) + 30;
           targetPlayerX = startDropX; playerX = startDropX;
           
-          // ★ 1. 原地停留 1.5 秒 (等主程式 Modal 關閉)
           setTimeout(() => {
               
-              // ★ 2. 前方血栓開始溶解 (耗時 1.5 秒)
               const thrombusToClear = document.getElementById(`thrombus-${lastPlayedIdx}`);
               if (thrombusToClear) thrombusToClear.classList.add('thrombus-cleared');
               
@@ -432,7 +435,6 @@
 
               effectsMask.style.clipPath = `polygon(0 0, ${finalBrightLimit}px 0, ${finalBrightLimit}px 100%, 0 100%)`;
 
-              // ★ 3. 等待 1.5 秒血栓完全消失後，人物才跑向下一關
               setTimeout(() => {
                   let finalTargetX = (START_OFFSET + activeIndex * NODE_SPACING) + 30; 
                   if (activeIndex >= TOTAL_NODES) finalTargetX = START_OFFSET + (TOTAL_NODES - 1) * NODE_SPACING + 30; 
@@ -496,12 +498,12 @@
       if (isJumping) return;
       isJumping = true;
       
-      // ★ 動態計算最佳跳躍高度 (不管手機大小，必定能碰到上方細胞)
+      // 動態計算最佳跳躍高度 (不管手機大小，必定能碰到上方細胞)
       const viewportHeight = document.getElementById('bv-viewport').offsetHeight;
-      // 空腔高度是 viewportHeight - (40+50)*2 = viewportHeight - 180
+      // 空腔高度是 viewportHeight - (50+50)*2 = viewportHeight - 200
       // 扣除膠囊高度 45px，跳躍距離需涵蓋此空缺
-      let jumpDistance = viewportHeight - 180 - 45 + 10; // 10px 容錯值
-      if (jumpDistance < 80) jumpDistance = 80; 
+      let jumpDistance = viewportHeight - 200 - 45 + 15; // 15px 容錯值
+      if (jumpDistance < 90) jumpDistance = 90; 
       
       player.style.transform = `translateY(-${jumpDistance}px) scale(1.2)`;
       
@@ -524,8 +526,8 @@
 
       setTimeout(() => {
           player.style.transform = 'translateY(0) scale(1)';
-          setTimeout(() => { isJumping = false; }, 200); 
-      }, 500);
+          setTimeout(() => { isJumping = false; }, 150); // ★ 縮短重置延時
+      }, 400); // ★ 縮短下降延時
   }
 
   function generateParticles(brightLimitX) {
@@ -535,7 +537,7 @@
       for(let i=0; i<15; i++) { 
           const rbc = document.createElement('div'); rbc.className = 'red-blood-cell rbc-slow'; 
           rbc.style.left = `${Math.random() * brightLimitX}px`;
-          rbc.style.top = `${25 + Math.random() * 40}%`; 
+          rbc.style.top = `${30 + Math.random() * 35}%`; /* ★ 調整生成範圍 */
           const size = 15 + Math.random() * 20; rbc.style.width = `${size}px`; rbc.style.height = `${size}px`; 
           rbc.style.animationDuration = `${10 + Math.random() * 10}s`; rbc.style.animationDelay = `-${Math.random() * 10}s`; 
           pContainer.appendChild(rbc); 
@@ -546,7 +548,8 @@
       for(let i=0; i<10; i++) {
           setTimeout(() => {
               const rbc = document.createElement('div'); rbc.className = 'red-blood-cell rbc-fast'; 
-              rbc.style.left = `${startX - 100}px`; rbc.style.top = `${35 + Math.random() * 30}%`; 
+              rbc.style.left = `${startX - 100}px`; 
+              rbc.style.top = `${40 + Math.random() * 25}%`; /* ★ 調整生成範圍 */
               rbc.style.animationDuration = `${1 + Math.random() * 1}s`; 
               document.getElementById('particles-container').appendChild(rbc);
               setTimeout(() => { if (rbc.parentNode) rbc.parentNode.removeChild(rbc); }, 3000);
