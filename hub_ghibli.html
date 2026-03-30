@@ -33,7 +33,6 @@
       overflow: hidden;
   }
 
-  /* 血管外層邊界背景 */
   .vessel-wall { position: absolute; width: 100%; height: 35px; left: 0; z-index: 1; background: var(--vessel-dark); box-shadow: 0 0 20px rgba(0,0,0,0.8); }
   .vessel-wall.top { top: 12px; border-bottom: 2px solid rgba(255,138,138,0.1); }
   .vessel-wall.bottom { bottom: 12px; border-top: 2px solid rgba(255,138,138,0.1); }
@@ -43,7 +42,7 @@
       transition: transform 0.05s linear;
   }
 
-  /* ★ 內皮細胞 (普通與關卡細胞統一形狀) */
+  /* ★ 內皮細胞統一形狀 */
   #wall-container { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
   .endo-cell {
       position: absolute; 
@@ -59,16 +58,15 @@
   .endo-cell.top { top: 12px; }
   .endo-cell.bottom { bottom: 12px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8), 0 -5px 10px rgba(0,0,0,0.5); }
 
-  /* 寫在細胞內的文字 */
+  /* 下方細胞只留任務標題 */
   .cell-text-title { font-size: 13px; font-weight: 900; color: #ffcdd2; line-height: 1.2; text-shadow: 1px 1px 2px #000; white-space: normal; text-align: center; padding: 0 4px; pointer-events: none;}
 
-  /* ★ 關卡節點 (取消長寬覆蓋，完全繼承 .endo-cell 的完美形狀) */
+  /* ★ 關卡節點 (上方) */
   .cell-node { 
       background: radial-gradient(circle at 50% 20%, #5d4037 0%, #3e2723 100%); 
       color: #aaa; text-shadow: 1px 1px 2px #000; 
       transition: all 0.3s; z-index: 20; cursor: pointer; pointer-events: auto;
   }
-
   .node-locked { filter: grayscale(100%) brightness(0.6); }
   .node-active { 
       background: radial-gradient(circle at 50% 20%, #795548 0%, #4e342e 100%); 
@@ -79,7 +77,6 @@
       0% { box-shadow: 0 5px 15px rgba(0,0,0,0.8), 0 0 15px var(--current-glow); } 
       100% { box-shadow: 0 10px 25px rgba(0,0,0,0.9), 0 0 35px var(--current-glow); } 
   }
-
   .node-cleared {
       background: radial-gradient(circle at 50% 20%, #fff 0%, var(--current-theme) 100%) !important;
       color: #000 !important; border-color: #fff !important; text-shadow: 1px 1px 0 rgba(255,255,255,0.8) !important;
@@ -87,7 +84,7 @@
   }
   .active-hit { transform: scale(1.1) !important; background: #fff !important; box-shadow: 0 0 50px #fff !important; transition: all 0.1s !important; animation: none !important; }
 
-  /* 血栓 */
+  /* === 完全阻塞的血栓 === */
   .thrombus-block {
       position: absolute; top: 62px; bottom: 62px; 
       width: 60px; background: repeating-linear-gradient(45deg, var(--thrombus-core), var(--thrombus-core) 10px, var(--thrombus-edge) 10px, var(--thrombus-edge) 20px);
@@ -99,10 +96,12 @@
   .thrombus-block::after { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 10px 10px; pointer-events: none; }
   .thrombus-cleared { width: 0 !important; opacity: 0 !important; border: none !important; box-shadow: none !important; }
 
+  /* 裁切遮罩與光暈 */
   #effects-mask { position: absolute; inset: 0; overflow: hidden; z-index: 2; transition: clip-path 1.5s ease-in-out; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
   #light-zones-container { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
   .cleared-light-zone { position: absolute; top: 0; bottom: 0; background: radial-gradient(ellipse at center, rgba(138, 42, 42, 0.4) 0%, transparent 80%); filter: blur(20px); transition: opacity 1.5s ease-in-out; }
 
+  /* 微觀粒子與血球 */
   #particles-container { position: absolute; inset: 0; pointer-events: none; z-index: 2; overflow: hidden; }
   .red-blood-cell { position: absolute; width: 30px; height: 30px; background: radial-gradient(circle at 30% 30%, #ff5252 0%, #d32f2f 60%, #b71c1c 100%); border-radius: 50%; box-shadow: inset 0 0 10px rgba(100,0,0,0.8), 2px 4px 6px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center;}
   .red-blood-cell::after { content: ''; width: 40%; height: 40%; border-radius: 50%; background: rgba(150,0,0,0.4); box-shadow: inset 2px 2px 4px rgba(0,0,0,0.5); }
@@ -111,7 +110,7 @@
   .rbc-fast { animation: dashRbcFast 3s linear forwards; z-index: 15; }
   @keyframes dashRbcFast { 0% { transform: translateX(0) rotate(0deg) scale(1.2); opacity: 1; } 100% { transform: translateX(800px) rotate(360deg) scale(0.8); opacity: 0; } }
 
-  /* ★ 玩家 (奈米膠囊)：完美站在細胞上方 */
+  /* ★ 玩家 (奈米膠囊) - 精準計算 bottom 確保立在細胞上 (12 + 50 = 62px) */
   #player { 
       position: absolute; bottom: 62px; transform: translateX(-50%); width: 28px; height: 45px; 
       z-index: 30; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); will-change: left, transform; 
@@ -130,29 +129,39 @@
   .health-coin.collected { animation: collectEffect 0.5s ease-out forwards; pointer-events: none; }
   @keyframes collectEffect { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-50px) scale(1.5); opacity: 0; } }
 
-  /* === 控制台 === */
+  /* === ★ 虛擬控制台 (完全不顯眼、極簡透明設計) === */
   #control-bar {
       position: absolute; bottom: 0; left: 0; right: 0; height: 60px; 
-      background: linear-gradient(to bottom, #1a0505, #0a0202); border-top: 2px solid var(--vessel-dark);
+      background: transparent; /* 移除背景色 */
       z-index: 100; display: flex; justify-content: center; align-items: center;
-      box-shadow: 0 -5px 15px rgba(0,0,0,0.8); touch-action: none;
+      touch-action: none;
   }
   #virtual-controls { position: relative; width: 100%; max-width: 400px; height: 100%; pointer-events: none; }
   
   .v-btn {
-      pointer-events: auto; background: rgba(93, 64, 55, 0.6); border: 2px solid rgba(255, 138, 138, 0.3); 
-      color: #ffcdd2; border-radius: 50%;
-      width: 44px; height: 44px; font-size: 18px; font-weight: bold;
+      pointer-events: auto; 
+      background: rgba(0, 0, 0, 0.3); /* 極低調的半透明黑 */
+      border: 1px solid rgba(255, 255, 255, 0.1); 
+      color: rgba(255, 255, 255, 0.4); 
+      border-radius: 50%;
+      width: 46px; height: 46px; font-size: 18px; font-weight: bold;
       display: flex; justify-content: center; align-items: center;
-      backdrop-filter: blur(4px); box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      backdrop-filter: blur(2px); box-shadow: none;
       position: absolute; top: 50%; transform: translateY(-50%);
       touch-action: none;
   }
-  .v-btn:active { background: rgba(93, 64, 55, 0.9); border-color: rgba(255, 138, 138, 0.8); }
+  .v-btn:active { background: rgba(0, 0, 0, 0.6); color: rgba(255,255,255,0.8); border-color: rgba(255, 255, 255, 0.3); }
+  
   #btn-left { left: 25px; } #btn-left:active { transform: translateY(-50%) scale(0.92); }
   #btn-right { right: 25px; } #btn-right:active { transform: translateY(-50%) scale(0.92); }
-  #btn-jump { left: 50%; transform: translate(-50%, -50%); width: 85px; border-radius: 20px; font-size: 16px; letter-spacing: 2px; color: #fff; border-color: var(--current-theme); background: rgba(93, 64, 55, 0.8); box-shadow: 0 0 15px var(--current-glow);}
-  #btn-jump:active { transform: translate(-50%, -50%) scale(0.92); background: rgba(93, 64, 55, 1); }
+  
+  #btn-jump { 
+      left: 50%; transform: translate(-50%, -50%); width: 95px; border-radius: 20px; 
+      font-size: 15px; letter-spacing: 2px; 
+      background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.6); 
+      box-shadow: none; 
+  }
+  #btn-jump:active { transform: translate(-50%, -50%) scale(0.92); background: rgba(0, 0, 0, 0.7); color: #fff; border-color: var(--current-theme); }
 </style>
 </head>
 <body>
@@ -320,15 +329,15 @@
           }
           bottomWallContainer.appendChild(bCell);
 
-          // 2. 上方細胞 (可能是關卡節點)
+          // 2. 上方細胞 (關卡節點)
           if (taskMap[cellX]) {
               const tData = taskMap[cellX]; const t = tData.task; 
-              const displayNum = (t.globalIdx !== undefined) ? (t.globalIdx + 1) : (tData.index + 1);
+              // ★ 關卡編號 1-5 (針對單一類別的流水號)
+              const displayNum = t.taskIdx + 1; 
 
               const node = document.createElement('div');
               node.className = 'endo-cell top cell-node'; node.style.left = cellX + 'px';
               
-              // 狀態樣式
               if (t.status === 'cleared') {
                   node.classList.add('node-cleared');
                   node.style.color = "#000";
@@ -344,6 +353,7 @@
               topWallContainer.appendChild(node);
               nodesData.push({ x: cellX, element: node, itemData: t });
 
+              // 兩個關卡間的血栓
               if (tData.index < TOTAL_NODES - 1) {
                   const trbX = cellX + CELL_WIDTH + 35; 
                   const thrombus = document.createElement('div');
@@ -368,49 +378,52 @@
           }
       }
 
+      let coinLocations = [ {x: START_OFFSET + 150}, {x: START_OFFSET + NODE_SPACING + 150} ]; 
+      coinLocations.forEach((loc, index) => {
+          if (!collectedCoins.includes(index) && loc.x < START_OFFSET + activeIndex * NODE_SPACING) {
+              const coin = document.createElement('div'); coin.className = 'health-coin'; coin.innerText = '$';
+              coin.style.left = loc.x + 'px'; coin.style.bottom = `40%`; 
+              coinsContainer.appendChild(coin);
+              coinsData.push({ id: index, x: loc.x, yPx: window.innerHeight * 0.4, element: coin, isCollected: false });
+          }
+      });
+
       let finalBrightLimit = (allCleared || activeIndex >= TOTAL_NODES) ? WORLD_MAX_WIDTH : (START_OFFSET + activeIndex * NODE_SPACING + CELL_WIDTH + 60);
       let initialBrightLimit = finalBrightLimit;
 
       // === ★ 完美過關動畫時間軸重構 ===
       if (lastPlayedIdx !== undefined && lastPlayedIdx !== null) {
-          // 初始化：退回剛打贏的關卡
           initialBrightLimit = START_OFFSET + lastPlayedIdx * NODE_SPACING + CELL_WIDTH + 60;
           let startDropX = (START_OFFSET + lastPlayedIdx * NODE_SPACING) + 30;
           targetPlayerX = startDropX; playerX = startDropX;
           
-          // 刻意延遲 1.5 秒，等玩家在主程式關閉過關提示框
+          // ★ 人物先停在原地，刻意等 1.5 秒讓玩家有時間看清楚
           setTimeout(() => {
-              player.classList.add('drop-in'); // 播放降落動畫
+              
+              // 前方的巨大血栓開始溶解消失 (耗時 1.5 秒)
+              const thrombusToClear = document.getElementById(`thrombus-${lastPlayedIdx}`);
+              if (thrombusToClear) thrombusToClear.classList.add('thrombus-cleared');
+              
+              const lightZone = document.createElement('div');
+              lightZone.className = 'cleared-light-zone'; 
+              lightZone.style.left = (START_OFFSET + lastPlayedIdx * NODE_SPACING) + 'px'; 
+              lightZone.style.width = NODE_SPACING + 'px';
+              lightZone.style.opacity = 0;
+              lightZonesContainer.appendChild(lightZone);
+              setTimeout(() => lightZone.style.opacity = 1, 50);
 
+              effectsMask.style.clipPath = `polygon(0 0, ${finalBrightLimit}px 0, ${finalBrightLimit}px 100%, 0 100%)`;
+
+              // ★ 等待血栓完全溶解後 (1.5秒後)，人物才動身前往下一關
               setTimeout(() => {
-                  player.classList.remove('drop-in');
-                  
-                  // 前方血栓開始溶解 (耗時 1.5 秒)
-                  const thrombusToClear = document.getElementById(`thrombus-${lastPlayedIdx}`);
-                  if (thrombusToClear) thrombusToClear.classList.add('thrombus-cleared');
-                  
-                  const lightZone = document.createElement('div');
-                  lightZone.className = 'cleared-light-zone'; 
-                  lightZone.style.left = (START_OFFSET + lastPlayedIdx * NODE_SPACING) + 'px'; 
-                  lightZone.style.width = NODE_SPACING + 'px';
-                  lightZone.style.opacity = 0;
-                  lightZonesContainer.appendChild(lightZone);
-                  setTimeout(() => lightZone.style.opacity = 1, 50);
-
-                  effectsMask.style.clipPath = `polygon(0 0, ${finalBrightLimit}px 0, ${finalBrightLimit}px 100%, 0 100%)`;
-
-                  // 等待 2.5 秒，確保血栓徹底溶解完畢後，才前往下一關
-                  setTimeout(() => {
-                      let finalTargetX = (START_OFFSET + activeIndex * NODE_SPACING) + 30; 
-                      if (activeIndex >= TOTAL_NODES) finalTargetX = START_OFFSET + (TOTAL_NODES - 1) * NODE_SPACING + 30; 
-                      targetPlayerX = finalTargetX; 
-                      generateFastRBCs(startDropX, finalTargetX); 
-                  }, 2500); 
-                  
-              }, 800); // 降落耗時 0.8s
-          }, 1500); // 等待玩家關閉 Modal 的 1.5s
+                  let finalTargetX = (START_OFFSET + activeIndex * NODE_SPACING) + 30; 
+                  if (activeIndex >= TOTAL_NODES) finalTargetX = START_OFFSET + (TOTAL_NODES - 1) * NODE_SPACING + 30; 
+                  targetPlayerX = finalTargetX; 
+                  generateFastRBCs(startDropX, finalTargetX); 
+              }, 1500); 
+              
+          }, 1500); 
       } else {
-          // 一般狀態，無動畫
           activeIndex = parseInt(activeIndex) || 0;
           let finalTargetX = (START_OFFSET + activeIndex * NODE_SPACING) + 30; 
           if (activeIndex >= TOTAL_NODES) finalTargetX = START_OFFSET + (TOTAL_NODES - 1) * NODE_SPACING + 30; 
@@ -466,7 +479,7 @@
       isJumping = true;
       
       const viewportHeight = document.getElementById('bv-viewport').offsetHeight;
-      let jumpDistance = Math.min(viewportHeight * 0.4, 120);
+      let jumpDistance = Math.min(viewportHeight * 0.45, 130);
       player.style.transform = `translateY(-${jumpDistance}px) scale(1.2)`;
       
       setTimeout(() => {
