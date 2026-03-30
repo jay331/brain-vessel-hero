@@ -776,7 +776,7 @@ function updateModeUI() {
   if(id('navSlot6Text')) id('navSlot6Text').textContent = isBeg ? '復健挑戰' : '極限挑戰';
   
   setHomeView(playerState.storyMode);
-  updateHUD(); renderHomeRoles(); showScreen('scrHome');
+  updateHUD(true); renderHomeRoles(); showScreen('scrHome');
 }
 
 function handleNavSlot2() {
