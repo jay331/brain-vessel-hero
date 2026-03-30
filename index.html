@@ -172,23 +172,19 @@ body.mode-advanced .view-toggle-btn {
 
 /* ===== ★ 底部導覽列 ===== */
 /* ===== ★ 底部導覽列 (升級版質感設計) ===== */
+/* ===== ★ 底部導覽列 (貼齊底部邊緣經典版) ===== */
 .bottom-nav { 
-    position: absolute; 
-    bottom: 15px; /* ★ 距離底部 15px */
-    left: 15px;   /* ★ 距離左邊 15px */
-    right: 15px;  /* ★ 距離右邊 15px */
-    height: 90px; 
-    border-radius: 24px; /* ★ 加上大圓角，變成懸浮膠囊 */
-    
+    position: absolute; bottom: 0; left: 0; right: 0; height: 95px; 
     background: rgba(8, 8, 12, 0.95); 
-    border: 1px solid rgba(255, 255, 255, 0.1); /* 把原本只有 top 的邊框改成全邊框 */
+    border-top: 1px solid rgba(255, 255, 255, 0.05); /* 恢復只留上方邊線 */
+    border-radius: 0; /* 移除圓角 */
     
+    /* ★ 如果你想讓最左和最右的按鈕往中間靠攏一點，可以把這裡的 8px 改成 15px 或 20px */
     display: flex; justify-content: space-around; padding: 6px 8px; align-items: center; 
-    z-index: 100; backdrop-filter: blur(10px); 
     
-    /* 懸浮島不需要針對瀏海底部特別加高，可以把 padding-bottom 簡化： */
-    padding-bottom: 6px; 
-    box-shadow: 0 10px 25px rgba(0,0,0,0.8); /* 加上濃濃的陰影，讓它浮起來 */
+    z-index: 100; backdrop-filter: blur(10px); 
+    padding-bottom: calc(6px + env(safe-area-inset-bottom)); /* 恢復 iPhone 底部的防擋安全距離 */
+    box-shadow: none; /* 移除懸浮陰影 */
 }
 
 /* 一般按鈕 (卡片化) */
