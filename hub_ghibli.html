@@ -408,11 +408,12 @@
 
           let isSpecial = false; let specialData = null;
           if (allCleared) {
-              if (i === 52) { isSpecial = true; specialData = { type: 'random', title: '隨機演練', icon: '🎲', color: '#8e24aa' }; cellW = 100; cellX = 52 * CELL_WIDTH; } 
-              if (i === 53) { isSpecial = true; specialData = { type: 'comprehensive', title: '綜合演練', icon: '🛡️', color: '#e65100' }; cellW = 110; cellX = 52 * CELL_WIDTH + 100; } 
-              if (i === 54) { isSpecial = true; specialData = { type: 'parkour', title: '跑酷挑戰', icon: '🏃', color: '#0277bd' }; cellW = 100; cellX = 52 * CELL_WIDTH + 100 + 110; } 
-              if (i === 55) { cellX = 52 * CELL_WIDTH + 100 + 110 + 100; }
-              if (i === 56) { cellX = 52 * CELL_WIDTH + 100 + 110 + 100 + 130; }
+              // ★ 統一寬度為 115px (總寬345px剛好完美塞入手機螢幕不被切斷)
+              if (i === 52) { isSpecial = true; specialData = { type: 'random', title: '隨機演練', icon: '🎲', color: '#8e24aa' }; cellW = 115; cellX = 52 * CELL_WIDTH; } 
+              if (i === 53) { isSpecial = true; specialData = { type: 'comprehensive', title: '綜合演練', icon: '🛡️', color: '#e65100' }; cellW = 115; cellX = 52 * CELL_WIDTH + 115; } 
+              if (i === 54) { isSpecial = true; specialData = { type: 'parkour', title: '跑酷挑戰', icon: '🏃', color: '#0277bd' }; cellW = 115; cellX = 52 * CELL_WIDTH + 230; } 
+              if (i === 55) { cellX = 52 * CELL_WIDTH + 345; }
+              if (i === 56) { cellX = 52 * CELL_WIDTH + 475; }
           }
 
           const bCell = document.createElement('div');
@@ -499,7 +500,7 @@
                           player.classList.remove('player-firing'); player.classList.remove('player-charged'); massiveThrombus.classList.remove('dissolving');
                           if (allCleared) {
                               maxAllowedX = WORLD_MAX_WIDTH; 
-                              let finalTargetX = 52 * CELL_WIDTH + 155; 
+                              let finalTargetX = 52 * CELL_WIDTH + 172; 
                               targetPlayerX = finalTargetX; generateFastRBCs(startDropX, finalTargetX); 
                           } else {
                               maxAllowedX = START_OFFSET + activeIndex * NODE_SPACING + 65; let finalTargetX = maxAllowedX; 
@@ -511,7 +512,7 @@
           }, 800); 
       } else {
           if (allCleared) {
-              let startX = 52 * CELL_WIDTH + 155; targetPlayerX = startX; playerX = startX; maxAllowedX = WORLD_MAX_WIDTH; 
+              let startX = 52 * CELL_WIDTH + 172; targetPlayerX = startX; playerX = startX; maxAllowedX = WORLD_MAX_WIDTH; 
           } else {
               spawnIndex = spawnIndex !== undefined ? spawnIndex : activeIndex;
               let startX = START_OFFSET + spawnIndex * NODE_SPACING + 65; targetPlayerX = startX; playerX = startX; maxAllowedX = START_OFFSET + activeIndex * NODE_SPACING + 65; 
@@ -800,7 +801,7 @@
 
           if (!isNaN(targetPlayerX)) {
               playerX += (targetPlayerX - playerX) * 0.15; 
-              let camX = (window.innerWidth / 2) - playerX - 20; 
+              let camX = (window.innerWidth / 2) - playerX; 
               if (camX > 0) camX = 0; 
               const maxScroll = -(WORLD_MAX_WIDTH - window.innerWidth + 100);
               if (camX < maxScroll) camX = maxScroll; 
