@@ -440,10 +440,11 @@ buildWorld(event.data.baseSeq, safeCoins, activeIdx, isAllCleared, lastPlayedIdx
           } else if (isSpecial) {
               // ★ 把 End-Game 換成動態顯示剩餘次數
               let remain = attempts[specialData.type] !== undefined ? attempts[specialData.type] : 3;
-              let numColor = remain > 0 ? '#ffeb3b' : '#ff5252'; // 還有次數顯示黃色，歸零顯示紅色
+              // ★ 改成低調的藍灰色與暗紅色
+              let numColor = remain > 0 ? '#90a4ae' : '#8c2a2a'; 
               
               bCell.innerHTML = `
-                  <div style="font-size: 11px; color: #aaa; margin-bottom: 2px; font-weight:bold;">今日剩餘</div>
+                  <div style="font-size: 11px; color: #777; margin-bottom: 2px; font-weight:bold;">今日剩餘</div>
                   <div style="font-size: 15px; font-weight: 900; color: ${numColor}; text-shadow: 1px 1px 2px #000;">${remain} / 3</div>
               `;
           }
