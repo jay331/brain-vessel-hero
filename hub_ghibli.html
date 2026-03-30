@@ -80,8 +80,18 @@
   }
   .active-hit { transform: scale(1.1) !important; background: #fff !important; box-shadow: 0 0 50px #fff !important; transition: all 0.1s !important; animation: none !important; }
 
-  .special-node-pulse { animation: specialPulse 2s infinite alternate ease-in-out; }
-  @keyframes specialPulse { 0% { filter: brightness(1); } 100% { filter: brightness(1.3); } }
+  /* ★ 終局特殊節點專用樣式：加高、調整呼吸燈亮度 */
+  .special-node {
+      height: 65px !important; /* 原本是 50px，加高讓字體更有空間 */
+      border-radius: 15px !important; /* 配合加高，稍微調整圓角 */
+      /* 預設邊框顏色調暗，避免太刺眼 */
+      border-color: rgba(255, 255, 255, 0.4) !important;
+  }
+  .special-node-pulse { animation: specialPulse 3s infinite alternate ease-in-out; }
+  @keyframes specialPulse { 
+      0% { filter: brightness(0.8) saturate(0.8); } 
+      100% { filter: brightness(1.1) saturate(1.1); box-shadow: 0 5px 15px rgba(0,0,0,0.8), 0 0 20px var(--glow-color); } 
+  }
 
   .energy-orb {
       position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%);
@@ -376,29 +386,53 @@
 
       let blankCellIdx = 0; 
 
+      // ... (前面的 let blankCellIdx = 0; 等設定保留) ...
+
       for (let i = 0; i < totalCellsNeeded; i++) {
-          const cellX = i * CELL_WIDTH;
-          
+          let cellX = i * CELL_WIDTH;
+          let cellW = 130; // 預設寬度
+
+          // ★ 終局特殊節點配置 (緊密排列)
+          let isSpecial = false; let specialData = null;
+          if (allCleared) {
+              // 把 52, 53, 54 這三個特殊節點靠攏
+              // 透過覆寫 cellX 與寬度，讓它們擠在一個畫面內
+              if (i === 52) { 
+                  isSpecial = true; specialData = { type: 'random', title: '隨機演練', icon: '🎲', color: '#8e24aa' }; // 顏色調暗(紫)
+                  cellW = 100; cellX = 52 * CELL_WIDTH + 40; 
+              } 
+              if (i === 53) { 
+                  isSpecial = true; specialData = { type: 'comprehensive', title: '綜合演練', icon: '🛡️', color: '#e65100' }; // 顏色調暗(橘)
+                  cellW = 110; cellX = 52 * CELL_WIDTH + 40 + 100 + 15; // 緊貼上一個
+              } 
+              if (i === 54) { 
+                  isSpecial = true; specialData = { type: 'parkour', title: '跑酷挑戰', icon: '🏃', color: '#0277bd' }; // 顏色調暗(藍)
+                  cellW = 100; cellX = 52 * CELL_WIDTH + 40 + 100 + 15 + 110 + 15; // 緊貼上一個
+              } 
+              // 修正 55, 56 (跑酷右邊的空白) 的位置，接續特殊節點
+              if (i === 55) { cellX = 52 * CELL_WIDTH + 40 + 100 + 15 + 110 + 15 + 100 + 30; }
+              if (i === 56) { cellX = 52 * CELL_WIDTH + 40 + 100 + 15 + 110 + 15 + 100 + 30 + 130 + 20; }
+          }
+
           const bCell = document.createElement('div');
           bCell.className = 'endo-cell bottom'; bCell.style.left = cellX + 'px';
+          bCell.style.width = cellW + 'px'; // 套用縮小的寬度
+          
           if (taskMap[cellX]) {
               const tData = taskMap[cellX]; const t = tData.task;
               let titleColor = (t.status === 'locked') ? '#757575' : ((t.status === 'cleared') ? '#fff' : 'var(--current-theme)');
               bCell.innerHTML = `<div class="cell-text-title" style="color:${titleColor}">${t.title || '任務'}</div>`;
+          } else if (isSpecial) {
+              // 讓下方的細胞也顯示對應的名稱或留空，這裡我們保持簡潔
+              bCell.innerHTML = `<div class="cell-text-title" style="color:#555; font-size:10px;">End-Game</div>`;
           }
           bottomWallContainer.appendChild(bCell);
-
-          let isSpecial = false; let specialData = null;
-          if (allCleared) {
-              if (i === 52) { isSpecial = true; specialData = { type: 'random', title: '隨機演練', icon: '🎲', color: '#ab47bc' }; } 
-              if (i === 53) { isSpecial = true; specialData = { type: 'comprehensive', title: '綜合演練', icon: '🛡️', color: '#f57c00' }; } 
-              if (i === 54) { isSpecial = true; specialData = { type: 'parkour', title: '跑酷挑戰', icon: '🏃', color: '#00b0ff' }; } 
-          }
 
           if (taskMap[cellX]) {
               const tData = taskMap[cellX]; const t = tData.task; const displayNum = t.taskIdx + 1; 
               const node = document.createElement('div');
               node.className = 'endo-cell top cell-node'; node.style.left = cellX + 'px';
+              node.style.width = cellW + 'px';
               
               if (t.status === 'cleared') { node.classList.add('node-cleared'); node.style.color = "#000"; }
               else if (t.status === 'active' || t.status === 'unlocked') { node.classList.add('node-active'); node.innerHTML += `<div class="energy-orb"></div>`; }
@@ -406,24 +440,38 @@
 
               node.innerHTML += `<div style="font-size: 10px; opacity: 0.8; margin-bottom: 2px;">${t.category || '演練'}</div><div style="font-size: 15px; font-weight: 900; letter-spacing: 1px;">第 ${displayNum} 關</div>`;
               topWallContainer.appendChild(node);
+              // 注意：我們需要存原本計算的 cellX 用於碰撞偵測
               nodesData.push({ x: cellX, element: node, itemData: t });
 
           } else if (isSpecial) {
               const node = document.createElement('div');
-              node.className = 'endo-cell top cell-node special-node-pulse'; node.style.left = cellX + 'px';
-              node.style.background = `radial-gradient(circle at 50% 20%, ${specialData.color} 0%, #222 100%)`; node.style.borderColor = '#fff'; node.style.boxShadow = `0 5px 15px rgba(0,0,0,0.8), 0 0 25px ${specialData.color}`;
-              node.innerHTML = `<div style="font-size: 22px; margin-bottom: 2px; text-shadow: 0 0 10px #fff;">${specialData.icon}</div><div style="font-size: 14px; font-weight: 900; letter-spacing: 1px; color:#fff; text-shadow: 1px 1px 2px #000;">${specialData.title}</div>`;
+              // 套用 special-node 類別來加高
+              node.className = 'endo-cell top cell-node special-node special-node-pulse'; 
+              node.style.left = cellX + 'px';
+              node.style.width = cellW + 'px';
+              
+              // 使用自訂屬性傳遞發光顏色給 CSS
+              node.style.setProperty('--glow-color', specialData.color);
+              
+              // 漸層也調暗，並改變中心點營造立體感
+              node.style.background = `radial-gradient(circle at 50% 30%, ${specialData.color} 0%, #1a1a1a 120%)`; 
+              
+              node.innerHTML = `<div style="font-size: 24px; margin-bottom: 4px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">${specialData.icon}</div><div style="font-size: 13px; font-weight: 900; letter-spacing: 1px; color:#fff; text-shadow: 1px 1px 2px #000; line-height: 1;">${specialData.title}</div>`;
               topWallContainer.appendChild(node);
               nodesData.push({ x: cellX, element: node, itemData: { type: specialData.type, status: 'unlocked' } });
               
           } else {
               const tCell = document.createElement('div');
               tCell.className = 'endo-cell top'; tCell.style.left = cellX + 'px';
+              tCell.style.width = cellW + 'px';
+              
               if (!allCleared || i < 50) {
-                  if (!collectedCoins.includes(blankCellIdx) && cellX <= START_OFFSET + activeIndex * NODE_SPACING) {
+                  // 原本的 150px 間距邏輯
+                  let originalCellX = i * CELL_WIDTH; 
+                  if (!collectedCoins.includes(blankCellIdx) && originalCellX <= START_OFFSET + activeIndex * NODE_SPACING) {
                       const coin = document.createElement('div'); coin.className = 'health-coin'; coin.innerText = '$';
                       tCell.appendChild(coin);
-                      coinsData.push({ id: blankCellIdx, x: cellX + 65, element: coin, isCollected: false });
+                      coinsData.push({ id: blankCellIdx, x: cellX + (cellW/2), element: coin, isCollected: false });
                   }
                   blankCellIdx++; 
               }
@@ -456,9 +504,11 @@
 
                       setTimeout(() => {
                           player.classList.remove('player-firing'); player.classList.remove('player-charged'); massiveThrombus.classList.remove('dissolving');
+                          // ... 動畫裡的區塊 ...
                           if (allCleared) {
                               maxAllowedX = WORLD_MAX_WIDTH; 
-                              let finalTargetX = 53 * CELL_WIDTH + 65; 
+                              // 新的中央座標：52 * 130 + 40 + 100 + 15 + 55 = 7070
+                              let finalTargetX = 52 * CELL_WIDTH + 40 + 100 + 15 + 55; 
                               targetPlayerX = finalTargetX; generateFastRBCs(startDropX, finalTargetX); 
                           } else {
                               maxAllowedX = START_OFFSET + activeIndex * NODE_SPACING + 65; let finalTargetX = maxAllowedX; 
