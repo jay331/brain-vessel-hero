@@ -702,9 +702,22 @@ buildWorld(event.data.baseSeq, safeCoins, activeIdx, isAllCleared, lastPlayedIdx
                   }
               });
 
+              // 1. 先判定有沒有吃到金幣
               coinsData.forEach(c => {
                   if (!c.isCollected && Math.abs(playerX - c.x) < 60) {
-                      c.isCollected = true; c.element.classList.add('collected'); 
+                      c.isCollected = true; 
+                      c.element.classList.add('collected'); 
+                      
+                      // ★ 把金幣變成發光的 +50 數字
+                      c.element.innerText = '+50';
+                      c.element.style.background = 'transparent'; // 拿掉圓形底色
+                      c.element.style.border = 'none';          // 拿掉白色邊框
+                      c.element.style.boxShadow = 'none';       // 拿掉陰影
+                      c.element.style.color = '#00e676';        // 變成霓虹綠色
+                      c.element.style.fontSize = '24px';        // 字體放大
+                      c.element.style.textShadow = '0 0 10px #00e676'; // 加上綠色發光效果
+
+                      hitCoinThisJump = true; // ★ 標記已吃到金幣
                       window.parent.postMessage({ type: 'COLLECT_HUB_COIN', coinIndex: c.id }, '*');
                       setTimeout(() => { if (c.element.parentNode) c.element.parentNode.removeChild(c.element); }, 500);
                   }
