@@ -1277,7 +1277,7 @@ const CHALLENGE_GAMES = [
   { id: 'ch_racing_speed', roleId: 'ems', title: '【極限】黃金秒數速飆賽', desc: '極速避開障礙，挑戰全院最快到達紀錄！', icon: '⚡', url: 'game_racing_speed.html', unit: 'km/h', order: 'asc' },
   { id: 'ch_sorting_endless', roleId: 'nurse', title: '【極限】地獄檢傷分類', desc: '永無止盡的病患湧入，挑戰你的判斷精準與速度！', icon: '🏥', url: 'game_sorting_endless.html', unit: '人次', order: 'asc' },
   // 👇 把跑酷加入這裡 👇
-  { id: 'ch_parkour', roleId: 'all', title: '【極限】微觀血管跑酷', desc: '在血管中極速奔跑，閃避斑塊並收集金幣！', icon: '🏃', url: 'game_parkour.html', unit: 'm', order: 'asc' }
+  { id: 'ch_parkour', roleId: 'all', title: '【極限】微觀血管跑酷', desc: '在血管中極速奔跑，閃避斑塊並收集金幣！', icon: '🏃', url: 'game_parkour.html', unit: '秒', order: 'desc' } // ★ 注意 order 改 desc (越久越強)
 ];
 
 function renderTotalScoreLeaderboard() {
