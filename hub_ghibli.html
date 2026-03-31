@@ -74,9 +74,14 @@
   @keyframes activeCellPulse { 0% { box-shadow: 0 5px 15px rgba(0,0,0,0.8), 0 0 15px var(--current-glow); } 100% { box-shadow: 0 10px 25px rgba(0,0,0,0.9), 0 0 35px var(--current-glow); } }
   
   .node-cleared {
-      background: radial-gradient(circle at 50% 20%, #fff 0%, var(--current-theme) 100%) !important;
-      color: #000 !important; border-color: #fff !important; text-shadow: 1px 1px 0 rgba(255,255,255,0.8) !important;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.5), 0 0 40px var(--current-glow), inset 0 -3px 10px rgba(0,0,0,0.3) !important;
+      /* 使用與雷射光束和健康幣呼應的綠色漸層 */
+      background: radial-gradient(circle at 50% 20%, #ccff90 0%, #00e676 100%) !important;
+      /* 改用深綠色文字增加對比度，避免亮底白字看不清 */
+      color: #004d26 !important; 
+      border-color: #69f0ae !important; 
+      text-shadow: 1px 1px 0 rgba(255,255,255,0.8) !important;
+      /* 將發光陰影改為呼應酵素光束的綠色光暈 */
+      box-shadow: 0 5px 15px rgba(0, 230, 118, 0.4), 0 0 35px rgba(0, 230, 118, 0.6), inset 0 -3px 10px rgba(0,0,0,0.3) !important;
   }
   .active-hit { transform: scale(1.1) !important; background: #fff !important; box-shadow: 0 0 50px #fff !important; transition: all 0.1s !important; animation: none !important; }
 
