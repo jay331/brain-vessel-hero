@@ -884,11 +884,11 @@ function renderNodeMap() {
                 statusStr = 'unlocked'; 
             }
 
-            // ★ 修改 category 讓它加上中文數字前綴
             baseSeq.push({ 
                 type: 'task', roleId: role.id, taskIdx: idx, globalIdx: globalIndex, 
                 status: statusStr, title: taskTitle, 
-                category: chNums[rIdx] + '、' + role.name 
+                // ★ 拿掉 chNums 前綴，只保留純淨的類別名稱
+                category: role.name 
             });
             globalIndex++;
         });
