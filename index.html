@@ -72,22 +72,39 @@ header {
 .hall-title {
     text-align: center; color: var(--theme-primary); margin: 15px 0 5px 0; font-size: 18px; font-weight: 900; letter-spacing: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
 }
+/* ===== 3D 立體展示廳核心 CSS ===== */
 .hall-track {
-    flex: 1; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 20px; padding: 20px calc(50vw - 100px); align-items: center; scrollbar-width: none;
+    flex: 1; display: flex; overflow-x: auto; 
+    scroll-snap-type: x mandatory; 
+    /* 將 gap 設為 0，讓卡片有機會重疊 */
+    gap: 0; 
+    padding: 20px calc(50vw - 110px); 
+    align-items: center; scrollbar-width: none;
+    
+    /* ★ 加入 3D 透視深度，數字越小變形越誇張，1000px 是最自然的景深 */
+    perspective: 1000px; 
+    transform-style: preserve-3d;
 }
-.hall-track::-webkit-scrollbar { display: none; }
 
 .hall-card {
     min-width: 200px; height: 280px; scroll-snap-align: center;
     background: linear-gradient(135deg, #2a241e, #111);
     border: 2px solid var(--theme-dim); border-radius: 12px;
     display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-    padding: 10px; cursor: pointer; transition: transform 0.3s;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.8), inset 0 2px 5px rgba(255,255,255,0.1);
+    padding: 10px; cursor: pointer; 
     position: relative; flex-shrink: 0;
+    
+    /* ★ 讓卡片左右稍微擠壓產生重疊感 */
+    margin: 0 -25px; 
+    /* ★ 讓 3D 變換與亮度變化平滑過渡 */
+    transition: transform 0.1s ease-out, filter 0.2s, opacity 0.2s; 
+    box-shadow: 0 15px 30px rgba(0,0,0,0.9), inset 0 2px 5px rgba(255,255,255,0.1);
 }
-.hall-card:active { transform: scale(0.95); }
-.hall-card.locked { filter: grayscale(100%) brightness(0.5); pointer-events: none; }
+
+.hall-card:active { transform: scale(0.95) !important; } /* 點擊時微縮 */
+
+/* 未解鎖的卡片預設變暗，等 JS 動態控制 */
+.hall-card.locked { filter: grayscale(100%) brightness(0.4); pointer-events: none; }
 .hall-card.is-new::after {
     content: 'NEW'; position: absolute; top: -10px; right: -10px;
     background: var(--accent-red); color: #fff; font-size: 10px; font-weight: 900;
