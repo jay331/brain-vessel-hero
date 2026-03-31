@@ -457,16 +457,17 @@ buildWorld(event.data.baseSeq, safeCoins, activeIdx, isAllCleared, lastPlayedIdx
           if (taskMap[cellX]) {
               const tData = taskMap[cellX]; const t = tData.task;
               
-              // ★ 1. 如果已通關，將下方細胞加上深綠色背景 class
               if (t.status === 'cleared') {
                   bCell.classList.add('bottom-cleared');
               }
               
-              // ★ 2. 更新文字顏色：通關後使用薄荷白 (#e8f5e9) 搭配深綠底色
               let titleColor = (t.status === 'locked') ? '#757575' : ((t.status === 'cleared') ? '#e8f5e9' : 'var(--current-theme)');
               
-              // ★ 3. 加入立體文字陰影，確保在暗綠底上清晰可見
-              bCell.innerHTML = `<div class="cell-text-title" style="color:${titleColor}; text-shadow: 1px 1px 3px rgba(0,0,0,0.9);">${t.title || '任務'}</div>`;
+              // ★ 下方細胞：上方顯示類別(小字)，下方顯示名稱(大字)
+              bCell.innerHTML = `
+                  <div style="font-size: 10px; color: #999; margin-bottom: 2px;">${t.category || '演練'}</div>
+                  <div class="cell-text-title" style="color:${titleColor}; text-shadow: 1px 1px 3px rgba(0,0,0,0.9);">${t.title || '任務'}</div>
+              `;
               
           } else if (isSpecial) {
               // ★ 使用 setProperty 加上 'important'，強制覆蓋原本亮亮的外框！
@@ -486,7 +487,10 @@ buildWorld(event.data.baseSeq, safeCoins, activeIdx, isAllCleared, lastPlayedIdx
 
 
           if (taskMap[cellX]) {
-              const tData = taskMap[cellX]; const t = tData.task; const displayNum = t.taskIdx + 1; 
+              const tData = taskMap[cellX]; const t = tData.task; 
+              // ★ 改用 globalIdx 計算 1~25 關
+              const displayNum = (t.globalIdx !== undefined ? t.globalIdx : t.taskIdx) + 1; 
+              
               const node = document.createElement('div');
               node.className = 'endo-cell top cell-node'; node.style.left = cellX + 'px';
               node.style.width = cellW + 'px';
@@ -495,7 +499,9 @@ buildWorld(event.data.baseSeq, safeCoins, activeIdx, isAllCleared, lastPlayedIdx
               else if (t.status === 'active' || t.status === 'unlocked') { node.classList.add('node-active'); node.innerHTML += `<div class="energy-orb"></div>`; }
               else node.classList.add('node-locked');
 
-              node.innerHTML += `<div style="font-size: 10px; opacity: 0.8; margin-bottom: 2px;">${t.category || '演練'}</div><div style="font-size: 15px; font-weight: 900; letter-spacing: 1px;">第 ${displayNum} 關</div>`;
+              // ★ 上方細胞：拿掉類別，只留下「第 X 關」，稍微把字體放大增加辨識度
+              node.innerHTML += `<div style="font-size: 18px; font-weight: 900; letter-spacing: 1px;">第 ${displayNum} 關</div>`;
+              
               topWallContainer.appendChild(node);
               nodesData.push({ x: cellX, element: node, itemData: t });
 
