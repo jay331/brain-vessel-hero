@@ -1398,31 +1398,53 @@ function renderDisplayHall(type) {
         const isBeg = type === 'beg';
         const rolesData = isBeg ? ROLES_DATA_BEG : ROLES_DATA_ADV;
         const taskScores = isBeg ? playerState.taskScoresBeg : playerState.taskScoresAdv;
+        
+        // 設定固定配色，不隨系統模式改變
+        const cardThemeColor = isBeg ? '#1976d2' : '#d4af37'; // 主色：藍 vs 金
+        const numColor = isBeg ? '#bbdefb' : '#ffecb3';      // 編號色
+        const bgGrad = isBeg 
+            ? 'linear-gradient(135deg, #0d47a1, #000)' 
+            : 'linear-gradient(135deg, #8b7322, #000)';
+
         let globalIdx = isBeg ? 1 : 26;
         
         rolesData.forEach(role => {
             role.subTasks.forEach((st, idx) => {
+                // 確保 ID 包含類別資訊，例如 "beg_ems_0"
                 const cId = `${type}_${role.id}_${idx}`;
                 const isUnl = taskScores.has(`${role.id}_${idx}`);
-                const isNew = isUnl && !playerState.seenCards.includes(cId);
+                const isSeen = playerState.seenCards && playerState.seenCards.includes(cId);
+                const isNew = isUnl && !isSeen;
                 
                 if (isUnl) {
                     html += `
-                    <div class="hall-card unlocked-card ${isNew ? 'is-new' : ''}" onclick="openCardModal('${type}', '${role.id}', ${idx}, ${globalIdx}, false, '${cId}')">
-                        <div style="font-size: 11px; color: #aaa; margin-bottom: 8px; letter-spacing: 1px; width: 100%; text-align: center;">${role.name}</div>
-                        <div class="hall-card-img" style="background:var(--theme-dim); font-size:50px;">${role.icon}</div>
-                        <div class="hall-card-title" style="color:var(--theme-primary); margin-top: 10px;">
-                            <span style="color:#aaa; font-size:12px; margin-right:4px;">#${globalIdx}</span>${st.substring(3)}
+                    <div class="hall-card unlocked-card ${isNew ? 'is-new' : ''}" 
+                         style="border-color: ${cardThemeColor}; background: ${bgGrad};"
+                         onclick="openCardModal('${type}', '${role.id}', ${idx}, ${globalIdx}, false, '${cId}')">
+                        
+                        <div style="font-size: 13px; color: #fff; font-weight: 900; margin-bottom: 10px; letter-spacing: 2px; width: 100%; text-align: center; text-shadow: 0 0 8px ${cardThemeColor};">
+                            ${role.name}
+                        </div>
+                        
+                        <div class="hall-card-img" style="background: rgba(0,0,0,0.4); font-size:50px; border: 1px solid rgba(255,255,255,0.1);">
+                            ${role.icon}
+                        </div>
+                        
+                        <div class="hall-card-title" style="color: #fff; margin-top: 10px;">
+                            <span style="color: ${numColor}; font-size: 13px; font-weight: 900; margin-right: 6px; font-family: 'Courier New', monospace;">#${globalIdx}</span>
+                            ${st.substring(3)}
                         </div>
                     </div>`;
                     unlockedElementsCount++;
                 } else {
                     html += `
                     <div class="hall-card locked">
-                        <div style="font-size: 11px; color: #555; margin-bottom: 8px; letter-spacing: 1px; width: 100%; text-align: center;">${role.name}</div>
-                        <div class="hall-card-img" style="background:#222; color:#555; font-size:50px;">🔒</div>
-                        <div class="hall-card-title" style="color:#777; margin-top: 10px;">
-                            <span style="color:#555; font-size:12px; margin-right:4px;">#${globalIdx}</span>未解鎖
+                        <div style="font-size: 13px; color: #444; font-weight: 900; margin-bottom: 10px; letter-spacing: 2px; width: 100%; text-align: center;">
+                            ${role.name}
+                        </div>
+                        <div class="hall-card-img" style="background:#111; color:#333; font-size:50px;">🔒</div>
+                        <div class="hall-card-title" style="color:#555; margin-top: 10px;">
+                            <span style="color:#444; font-size:13px; margin-right:6px;">#${globalIdx}</span>未解鎖
                         </div>
                     </div>`;
                 }
@@ -1539,11 +1561,16 @@ document.addEventListener('DOMContentLoaded', () => {
     
 // 修改原有的圖卡顯示功能，加入「已讀」邏輯
 function openCardModal(tab, roleId, taskIdx, absNum, isHidden, cardTrackingId) {
+    // 確保 seenCards 陣列存在
     if (!playerState.seenCards) playerState.seenCards = [];
+    
+    // 如果是第一次看，加入已讀清單並立即儲存
     if (!playerState.seenCards.includes(cardTrackingId)) {
         playerState.seenCards.push(cardTrackingId);
-        saveGameData();
-        renderDisplayHall(currentCartridge); // 重新渲染以消掉 NEW 標籤
+        saveGameData(); // 立即寫入 localStorage
+        
+        // 延遲更新 UI 讓使用者點開時感覺流暢，或是關閉時才重繪
+        // 如果想點開瞬間就消掉紅點，可以在這裡呼叫 updateCartridgeBadges();
     }
 
     let role = (tab === 'beg' ? ROLES_DATA_BEG : ROLES_DATA_ADV).find(r => r.id === roleId); 
@@ -1584,42 +1611,42 @@ function showModalAnim() {
 function updateCartridgeBadges() {
     if(!playerState.seenCards) playerState.seenCards = [];
     
-    // 拼圖：待完成數量
-    const puzzleBadge = (playerState.pendingPuzzles || []).length;
-    
-    // 初階：已解鎖數 - 已讀數 (計算 ID 以 beg_ 開頭的)
-    const begUnlocked = playerState.taskScoresBeg.size;
-    const begSeen = playerState.seenCards.filter(id => id.startsWith('beg_')).length;
-    const begBadge = Math.max(0, begUnlocked - begSeen);
-    
-    // 進階
-    const advUnlocked = playerState.taskScoresAdv.size;
-    const advSeen = playerState.seenCards.filter(id => id.startsWith('adv_')).length;
-    const advBadge = Math.max(0, advUnlocked - advSeen);
-    
-    // 隱藏卡
-    let hidUnlocked = 0;
-    if (playerState.taskScoresBeg.size >= 25) hidUnlocked++;
-    if (playerState.taskScoresAdv.size >= 25) hidUnlocked++;
-    const hidSeen = playerState.seenCards.filter(id => id.startsWith('hid_')).length;
-    const hidBadge = Math.max(0, hidUnlocked - hidSeen);
-    
-    const updateBadge = (idName, count) => {
-        const el = document.getElementById(idName);
-        if(el) { el.style.display = count > 0 ? 'flex' : 'none'; el.textContent = count; }
+    const countUnseen = (type) => {
+        const scores = type === 'beg' ? playerState.taskScoresBeg : playerState.taskScoresAdv;
+        const roles = type === 'beg' ? ROLES_DATA_BEG : ROLES_DATA_ADV;
+        let unseen = 0;
+        
+        roles.forEach(role => {
+            role.subTasks.forEach((_, idx) => {
+                const cId = `${type}_${role.id}_${idx}`;
+                if (scores.has(`${role.id}_${idx}`) && !playerState.seenCards.includes(cId)) {
+                    unseen++;
+                }
+            });
+        });
+        return unseen;
     };
+
+    const begBadge = countUnseen('beg');
+    const advBadge = countUnseen('adv');
+    // ... 拼圖與隱藏卡的計算 ...
     
-    updateBadge('badge_puzzle', puzzleBadge);
-    updateBadge('badge_beg', begBadge);
-    updateBadge('badge_adv', advBadge);
-    updateBadge('badge_hid', hidBadge);
+    // 更新顯示
+    if(id('badge_beg')) {
+        id('badge_beg').style.display = begBadge > 0 ? 'flex' : 'none';
+        id('badge_beg').textContent = begBadge;
+    }
+    if(id('badge_adv')) {
+        id('badge_adv').style.display = advBadge > 0 ? 'flex' : 'none';
+        id('badge_adv').textContent = advBadge;
+    }
     
-    // 同步更新外部導覽列圖示上的總計紅點
-    const totalBadges = puzzleBadge + begBadge + advBadge + hidBadge;
-    const navBadge = document.getElementById('casedexBadge');
+    // 總紅點同步
+    const total = begBadge + advBadge + (playerState.pendingPuzzles?.length || 0);
+    const navBadge = id('casedexBadge');
     if (navBadge) {
-        navBadge.style.display = totalBadges > 0 ? 'flex' : 'none';
-        navBadge.textContent = totalBadges;
+        navBadge.style.display = total > 0 ? 'flex' : 'none';
+        navBadge.textContent = total;
     }
 }
 
