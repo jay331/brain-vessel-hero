@@ -1390,8 +1390,13 @@ function renderDisplayHall(type) {
         }
     }
     
+    // ... 上半部 renderDisplayHall 產生 html 的邏輯不變 ...
+
     track.innerHTML = html;
-    updateCartridgeBadges(); // 每次渲染順便更新紅點
+    updateCartridgeBadges(); 
+
+    // ★ 重點在這裡：渲染完馬上計算一次 3D 狀態
+    updateCoverFlow();
 
     // 首張隨機展示邏輯：將畫面捲動至隨機解鎖的卡片
     if (unlockedElementsCount > 0) {
@@ -1400,11 +1405,64 @@ function renderDisplayHall(type) {
             if(unlockedCards.length > 0) {
                 const randomCard = unlockedCards[Math.floor(Math.random() * unlockedCards.length)];
                 randomCard.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+                // 滑動完畢後確保 3D 狀態精準對齊
+                setTimeout(updateCoverFlow, 50); 
             }
         }, 100);
     }
 }
 
+// ===============================================
+// ★ 3D Cover Flow 立體翻頁計算
+// ===============================================
+function updateCoverFlow() {
+    const track = document.getElementById('hallTrack');
+    if (!track) return;
+
+    // 計算畫布正中央的 X 座標
+    const trackCenter = track.scrollLeft + track.clientWidth / 2;
+    const cards = track.querySelectorAll('.hall-card');
+
+    cards.forEach(card => {
+        // 計算每張卡片正中央的 X 座標
+        const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+        // 卡片與畫面中心的距離
+        const distance = trackCenter - cardCenter;
+        // 定義影響範圍（大約等於一個畫面的寬度）
+        const maxDistance = track.clientWidth; 
+
+        // 算出距離比例 (介於 -1 到 1 之間)
+        let ratio = distance / (maxDistance / 2);
+        ratio = Math.max(-1, Math.min(1, ratio)); // 限制範圍
+
+        // ★ 核心 3D 數學計算 ★
+        const rotateY = ratio * 45;               // 最大旋轉 45 度 (左翻或右翻)
+        const scale = 1 - Math.abs(ratio) * 0.2;  // 邊緣的卡片縮小到 80%
+        const translateZ = -Math.abs(ratio) * 150;// 邊緣的卡片往 Z 軸後退 150px
+        const zIndex = Math.round((1 - Math.abs(ratio)) * 100); // 越靠近中央的卡片層級越高
+
+        // 套用 CSS 3D 變化
+        card.style.transform = `translateZ(${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`;
+        card.style.zIndex = zIndex;
+
+        // 視覺優化：非中央的卡片稍微變暗，中央的卡片最亮 (如果未解鎖則保持暗度)
+        if (!card.classList.contains('locked')) {
+            card.style.filter = Math.abs(ratio) > 0.3 ? 'brightness(0.6)' : 'brightness(1.1) drop-shadow(0 0 10px rgba(255,255,255,0.2))';
+        }
+    });
+}
+
+// 監聽展示廳的滑動事件，觸發 3D 計算
+document.addEventListener('DOMContentLoaded', () => {
+    const track = document.getElementById('hallTrack');
+    if(track) {
+        track.addEventListener('scroll', () => {
+            // 使用 requestAnimationFrame 讓動畫流暢不卡頓
+            requestAnimationFrame(updateCoverFlow);
+        });
+    }
+});
+    
 // 修改原有的圖卡顯示功能，加入「已讀」邏輯
 function openCardModal(tab, roleId, taskIdx, absNum, isHidden, cardTrackingId) {
     if (!playerState.seenCards) playerState.seenCards = [];
