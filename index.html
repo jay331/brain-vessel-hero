@@ -628,7 +628,7 @@ let playerState = {
   completedCasesBeg: new Map(), completedCasesAdv: new Map(),
   taskScoresBeg: new Map(), taskScoresAdv: new Map(), 
   clothes: '#fff', ownedClothes: ['#fff'], 
-  glasses: 'none', ownedGlasses: ['none'], 
+  glasses: 'none', ownedGlasses: ['none', 'black'], // ★ 預設將黑框眼鏡加入已擁有清單
   carSkin: 'default', ownedCarSkins: ['default'], 
   scaleRecords: [], strokeCard: null, unlockedPuzzles: [], boughtPuzzles: 0,
   pendingPuzzles: [], foundItems: [], completedExplores: [], 
@@ -1257,7 +1257,13 @@ function loadGameData() {
       if(parsed.clothes) playerState.clothes = parsed.clothes;
       if(parsed.ownedClothes) playerState.ownedClothes = parsed.ownedClothes;
       if(parsed.glasses) playerState.glasses = parsed.glasses;
-      if(parsed.ownedGlasses) playerState.ownedGlasses = parsed.ownedGlasses;
+      if(parsed.ownedGlasses) {
+          playerState.ownedGlasses = parsed.ownedGlasses;
+          // ★ 舊玩家補償：如果讀檔後發現他沒有黑框眼鏡，直接送給他
+          if (!playerState.ownedGlasses.includes('black')) {
+              playerState.ownedGlasses.push('black');
+          }
+      };
       if(parsed.carSkin) playerState.carSkin = parsed.carSkin;
       if(parsed.ownedCarSkins) playerState.ownedCarSkins = parsed.ownedCarSkins;
       if(parsed.strokeCard) playerState.strokeCard = parsed.strokeCard;
