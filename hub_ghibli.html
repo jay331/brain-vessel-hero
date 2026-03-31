@@ -88,6 +88,17 @@
       /* 陰影改為深邃的綠色光暈，保留能量感但不再刺眼，同時增加內部暗角加強立體度 */
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.8), 0 0 25px rgba(46, 125, 50, 0.5), inset 0 -3px 10px rgba(0,0,0,0.6) !important;
   }
+  /* ★ 下方內皮細胞通關後的專屬深綠質感 */
+  .bottom-cleared {
+      /* 背景色與上方對齊，但光澤中心稍微偏下 (50% 80%) 營造管壁下方的反光感 */
+      background: radial-gradient(circle at 50% 80%, #2e7d32 0%, #0a2e13 100%) !important;
+      border-color: #4caf50 !important;
+      
+      /* 下方細胞的陰影方向與上方相反 (向上的外陰影與向下的內陰影) */
+      box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.8), 
+                  0 0 25px rgba(46, 125, 50, 0.5), 
+                  inset 0 3px 10px rgba(0, 0, 0, 0.6) !important;
+  }
   .active-hit { transform: scale(1.1) !important; background: #fff !important; box-shadow: 0 0 50px #fff !important; transition: all 0.1s !important; animation: none !important; }
 
   .special-node {
@@ -445,8 +456,18 @@ buildWorld(event.data.baseSeq, safeCoins, activeIdx, isAllCleared, lastPlayedIdx
           
           if (taskMap[cellX]) {
               const tData = taskMap[cellX]; const t = tData.task;
-              let titleColor = (t.status === 'locked') ? '#757575' : ((t.status === 'cleared') ? '#fff' : 'var(--current-theme)');
-              bCell.innerHTML = `<div class="cell-text-title" style="color:${titleColor}">${t.title || '任務'}</div>`;
+              
+              // ★ 1. 如果已通關，將下方細胞加上深綠色背景 class
+              if (t.status === 'cleared') {
+                  bCell.classList.add('bottom-cleared');
+              }
+              
+              // ★ 2. 更新文字顏色：通關後使用薄荷白 (#e8f5e9) 搭配深綠底色
+              let titleColor = (t.status === 'locked') ? '#757575' : ((t.status === 'cleared') ? '#e8f5e9' : 'var(--current-theme)');
+              
+              // ★ 3. 加入立體文字陰影，確保在暗綠底上清晰可見
+              bCell.innerHTML = `<div class="cell-text-title" style="color:${titleColor}; text-shadow: 1px 1px 3px rgba(0,0,0,0.9);">${t.title || '任務'}</div>`;
+              
           } else if (isSpecial) {
               // ★ 使用 setProperty 加上 'important'，強制覆蓋原本亮亮的外框！
               bCell.style.setProperty('background', 'radial-gradient(circle at 50% 50%, #2a0808 0%, #050000 100%)', 'important');
