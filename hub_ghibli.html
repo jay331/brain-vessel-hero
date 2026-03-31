@@ -456,7 +456,6 @@ buildWorld(event.data.baseSeq, safeCoins, activeIdx, isAllCleared, lastPlayedIdx
           
           if (taskMap[cellX]) {
               const tData = taskMap[cellX]; const t = tData.task;
-              // ★ 這裡需要先計算出 displayNum (第幾關)
               const displayNum = (t.globalIdx !== undefined ? t.globalIdx : t.taskIdx) + 1; 
               
               if (t.status === 'cleared') {
@@ -465,10 +464,11 @@ buildWorld(event.data.baseSeq, safeCoins, activeIdx, isAllCleared, lastPlayedIdx
               
               let titleColor = (t.status === 'locked') ? '#757575' : ((t.status === 'cleared') ? '#e8f5e9' : 'var(--current-theme)');
               
-              // ★ 下方細胞：上方顯示「第 X 關」，下方顯示「關卡名稱」
+              // ★ 下方細胞：僅顯示「第 X 關」
               bCell.innerHTML = `
-                  <div style="font-size: 11px; color: #aaa; font-weight: bold; margin-bottom: 2px;">第 ${displayNum} 關</div>
-                  <div class="cell-text-title" style="color:${titleColor}; text-shadow: 1px 1px 3px rgba(0,0,0,0.9);">${t.title || '任務'}</div>
+                  <div style="font-size: 18px; font-weight: 900; color: ${titleColor}; text-shadow: 1px 1px 3px rgba(0,0,0,0.9); height: 100%; display: flex; align-items: center; justify-content: center;">
+                    第 ${displayNum} 關
+                  </div>
               `;
               
           } else if (isSpecial) {
@@ -499,8 +499,14 @@ buildWorld(event.data.baseSeq, safeCoins, activeIdx, isAllCleared, lastPlayedIdx
               else if (t.status === 'active' || t.status === 'unlocked') { node.classList.add('node-active'); node.innerHTML += `<div class="energy-orb"></div>`; }
               else node.classList.add('node-locked');
 
-              // ★ 上方細胞：只顯示「類別名稱」(例如：一、急診醫師)，並設定合適的字體大小與置中
-              node.innerHTML += `<div style="font-size: 14px; font-weight: 900; letter-spacing: 1px; text-align: center; line-height: 1.2; padding: 0 4px;">${t.category || '演練'}</div>`;
+              // ★ 上方細胞：顯示「類別」+「關卡名稱」
+              // 使用 flex 佈局確保兩行文字都能完美置中
+              node.innerHTML += `
+                  <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 0 4px; line-height: 1.2;">
+                      <div style="font-size: 10px; opacity: 0.8; margin-bottom: 2px; font-weight: bold;">${t.category || ''}</div>
+                      <div style="font-size: 13px; font-weight: 900; letter-spacing: 0.5px;">${t.title || '任務'}</div>
+                  </div>
+              `;
               
               topWallContainer.appendChild(node);
               nodesData.push({ x: cellX, element: node, itemData: t });
