@@ -1382,10 +1382,22 @@ function renderDisplayHall(type) {
                 const isNew = isUnl && !playerState.seenCards.includes(cId);
                 
                 if (isUnl) {
-                    html += `<div class="hall-card unlocked-card ${isNew ? 'is-new' : ''}" onclick="openCardModal('${type}', '${role.id}', ${idx}, ${globalIdx}, false, '${cId}')"><div class="hall-card-img" style="background:var(--theme-dim); font-size:60px;">${role.icon}</div><div class="hall-card-title" style="color:var(--theme-primary);">${st.substring(3)}</div><div class="hall-card-num">#${globalIdx}</div></div>`;
+                    html += `
+                    <div class="hall-card unlocked-card ${isNew ? 'is-new' : ''}" onclick="openCardModal('${type}', '${role.id}', ${idx}, ${globalIdx}, false, '${cId}')">
+                        <div class="hall-card-img" style="background:var(--theme-dim); font-size:60px;">${role.icon}</div>
+                        <div style="font-size: 11px; color: #aaa; margin-bottom: 4px; letter-spacing: 1px;">${role.name}</div>
+                        <div class="hall-card-title" style="color:var(--theme-primary);">${st.substring(3)}</div>
+                        <div class="hall-card-num">#${globalIdx}</div>
+                    </div>`;
                     unlockedElementsCount++;
                 } else {
-                    html += `<div class="hall-card locked"><div class="hall-card-img" style="background:#222; color:#555;">🔒</div><div class="hall-card-title" style="color:#777;">未解鎖</div><div class="hall-card-num">#${globalIdx}</div></div>`;
+                    html += `
+                    <div class="hall-card locked">
+                        <div class="hall-card-img" style="background:#222; color:#555;">🔒</div>
+                        <div style="font-size: 11px; color: #555; margin-bottom: 4px; letter-spacing: 1px;">${role.name}</div>
+                        <div class="hall-card-title" style="color:#777;">未解鎖</div>
+                        <div class="hall-card-num">#${globalIdx}</div>
+                    </div>`;
                 }
                 globalIdx++;
             });
