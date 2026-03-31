@@ -1571,16 +1571,24 @@ document.addEventListener('DOMContentLoaded', () => {
     
 // 修改原有的圖卡顯示功能，加入「已讀」邏輯
 function openCardModal(tab, roleId, taskIdx, absNum, isHidden, cardTrackingId) {
-    // 確保 seenCards 陣列存在
     if (!playerState.seenCards) playerState.seenCards = [];
     
     // 如果是第一次看，加入已讀清單並立即儲存
     if (!playerState.seenCards.includes(cardTrackingId)) {
         playerState.seenCards.push(cardTrackingId);
-        saveGameData(); // 立即寫入 localStorage
+        saveGameData(); 
         
-        // 延遲更新 UI 讓使用者點開時感覺流暢，或是關閉時才重繪
-        // 如果想點開瞬間就消掉紅點，可以在這裡呼叫 updateCartridgeBadges();
+        // ★ 核心修復：直接在背景尋找這張卡片，並當場拔除 'is-new' 閃爍標籤！
+        document.querySelectorAll('.hall-card.is-new').forEach(card => {
+            if (card.getAttribute('onclick') && card.getAttribute('onclick').includes(cardTrackingId)) {
+                card.classList.remove('is-new');
+            }
+        });
+
+        // 順便即時更新下方卡匣按鈕的紅點數字
+        if (typeof updateCartridgeBadges === 'function') {
+            updateCartridgeBadges();
+        }
     }
 
     let role = (tab === 'beg' ? ROLES_DATA_BEG : ROLES_DATA_ADV).find(r => r.id === roleId); 
