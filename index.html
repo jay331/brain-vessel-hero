@@ -1605,11 +1605,23 @@ function openCardModal(tab, roleId, taskIdx, absNum, isHidden, cardTrackingId) {
 // 隱藏卡專用的顯示 Modal 功能
 function openHiddenCardModal(icon, title, desc, cardTrackingId) {
     if (!playerState.seenCards) playerState.seenCards = [];
+    
     if (!playerState.seenCards.includes(cardTrackingId)) {
         playerState.seenCards.push(cardTrackingId);
         saveGameData();
-        renderDisplayHall('hid');
+        
+        // ★ 同步修復隱藏卡的拔標籤邏輯
+        document.querySelectorAll('.hall-card.is-new').forEach(card => {
+            if (card.getAttribute('onclick') && card.getAttribute('onclick').includes(cardTrackingId)) {
+                card.classList.remove('is-new');
+            }
+        });
+        
+        if (typeof updateCartridgeBadges === 'function') {
+            updateCartridgeBadges();
+        }
     }
+    
     document.getElementById('modalIcon').textContent = icon;
     document.getElementById('modalTitle').textContent = title;
     document.getElementById('modalCategory').textContent = '隱藏健康卡';
