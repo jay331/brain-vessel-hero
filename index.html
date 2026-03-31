@@ -62,7 +62,17 @@ header {
 .player-name:active { color: var(--theme-primary); text-shadow: 0 0 8px var(--theme-primary); }
 
 /* ===== 全新健康圖卡展示廳佈局 ===== */
-.dex-layout { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+/* ===== 修正被切掉的版面排版 ===== */
+.dex-layout { 
+    display: flex; 
+    flex-direction: column; 
+    /* ★ 放棄寫死的 height: 100%，改用 flex: 1 自動填滿剩餘空間 */
+    flex: 1; 
+    /* ★ 加上 min-height: 0 防止子元素撐爆外框 */
+    min-height: 0; 
+    width: 100%;
+    overflow: hidden; 
+}
 .display-hall { 
     flex: 2; /* 佔據上方 2/3 */
     background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #0f0f1a 100%);
@@ -1653,7 +1663,11 @@ function updateCartridgeBadges() {
 // 覆寫 renderCaseDex 進入點
 window.renderCaseDex = function() {
     autoGrantPuzzles();
-    selectCartridge(currentCartridge); // 初始化顯示大廳
+    
+    // ★ 加上極短的延遲，讓瀏覽器先完成 display: block 的外框高度計算，再來渲染內部的 3D 卡片
+    setTimeout(() => {
+        selectCartridge(currentCartridge); 
+    }, 50); 
 };
     
 function customConfirm(msg, onConfirm, onCancel, title="請確認", confirmTxt="確定", cancelTxt="取消") {
