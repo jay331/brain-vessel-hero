@@ -74,14 +74,19 @@
   @keyframes activeCellPulse { 0% { box-shadow: 0 5px 15px rgba(0,0,0,0.8), 0 0 15px var(--current-glow); } 100% { box-shadow: 0 10px 25px rgba(0,0,0,0.9), 0 0 35px var(--current-glow); } }
   
   .node-cleared {
-      /* 使用與雷射光束和健康幣呼應的綠色漸層 */
-      background: radial-gradient(circle at 50% 20%, #ccff90 0%, #00e676 100%) !important;
-      /* 改用深綠色文字增加對比度，避免亮底白字看不清 */
-      color: #004d26 !important; 
-      border-color: #69f0ae !important; 
-      text-shadow: 1px 1px 0 rgba(255,255,255,0.8) !important;
-      /* 將發光陰影改為呼應酵素光束的綠色光暈 */
-      box-shadow: 0 5px 15px rgba(0, 230, 118, 0.4), 0 0 35px rgba(0, 230, 118, 0.6), inset 0 -3px 10px rgba(0,0,0,0.3) !important;
+      /* 有質感的深邃綠色漸層 (祖母綠/森林綠)，從中央微微透出光澤 */
+      background: radial-gradient(circle at 50% 20%, #2e7d32 0%, #0a2e13 100%) !important;
+      
+      /* 邊框改為內斂的翠綠色，帶點金屬或細胞壁的沉穩感 */
+      border-color: #4caf50 !important; 
+      
+      /* 因為底色變暗，文字改為極淺的薄荷白，確保高對比度 */
+      color: #e8f5e9 !important; 
+      /* 加深文字陰影，讓字體在暗色底上更立體 */
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9) !important;
+      
+      /* 陰影改為深邃的綠色光暈，保留能量感但不再刺眼，同時增加內部暗角加強立體度 */
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.8), 0 0 25px rgba(46, 125, 50, 0.5), inset 0 -3px 10px rgba(0,0,0,0.6) !important;
   }
   .active-hit { transform: scale(1.1) !important; background: #fff !important; box-shadow: 0 0 50px #fff !important; transition: all 0.1s !important; animation: none !important; }
 
