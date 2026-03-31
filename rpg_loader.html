@@ -388,12 +388,6 @@ if (taskId === 'hub_world') {
         task.intro = "歡迎來到遙遠的東方醫院！\n\n戰勝腦中風不靠運氣\n靠的是不斷累積的知識與能力 💪\n\n出發吧！前往大廳尋找主治醫師的指引";
     }
 
-    // ★ 把志工移到綠圈(橘菱格)的最前緣
-    let volunteer = task.npcs.find(n => n.name && n.name.includes('志工'));
-    if (volunteer) {
-        volunteer.pos = { x: 1500, y: -450 }; // y 值調大 (向下移到前緣)
-    }
-
     let oldWardrobeIndex = task.npcs.findIndex(n => n.action === 'ACTION_WARDROBE' || n.name.includes('更衣'));
     if (oldWardrobeIndex !== -1) {
         task.npcs[oldWardrobeIndex] = {
@@ -424,14 +418,27 @@ if (taskId === 'hub_world') {
     // ★ 判斷是否為未解鎖狀態
     const isLockedRoom = urlParams.get('locked') === '1';
     
+    // ★ 志工邏輯：根據解鎖狀態動態調整位置與對話
+    let volunteer = task.npcs.find(n => n.name && n.name.includes('志工'));
+    if (volunteer) {
+        if (isLockedRoom) {
+            // 擋在玩家面前 (門口附近)
+            volunteer.pos = { x: 1500, y: -50 }; 
+            volunteer.dialogs[0].text = "前方是醫院大廳與各樓層病房。\n\n請先完成「初階版」的 25 個引導任務，取得完整通行權限後再來找我喔！";
+        } else {
+            // 退後到大廳綠圈的最前緣 (不會一出門就撞到)
+            volunteer.pos = { x: 1500, y: -450 }; 
+            // 保持原本設定好的對話
+        }
+    }
+
     if (isLockedRoom) {
-        // 1. 把玩家初始位置設定在休息室
-        task.startPos = { x: 1350, y: -150 };
-        // 2. 把平板也搬進休息室給他看
+        // 1. 玩家初始位置設定在休息室正中央
+        task.startPos = { x: 1500, y: -150 };
+        // 2. 把平板移到房間的「右上角」
         let tablet = task.npcs.find(n => n.id === 'obj_tablet');
-        if (tablet) tablet.pos = { x: 1450, y: -200 };
+        if (tablet) tablet.pos = { x: 1650, y: -260 }; 
     } else {
-        // 正常解鎖的初始位置
         task.startPos = { x: 1500, y: -150 };
     }
 }
