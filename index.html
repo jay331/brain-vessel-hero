@@ -1561,8 +1561,21 @@ function handleGameClear(score) {
 }
 
 function closeCardModalBtn() {
+    // 1. 先把卡片視窗隱藏
     document.getElementById('cardDetailModal').style.display = 'none';
-    updateModeUI(); // ★ 確保關閉卡片時，才去觸發地圖重新渲染與動畫
+    
+    // 2. 判斷當前是不是在「健康圖卡」的展示廳畫面 (檢查 scrCaseDex 是否有 show 這個 class)
+    const isCaseDexOpen = document.getElementById('scrCaseDex').classList.contains('show');
+
+    if (isCaseDexOpen) {
+        // 【情況 A】如果是在展示廳裡面打開的，關閉時只要更新紅點就好，不要跳轉畫面
+        if (typeof updateCartridgeBadges === 'function') {
+            updateCartridgeBadges(); 
+        }
+    } else {
+        // 【情況 B】如果是「剛打完關卡」作為獎勵彈出的新卡片，關閉後才觸發地圖重新渲染並回到主畫面
+        updateModeUI(); 
+    }
 }
     
 function openCardModal(tab, roleId, taskIdx, absNum) {
