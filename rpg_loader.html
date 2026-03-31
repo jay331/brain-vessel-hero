@@ -382,41 +382,58 @@ if (!task) {
 }
 
 if (taskId === 'hub_world') {
-    if (isFirstTask && task.npcs) {
-        let docNpc = task.npcs.find(n => n.id === 'npc_continue');
-        if(docNpc) docNpc.dialogs[0].text = "歡迎來到腦脈先鋒的行列！我是主治醫師。守護大腦的旅程即將開始，準備好接受第一項訓練了嗎？";
-        task.intro = "歡迎來到遙遠的東方醫院！\n\n戰勝腦中風不靠運氣\n靠的是不斷累積的知識與能力 💪\n\n出發吧！前往大廳尋找主治醫師的指引";
-    }
+    if (isFirstTask && task.npcs) {
+        let docNpc = task.npcs.find(n => n.id === 'npc_continue');
+        if(docNpc) docNpc.dialogs[0].text = "歡迎來到腦脈先鋒的行列！我是主治醫師。守護大腦的旅程即將開始，準備好接受第一項訓練了嗎？";
+        task.intro = "歡迎來到遙遠的東方醫院！\n\n戰勝腦中風不靠運氣\n靠的是不斷累積的知識與能力 💪\n\n出發吧！前往大廳尋找主治醫師的指引";
+    }
 
-    task.startPos = { x: 1500, y: -150 };
+    // ★ 把志工移到綠圈(橘菱格)的最前緣
+    let volunteer = task.npcs.find(n => n.name && n.name.includes('志工'));
+    if (volunteer) {
+        volunteer.pos = { x: 1500, y: -450 }; // y 值調大 (向下移到前緣)
+    }
 
-    let oldWardrobeIndex = task.npcs.findIndex(n => n.action === 'ACTION_WARDROBE' || n.name.includes('更衣'));
-    if (oldWardrobeIndex !== -1) {
-        task.npcs[oldWardrobeIndex] = {
-            id: 'obj_wardrobe', name: '更衣櫃', icon: '🚪', color: '#37474f',
-            pos: { x: 1350, y: -220 }, action: 'ACTION_WARDROBE', dialogs: [{name: '', text: ''}]
-        };
-    }
+    let oldWardrobeIndex = task.npcs.findIndex(n => n.action === 'ACTION_WARDROBE' || n.name.includes('更衣'));
+    if (oldWardrobeIndex !== -1) {
+        task.npcs[oldWardrobeIndex] = {
+            id: 'obj_wardrobe', name: '更衣櫃', icon: '🚪', color: '#37474f',
+            pos: { x: 1350, y: -220 }, action: 'ACTION_WARDROBE', dialogs: [{name: '', text: ''}]
+        };
+    }
 
-    if (!task.npcs.find(n => n.id === 'obj_tablet')) {
-        task.npcs.push({
-            id: 'obj_tablet', name: '任務平板', icon: '📱', color: '#1976d2',
-            pos: { x: 1650, y: -220 }, action: 'ACTION_CHECK_TABLET', dialogs: [{name: '', text: ''}]
-        });
-    }
+    if (!task.npcs.find(n => n.id === 'obj_tablet')) {
+        task.npcs.push({
+            id: 'obj_tablet', name: '任務平板', icon: '📱', color: '#1976d2',
+            pos: { x: 1650, y: -220 }, action: 'ACTION_CHECK_TABLET', dialogs: [{name: '', text: ''}]
+        });
+    }
 
-    // ★ 更新：電視看板的互動邏輯 (設定在我們剛才放電視的位置平面正前方)
-    if (!task.npcs.find(n => n.id === 'obj_tv')) {
-        task.npcs.push({
-            id: 'obj_tv', name: '電視看板', icon: '', color: 'transparent',
-            pos: { x: 1860, y: -450 }, 
-            action: 'ACTION_WATCH_TV', 
-            dialogs: [{
-                name: '系統提示', 
-                text: '這是一台播放著亞東紀念醫院精選影音的數位看板。\n\n你要開啟 YouTube 觀看最新的衛教影片嗎？'
-            }]
-        });
-    }
+    if (!task.npcs.find(n => n.id === 'obj_tv')) {
+        task.npcs.push({
+            id: 'obj_tv', name: '電視看板', icon: '', color: 'transparent',
+            pos: { x: 1860, y: -450 }, 
+            action: 'ACTION_WATCH_TV', 
+            dialogs: [{
+                name: '系統提示', 
+                text: '這是一台播放著亞東紀念醫院精選影音的數位看板。\n\n你要開啟 YouTube 觀看最新的衛教影片嗎？'
+            }]
+        });
+    }
+
+    // ★ 判斷是否為未解鎖狀態
+    const isLockedRoom = urlParams.get('locked') === '1';
+    
+    if (isLockedRoom) {
+        // 1. 把玩家初始位置設定在休息室
+        task.startPos = { x: 1350, y: -150 };
+        // 2. 把平板也搬進休息室給他看
+        let tablet = task.npcs.find(n => n.id === 'obj_tablet');
+        if (tablet) tablet.pos = { x: 1450, y: -200 };
+    } else {
+        // 正常解鎖的初始位置
+        task.startPos = { x: 1500, y: -150 };
+    }
 }
 
 let state = { x: task.startPos.x, y: task.startPos.y };
@@ -442,36 +459,35 @@ if (task.npcs) {
     npcDiv.style.top = n.pos.y + 'px';
     
     // ★ 物品與電視物件處理：隱藏本體，不顯示底座
-    if (n.id.startsWith('item_') || n.id === 'obj_tv') {
-        npcDiv.style.display = 'none'; 
-        npcDiv.setAttribute('data-interactable', 'false'); 
-        npcDiv.innerHTML = `
-          <style>#npc-node-${n.id}::before { display: none !important; }</style>
-          <div class="name" id="npc-name-${n.id}" style="background:${n.color || '#37474f'}; top: -50px; z-index: 10;">${n.name}</div>
-          <div style="font-size: 38px; margin-top: 15px; filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6)); animation: bounce 1.5s infinite alternate ease-in-out;">${n.icon}</div>
-        `;
-        // 電視直接可互動
-        if (n.id === 'obj_tv') {
-            npcDiv.style.display = 'block';
-            npcDiv.setAttribute('data-interactable', 'true');
-        }
-    } 
-    else if (n.id === 'obj_tablet') {
-        npcDiv.setAttribute('data-interactable', 'true');
-        npcDiv.innerHTML = `
-          <style>#npc-node-${n.id}::before { display: none !important; }</style>
-          <div class="name" id="npc-name-${n.id}" style="background:${n.color || '#37474f'}; top: -35px; z-index: 10;">${n.name}</div>
-          <div style="font-size: 35px; margin-top: -5px; filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6)); position: relative;">${n.icon}</div>
-        `;
-    }
-    else if (n.id.startsWith('obj_')) {
-        npcDiv.setAttribute('data-interactable', 'true');
-        npcDiv.innerHTML = `
-          <style>#npc-node-${n.id}::before { display: none !important; }</style>
-          <div class="name" id="npc-name-${n.id}" style="background:${n.color || '#37474f'}; top: -35px; z-index: 10;">${n.name}</div>
-          <div style="font-size: 40px; margin-top: 5px; filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6));">${n.icon}</div>
-        `;
-    }
+    if (n.id.startsWith('item_') || n.id === 'obj_tv') {
+        npcDiv.style.display = 'none'; 
+        npcDiv.setAttribute('data-interactable', 'false'); 
+        npcDiv.innerHTML = `
+          <style>#npc-node-${n.id}::before { display: none !important; }</style>
+          <div class="name" id="npc-name-${n.id}" style="background:${n.color || '#37474f'}; top: -25px; z-index: 10;">${n.name}</div>
+          <div style="font-size: 38px; margin-top: 5px; filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6)); animation: bounce 1.5s infinite alternate ease-in-out;">${n.icon}</div>
+        `;
+        if (n.id === 'obj_tv') {
+            npcDiv.style.display = 'block';
+            npcDiv.setAttribute('data-interactable', 'true');
+        }
+    } 
+    else if (n.id === 'obj_tablet') {
+        npcDiv.setAttribute('data-interactable', 'true');
+        npcDiv.innerHTML = `
+          <style>#npc-node-${n.id}::before { display: none !important; }</style>
+          <div class="name" id="npc-name-${n.id}" style="background:${n.color || '#37474f'}; top: -25px; z-index: 10;">${n.name}</div>
+          <div style="font-size: 35px; margin-top: 5px; filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6)); position: relative;">${n.icon}</div>
+        `;
+    }
+    else if (n.id.startsWith('obj_')) {
+        npcDiv.setAttribute('data-interactable', 'true');
+        npcDiv.innerHTML = `
+          <style>#npc-node-${n.id}::before { display: none !important; }</style>
+          <div class="name" id="npc-name-${n.id}" style="background:${n.color || '#37474f'}; top: -25px; z-index: 10;">${n.name}</div>
+          <div style="font-size: 40px; margin-top: 5px; filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6));">${n.icon}</div>
+        `;
+    }
     else {
         npcDiv.setAttribute('data-interactable', 'true');
         let indicatorHtml = n.icon ? `<div class="npc-indicator">${n.icon}</div>` : '';
@@ -705,13 +721,19 @@ function showDialog() {
   document.getElementById('joystickBase').style.display = 'none';
   document.getElementById('dialogBox').style.display = 'flex';
   
-  if (currentNpc.id === 'obj_tablet') {
-      let dailyCount = window.playerDailyExplores ? window.playerDailyExplores.count : 0;
-      let remain = 3 - dailyCount;
-      if (remain > 0) currentNpc.dialogs[0].text = `今日可執行：${remain} 個任務 \n\n💡 請前往大廳找主治醫師接取！`;
-      else currentNpc.dialogs[0].text = `今日無法任務\n\n您可以自由探索，或前往 6F教學室、14F衛教室學習！`;
-      currentNpc.action = 'NONE';
-  }
+if (currentNpc.id === 'obj_tablet') {
+      if (urlParams.get('locked') === '1') {
+          // ★ 未解鎖的專屬平板訊息
+          currentNpc.dialogs[0].text = `【系統提示】\n\n請先完成初階版的 25 個引導任務，才能解鎖醫院大廳與完整探索模式喔！\n\n（目前僅開放員工休息室與更衣櫃）`;
+      } else {
+          // 原本的任務面板邏輯
+          let dailyCount = window.playerDailyExplores ? window.playerDailyExplores.count : 0;
+          let remain = 3 - dailyCount;
+          if (remain > 0) currentNpc.dialogs[0].text = `今日可執行：${remain} 個任務 \n\n💡 請前往大廳找主治醫師接取！`;
+          else currentNpc.dialogs[0].text = `今日無法任務\n\n您可以自由探索，或前往 6F教學室、14F衛教室學習！`;
+      }
+      currentNpc.action = 'NONE';
+  }
   else if (currentNpc.id === 'obj_wardrobe') {
       currentNpc.dialogs[0].name = '系統提示';
       currentNpc.dialogs[0].text = '這是員工專屬的更衣櫃。\n你可以在這裡換上從「1F 便利商店」購買的各種醫護服裝！\n\n要打開更衣櫃嗎？';
@@ -817,6 +839,11 @@ const solidBlocks = [
   {x: 3600, y: -610, w: 300, h: 20}
 ];
 
+// ★ 新增：如果未解鎖，加上一道隱形牆封死休息室南面的出口
+if (urlParams.get('locked') === '1') {
+    solidBlocks.push({x: 1250, y: 10, w: 500, h: 60});
+}
+  
 function canMoveTo(x, y) {
   const r = 20; let isWalkable = false;
   
