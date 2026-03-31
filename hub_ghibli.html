@@ -456,7 +456,6 @@ buildWorld(event.data.baseSeq, safeCoins, activeIdx, isAllCleared, lastPlayedIdx
           
           if (taskMap[cellX]) {
               const tData = taskMap[cellX]; const t = tData.task;
-              const displayNum = (t.globalIdx !== undefined ? t.globalIdx : t.taskIdx) + 1; 
               
               if (t.status === 'cleared') {
                   bCell.classList.add('bottom-cleared');
@@ -464,10 +463,10 @@ buildWorld(event.data.baseSeq, safeCoins, activeIdx, isAllCleared, lastPlayedIdx
               
               let titleColor = (t.status === 'locked') ? '#757575' : ((t.status === 'cleared') ? '#e8f5e9' : 'var(--current-theme)');
               
-              // ★ 下方細胞：僅顯示「第 X 關」
+              // ★ 下方細胞：只顯示關卡名稱，利用 flex 讓文字完美置中並適度放大
               bCell.innerHTML = `
-                  <div style="font-size: 18px; font-weight: 900; color: ${titleColor}; text-shadow: 1px 1px 3px rgba(0,0,0,0.9); height: 100%; display: flex; align-items: center; justify-content: center;">
-                    第 ${displayNum} 關
+                  <div style="font-size: 14px; font-weight: 900; color: ${titleColor}; text-shadow: 1px 1px 3px rgba(0,0,0,0.9); height: 100%; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.3; padding: 0 8px;">
+                      ${t.title || '任務'}
                   </div>
               `;
               
@@ -491,6 +490,11 @@ buildWorld(event.data.baseSeq, safeCoins, activeIdx, isAllCleared, lastPlayedIdx
           if (taskMap[cellX]) {
               const tData = taskMap[cellX]; const t = tData.task; 
               
+              // ★ 計算 1-1 到 5-5 的關卡編號格式
+              const roleNum = Math.floor((t.globalIdx !== undefined ? t.globalIdx : 0) / 5) + 1;
+              const taskNum = (t.taskIdx !== undefined ? t.taskIdx : 0) + 1;
+              const stageFormat = `第 ${roleNum}-${taskNum} 關`;
+              
               const node = document.createElement('div');
               node.className = 'endo-cell top cell-node'; node.style.left = cellX + 'px';
               node.style.width = cellW + 'px';
@@ -499,12 +503,11 @@ buildWorld(event.data.baseSeq, safeCoins, activeIdx, isAllCleared, lastPlayedIdx
               else if (t.status === 'active' || t.status === 'unlocked') { node.classList.add('node-active'); node.innerHTML += `<div class="energy-orb"></div>`; }
               else node.classList.add('node-locked');
 
-              // ★ 上方細胞：顯示「類別」+「關卡名稱」
-              // 使用 flex 佈局確保兩行文字都能完美置中
+              // ★ 上方細胞：顯示「類別」+「第 X-X 關」
               node.innerHTML += `
                   <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 0 4px; line-height: 1.2;">
-                      <div style="font-size: 10px; opacity: 0.8; margin-bottom: 2px; font-weight: bold;">${t.category || ''}</div>
-                      <div style="font-size: 13px; font-weight: 900; letter-spacing: 0.5px;">${t.title || '任務'}</div>
+                      <div style="font-size: 11px; opacity: 0.9; margin-bottom: 4px; font-weight: bold; letter-spacing: 1px;">${t.category || ''}</div>
+                      <div style="font-size: 16px; font-weight: 900; letter-spacing: 1px;">${stageFormat}</div>
                   </div>
               `;
               
