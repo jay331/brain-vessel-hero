@@ -456,6 +456,8 @@ buildWorld(event.data.baseSeq, safeCoins, activeIdx, isAllCleared, lastPlayedIdx
           
           if (taskMap[cellX]) {
               const tData = taskMap[cellX]; const t = tData.task;
+              // ★ 這裡需要先計算出 displayNum (第幾關)
+              const displayNum = (t.globalIdx !== undefined ? t.globalIdx : t.taskIdx) + 1; 
               
               if (t.status === 'cleared') {
                   bCell.classList.add('bottom-cleared');
@@ -463,9 +465,9 @@ buildWorld(event.data.baseSeq, safeCoins, activeIdx, isAllCleared, lastPlayedIdx
               
               let titleColor = (t.status === 'locked') ? '#757575' : ((t.status === 'cleared') ? '#e8f5e9' : 'var(--current-theme)');
               
-              // ★ 下方細胞：上方顯示類別(小字)，下方顯示名稱(大字)
+              // ★ 下方細胞：上方顯示「第 X 關」，下方顯示「關卡名稱」
               bCell.innerHTML = `
-                  <div style="font-size: 10px; color: #999; margin-bottom: 2px;">${t.category || '演練'}</div>
+                  <div style="font-size: 11px; color: #aaa; font-weight: bold; margin-bottom: 2px;">第 ${displayNum} 關</div>
                   <div class="cell-text-title" style="color:${titleColor}; text-shadow: 1px 1px 3px rgba(0,0,0,0.9);">${t.title || '任務'}</div>
               `;
               
@@ -488,8 +490,6 @@ buildWorld(event.data.baseSeq, safeCoins, activeIdx, isAllCleared, lastPlayedIdx
 
           if (taskMap[cellX]) {
               const tData = taskMap[cellX]; const t = tData.task; 
-              // ★ 改用 globalIdx 計算 1~25 關
-              const displayNum = (t.globalIdx !== undefined ? t.globalIdx : t.taskIdx) + 1; 
               
               const node = document.createElement('div');
               node.className = 'endo-cell top cell-node'; node.style.left = cellX + 'px';
@@ -499,8 +499,8 @@ buildWorld(event.data.baseSeq, safeCoins, activeIdx, isAllCleared, lastPlayedIdx
               else if (t.status === 'active' || t.status === 'unlocked') { node.classList.add('node-active'); node.innerHTML += `<div class="energy-orb"></div>`; }
               else node.classList.add('node-locked');
 
-              // ★ 上方細胞：拿掉類別，只留下「第 X 關」，稍微把字體放大增加辨識度
-              node.innerHTML += `<div style="font-size: 18px; font-weight: 900; letter-spacing: 1px;">第 ${displayNum} 關</div>`;
+              // ★ 上方細胞：只顯示「類別名稱」(例如：一、急診醫師)，並設定合適的字體大小與置中
+              node.innerHTML += `<div style="font-size: 14px; font-weight: 900; letter-spacing: 1px; text-align: center; line-height: 1.2; padding: 0 4px;">${t.category || '演練'}</div>`;
               
               topWallContainer.appendChild(node);
               nodesData.push({ x: cellX, element: node, itemData: t });
