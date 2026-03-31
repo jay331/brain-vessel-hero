@@ -1194,10 +1194,13 @@ function saveProfile(m) {
 }
 
 function launchExplore() {
-    if (playerState.mode === 'beginner' && playerState.storyProgression < TOTAL_BEG_TASKS) { return customAlert("請先完成初階版的 25 個引導任務，才能解鎖醫院探索模式喔！", null, "🔒 尚未解鎖"); }
+    // 判斷是否滿足解鎖條件 (25關)
+    let isLocked = (playerState.mode === 'beginner' && playerState.storyProgression < 25) ? 1 : 0;
+    
     if(id('mapOverlayTitle')) id('mapOverlayTitle').textContent = '🏥 醫院探索模式'; 
     if(id('mapOverlay')) id('mapOverlay').style.display = 'flex'; 
-    if(id('mapFrame')) id('mapFrame').src = `rpg_loader.html?taskId=hub_world`;
+    // 將 locked 狀態作為參數傳給地圖
+    if(id('mapFrame')) id('mapFrame').src = `rpg_loader.html?taskId=hub_world&locked=${isLocked}`;
 }
 
 function saveGameData() {
