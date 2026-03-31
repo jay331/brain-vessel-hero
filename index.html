@@ -1376,13 +1376,22 @@ function renderDisplayHall(type) {
         for (let i = 1; i <= 20; i++) {
             let pTitle = PUZZLE_TITLES[i-1] || "未知名稱";
             if (unlocked.includes(i)) {
-                html += `<div class="hall-card unlocked-card" onclick="replayPuzzle(${i})"><div class="hall-card-img"><img src="assets/puzzle_${i}.png" onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='🧩';"></div><div class="hall-card-title">${pTitle}</div><div class="hall-card-num">#${i}</div></div>`;
+                html += `<div class="hall-card unlocked-card" onclick="replayPuzzle(${i})">
+                    <div class="hall-card-img"><img src="assets/puzzle_${i}.png" onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='🧩';"></div>
+                    <div class="hall-card-title"><span style="color:#aaa; font-size:12px; margin-right:4px;">#${i}</span>${pTitle}</div>
+                </div>`;
                 unlockedElementsCount++;
             } else if (pending.includes(i)) {
-                html += `<div class="hall-card unlocked-card is-new" style="border-color:#ffb300;" onclick="playPendingPuzzle(${i})"><div class="hall-card-img" style="background:linear-gradient(135deg, #5d4037, #3e2723); color:#ffb300; font-size:40px;">🎁</div><div class="hall-card-title" style="color:#ffb300;">待拼湊：點擊挑戰</div><div class="hall-card-num">#${i}</div></div>`;
+                html += `<div class="hall-card unlocked-card is-new" style="border-color:#ffb300;" onclick="playPendingPuzzle(${i})">
+                    <div class="hall-card-img" style="background:linear-gradient(135deg, #5d4037, #3e2723); color:#ffb300; font-size:40px;">🎁</div>
+                    <div class="hall-card-title" style="color:#ffb300;"><span style="color:#ffb300; font-size:12px; margin-right:4px;">#${i}</span>待拼湊：點擊挑戰</div>
+                </div>`;
                 unlockedElementsCount++;
             } else {
-                html += `<div class="hall-card locked"><div class="hall-card-img" style="background:#222; color:#555;">🔒</div><div class="hall-card-title" style="color:#777;">尚未取得</div><div class="hall-card-num">#${i}</div></div>`;
+                html += `<div class="hall-card locked">
+                    <div class="hall-card-img" style="background:#222; color:#555;">🔒</div>
+                    <div class="hall-card-title" style="color:#777;"><span style="color:#555; font-size:12px; margin-right:4px;">#${i}</span>尚未取得</div>
+                </div>`;
             }
         }
     } else if (type === 'beg' || type === 'adv') {
@@ -1401,24 +1410,20 @@ function renderDisplayHall(type) {
                     html += `
                     <div class="hall-card unlocked-card ${isNew ? 'is-new' : ''}" onclick="openCardModal('${type}', '${role.id}', ${idx}, ${globalIdx}, false, '${cId}')">
                         <div style="font-size: 11px; color: #aaa; margin-bottom: 8px; letter-spacing: 1px; width: 100%; text-align: center;">${role.name}</div>
-                        
                         <div class="hall-card-img" style="background:var(--theme-dim); font-size:50px;">${role.icon}</div>
-                        
-                        <div class="hall-card-title" style="color:var(--theme-primary); margin-top: 10px;">${st.substring(3)}</div>
-                        
-                        <div class="hall-card-num">#${globalIdx}</div>
+                        <div class="hall-card-title" style="color:var(--theme-primary); margin-top: 10px;">
+                            <span style="color:#aaa; font-size:12px; margin-right:4px;">#${globalIdx}</span>${st.substring(3)}
+                        </div>
                     </div>`;
                     unlockedElementsCount++;
                 } else {
                     html += `
                     <div class="hall-card locked">
                         <div style="font-size: 11px; color: #555; margin-bottom: 8px; letter-spacing: 1px; width: 100%; text-align: center;">${role.name}</div>
-                        
                         <div class="hall-card-img" style="background:#222; color:#555; font-size:50px;">🔒</div>
-                        
-                        <div class="hall-card-title" style="color:#777; margin-top: 10px;">未解鎖</div>
-                        
-                        <div class="hall-card-num">#${globalIdx}</div>
+                        <div class="hall-card-title" style="color:#777; margin-top: 10px;">
+                            <span style="color:#555; font-size:12px; margin-right:4px;">#${globalIdx}</span>未解鎖
+                        </div>
                     </div>`;
                 }
                 globalIdx++;
@@ -1431,19 +1436,31 @@ function renderDisplayHall(type) {
         // 隱藏卡 1
         const id1 = 'hid_51'; const new1 = isBegMaster && !playerState.seenCards.includes(id1);
         if (isBegMaster) {
-            html += `<div class="hall-card unlocked-card ${new1 ? 'is-new' : ''}" onclick="openHiddenCardModal('🏥', '#51 亞東中風中心', '整合急診、神經內外科、復健科跨團隊，為病患提供全方位黃金救援與術後照護體系！', '${id1}')"><div class="hall-card-img" style="background:#01579b; font-size:60px;">🏥</div><div class="hall-card-title" style="color:#4fc3f7;">亞東中風中心</div><div class="hall-card-num">#51</div></div>`;
+            html += `<div class="hall-card unlocked-card ${new1 ? 'is-new' : ''}" onclick="openHiddenCardModal('🏥', '#51 亞東中風中心', '整合急診、神經內外科、復健科跨團隊，為病患提供全方位黃金救援與術後照護體系！', '${id1}')">
+                <div class="hall-card-img" style="background:#01579b; font-size:60px;">🏥</div>
+                <div class="hall-card-title" style="color:#4fc3f7;"><span style="color:#aaa; font-size:12px; margin-right:4px;">#51</span>亞東中風中心</div>
+            </div>`;
             unlockedElementsCount++;
         } else {
-            html += `<div class="hall-card locked"><div class="hall-card-img" style="background:#222;">🔒</div><div class="hall-card-title" style="color:#777;">完成初階解鎖</div><div class="hall-card-num">#51</div></div>`;
+            html += `<div class="hall-card locked">
+                <div class="hall-card-img" style="background:#222;">🔒</div>
+                <div class="hall-card-title" style="color:#777;"><span style="color:#555; font-size:12px; margin-right:4px;">#51</span>完成初階解鎖</div>
+            </div>`;
         }
         
         // 隱藏卡 2
         const id2 = 'hid_52'; const new2 = isAdvMaster && !playerState.seenCards.includes(id2);
         if (isAdvMaster) {
-            html += `<div class="hall-card unlocked-card ${new2 ? 'is-new' : ''}" onclick="openHiddenCardModal('🏛️', '#52 亞東紀念醫院', '秉持持續提升醫療品質，善盡社會醫療責任之宗旨，是您最堅強的醫療後盾！', '${id2}')"><div class="hall-card-img" style="background:#ff6f00; font-size:60px;">🏛️</div><div class="hall-card-title" style="color:#ffb300;">亞東紀念醫院</div><div class="hall-card-num">#52</div></div>`;
+            html += `<div class="hall-card unlocked-card ${new2 ? 'is-new' : ''}" onclick="openHiddenCardModal('🏛️', '#52 亞東紀念醫院', '秉持持續提升醫療品質，善盡社會醫療責任之宗旨，是您最堅強的醫療後盾！', '${id2}')">
+                <div class="hall-card-img" style="background:#ff6f00; font-size:60px;">🏛️</div>
+                <div class="hall-card-title" style="color:#ffb300;"><span style="color:#aaa; font-size:12px; margin-right:4px;">#52</span>亞東紀念醫院</div>
+            </div>`;
             unlockedElementsCount++;
         } else {
-            html += `<div class="hall-card locked"><div class="hall-card-img" style="background:#222;">🔒</div><div class="hall-card-title" style="color:#777;">完成進階解鎖</div><div class="hall-card-num">#52</div></div>`;
+            html += `<div class="hall-card locked">
+                <div class="hall-card-img" style="background:#222;">🔒</div>
+                <div class="hall-card-title" style="color:#777;"><span style="color:#555; font-size:12px; margin-right:4px;">#52</span>完成進階解鎖</div>
+            </div>`;
         }
     }
     
