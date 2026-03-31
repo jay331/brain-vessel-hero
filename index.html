@@ -61,6 +61,72 @@ header {
 } 
 .player-name:active { color: var(--theme-primary); text-shadow: 0 0 8px var(--theme-primary); }
 
+/* ===== 全新健康圖卡展示廳佈局 ===== */
+.dex-layout { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+.display-hall { 
+    flex: 2; /* 佔據上方 2/3 */
+    background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #0f0f1a 100%);
+    position: relative; 
+    display: flex; flex-direction: column;
+}
+.hall-title {
+    text-align: center; color: var(--theme-primary); margin: 15px 0 5px 0; font-size: 18px; font-weight: 900; letter-spacing: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+}
+.hall-track {
+    flex: 1; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 20px; padding: 20px calc(50vw - 100px); align-items: center; scrollbar-width: none;
+}
+.hall-track::-webkit-scrollbar { display: none; }
+
+.hall-card {
+    min-width: 200px; height: 280px; scroll-snap-align: center;
+    background: linear-gradient(135deg, #2a241e, #111);
+    border: 2px solid var(--theme-dim); border-radius: 12px;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+    padding: 10px; cursor: pointer; transition: transform 0.3s;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.8), inset 0 2px 5px rgba(255,255,255,0.1);
+    position: relative; flex-shrink: 0;
+}
+.hall-card:active { transform: scale(0.95); }
+.hall-card.locked { filter: grayscale(100%) brightness(0.5); pointer-events: none; }
+.hall-card.is-new::after {
+    content: 'NEW'; position: absolute; top: -10px; right: -10px;
+    background: var(--accent-red); color: #fff; font-size: 10px; font-weight: 900;
+    padding: 4px 8px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    animation: pulseNew 1.5s infinite;
+}
+@keyframes pulseNew { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+.hall-card-img {
+    width: 100%; aspect-ratio: 1/1; background: #000; border-radius: 8px; margin-bottom: 15px;
+    display: flex; align-items: center; justify-content: center; font-size: 50px; overflow: hidden;
+}
+.hall-card-img img { width: 100%; height: 100%; object-fit: cover; }
+.hall-card-title { font-size: 15px; font-weight: 900; color: #fff; text-align: center; text-shadow: 1px 1px 2px #000; word-break: break-word; line-height: 1.3; }
+.hall-card-num { position: absolute; bottom: 10px; font-size: 12px; color: #aaa; font-weight: bold; }
+
+/* 底部卡匣區 (下方 1/3) */
+.cartridges-wrap {
+    flex: 1; min-height: 160px; background: rgba(0,0,0,0.95); border-top: 2px solid var(--theme-primary);
+    padding: 15px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 12px;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.8);
+}
+.cartridge-btn {
+    background: linear-gradient(180deg, rgba(40,40,40,0.8), rgba(20,20,20,0.9));
+    border: 1px solid #555; border-radius: 10px; color: #ccc; font-weight: 900; font-size: 14px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    position: relative; transition: all 0.2s; box-shadow: inset 0 2px 4px rgba(255,255,255,0.05);
+}
+.cartridge-btn.active {
+    background: var(--theme-grad); border-color: var(--theme-primary); color: #fff;
+    box-shadow: 0 0 15px rgba(212,175,55,0.3), inset 0 2px 4px rgba(255,255,255,0.2);
+}
+.cartridge-badge {
+    position: absolute; top: -6px; right: -6px; background: var(--accent-red); color: #fff;
+    border-radius: 50%; min-width: 22px; height: 22px; padding: 0 6px; font-size: 11px; font-weight: 900;
+    display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.8);
+    display: none; border: 2px solid #000;
+}
+    
 /* 金幣列升級為獨立的「內凹小儀表板」 */
 .coin-row { 
     display: inline-flex; align-items: center; gap: 6px; cursor: pointer; 
@@ -286,29 +352,31 @@ body.mode-advanced .view-toggle-btn {
         <div class="role-list" id="roleListContainer" style="display: none;"></div>
       </section>
 
-      <section class="screen" id="scrCaseDex">
-        <div class="panel" style="display: flex; flex-direction: column;">
-          <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; border: 1px solid var(--theme-dim); margin-bottom: 12px; text-align: center; flex-shrink: 0;">
-            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px;">
-              <div style="font-size: 14px; color: #ccc; display: flex; align-items: center;">
-                通用票券<span id="uiPuzzleAvail" style="color:var(--good); font-weight:bold; font-size:18px; margin: 0 4px;">0</span> 張 
-                <button class="btn" style="width:20px; height:20px; padding:0; border-radius:50%; background:#555; color:#fff; border:none; font-size:12px; margin-left:6px; display:inline-flex; align-items:center; justify-content:center;" onclick="document.getElementById('puzzleHintText').style.display = document.getElementById('puzzleHintText').style.display === 'none' ? 'block' : 'none'">i</button>
-              </div>
-              <button id="btnDrawPuzzle" class="btn btn-rescue" style="padding:4px 12px; font-size:13px; width:auto; margin:0; display:none;" onclick="triggerGacha()">🧩 拼圖抽抽樂</button>
-            </div>
-            <div id="puzzleHintText" style="font-size: 11px; color: var(--theme-primary); margin-bottom: 5px; display:none;">💡 每完成 5 次不重複的「任務或演練」可獲 1 張通用票券</div>
+      <section class="screen" id="scrCaseDex" style="padding: 0;">
+  <div class="dex-layout">
+    <div class="display-hall">
+      <div class="hall-title" id="hallTitle">拼圖收藏</div>
+      <div class="hall-track" id="hallTrack">
           </div>
-          
-          <div class="pokedex-tabs" id="caseDexTabs">
-            <button class="tab-btn active" onclick="switchCaseTab('gallery', this)">拼圖收藏 (<span id="uiPuzzleCollected">0</span>/20)</button>
-            <button class="tab-btn" onclick="switchCaseTab('healthcards', this)">健康卡</button>
-          </div>
-          
-          <div id="puzzleGallery" class="card-grid" style="flex: 1; overflow-y: auto; display:grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 4px;"></div>
-          <div id="healthCardsContainer" style="flex: 1; overflow-y: auto; display:none; padding:4px;"></div>
-        </div>
-        <button class="btn btn-back" onclick="showScreen('scrHome')"><span class="back-icon">🏠</span> 返回主畫面</button>
-      </section>
+    </div>
+    
+    <div class="cartridges-wrap">
+      <div class="cartridge-btn active" id="cart_puzzle" onclick="selectCartridge('puzzle')">
+        🧩 拼圖收藏<div class="cartridge-badge" id="badge_puzzle">0</div>
+      </div>
+      <div class="cartridge-btn" id="cart_beg" onclick="selectCartridge('beg')">
+        🔰 初階健康卡<div class="cartridge-badge" id="badge_beg">0</div>
+      </div>
+      <div class="cartridge-btn" id="cart_adv" onclick="selectCartridge('adv')">
+        💠 進階健康卡<div class="cartridge-badge" id="badge_adv">0</div>
+      </div>
+      <div class="cartridge-btn" id="cart_hid" onclick="selectCartridge('hid')">
+        ⭐ 隱藏卡<div class="cartridge-badge" id="badge_hid">0</div>
+      </div>
+    </div>
+  </div>
+  <button class="btn btn-back" style="position:absolute; top:15px; left:15px; width:auto; padding:8px 12px; font-size:12px; z-index:100;" onclick="showScreen('scrHome')"><span class="back-icon">🏠</span> 返回</button>
+</section>
 
       <section class="screen" id="scrLeaderboard">
         <div class="panel" style="display:flex; flex-direction:column; overflow:hidden;">
@@ -949,9 +1017,9 @@ function updateHUD(skipMapRender = false) {
   if(id('storeCoinDisplay')) id('storeCoinDisplay').textContent = `$ ${playerState.coins.toLocaleString()} 幣`;
   if(id('lbHealthCoins')) id('lbHealthCoins').textContent = playerState.coins.toLocaleString();
   if(id('rehabHealthCoins')) id('rehabHealthCoins').textContent = playerState.coins.toLocaleString();
+  autoGrantPuzzles();
+  updateCartridgeBadges();
 
-  const tickets = typeof getAvailableTickets === 'function' ? getAvailableTickets() : 0;
-  const caseBadge = id('casedexBadge'); if (caseBadge) { caseBadge.style.display = tickets > 0 ? 'flex' : 'none'; caseBadge.textContent = tickets; }
   
   checkExtremeAttempts();
   const extBadge = id('extremeBadge');
@@ -1192,6 +1260,226 @@ function playTask(taskIndex) {
   else { if(id('mapOverlayTitle')) id('mapOverlayTitle').textContent = `🎯 模擬演練：${role.subTasks[taskIndex].substring(3)}`; if(id('mapOverlay')) id('mapOverlay').style.display = 'flex'; if(id('mapFrame')) id('mapFrame').src = `rpg_loader.html?taskId=${gameId}`; }
 }
 
+// ===============================================
+// ★ 全新卡匣與圖卡展示系統
+// ===============================================
+
+// 自動派發拼圖 (取代原本的手動抽卡，放在 updateHUD 內呼叫)
+function autoGrantPuzzles() {
+    if(!playerState.pendingPuzzles) playerState.pendingPuzzles = [];
+    if(!playerState.unlockedPuzzles) playerState.unlockedPuzzles = [];
+    
+    // 計算總獲得量：每 5 次通關給 1 張
+    const totalTasks = playerState.taskScoresBeg.size + playerState.taskScoresAdv.size + playerState.completedCasesBeg.size + playerState.completedCasesAdv.size;
+    const earned = Math.floor(totalTasks / 5);
+    const currentTotal = playerState.pendingPuzzles.length + playerState.unlockedPuzzles.length;
+    
+    if (earned > currentTotal && currentTotal < 20) {
+        let availableIds = [];
+        for(let i=1; i<=20; i++) {
+            if(!playerState.unlockedPuzzles.includes(i) && !playerState.pendingPuzzles.includes(i)) availableIds.push(i);
+        }
+        let puzzlesToGrant = Math.min(earned - currentTotal, availableIds.length);
+        for(let i=0; i<puzzlesToGrant; i++) {
+            let rIdx = Math.floor(Math.random() * availableIds.length);
+            playerState.pendingPuzzles.push(availableIds[rIdx]);
+            availableIds.splice(rIdx, 1); // 避免重複給予
+        }
+        saveGameData();
+    }
+}
+
+// 切換卡匣
+let currentCartridge = 'puzzle';
+function selectCartridge(type) {
+    currentCartridge = type;
+    ['puzzle', 'beg', 'adv', 'hid'].forEach(id => {
+        document.getElementById('cart_' + id).classList.remove('active');
+    });
+    document.getElementById('cart_' + type).classList.add('active');
+    
+    const titles = { 'puzzle': '🧩 拼圖收藏', 'beg': '🔰 初階健康卡', 'adv': '💠 進階健康卡', 'hid': '⭐ 隱藏健康卡' };
+    document.getElementById('hallTitle').textContent = titles[type];
+    
+    renderDisplayHall(type);
+}
+
+// 渲染展示廳 (依照順序排列，但進入時隨機捲動到一張解鎖的卡)
+const PUZZLE_TITLES = [ "神經內科醫師是腦中風病人主要診療者", "急診醫師與神經內科醫師交接急診中風病人", "中風病房護理師專精於中風病人照護", "動脈取栓醫師負責腦血管導管治療", "語言治療師訓練中風病人發音及語言表達", "119緊急救護人員(EMT)協助中風第一線場評估及轉送", "營養師調配腦中風專屬飲食", "加護病房醫師進行神經學檢查及監測", "腦中風手術治療進行中，搶救受損腦細胞", "專科護理師協助醫師照護臨床中風病人", "放射師與影醫科醫師執行腦部影像檢查及判讀", "住院醫師學習神經學評估與中風照護", "頸動脈超音波檢查腦血管及血流狀態", "針灸治療輔助中風復健，中西醫合併", "腦中風磁刺激治療加強復健成效", "物理治療師使用下肢機器人協助中風步態訓練", "個管師電訪關心中風病人出院後恢復狀態", "社工師協助長照資源及社會福利申請", "中風後吞嚥困難使用鼻胃管協助進食", "職能治療師協助精細動作及日常功能訓練" ];
+
+function renderDisplayHall(type) {
+    if(!playerState.seenCards) playerState.seenCards = [];
+    const track = document.getElementById('hallTrack');
+    track.innerHTML = '';
+    let html = '';
+    let unlockedElementsCount = 0;
+
+    if (type === 'puzzle') {
+        const unlocked = playerState.unlockedPuzzles || [];
+        const pending = playerState.pendingPuzzles || [];
+        for (let i = 1; i <= 20; i++) {
+            let pTitle = PUZZLE_TITLES[i-1] || "未知名稱";
+            if (unlocked.includes(i)) {
+                html += `<div class="hall-card unlocked-card" onclick="replayPuzzle(${i})"><div class="hall-card-img"><img src="assets/puzzle_${i}.png" onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='🧩';"></div><div class="hall-card-title">${pTitle}</div><div class="hall-card-num">#${i}</div></div>`;
+                unlockedElementsCount++;
+            } else if (pending.includes(i)) {
+                html += `<div class="hall-card unlocked-card is-new" style="border-color:#ffb300;" onclick="playPendingPuzzle(${i})"><div class="hall-card-img" style="background:linear-gradient(135deg, #5d4037, #3e2723); color:#ffb300; font-size:40px;">🎁</div><div class="hall-card-title" style="color:#ffb300;">待拼湊：點擊挑戰</div><div class="hall-card-num">#${i}</div></div>`;
+                unlockedElementsCount++;
+            } else {
+                html += `<div class="hall-card locked"><div class="hall-card-img" style="background:#222; color:#555;">🔒</div><div class="hall-card-title" style="color:#777;">尚未取得</div><div class="hall-card-num">#${i}</div></div>`;
+            }
+        }
+    } else if (type === 'beg' || type === 'adv') {
+        const isBeg = type === 'beg';
+        const rolesData = isBeg ? ROLES_DATA_BEG : ROLES_DATA_ADV;
+        const taskScores = isBeg ? playerState.taskScoresBeg : playerState.taskScoresAdv;
+        let globalIdx = isBeg ? 1 : 26;
+        
+        rolesData.forEach(role => {
+            role.subTasks.forEach((st, idx) => {
+                const cId = `${type}_${role.id}_${idx}`;
+                const isUnl = taskScores.has(`${role.id}_${idx}`);
+                const isNew = isUnl && !playerState.seenCards.includes(cId);
+                
+                if (isUnl) {
+                    html += `<div class="hall-card unlocked-card ${isNew ? 'is-new' : ''}" onclick="openCardModal('${type}', '${role.id}', ${idx}, ${globalIdx}, false, '${cId}')"><div class="hall-card-img" style="background:var(--theme-dim); font-size:60px;">${role.icon}</div><div class="hall-card-title" style="color:var(--theme-primary);">${st.substring(3)}</div><div class="hall-card-num">#${globalIdx}</div></div>`;
+                    unlockedElementsCount++;
+                } else {
+                    html += `<div class="hall-card locked"><div class="hall-card-img" style="background:#222; color:#555;">🔒</div><div class="hall-card-title" style="color:#777;">未解鎖</div><div class="hall-card-num">#${globalIdx}</div></div>`;
+                }
+                globalIdx++;
+            });
+        });
+    } else if (type === 'hid') {
+        const isBegMaster = playerState.taskScoresBeg.size >= 25;
+        const isAdvMaster = playerState.taskScoresAdv.size >= 25;
+        
+        // 隱藏卡 1
+        const id1 = 'hid_51'; const new1 = isBegMaster && !playerState.seenCards.includes(id1);
+        if (isBegMaster) {
+            html += `<div class="hall-card unlocked-card ${new1 ? 'is-new' : ''}" onclick="openHiddenCardModal('🏥', '#51 亞東中風中心', '整合急診、神經內外科、復健科跨團隊，為病患提供全方位黃金救援與術後照護體系！', '${id1}')"><div class="hall-card-img" style="background:#01579b; font-size:60px;">🏥</div><div class="hall-card-title" style="color:#4fc3f7;">亞東中風中心</div><div class="hall-card-num">#51</div></div>`;
+            unlockedElementsCount++;
+        } else {
+            html += `<div class="hall-card locked"><div class="hall-card-img" style="background:#222;">🔒</div><div class="hall-card-title" style="color:#777;">完成初階解鎖</div><div class="hall-card-num">#51</div></div>`;
+        }
+        
+        // 隱藏卡 2
+        const id2 = 'hid_52'; const new2 = isAdvMaster && !playerState.seenCards.includes(id2);
+        if (isAdvMaster) {
+            html += `<div class="hall-card unlocked-card ${new2 ? 'is-new' : ''}" onclick="openHiddenCardModal('🏛️', '#52 亞東紀念醫院', '秉持持續提升醫療品質，善盡社會醫療責任之宗旨，是您最堅強的醫療後盾！', '${id2}')"><div class="hall-card-img" style="background:#ff6f00; font-size:60px;">🏛️</div><div class="hall-card-title" style="color:#ffb300;">亞東紀念醫院</div><div class="hall-card-num">#52</div></div>`;
+            unlockedElementsCount++;
+        } else {
+            html += `<div class="hall-card locked"><div class="hall-card-img" style="background:#222;">🔒</div><div class="hall-card-title" style="color:#777;">完成進階解鎖</div><div class="hall-card-num">#52</div></div>`;
+        }
+    }
+    
+    track.innerHTML = html;
+    updateCartridgeBadges(); // 每次渲染順便更新紅點
+
+    // 首張隨機展示邏輯：將畫面捲動至隨機解鎖的卡片
+    if (unlockedElementsCount > 0) {
+        setTimeout(() => {
+            const unlockedCards = track.querySelectorAll('.unlocked-card');
+            if(unlockedCards.length > 0) {
+                const randomCard = unlockedCards[Math.floor(Math.random() * unlockedCards.length)];
+                randomCard.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+            }
+        }, 100);
+    }
+}
+
+// 修改原有的圖卡顯示功能，加入「已讀」邏輯
+function openCardModal(tab, roleId, taskIdx, absNum, isHidden, cardTrackingId) {
+    if (!playerState.seenCards) playerState.seenCards = [];
+    if (!playerState.seenCards.includes(cardTrackingId)) {
+        playerState.seenCards.push(cardTrackingId);
+        saveGameData();
+        renderDisplayHall(currentCartridge); // 重新渲染以消掉 NEW 標籤
+    }
+
+    let role = (tab === 'beg' ? ROLES_DATA_BEG : ROLES_DATA_ADV).find(r => r.id === roleId); 
+    if (!role) return;
+    document.getElementById('modalIcon').textContent = role.icon; 
+    document.getElementById('modalTitle').textContent = `#${absNum} ${role.subTasks[taskIdx].substring(3)}`; 
+    document.getElementById('modalCategory').textContent = `${role.name} - ${role.subtitle}`;
+    const customDesc = role.cardDesc && role.cardDesc[taskIdx] ? role.cardDesc[taskIdx] : `這裡是關於「${role.subTasks[taskIdx].substring(3)}」的詳細重點整理。透過這張卡片，您可以隨時複習關鍵的醫療處置與照護知識！`;
+    document.getElementById('modalDesc').innerHTML = customDesc;
+    
+    showModalAnim();
+}
+
+// 隱藏卡專用的顯示 Modal 功能
+function openHiddenCardModal(icon, title, desc, cardTrackingId) {
+    if (!playerState.seenCards) playerState.seenCards = [];
+    if (!playerState.seenCards.includes(cardTrackingId)) {
+        playerState.seenCards.push(cardTrackingId);
+        saveGameData();
+        renderDisplayHall('hid');
+    }
+    document.getElementById('modalIcon').textContent = icon;
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalCategory').textContent = '隱藏健康卡';
+    document.getElementById('modalDesc').innerHTML = desc;
+    showModalAnim();
+}
+
+function showModalAnim() {
+    const modal = document.getElementById('cardDetailModal'); 
+    const content = modal.querySelector('.modal-content');
+    content.style.transform = 'scale(0.2) rotateY(180deg)'; content.style.opacity = '0'; content.style.transition = 'all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)'; content.style.boxShadow = 'none';
+    modal.style.display = 'flex';
+    requestAnimationFrame(() => { requestAnimationFrame(() => { content.style.transform = 'scale(1) rotateY(0deg)'; content.style.opacity = '1'; content.style.boxShadow = '0 0 60px var(--theme-primary), inset 0 0 20px rgba(255,255,255,0.2)'; }); });
+}
+
+// 計算並更新所有卡匣的紅點數量
+function updateCartridgeBadges() {
+    if(!playerState.seenCards) playerState.seenCards = [];
+    
+    // 拼圖：待完成數量
+    const puzzleBadge = (playerState.pendingPuzzles || []).length;
+    
+    // 初階：已解鎖數 - 已讀數 (計算 ID 以 beg_ 開頭的)
+    const begUnlocked = playerState.taskScoresBeg.size;
+    const begSeen = playerState.seenCards.filter(id => id.startsWith('beg_')).length;
+    const begBadge = Math.max(0, begUnlocked - begSeen);
+    
+    // 進階
+    const advUnlocked = playerState.taskScoresAdv.size;
+    const advSeen = playerState.seenCards.filter(id => id.startsWith('adv_')).length;
+    const advBadge = Math.max(0, advUnlocked - advSeen);
+    
+    // 隱藏卡
+    let hidUnlocked = 0;
+    if (playerState.taskScoresBeg.size >= 25) hidUnlocked++;
+    if (playerState.taskScoresAdv.size >= 25) hidUnlocked++;
+    const hidSeen = playerState.seenCards.filter(id => id.startsWith('hid_')).length;
+    const hidBadge = Math.max(0, hidUnlocked - hidSeen);
+    
+    const updateBadge = (idName, count) => {
+        const el = document.getElementById(idName);
+        if(el) { el.style.display = count > 0 ? 'flex' : 'none'; el.textContent = count; }
+    };
+    
+    updateBadge('badge_puzzle', puzzleBadge);
+    updateBadge('badge_beg', begBadge);
+    updateBadge('badge_adv', advBadge);
+    updateBadge('badge_hid', hidBadge);
+    
+    // 同步更新外部導覽列圖示上的總計紅點
+    const totalBadges = puzzleBadge + begBadge + advBadge + hidBadge;
+    const navBadge = document.getElementById('casedexBadge');
+    if (navBadge) {
+        navBadge.style.display = totalBadges > 0 ? 'flex' : 'none';
+        navBadge.textContent = totalBadges;
+    }
+}
+
+// 覆寫 renderCaseDex 進入點
+window.renderCaseDex = function() {
+    autoGrantPuzzles();
+    selectCartridge(currentCartridge); // 初始化顯示大廳
+};
+    
 function customConfirm(msg, onConfirm, onCancel, title="請確認", confirmTxt="確定", cancelTxt="取消") {
   id('customMsgTitle').textContent = title; id('customMsgText').innerHTML = msg.replace(/\n/g, '<br>'); 
   id('customMsgBtnWrap').innerHTML = `<button class="btn" style="flex:1; width:auto; background:#555; color:#fff;" onclick="closeCustomMsg(); ${onCancel ? 'customMsgCancel();' : ''}">${cancelTxt}</button><button class="btn" style="flex:1; width:auto; background:var(--theme-primary); color:var(--btn-text);" onclick="closeCustomMsg(); customMsgConfirm();">${confirmTxt}</button>`;
