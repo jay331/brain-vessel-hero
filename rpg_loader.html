@@ -757,8 +757,8 @@ function randomizeAquariumFish() {
     if (!container) return; 
     container.innerHTML = '';
     
-    // --- (A) 成群游動的魚 ---
-    const schoolCount = 3 + Math.floor(Math.random() * 3); 
+    // --- (A) 成群游動的魚 (🐟群) ---
+    const schoolCount = 3 + Math.floor(Math.random() * 3); // 降低數量提升效能
     const schoolTypes = ['🐟', '🐟', '🐟', '🐠', '🐡']; 
     const baseTypeGroup1 = schoolTypes[Math.floor(Math.random() * schoolTypes.length)];
     
@@ -769,17 +769,21 @@ function randomizeAquariumFish() {
         
         let baseSize = 20 + Math.random() * 12; 
         el.style.fontSize = baseSize + 'px';
-        el.style.animationDelay = (i * 2 + Math.random() * 5) + 's'; 
-        let duration = 50 + (baseSize / 10) * 8;
+        
+        let duration = 50 + (baseSize / 10) * 8; // 動畫總時長
         el.style.animationDuration = duration + 's';
+        
+        // ★ 核心優化：使用負的隨機數作為延遲，實現「動畫預熱」
+        // 這樣魚一出現就會隨機分佈在動畫的路徑上，不會全部縮在門外等
+        el.style.animationDelay = "-" + (Math.random() * duration) + "s";
         
         container.appendChild(el);
     }
     
-    // --- (B) 獨游的魚 ---
+    // --- (B) 獨游的魚 (🐠，🐡) ---
     const solitaryFish = [
-        { emoji: '🐠', cls: 'aq-fish aq-fish-r', top_range: [60, 110], delay_range: [0, 20] },
-        { emoji: '🐡', cls: 'aq-fish aq-fish-r', top_range: [80, 125], delay_range: [15, 35], large: true }
+        { emoji: '🐠', cls: 'aq-fish aq-fish-r', top_range: [60, 110] },
+        { emoji: '🐡', cls: 'aq-fish aq-fish-r', top_range: [80, 125], large: true }
     ];
     
     const countSolitary = 1 + Math.floor(Math.random() * 2);
@@ -793,9 +797,12 @@ function randomizeAquariumFish() {
         let baseSize = 28 + Math.random() * 10;
         if (f.large) baseSize += 10; 
         el.style.fontSize = baseSize + 'px';
-        el.style.animationDelay = (f.delay_range[0] + Math.random() * (f.delay_range[1] - f.delay_range[0])) + 's';
-        let duration = 70 + (baseSize / 10) * 8;
+        
+        let duration = 70 + (baseSize / 10) * 8; // 動畫總時長
         el.style.animationDuration = duration + 's';
+        
+        // ★ 核心優化：獨游魚也使用負的隨機延遲
+        el.style.animationDelay = "-" + (Math.random() * duration) + "s";
         
         container.appendChild(el);
     });
