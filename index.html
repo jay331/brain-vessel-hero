@@ -68,7 +68,8 @@ header {
     overflow: hidden; 
 }
 .display-hall { 
-    flex: 1.1; 
+    flex: 1; /* ★ 讓展示廳自動吸收剩餘空間，但不硬搶 */
+    min-height: 0; 
     background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #0f0f1a 100%);
     position: relative; 
     display: flex; flex-direction: column;
@@ -169,31 +170,30 @@ header {
 .cartridges-wrap {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important; 
-    grid-template-rows: repeat(2, 1fr) !important;    
-    gap: 12px !important; /* 稍微加大一點縫隙，讓按鈕呼吸 */
+    gap: 12px !important; 
     width: 100% !important;
-    flex: 1 !important; 
-    min-height: 0 !important; 
-    
-    padding-bottom: max(45px, env(safe-area-inset-bottom)) !important; /* ★ 加大底部安全距離 */
-    margin-top: 15px !important; /* ★ 增加上方空間，避免紅點撞到天花板 */
-    
-    overflow: visible !important; /* ★ 關鍵修復：從 hidden 改成 visible，紅點就不會被喀擦切掉了！ */
+    flex-shrink: 0 !important; /* ★ 關鍵：絕對不允許被壓縮，保證按鈕完整顯示 */
+    padding-bottom: max(35px, env(safe-area-inset-bottom)) !important; /* 加大底部安全空間 */
+    margin-top: 15px !important;
+    overflow: visible !important; 
 }
 
 .cartridge-btn {
-    position: relative !important; /* ★ 確保這行存在，紅點才能定位在按鈕內 */
+    position: relative !important; 
     width: 100% !important;
-    height: 100% !important; 
+    padding: 15px 5px !important; /* ★ 用 padding 自然撐開高度，不要寫死 height */
     margin: 0 !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
     align-items: center !important;
-    padding: 8px 5px !important;
     box-sizing: border-box !important;
     text-align: center !important;
     border-radius: 8px !important;
+    /* ★ 需求 1：加上預設的微透底色與邊框，讓它看起來像個按鈕 */
+    background: rgba(255, 255, 255, 0.06) !important; 
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    transition: all 0.2s !important;
 }
 
 /* ★ 專屬按鈕右上角的紅點通知樣式 */
@@ -213,8 +213,15 @@ header {
     z-index: 10 !important;
 }
 .cartridge-btn.active {
-    background: var(--theme-grad); border-color: var(--theme-primary); color: #fff;
-    box-shadow: 0 0 15px rgba(212,175,55,0.3), inset 0 2px 4px rgba(255,255,255,0.2);}
+    background: var(--theme-grad) !important; 
+    border-color: var(--theme-primary) !important; 
+    color: #fff !important;
+    box-shadow: 0 0 15px rgba(212,175,55,0.3), inset 0 2px 4px rgba(255,255,255,0.2) !important;
+}
+.cartridge-btn:active {
+    background: rgba(255, 255, 255, 0.1) !important;
+    transform: scale(0.96) !important;
+}
     
 .coin-row { 
     display: inline-flex; align-items: center; gap: 6px; cursor: pointer; 
@@ -376,15 +383,23 @@ body.mode-advanced .view-toggle-btn {
 .role-progress-bg { width: 100%; height: 4px; background: rgba(0,0,0,0.4); border-radius: 2px; margin-top: 6px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.5); }
 .role-progress-fill { 
     height: 100%; 
-    background: #45634b; /* ★ 換成非常低調的莫蘭迪暗綠色 */
+    background: #4caf50; /* ★ 稍微提亮一點的專業綠 */
     border-radius: 2px; 
     transition: width 0.4s ease; 
-    box-shadow: none; /* ★ 拔掉所有發光效果，徹底降低存在感 */
+    box-shadow: 0 0 6px rgba(76, 175, 80, 0.5); /* 微微的發光 */
 }
 
 /* ★ 需求 2：稍微調亮已完成任務，保留邊框，方便閱讀與複習 */
 .subtask-item.completed { opacity: 0.85; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #ccc; }
 .subtask-item.completed:hover { opacity: 1; background: rgba(255,255,255,0.1); }
+.subtask-item.completed .status-pill { 
+    background: transparent; /* ★ 拔掉黑灰色底框 */
+    border: none;            /* ★ 拔掉邊框 */
+    color: #4caf50;          /* ★ 將打勾換成綠色 */
+    font-size: 18px;         /* ★ 稍微放大 */
+    padding: 0;
+    text-shadow: 0 0 5px rgba(76, 175, 80, 0.4);
+}
 
 /* ★ 需求 3：降低挑戰中任務的刺眼底色，改用深色底 + 主題色亮邊框凸顯 */
 .subtask-item.active { 
@@ -1209,6 +1224,12 @@ function renderHomeRoles() {
     }
     
     const progressPercent = Math.min(100, Math.round((doneCount / role.totalTasks) * 100));
+    const isAllDone = (doneCount === role.totalTasks);
+
+    // ★ 需求 3：如果全破了，就回傳空字串 (隱藏進度條)，讓上方標題自然垂直置中
+    let progressHtml = isAllDone 
+        ? '' 
+        : `<div class="role-progress-bg"><div class="role-progress-fill" style="width: ${progressPercent}%;"></div></div>`;
 
     let tasksHtml = '';
     for(let i=0; i<role.totalTasks; i++) {
@@ -1218,11 +1239,13 @@ function renderHomeRoles() {
         if (playerState.mode === 'beginner') {
            const isDone = playerState.taskScoresBeg.has(`${role.id}_${i}`);
            statusClass = isDone ? 'completed' : 'active'; 
-           icon = isDone ? '✅' : '▶ 前往'; 
+           // ★ 需求 4：把原本的 ✅ 換成俐落的純文字 ✔
+           icon = isDone ? '✔' : '▶ 前往'; 
            action = `onclick="startTaskFromAccordion('${role.id}', ${i})"`;
         } else {
            if (i+1 < role.currentTask) { 
-               statusClass = 'completed'; icon = '✅'; action = `onclick="startTaskFromAccordion('${role.id}', ${i})"`; 
+               // ★ 需求 4：把原本的 ✅ 換成俐落的純文字 ✔
+               statusClass = 'completed'; icon = '✔'; action = `onclick="startTaskFromAccordion('${role.id}', ${i})"`; 
            } else if (i+1 === role.currentTask) { 
                statusClass = 'active'; icon = '▶ 挑戰'; action = `onclick="startTaskFromAccordion('${role.id}', ${i})"`; 
            } else if (role.currentTask > role.totalTasks) { 
@@ -1241,8 +1264,7 @@ function renderHomeRoles() {
             <div class="role-avatar">${role.icon}</div>
             <div class="role-info">
               <div class="role-name">${role.name} <span style="font-size:11px; color:#ccc; font-weight:normal; margin-left:6px; text-shadow:none;">${role.subtitle}</span></div>
-              <div class="role-progress-bg"><div class="role-progress-fill" style="width: ${progressPercent}%;"></div></div>
-            </div>
+              ${progressHtml} </div>
             <div class="role-status"><div class="role-go-btn" id="btn-${role.id}">▼</div></div>
           </div>
           <div class="role-tasks-accordion" id="acc-${role.id}">
