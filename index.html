@@ -899,6 +899,14 @@ else if (event.data.type === 'START_PARKOUR') {
       closeAllIframes(); exitFullscreenUI(); updateModeUI(); 
   }
   
+  // ★ 新增這段：接收到切換訊號時，強制關閉地圖並切換為清單模式！
+  else if (event.data.type === 'SWITCH_TO_LIST_MODE') {
+      closeAllIframes();
+      exitFullscreenUI();
+      setHomeView(false); // false 代表切換到清單模式
+      updateModeUI();     // 刷新 UI 狀態
+  }
+  
   else if (event.data.type === 'PUZZLE_CLEAR') {
       const pid = event.data.puzzleId;
       if (!playerState.unlockedPuzzles) playerState.unlockedPuzzles = [];
