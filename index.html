@@ -1452,7 +1452,9 @@ function playTaskFlat(index) {
   if(id('mainNav')) id('mainNav').style.display = 'flex';
   isGlobalFs = false; 
   
-  if(id('mapOverlayTitle')) id('mapOverlayTitle').textContent = `🎯 模擬演練：${flatTask.role.subTasks[flatTask.taskIndex].substring(3)}`; 
+  // ★ 修改這裡：加入該類別專屬的圖示與名稱！
+  if(id('mapOverlayTitle')) id('mapOverlayTitle').textContent = `${flatTask.role.icon} ${flatTask.role.name}：${flatTask.role.subTasks[flatTask.taskIndex].substring(3)}`; 
+  
   if(id('mapOverlay')) id('mapOverlay').style.display = 'flex'; 
   if(id('mapFrame')) id('mapFrame').src = `rpg_loader.html?taskId=${flatTask.gameId}`;
 }
@@ -1466,8 +1468,16 @@ function playTask(taskIndex) {
       return customAlert(`【${role.subTasks[taskIndex].substring(3)}】\n此任務的情境演練正在建置中...\n點擊「確定」直接模擬通關！`, () => { handleGameClear(1000); }, "🚧 任務建置中");
   }
 
-  if (gameUrl) { if(id('gameFrame')) id('gameFrame').src = gameUrl; if(id('gameTitle')) id('gameTitle').textContent = role.subTasks[taskIndex].substring(3); if(id('gameOverlay')) id('gameOverlay').style.display = 'flex'; } 
-  else { if(id('mapOverlayTitle')) id('mapOverlayTitle').textContent = `🎯 模擬演練：${role.subTasks[taskIndex].substring(3)}`; if(id('mapOverlay')) id('mapOverlay').style.display = 'flex'; if(id('mapFrame')) id('mapFrame').src = `rpg_loader.html?taskId=${gameId}`; }
+  if (gameUrl) { 
+      if(id('gameFrame')) id('gameFrame').src = gameUrl; 
+      if(id('gameTitle')) id('gameTitle').textContent = role.subTasks[taskIndex].substring(3); 
+      if(id('gameOverlay')) id('gameOverlay').style.display = 'flex'; 
+  } else { 
+      // ★ 修改這裡：同步加入專屬圖示與名稱
+      if(id('mapOverlayTitle')) id('mapOverlayTitle').textContent = `${role.icon} ${role.name}：${role.subTasks[taskIndex].substring(3)}`; 
+      if(id('mapOverlay')) id('mapOverlay').style.display = 'flex'; 
+      if(id('mapFrame')) id('mapFrame').src = `rpg_loader.html?taskId=${gameId}`; 
+  }
 }
 
 // 自動派發拼圖
