@@ -243,6 +243,8 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
   <div class="story-intro" id="storyIntro">
     <div class="typewriter" id="typewriterText"></div>
     <button class="btn-start" id="btnStartGame" onclick="startExplore()">開始</button>
+    
+    <div id="btnSwitchToList" style="opacity: 0; pointer-events: none; margin-top: 25px; font-size: 14px; color: #90caf9; text-decoration: underline; cursor: pointer; padding: 10px; transition: all 0.5s ease; transform: translateY(10px);" onclick="switchToListMode()">改以清單模式進行</div>
   </div>
 
   <button class="btn-fs-toggle" id="btnFsToggle" onclick="toggleFs()">⛶</button>
@@ -716,9 +718,25 @@ function typeWriter() {
     typeIndex++;
     setTimeout(typeWriter, 80); 
   } else {
+    // 字打完了，秀出開始按鈕
     document.getElementById('btnStartGame').classList.add('show');
+    
+    // ★ 判斷如果是第一個任務 (beg_id_0)，就同步秀出「改以清單模式進行」
+    if (taskId === 'beg_id_0') {
+        const switchBtn = document.getElementById('btnSwitchToList');
+        if (switchBtn) {
+            switchBtn.style.opacity = '1';
+            switchBtn.style.pointerEvents = 'auto';
+            switchBtn.style.transform = 'translateY(0)';
+        }
+    }
   }
 }
+
+// ★ 新增：通知母視窗切換成清單模式
+window.switchToListMode = function() {
+    window.parent.postMessage({ type: 'SWITCH_TO_LIST_MODE' }, '*');
+};
 
 function updateCamera() {
   const yOffset = (missionStage >= 0 && taskId !== 'hub_world') ? 50 : 0; 
