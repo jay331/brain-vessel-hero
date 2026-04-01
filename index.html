@@ -300,21 +300,32 @@ body.mode-advanced .view-toggle-btn {
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-/* ===== 減壓版清單 UI 優化 ===== */
+/* ===== 減壓版清單 UI 優化 (護眼版) ===== */
 .role-progress-bg { width: 100%; height: 4px; background: rgba(0,0,0,0.4); border-radius: 2px; margin-top: 6px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.5); }
 .role-progress-fill { height: 100%; background: var(--good); border-radius: 2px; transition: width 0.4s ease; box-shadow: 0 0 5px var(--good); }
 
-/* 弱化已完成項目，減少視覺噪音 */
-.subtask-item.completed { opacity: 0.5; border-color: transparent; background: transparent; }
-.subtask-item.completed:hover { opacity: 0.8; }
+/* ★ 需求 2：稍微調亮已完成任務，保留邊框，方便閱讀與複習 */
+.subtask-item.completed { opacity: 0.85; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #ccc; }
+.subtask-item.completed:hover { opacity: 1; background: rgba(255,255,255,0.1); }
+
+/* ★ 需求 3：降低挑戰中任務的刺眼底色，改用深色底 + 主題色亮邊框凸顯 */
+.subtask-item.active { 
+    background: rgba(0, 0, 0, 0.6); 
+    border: 1px solid var(--theme-primary); 
+    color: #fff; 
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 0 6px rgba(100, 181, 246, 0.3); /* 淡淡微光 */
+    padding: 12px; 
+    transform: none; /* 移除放大的壓迫感 */
+}
+body.mode-advanced .subtask-item.active {
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 0 6px rgba(212, 175, 55, 0.3); /* 進階金光 */
+}
 
 /* 未解鎖的項目改為虛線，降低存在感 */
 .subtask-item.locked { background: transparent; border: 1px dashed rgba(255,255,255,0.1); color: #555; }
 
-/* 凸顯當前任務 */
-.subtask-item.active { padding: 14px 12px; } /* 當前任務稍微長高一點點 */
-.status-pill { font-size: 11px; padding: 4px 8px; border-radius: 12px; background: rgba(0,0,0,0.3); }
-.subtask-item.active .status-pill { background: #fff; color: var(--theme-primary); text-shadow: none; font-weight: 900; }
+.status-pill { font-size: 11px; padding: 4px 8px; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid #555; }
+.subtask-item.active .status-pill { background: rgba(255,255,255,0.1); color: var(--theme-primary); border-color: var(--theme-primary); font-weight: bold; text-shadow: none; }
     
 .nav-item .icon { 
     font-size: 24px; 
@@ -1054,7 +1065,6 @@ function updateHUD(skipMapRender = false) {
   autoGrantPuzzles();
   updateCartridgeBadges();
 
-  
   checkExtremeAttempts();
   const extBadge = id('extremeBadge');
   if (extBadge) {
@@ -1064,9 +1074,25 @@ function updateHUD(skipMapRender = false) {
   
   const todayStr = new Date().toLocaleDateString('zh-TW');
   if (!playerState.dailyExplores || playerState.dailyExplores.date !== todayStr) playerState.dailyExplores = { date: todayStr, count: 0 };
-  let uncompletedExploreCount = Math.max(0, 3 - playerState.dailyExplores.count); 
+  
+  // ★ 需求 4：判斷醫院探索是否解鎖，並顯示對應的紅點或鎖頭
   const exploreBadge = id('exploreBadge');
-  if (exploreBadge) { if (uncompletedExploreCount > 0) { exploreBadge.style.display = 'flex'; exploreBadge.textContent = uncompletedExploreCount; } else { exploreBadge.style.display = 'none'; } }
+  let isExploreLocked = (playerState.mode === 'beginner' && playerState.storyProgression < 25);
+  let uncompletedExploreCount = Math.max(0, 3 - playerState.dailyExplores.count); 
+
+  if (exploreBadge) { 
+      if (isExploreLocked) {
+          exploreBadge.style.display = 'flex'; 
+          exploreBadge.textContent = '🔒';
+          exploreBadge.style.fontSize = '8px'; // 稍微縮小鎖頭以免溢出
+      } else if (uncompletedExploreCount > 0) { 
+          exploreBadge.style.display = 'flex'; 
+          exploreBadge.textContent = uncompletedExploreCount; 
+          exploreBadge.style.fontSize = '10px'; // 恢復數字大小
+      } else { 
+          exploreBadge.style.display = 'none'; 
+      } 
+  }
   
   renderHomeRoles();
   if (playerState.storyMode && !skipMapRender) renderNodeMap();
@@ -1086,7 +1112,6 @@ function renderHomeRoles() {
        else if (playerState.mode === 'advanced' && playerState.taskScoresAdv.has(`${role.id}_${i}`)) doneCount++;
     }
     
-    // 計算進度百分比供進度條使用
     const progressPercent = Math.min(100, Math.round((doneCount / role.totalTasks) * 100));
 
     let tasksHtml = '';
@@ -1107,7 +1132,6 @@ function renderHomeRoles() {
            } else if (role.currentTask > role.totalTasks) { 
                statusClass = 'active'; icon = '↻ 複習'; action = `onclick="startTaskFromAccordion('${role.id}', ${i})"`;
            } else {
-               // ★ 進階模式防雷：未解鎖的任務不要顯示完整字數，減少閱讀壓力
                taskTitle = `任務 ${i+1} 尚未解鎖`;
                icon = '🔒';
            }
@@ -1120,8 +1144,7 @@ function renderHomeRoles() {
           <div class="role-card" id="card-${role.id}" onclick="toggleAccordion('${role.id}')">
             <div class="role-avatar">${role.icon}</div>
             <div class="role-info">
-              <div class="role-name">${role.name}</div>
-              <div class="role-task">${role.subtitle}</div>
+              <div class="role-name">${role.name} <span style="font-size:11px; color:#ccc; font-weight:normal; margin-left:6px; text-shadow:none;">${role.subtitle}</span></div>
               <div class="role-progress-bg"><div class="role-progress-fill" style="width: ${progressPercent}%;"></div></div>
             </div>
             <div class="role-status"><div class="role-go-btn" id="btn-${role.id}">▼</div></div>
