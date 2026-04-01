@@ -239,11 +239,11 @@ body.mode-advanced .view-toggle-btn {
 
 .role-tasks-accordion { display:none; background:rgba(0,0,0,0.3); border-radius:0 0 8px 8px; padding:10px; margin-top:-4px; border:1px solid var(--theme-dim); border-top:none; box-shadow:inset 0 2px 10px rgba(0,0,0,0.5); margin-bottom: 4px;}
 .role-tasks-accordion.open { display:flex; flex-direction:column; gap:6px; }
-.subtask-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-radius: 6px; border: 1px solid var(--theme-dim); font-weight: bold; font-size: 13px; transition: all 0.2s; flex-shrink: 0;}
-.subtask-item.completed { background: rgba(255, 255, 255, 0.05); border-color: #444; color: #aaa; }
+.subtask-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-radius: 6px; border: 1px solid var(--theme-dim); font-weight: bold; font-size: 13px; transition: all 0.2s; flex-shrink: 0; background: rgba(255, 255, 255, 0.05); } /* ★ 加上微白底色 */
+.subtask-item.completed { opacity: 0.85; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.4); color: #ccc; }
 .subtask-item.completed .status-text { color: var(--theme-primary); filter: drop-shadow(0 0 2px rgba(0,0,0,0.8)); font-size: 13px;}
-.subtask-item.active { background: linear-gradient(135deg, var(--theme-primary), var(--theme-dim)); border: 2px solid #fff; color: var(--btn-text); text-shadow: var(--btn-shadow); cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5), 0 0 15px var(--theme-primary); transform: scale(1.02); z-index:2; }
-.subtask-item.locked { background: rgba(0, 0, 0, 0.6); border-color: #333; color: #666; pointer-events: none; }
+.subtask-item.active { background: rgba(0, 0, 0, 0.6); border: 1px solid var(--theme-primary); color: var(--btn-text); text-shadow: var(--btn-shadow); cursor: pointer; box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 0 6px var(--theme-primary); padding: 12px; z-index:2; }
+.subtask-item.locked { background: rgba(0, 0, 0, 0.25); border: 1px dashed rgba(255,255,255,0.15); color: #888; pointer-events: none; } /* ★ 稍微給一點底色，不要全透明 */
 
 /* 卡匣等其餘 UI */
 .pokedex-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 6px; flex-wrap: nowrap; scrollbar-width: none; justify-content:center; flex-shrink: 0;}
@@ -422,19 +422,34 @@ body.mode-advanced .subtask-item.active {
     
     <div class="cartridges-wrap">
       <div class="cartridge-btn active" id="cart_puzzle" onclick="selectCartridge('puzzle')">
-        🧩 拼圖收藏<div class="cartridge-badge" id="badge_puzzle">0</div>
+        <div style="display:flex; flex-direction:column; align-items:center;">
+          <span>🧩 拼圖收藏</span>
+          <span id="count_puzzle" style="font-size:10px; color:#999; font-weight:normal; margin-top:2px;">0/20</span>
+        </div>
+        <div class="cartridge-badge" id="badge_puzzle">0</div>
       </div>
       <div class="cartridge-btn" id="cart_beg" onclick="selectCartridge('beg')">
-        🔰 初階健康卡<div class="cartridge-badge" id="badge_beg">0</div>
+        <div style="display:flex; flex-direction:column; align-items:center;">
+          <span>🔰 初階健康卡</span>
+          <span id="count_beg" style="font-size:10px; color:#999; font-weight:normal; margin-top:2px;">0/25</span>
+        </div>
+        <div class="cartridge-badge" id="badge_beg">0</div>
       </div>
       <div class="cartridge-btn" id="cart_adv" onclick="selectCartridge('adv')">
-        💠 進階健康卡<div class="cartridge-badge" id="badge_adv">0</div>
+        <div style="display:flex; flex-direction:column; align-items:center;">
+          <span>💠 進階健康卡</span>
+          <span id="count_adv" style="font-size:10px; color:#999; font-weight:normal; margin-top:2px;">0/25</span>
+        </div>
+        <div class="cartridge-badge" id="badge_adv">0</div>
       </div>
       <div class="cartridge-btn" id="cart_hid" onclick="selectCartridge('hid')">
-        ⭐ 隱藏卡<div class="cartridge-badge" id="badge_hid">0</div>
+        <div style="display:flex; flex-direction:column; align-items:center;">
+          <span>⭐ 隱藏卡</span>
+          <span id="count_hid" style="font-size:10px; color:#999; font-weight:normal; margin-top:2px;">0/2</span>
+        </div>
+        <div class="cartridge-badge" id="badge_hid">0</div>
       </div>
     </div>
-  </div>
   <button class="btn btn-back" style="position:absolute; top:15px; left:15px; width:auto; padding:8px 12px; font-size:12px; z-index:100;" onclick="showScreen('scrHome')"><span class="back-icon">🏠</span> 返回</button>
 </section>
 
@@ -1500,9 +1515,8 @@ function renderDisplayHall(type, skipScroll = false) {
     updateCartridgeBadges(); 
     updateCoverFlow();
 
-    // ★ 如果 skipScroll 是 false 才會自動滑動
-    // ★ 需求 3：修改預設捲動邏輯，優先找未讀/未拼湊的卡片
-    if (!skipScroll && unlockedElementsCount > 0) {
+    // ★ 需求 3 & 4：修改預設捲動邏輯 (切換分頁也能觸發，且沒卡片時跳編號1)
+    if (!skipScroll) {
         setTimeout(() => {
             const newCards = track.querySelectorAll('.is-new');
             let targetCard = null;
@@ -1512,17 +1526,23 @@ function renderDisplayHall(type, skipScroll = false) {
             } else {
                 const unlockedCards = track.querySelectorAll('.unlocked-card');
                 if (unlockedCards.length > 0) {
-                    targetCard = unlockedCards[Math.floor(Math.random() * unlockedCards.length)]; // 沒新卡才隨機展示
+                    targetCard = unlockedCards[Math.floor(Math.random() * unlockedCards.length)]; // 都解鎖了則隨機展示
+                } else {
+                    // 若完全沒有任何卡片或拼圖，取第一張 (也就是編號 #1)
+                    const allCards = track.querySelectorAll('.hall-card');
+                    if (allCards.length > 0) targetCard = allCards[0];
                 }
             }
             
             if (targetCard) {
-                targetCard.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+                // 使用 block: 'nearest' 讓畫面捲動更平滑不跳動
+                targetCard.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
                 setTimeout(updateCoverFlow, 50); 
+                setTimeout(updateCoverFlow, 300); // 確保捲動停止後 3D 特效精準對齊
             }
         }, 100);
     }
-} // 這是 renderDisplayHall 的結尾括號
+} // 這是 renderDisplayHall 結尾的大括號
 
 // 3D Cover Flow 立體翻頁計算
 function updateCoverFlow() {
@@ -1694,8 +1714,24 @@ function updateCartridgeBadges() {
 
     const begBadge = countUnseen('beg');
     const advBadge = countUnseen('adv');
-    const puzzleBadge = (playerState.pendingPuzzles || []).length; // ★ 計算未拼完的拼圖數
+    const puzzleBadge = (playerState.pendingPuzzles || []).length; 
     
+    // ===================================
+    // ★ 需求 2：更新卡片按鈕上的數字進度
+    // ===================================
+    const begCollected = playerState.taskScoresBeg.size;
+    const advCollected = playerState.taskScoresAdv.size;
+    const puzzleCollected = (playerState.unlockedPuzzles || []).length;
+    let hidCollected = 0;
+    if (begCollected >= 25) hidCollected++;
+    if (advCollected >= 25) hidCollected++;
+
+    if(id('count_beg')) id('count_beg').textContent = `${begCollected}/25`;
+    if(id('count_adv')) id('count_adv').textContent = `${advCollected}/25`;
+    if(id('count_puzzle')) id('count_puzzle').textContent = `${puzzleCollected}/20`;
+    if(id('count_hid')) id('count_hid').textContent = `${hidCollected}/2`;
+    
+    // 更新紅點的顯示 (保留原程式碼)
     if(id('badge_beg')) {
         id('badge_beg').style.display = begBadge > 0 ? 'flex' : 'none';
         id('badge_beg').textContent = begBadge;
@@ -1705,7 +1741,7 @@ function updateCartridgeBadges() {
         id('badge_adv').textContent = advBadge;
     }
     if(id('badge_puzzle')) {
-        id('badge_puzzle').style.display = puzzleBadge > 0 ? 'flex' : 'none'; // ★ 顯示拼圖紅點
+        id('badge_puzzle').style.display = puzzleBadge > 0 ? 'flex' : 'none'; 
         id('badge_puzzle').textContent = puzzleBadge;
     }
     
