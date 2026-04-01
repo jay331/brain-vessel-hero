@@ -25,7 +25,7 @@ const MAIN_TASKS = {
       ], action: 'ACTION_STORE' },
 
       // 門診藥局
-      { id: 'npc_pharmacy', name: '藥師', color: '#03a9f4', head: '#81d4fa', body: '#e1f5fe', pos: { x: 2350, y: -1150 }, icon: '💊', dialogs: [
+      { id: 'npc_pharmacy', name: '藥師', color: '#03a9f4', head: '#81d4fa', body: '#e1f5fe', pos: { x: 2350, y: -300 }, icon: '💊', dialogs: [
         {name: "藥師", text: "領藥請排隊！"},
         {name: "藥師", text: "中風病患一定要按時服藥控制血壓與血糖，千萬不能自己隨便停藥喔！"}
       ], action: 'NONE' },
