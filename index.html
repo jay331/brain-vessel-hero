@@ -624,6 +624,7 @@ const SAVE_KEY = 'BrainPioneer_SaveData_v9.7';
 let playerState = { 
   hasSetup: false, name: "", avatar: "https://i.pravatar.cc/150?img=11", mode: "beginner", 
   coins: 0, 
+  seenCards: [],
   storyMode: true, storyProgression: 0, replayProgression: 0, isReplaying: false, explorationTasksCompleted: 0, 
   completedCasesBeg: new Map(), completedCasesAdv: new Map(),
   taskScoresBeg: new Map(), taskScoresAdv: new Map(), 
@@ -1214,6 +1215,7 @@ function saveGameData() {
     scaleRecords: playerState.scaleRecords, strokeCard: playerState.strokeCard,
     unlockedPuzzles: playerState.unlockedPuzzles, boughtPuzzles: playerState.boughtPuzzles,
     pendingPuzzles: playerState.pendingPuzzles, foundItems: playerState.foundItems, 
+    seenCards: playerState.seenCards,
     completedExplores: playerState.completedExplores, usedFreecellTickets: playerState.usedFreecellTickets,
     dailyExplores: playerState.dailyExplores, extremeAttempts: playerState.extremeAttempts, challengeRecords: playerState.challengeRecords,
     dailyComp: playerState.dailyComp, dailyMapCoins: playerState.dailyMapCoins,
@@ -1272,6 +1274,7 @@ function loadGameData() {
       if(parsed.boughtPuzzles) playerState.boughtPuzzles = parsed.boughtPuzzles;
       if(parsed.pendingPuzzles) playerState.pendingPuzzles = parsed.pendingPuzzles;
       if(parsed.foundItems) playerState.foundItems = parsed.foundItems;
+      if(parsed.seenCards) playerState.seenCards = parsed.seenCards;  
       if(parsed.completedExplores) playerState.completedExplores = parsed.completedExplores; 
       if(parsed.usedFreecellTickets) playerState.usedFreecellTickets = parsed.usedFreecellTickets;
       if(parsed.dailyExplores) playerState.dailyExplores = parsed.dailyExplores; 
