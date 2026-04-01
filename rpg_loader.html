@@ -449,6 +449,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const taskId = urlParams.get('taskId') || 'hub_world';
 let isFsMode = urlParams.get('fs') === '1';
 let isFirstTask = urlParams.get('first') === '1';
+   const skipIntro = urlParams.get('skipIntro') === '1';
 
 let task = RPG_TASKS[taskId];
 if (!task) {
@@ -966,14 +967,27 @@ window.onload = () => {
 
   if (isFsMode) document.getElementById('btnFsToggle').innerHTML = "🗗";
 
-  if (taskId === 'hub_world' && !isFirstTask) {
-    document.getElementById('storyIntro').style.display = 'none';
-    document.getElementById('player').style.opacity = '1';
-    document.getElementById('btnFsToggle').style.display = 'flex';
-    document.getElementById('btnReturnLobby').style.display = 'block';
+  // ★ 修改這裡：加入 skipIntro 的判斷，直接解鎖玩家控制權
+  if ((taskId === 'hub_world' && !isFirstTask) || skipIntro) {
+    document.getElementById('storyIntro').style.display = 'none'; // 隱藏黑幕
+    document.getElementById('player').style.opacity = '1';        // 顯示玩家
+    
+    if (taskId === 'hub_world') {
+      // 這是大廳模式
+      document.getElementById('btnFsToggle').style.display = 'flex';
+      document.getElementById('btnReturnLobby').style.display = 'block';
+    } else {
+      // 這是清單模式直接進入任務，直接顯示上方的任務提示列
+      document.getElementById('btnFsToggle').style.display = 'none';
+      document.getElementById('btnReturnLobby').style.display = 'none';
+      document.getElementById('uiHeader').style.display = 'flex';
+      setTimeout(() => { document.getElementById('uiHeader').style.opacity = '1'; }, 50);
+    }
+    
     missionStage = 0;
-    gameActive = true;
+    gameActive = true; // 直接啟用搖桿控制
   } else {
+    // 任務模式：乖乖播放打字機動畫
     setTimeout(typeWriter, 600); 
   }
 
