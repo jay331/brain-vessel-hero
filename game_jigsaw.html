@@ -203,7 +203,7 @@
   }
 
   .tray-area .piece {
-    touch-action: pan-x; 
+    touch-action: none; 
   }
 
   .piece.floating {
@@ -669,7 +669,11 @@ function init(){
 
     piece.el.addEventListener("pointerdown", (e) => {
       if(piece.locked || dragging) return;
-       piece.el.style.touchAction = "none";
+      
+      piece.el.style.touchAction = "none";
+      tray.style.overflowX = "hidden";
+      tray.style.touchAction = "none";
+      
       dragMode = null;
       
       isPressing = true;
@@ -730,6 +734,8 @@ piece.el.addEventListener("pointermove", (e) => {
 });
 
     function endDrag(e){
+      tray.style.overflowX = "auto";
+tray.style.touchAction = "pan-x";
       isPressing = false;
       if(!dragging) return;
       dragging = false;
