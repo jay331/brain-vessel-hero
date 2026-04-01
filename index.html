@@ -152,21 +152,33 @@ header {
 /* 底部卡匣區 (下方 1/3) */
 /* ===== 修復健康卡底部按鈕被切一半的問題 ===== */
 .cartridges-wrap {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 8px !important;
-    /* 關鍵 1：給予底部額外的彈性空間，並自動避開手機的底部虛擬按鍵/安全區 */
-    padding-bottom: max(30px, env(safe-area-inset-bottom)) !important; 
-    /* 關鍵 2：允許內容自然撐開，不要被強制隱藏 */
-    overflow: visible !important;
-    flex-shrink: 0 !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important; /* 剛好切成左右兩半 */
+    grid-template-rows: repeat(2, 1fr) !important;    /* 剛好切成上下兩半 */
+    gap: 10px !important; /* 按鈕之間的縫隙 */
+    width: 100% !important;
+    
+    /* 關鍵：讓容器自動吸收剩下的所有高度，但不超過 */
+    flex: 1 !important; 
+    min-height: 0 !important; 
+    
+    padding-bottom: max(15px, env(safe-area-inset-bottom)) !important; 
+    margin-top: 10px !important;
+    overflow: hidden !important; /* 鎖死，絕對不准滾動 */
 }
 
 .cartridge-btn {
-    /* 強制四顆按鈕排成完美的 2x2 網格，且不會擠出去 */
-    width: calc(50% - 4px) !important; 
+    width: 100% !important;
+    height: 100% !important; /* 按鈕高度自動延展，填滿網格 */
     margin: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important; /* 內容垂直置中 */
+    align-items: center !important;
+    padding: 8px 5px !important;
     box-sizing: border-box !important;
+    text-align: center !important;
+    border-radius: 8px !important;
 }
 .cartridge-btn.active {
     background: var(--theme-grad); border-color: var(--theme-primary); color: #fff;
@@ -429,30 +441,33 @@ body.mode-advanced .subtask-item.active {
     
     <div class="cartridges-wrap">
       <div class="cartridge-btn active" id="cart_puzzle" onclick="selectCartridge('puzzle')">
-        <div style="display:flex; flex-direction:column; align-items:center;">
-          <span>🧩 拼圖收藏</span>
-          <span id="count_puzzle" style="font-size:10px; color:#999; font-weight:normal; margin-top:2px;">0/20</span>
+        <div style="display:flex; flex-direction:column; align-items:center; line-height:1.4;">
+          <span style="font-size:16px;">🧩 拼圖收藏</span>
+          <span id="count_puzzle" style="font-size:11px; color:#aaa; font-weight:normal;">0/20</span>
         </div>
         <div class="cartridge-badge" id="badge_puzzle">0</div>
       </div>
+      
       <div class="cartridge-btn" id="cart_beg" onclick="selectCartridge('beg')">
-        <div style="display:flex; flex-direction:column; align-items:center;">
-          <span>🔰 初階健康卡</span>
-          <span id="count_beg" style="font-size:10px; color:#999; font-weight:normal; margin-top:2px;">0/25</span>
+        <div style="display:flex; flex-direction:column; align-items:center; line-height:1.4;">
+          <span style="font-size:16px;">🔰 初階圖卡</span>
+          <span id="count_beg" style="font-size:11px; color:#aaa; font-weight:normal;">0/25</span>
         </div>
         <div class="cartridge-badge" id="badge_beg">0</div>
       </div>
+      
       <div class="cartridge-btn" id="cart_adv" onclick="selectCartridge('adv')">
-        <div style="display:flex; flex-direction:column; align-items:center;">
-          <span>💠 進階健康卡</span>
-          <span id="count_adv" style="font-size:10px; color:#999; font-weight:normal; margin-top:2px;">0/25</span>
+        <div style="display:flex; flex-direction:column; align-items:center; line-height:1.4;">
+          <span style="font-size:16px;">👑 進階圖卡</span>
+          <span id="count_adv" style="font-size:11px; color:#aaa; font-weight:normal;">0/25</span>
         </div>
         <div class="cartridge-badge" id="badge_adv">0</div>
       </div>
+      
       <div class="cartridge-btn" id="cart_hid" onclick="selectCartridge('hid')">
-        <div style="display:flex; flex-direction:column; align-items:center;">
-          <span>⭐ 隱藏卡</span>
-          <span id="count_hid" style="font-size:10px; color:#999; font-weight:normal; margin-top:2px;">0/2</span>
+        <div style="display:flex; flex-direction:column; align-items:center; line-height:1.4;">
+          <span style="font-size:16px;">⭐ 隱藏卡</span>
+          <span id="count_hid" style="font-size:11px; color:#aaa; font-weight:normal;">0/2</span>
         </div>
         <div class="cartridge-badge" id="badge_hid">0</div>
       </div>
