@@ -74,6 +74,15 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
     overflow: hidden; z-index: 2; display: flex; align-items: flex-end;
     /* 建立獨立渲染層，防止影響外部效能 */
     transform: translateZ(0); 
+    cursor: pointer;
+}
+
+   .aq-food {
+    position: absolute;
+    font-size: 10px;
+    z-index: 5;
+    pointer-events: none; /* 避免擋住魚缸的點擊 */
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5));
 }
 
 /* 水波紋改用 translateX 加速 */
@@ -255,6 +264,16 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
         </div>
 <div class="aquarium">
     <div class="aq-water"></div>
+   <div class="aquarium" onclick="feedFish(event)">
+    <div class="aq-water"></div>
+    <div id="aqDecorationsContainer"></div>
+    <div class="aq-crab" id="aqCrab">🦀</div>
+    <div id="aqFishContainer"></div>
+    <div class="aq-octopus" style="left:280px;">🐙</div>
+    <div class="aq-bubbles" style="left:180px; animation-delay: 0s;">🫧</div>
+    <div class="aq-bubbles" style="left:110px; animation-delay: 4s;">🫧</div>
+    <div class="aq-bubbles" style="right:120px; animation-delay: 2s;">🫧</div>
+</div>
     
     <div id="aqDecorationsContainer"></div>
     
@@ -753,6 +772,91 @@ function randomizeAquariumDecorations() {
     container.appendChild(elStar);
 }
 
+// ==========================================
+// ★ 互動系統：點擊餵魚邏輯
+// ==========================================
+let isFeeding = false;
+window.feedFish = function(e) {
+    if (isFeeding) return; // 避免狂點重複觸發
+    isFeeding = true;
+
+    const aq = e.currentTarget;
+    const rect = aq.getBoundingClientRect();
+    
+    // 計算點擊的相對位置
+    const clickX = e.clientX - rect.left;
+    const clickY = Math.min(e.clientY - rect.top, 100); // 限制飼料不要掉出魚缸底座
+
+    // 1. 掉落 3 顆小飼料 🟤
+    const foods = [];
+    for(let i=0; i<3; i++) {
+        const food = document.createElement('div');
+        food.className = 'aq-food';
+        food.textContent = '🟤'; 
+        food.style.left = (clickX + (Math.random()-0.5)*20) + 'px';
+        food.style.top = '-20px'; // 從水面上方掉下來
+        food.style.transition = `top ${1 + Math.random()*0.5}s ease-in, opacity 1s ease-out`;
+        aq.appendChild(food);
+        foods.push(food);
+        
+        // 觸發掉落動畫
+        setTimeout(() => { food.style.top = (clickY + (Math.random()-0.5)*20) + 'px'; }, 50);
+    }
+
+    // 2. 暫停魚群原本的巡邏，並讓牠們游向飼料
+    const fishes = aq.querySelectorAll('.aq-fish');
+    fishes.forEach(fish => {
+        // 抓取魚目前的 CSS 動畫絕對 X 座標
+        const comp = window.getComputedStyle(fish);
+        const matrix = comp.transform;
+        let currentTx = 0;
+        if (matrix !== 'none') {
+            const values = matrix.split('(')[1].split(')')[0].split(',');
+            currentTx = parseFloat(values[4]); 
+        }
+
+        // 紀錄魚原本的深度 (top)，以利等一下回去
+        if (!fish.dataset.origTop) fish.dataset.origTop = fish.style.top;
+
+        // ★ 核心魔法：暫停原本的巡邏動畫，改用 CSS transition 滑動到新位置
+        fish.style.animationPlayState = 'paused';
+        fish.style.transition = 'left 1.5s cubic-bezier(0.25, 1, 0.5, 1), top 1.5s ease-out';
+
+        // 讓魚聚集在飼料周圍 (加一點隨機偏移，避免全部疊在一起)
+        const offsetX = (Math.random() - 0.5) * 80;
+        const offsetY = (Math.random() - 0.5) * 50;
+        
+        fish.style.left = (clickX - currentTx + offsetX) + 'px';
+        fish.style.top = (clickY + offsetY) + 'px';
+    });
+
+    // 3. 3 秒後吃完，飼料消失，魚群鳥獸散
+    setTimeout(() => {
+        foods.forEach(f => f.style.opacity = '0'); // 飼料溶於水
+        
+        fishes.forEach(fish => {
+            // 解除 left 偏移，恢復原本深度
+            fish.style.left = '0px';
+            fish.style.top = fish.dataset.origTop;
+            
+            // 恢復巡邏動畫
+            fish.style.animationPlayState = 'running';
+            
+            // 等牠們散開後，移除 transition 以免影響之後的動畫
+            setTimeout(() => {
+                fish.style.transition = '';
+            }, 1500);
+        });
+        
+        // 徹底清掉 DOM 裡的飼料，並開放下次餵食
+        setTimeout(() => { 
+            foods.forEach(f => { if (f.parentNode) f.parentNode.removeChild(f); }); 
+            isFeeding = false; 
+        }, 1500);
+        
+    }, 3000);
+};
+   
 function randomizeAquariumFish() {
     const container = document.getElementById('aqFishContainer'); 
     if (!container) return; 
@@ -809,6 +913,8 @@ function randomizeAquariumFish() {
         container.appendChild(el);
     });
 }
+
+
    
 window.onload = () => {
   document.getElementById('player').style.left = state.x + 'px'; 
