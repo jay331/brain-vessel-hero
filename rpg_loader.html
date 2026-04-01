@@ -455,14 +455,14 @@ if (taskId === 'hub_world') {
     if (oldWardrobeIndex !== -1) {
         task.npcs[oldWardrobeIndex] = {
             id: 'obj_wardrobe', name: '更衣櫃', icon: '🚪', color: '#37474f',
-            pos: { x: 1660, y: -120 }, action: 'ACTION_WARDROBE', dialogs: [{name: '', text: ''}]
+            pos: { x: 1660, y: -100 }, action: 'ACTION_WARDROBE', dialogs: [{name: '', text: ''}]
         };
     }
 
     if (!task.npcs.find(n => n.id === 'obj_tablet')) {
         task.npcs.push({
             id: 'obj_tablet', name: '任務平板', icon: '📱', color: '#1976d2',
-            pos: { x: 1450, y: -220 }, action: 'ACTION_CHECK_TABLET', dialogs: [{name: '', text: ''}]
+            pos: { x: 1550, y: -220 }, action: 'ACTION_CHECK_TABLET', dialogs: [{name: '', text: ''}]
         });
     }
 
