@@ -1044,7 +1044,7 @@ function showDialog() {
 if (currentNpc.id === 'obj_tablet') {
       if (urlParams.get('locked') === '1') {
           // ★ 未解鎖的專屬平板訊息
-          currentNpc.dialogs[0].text = `【醫院探索模式 尚未解鎖】\n\n請先完成初階版的 25 個引導任務，才能進入醫院完整探索及承接任務喔！`;
+          currentNpc.dialogs[0].text = `【醫院探索模式 尚未解鎖】\n\n完成初階版的 25 個引導任務，才能進入醫院。\n\n目前可在休息室看書、看魚、餵魚、換裝`;
       } else {
           // 原本的任務面板邏輯
           let dailyCount = window.playerDailyExplores ? window.playerDailyExplores.count : 0;
