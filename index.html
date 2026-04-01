@@ -162,34 +162,45 @@ header {
     flex: 1 !important; 
     min-height: 0 !important; 
     
-    padding-bottom: max(15px, env(safe-area-inset-bottom)) !important; 
+    padding-bottom: max(30px, env(safe-area-inset-bottom)) !important; 
     margin-top: 10px !important;
     overflow: hidden !important; /* 鎖死，絕對不准滾動 */
 }
 
 .cartridge-btn {
+    position: relative !important; /* ★ 確保這行存在，紅點才能定位在按鈕內 */
     width: 100% !important;
-    height: 100% !important; /* 按鈕高度自動延展，填滿網格 */
+    height: 100% !important; 
     margin: 0 !important;
     display: flex !important;
     flex-direction: column !important;
-    justify-content: center !important; /* 內容垂直置中 */
+    justify-content: center !important;
     align-items: center !important;
     padding: 8px 5px !important;
     box-sizing: border-box !important;
     text-align: center !important;
     border-radius: 8px !important;
 }
+
+/* ★ 專屬按鈕右上角的紅點通知樣式 */
+.cartridge-badge {
+    position: absolute !important;
+    top: -6px !important;
+    right: -6px !important;
+    background: #f44336 !important; /* 警示紅 */
+    color: white !important;
+    font-size: 11px !important;
+    font-weight: bold !important;
+    padding: 2px 6px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.4) !important;
+    border: 1px solid #ffcdd2 !important;
+    display: none; /* 預設隱藏，有數字時才靠 JS 顯示 */
+    z-index: 10 !important;
+}
 .cartridge-btn.active {
     background: var(--theme-grad); border-color: var(--theme-primary); color: #fff;
     box-shadow: 0 0 15px rgba(212,175,55,0.3), inset 0 2px 4px rgba(255,255,255,0.2);
-}
-.cartridge-badge {
-    position: absolute; top: -6px; right: -6px; background: var(--accent-red); color: #fff;
-    border-radius: 50%; min-width: 22px; height: 22px; padding: 0 6px; font-size: 11px; font-weight: 900;
-    display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.8);
-    display: none; border: 2px solid #000;
-}
     
 .coin-row { 
     display: inline-flex; align-items: center; gap: 6px; cursor: pointer; 
@@ -1761,7 +1772,7 @@ function updateCartridgeBadges() {
     if(id('count_puzzle')) id('count_puzzle').textContent = `${puzzleCollected}/20`;
     if(id('count_hid')) id('count_hid').textContent = `${hidCollected}/2`;
     
-    // 更新紅點的顯示 (保留原程式碼)
+    // 更新紅點的顯示 (完全保留你寫得很好的原程式碼)
     if(id('badge_beg')) {
         id('badge_beg').style.display = begBadge > 0 ? 'flex' : 'none';
         id('badge_beg').textContent = begBadge;
@@ -1775,11 +1786,10 @@ function updateCartridgeBadges() {
         id('badge_puzzle').textContent = puzzleBadge;
     }
     
-    const total = begBadge + advBadge + puzzleBadge;
+    // ★ 核心修改：強制隱藏右上角的總數量大紅點
     const navBadge = id('casedexBadge');
     if (navBadge) {
-        navBadge.style.display = total > 0 ? 'flex' : 'none';
-        navBadge.textContent = total;
+        navBadge.style.display = 'none'; // 直接設為 none，永遠隱藏
     }
 }
 
