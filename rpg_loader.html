@@ -62,66 +62,75 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 /* ★ 擴大地圖世界邊界，容納所有的樓層 */
 .game-world { position: absolute; left: 0; top: 0; width: 40000px; height: 3500px; }
 
-/* ===== 新一代豪華魚缸 (高度倍增、頭朝前、成群游動、新增生物) ===== */
+/* ===== 豪華升級版魚缸 (高度倍增、生物加大、速度變慢、頭朝前) ===== */
 .aquarium {
     position: absolute; left: 1300px; 
-    top: -70px; /* ★ 高度加倍，向上移動以對齊原本頂部位置 */
+    top: -100px; /* ★ 高度再次加大，向上移動以對齊原本頂部位置 */
     width: 400px; 
-    height: 120px; /* ★ 高度從 60px 加倍為 120px */
-    background: linear-gradient(180deg, rgba(20, 150, 200, 0.2), rgba(0, 80, 120, 0.6));
-    border: 5px solid rgba(255,255,255,0.4); border-radius: 12px;
-    box-shadow: 0 16px 32px rgba(0,0,0,0.4), inset 0 0 30px rgba(0, 255, 255, 0.3);
+    height: 150px; /* ★ 高度加倍至 150px，更壯觀 */
+    background: linear-gradient(180deg, rgba(20, 150, 200, 0.15), rgba(0, 80, 120, 0.5));
+    border: 6px solid rgba(255,255,255,0.4); border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 0 30px rgba(0, 255, 255, 0.3);
     overflow: hidden; z-index: 2; display: flex; align-items: flex-end;
 }
-.aq-water { position: absolute; inset: 0; background: repeating-linear-gradient(45deg, transparent, transparent 15px, rgba(255,255,255,0.04) 15px, rgba(255,255,255,0.04) 30px); animation: wave 6s infinite linear; }
-.aq-plant { position: absolute; bottom: -8px; font-size: 32px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); transform-origin: bottom center; animation: sway 4s infinite ease-in-out; }
-.aq-coral { position: absolute; bottom: -4px; font-size: 30px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
-.aq-crab { position: absolute; bottom: 4px; font-size: 22px; animation: scuttle 15s infinite alternate ease-in-out; }
+.aq-water { position: absolute; inset: 0; background: repeating-linear-gradient(45deg, transparent, transparent 15px, rgba(255,255,255,0.03) 15px, rgba(255,255,255,0.03) 30px); animation: wave 8s infinite linear; }
+.aq-plant { position: absolute; bottom: -10px; font-size: 36px; /* 加大植物 */ filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); transform-origin: bottom center; animation: sway 5s infinite ease-in-out; }
+.aq-coral { position: absolute; bottom: -4px; font-size: 34px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
+.aq-crab { position: absolute; bottom: 4px; font-size: 28px; /* 加大螃蟹 */ animation: scuttle 20s infinite alternate ease-in-out; /* 變慢 */ }
 
-/* ★ 新增：海星，在底部安靜待著 */
-.aq-starfish { position: absolute; bottom: 6px; font-size: 18px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
-
-/* ★ 魚兒通用樣式，魚頭方向設定：🐟=頭朝左, 🐠, 🐡=頭朝右 */
-.aq-fish { position: absolute; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.4)); white-space: nowrap; transform-origin: center; }
-
-/* ★ 成群游動的魚群 (🐟群，頭朝左) ★ */
-/* 游慢一些 (30-40秒一圈)，且頭始終朝前 */
-.aq-fish.aq-group-1 { font-size: 24px; animation: swimHeadFirstR 35s infinite linear; }
-/* 頭朝左，往右游時需反轉 scaleX(-1) 使頭朝前，往左游時 scaleX(1) 朝前 */
-@keyframes swimHeadFirstR { 
-    0% { left: -50px; transform: scaleX(1); }    /* 開始在左側，頭朝左 (backward) */
-    49% { left: 430px; transform: scaleX(1); }  /* 游到右側，轉身 */
-    50% { left: 430px; transform: scaleX(-1); } /* 轉向左，此時 scaleX(-1) 讓魚頭朝前游動 */
-    99% { left: -50px; transform: scaleX(-1); }  /* 游回左側，轉身 */
-    100% { left: -50px; transform: scaleX(1); } /* 恢復頭朝左開始下一圈 */
+/* ★ 需求3：海星顏色改為鮮豔的橘紅色，並加大 */
+.aq-starfish { 
+    position: absolute; bottom: 6px; font-size: 24px; 
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)) hue-rotate(-50deg) saturate(3); /* 使用 Filter 改變顏色為橘紅 */
 }
 
-/* ★ 獨游的魚 (🐠，🐡，頭朝右) ★ */
-/* 游得最慢 (45-50秒一圈) */
-.aq-fish.aq-fish-r { font-size: 20px; animation: swimHeadFirstL 48s infinite linear; }
-/* 頭朝右，往右游時需 scaleX(-1) 使頭朝前，往左游時 scaleX(1) 朝前 */
-@keyframes swimHeadFirstL { 
-    0% { right: -50px; transform: scaleX(-1); }    /* 開始在右側，頭朝右 (scaleX(-1)backward) */
-    49% { right: 430px; transform: scaleX(-1); }  /* 游到左側，轉身 */
-    50% { right: 430px; transform: scaleX(1); }   /* 轉向右，scaleX(1) 此時魚頭朝前游動 */
-    99% { right: -50px; transform: scaleX(1); }   /* 游回右側，轉身 */
-    100% { right: -50px; transform: scaleX(-1); } /* 恢復頭朝右開始下一圈 */
+/* ★ 魚兒通用樣式，加大尺寸 */
+.aq-fish { position: absolute; font-size: 30px; /* 基礎尺寸加大 */ filter: drop-shadow(0 4px 4px rgba(0,0,0,0.4)); white-space: nowrap; transform-origin: center; }
+
+/* ★ 成群游動的魚群 (🐟群，預設頭朝左) ★ */
+/* 游得很慢 (50-60秒一圈)，且頭始終朝前 */
+.aq-fish.aq-group-1 { animation: swimRightHeadFirst 55s infinite linear; }
+
+/* 修正方向邏輯：
+   0% 在左側，要向右游，必須轉身 (scaleX(-1) 讓魚頭朝右)
+   50% 在右側，要向左游，恢復預設 (scaleX(1) 讓魚頭朝左) */
+@keyframes swimRightHeadFirst { 
+    0% { left: -60px; transform: scaleX(-1); }    /* 開始在左側，轉向右游 (頭朝右) */
+    49.9% { left: 440px; transform: scaleX(-1); } /* 到達右側，仍頭朝右 */
+    50% { left: 440px; transform: scaleX(1); }   /* 轉身向左游 (頭朝左) */
+    99.9% { left: -60px; transform: scaleX(1); }  /* 回到左側，仍頭朝左 */
+    100% { left: -60px; transform: scaleX(-1); } /* 重置轉向右 */
 }
 
-/* ★ 新增：章魚，在水中慢慢上下漂浮 */
-.aq-octopus { position: absolute; font-size: 28px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); animation: floatOctopus 8s infinite ease-in-out; }
+/* ★ 獨游的魚 (🐠，🐡，預設頭朝右) ★ */
+/* 游得最慢 (70-80秒一圈) */
+.aq-fish.aq-fish-r { animation: swimLeftHeadFirst 75s infinite linear; }
+
+/* 修正方向邏輯：
+   0% 在右側，要向左游，必須轉身 (scaleX(-1) 讓🐠頭朝左)
+   50% 在左側，要向右游，恢復預設 (scaleX(1) 讓🐠頭朝右) */
+@keyframes swimLeftHeadFirst { 
+    0% { right: -60px; transform: scaleX(-1); }    /* 開始在右側，轉身向左 (頭朝左) */
+    49.9% { right: 440px; transform: scaleX(-1); } /* 到達左側，仍頭朝左 */
+    50% { right: 440px; transform: scaleX(1); }    /* 轉身向右 (頭朝右) */
+    99.9% { right: -60px; transform: scaleX(1); }   /* 回到右側，仍頭朝右 */
+    100% { right: -60px; transform: scaleX(-1); }  /* 重置轉向左 */
+}
+
+/* 章魚加大、變慢 */
+.aq-octopus { position: absolute; font-size: 36px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); animation: floatOctopus 12s infinite ease-in-out; }
 @keyframes floatOctopus { 
     0%, 100% { top: 30px; transform: rotate(0deg) scale(1); } 
-    50% { top: 70px; transform: rotate(10deg) scale(1.05); } 
+    50% { top: 90px; transform: rotate(10deg) scale(1.05); } 
 }
 
-/* 泡泡動畫，配合更高的水箱 */
-.aq-bubbles { position: absolute; font-size: 14px; animation: bubbleUp更高 7s infinite ease-in; opacity: 0; }
+/* 泡泡變慢，配合更高水箱 */
+.aq-bubbles { position: absolute; font-size: 16px; animation: bubbleUp更高 10s infinite ease-in; opacity: 0; }
 
 @keyframes wave { 0% { background-position: 0 0; } 100% { background-position: 60px 0; } }
-@keyframes sway { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
+@keyframes sway { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
 @keyframes scuttle { 0% { left: 30px; transform: scaleX(1); } 49% { left: 200px; transform: scaleX(1); } 50% { left: 200px; transform: scaleX(-1); } 100% { left: 30px; transform: scaleX(-1); } }
-@keyframes bubbleUp更高 { 0% { bottom: -10px; transform: translateX(0); opacity: 0; } 20% { opacity: 0.8; } 100% { bottom: 120px; transform: translateX(-20px); opacity: 0; } }
+@keyframes bubbleUp更高 { 0% { bottom: -10px; transform: translateX(0); opacity: 0; } 20% { opacity: 0.8; } 100% { bottom: 150px; transform: translateX(-20px); opacity: 0; } }
 /* =========================================
    ★ 玩家眼鏡系統 (修復陰影錯誤，確保 100% 顯示)
    ========================================= */
@@ -240,26 +249,26 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 <div class="aquarium">
     <div class="aq-water"></div>
     <div class="aq-plant" style="left:30px; animation-delay: 0s;">🌿</div>
-    <div class="aq-plant" style="left:60px; animation-delay: 0.8s; font-size:38px;">🌿</div>
+    <div class="aq-plant" style="left:60px; animation-delay: 0.8s; font-size:48px;">🌿</div>
     <div class="aq-plant" style="right:40px; animation-delay: 0.4s;">🌿</div>
-    <div class="aq-coral" style="right:90px;">🪸</div>
-    <div class="aq-coral" style="left:160px;">🪸</div>
+    <div class="aq-coral" style="right:100px;">🪸</div>
+    <div class="aq-coral" style="left:170px;">🪸</div>
     <div class="aq-crab">🦀</div>
     
     <div class="aq-starfish" style="left:230px;">⭐</div>
     
-    <div class="aq-fish aq-group-1" style="top:25px; left:-50px; animation-delay: 0s;">🐟</div>
-    <div class="aq-fish aq-group-1" style="top:45px; left:-50px; animation-delay: 0.8s; font-size:20px;">🐟</div>
-    <div class="aq-fish aq-group-1" style="top:35px; left:-50px; animation-delay: 1.6s;">🐟</div>
+    <div class="aq-fish aq-group-1" style="top:25px; left:-60px; animation-delay: 0s;">🐟</div>
+    <div class="aq-fish aq-group-1" style="top:55px; left:-60px; animation-delay: 2s; font-size:26px;">🐟</div>
+    <div class="aq-fish aq-group-1" style="top:40px; left:-60px; animation-delay: 4s;">🐟</div>
     
-    <div class="aq-fish aq-fish-r" style="top:60px; right:-50px; animation-delay: 0s;">🐠</div>
-    <div class="aq-fish aq-fish-r" style="top:80px; right:-50px; animation-delay: 10s; font-size:16px;">🐡</div>
+    <div class="aq-fish aq-fish-r" style="top:75px; right:-60px; animation-delay: 0s;">🐠</div>
+    <div class="aq-fish aq-fish-r" style="top:100px; right:-60px; animation-delay: 15s; font-size:24px;">🐡</div>
     
     <div class="aq-octopus" style="left:280px;">🐙</div>
     
-    <div class="aq-bubbles" style="left:170px; animation-delay: 0s;">🫧</div>
-    <div class="aq-bubbles" style="left:90px; animation-delay: 3s;">🫧</div>
-    <div class="aq-bubbles" style="right:100px; animation-delay: 1.5s;">🫧</div>
+    <div class="aq-bubbles" style="left:180px; animation-delay: 0s;">🫧</div>
+    <div class="aq-bubbles" style="left:110px; animation-delay: 4s;">🫧</div>
+    <div class="aq-bubbles" style="right:120px; animation-delay: 2s;">🫧</div>
 </div>
         <div class="corridor-rest"></div><div class="room-rest">休息室</div>
         
@@ -944,7 +953,7 @@ const solidBlocks = [
   {x: 1730, y: 1420, w: 10, h: 170}, {x: 950, y: 1590, w: 810, h: 160}, {x: 400, y: 1850, w: 1310, h: 350}, {x: 1710, y: 2150, w: 790, h: 50},
   {x: 3600, y: -610, w: 300, h: 20},
 {x: 1340, y: -240, w: 120, h: 60}, // 沙發
-  {x: 1300, y: -70, w: 400, h: 120},  // ★ 物理阻擋也配合更高更上的魚缸
+  {x: 1300, y: -70, w: 400, h: 110},  // ★ 物理阻擋也配合更高更上的魚缸
 ];
 
 if (urlParams.get('locked') === '1') {
