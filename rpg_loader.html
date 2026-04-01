@@ -104,18 +104,18 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 }
 
 /* ★ 需求2：修正獨游的魚方向，並更換為新的動畫名稱與邏輯 */
-.aq-fish.aq-fish-r { animation: swimRightLeftCorrectFishHeadR 80s infinite linear; }
+/* ★ 修正獨游的魚 (🐠，🐡) ★ 速度最慢，從右邊游出來 */
+.aq-fish.aq-fish-r { animation: swimLeftHeadFirst 80s infinite linear; }
 
-/* 修正方向邏輯：🐠,🐡(頭朝右) 
-   現在玩家說游的反了，那就是要改成：從左邊出現，頭朝右，往右游，轉身，頭朝左，往左游。
-   0% 在左側，要向右游，預設 scaleX(1) 讓魚頭朝右
-   50% 在右側，要向左游，必須轉身 (scaleX(-1) 讓🐠頭朝左) */
-@keyframes swimRightLeftCorrectFishHeadR { 
-    0% { left: -60px; transform: scaleX(1); }    /* 開始在左側，頭朝右 (scaleX(1)) */
-    49.9% { left: 440px; transform: scaleX(1); } /* 到達右側，仍頭朝右 */
-    50% { left: 440px; transform: scaleX(-1); }   /* 轉身向左 (頭朝左) */
-    99.9% { left: -60px; transform: scaleX(-1); }  /* 回到左側，仍頭朝左 */
-    100% { left: -60px; transform: scaleX(1); } /* 重置轉向右 */
+/* 修正方向邏輯：所有魚預設都是頭朝左 (scaleX(1))
+   0% 在右側，要向左游，保持預設 (scaleX(1) 讓🐠頭朝左)
+   50% 在左側，要向右游，必須轉身 (scaleX(-1) 讓🐠頭朝右) */
+@keyframes swimLeftHeadFirst { 
+    0% { left: 440px; transform: scaleX(1); }     /* 開始在右側，向左游 (頭朝左) */
+    49.9% { left: -60px; transform: scaleX(1); }  /* 到達左側，仍頭朝左 */
+    50% { left: -60px; transform: scaleX(-1); }   /* 轉身向右游 (頭朝右) */
+    99.9% { left: 440px; transform: scaleX(-1); } /* 回到右側，仍頭朝右 */
+    100% { left: 440px; transform: scaleX(1); }   /* 重置，轉回頭朝左 */
 }
 
 /* ★ 章魚加大、變慢 */
@@ -512,11 +512,11 @@ if (taskId === 'hub_world') {
     }
 
     if (isLockedRoom) {
-        task.startPos = { x: 1500, y: -150 };
+        task.startPos = { x: 1600, y: -260 };
         let tablet = task.npcs.find(n => n.id === 'obj_tablet');
         if (tablet) tablet.pos = { x: 1650, y: -260 }; 
     } else {
-        task.startPos = { x: 1500, y: -150 };
+        task.startPos = { x: 1600, y: -260 };
     }
 }
 
@@ -776,7 +776,6 @@ function randomizeAquariumFish() {
         el.className = 'aq-fish aq-group-1'; el.textContent = baseTypeGroup1;
         // top 位置隨機分佈
         el.style.top = (15 + Math.random() * 60) + 'px'; // ★ 配合新高度 (140px) 調整
-        el.style.left = '-60px'; // 開始位置固定
         // ★ 小小魚尺寸更小，且更隨機
         let baseSize = 20 + Math.random() * 12; 
         el.style.fontSize = baseSize + 'px';
