@@ -177,14 +177,14 @@
     flex-shrink: 0;
     background: var(--tray-bg);
     border-top: 1px solid rgba(255,255,255,0.1);
-    padding-bottom: 10px;
+    padding: 0 0 8px 0;
   }
 
   .tray-area {
-    height: 120px;
+    height: 92px;
     display: flex;
-    align-items: center;
-    padding: 0 10px;
+    align-items: flex-end;
+    padding: 2px 10px 0 10px;
     overflow-x: auto;
     overflow-y: hidden;
     white-space: nowrap;
@@ -197,20 +197,33 @@
   }
 
   .tray-scrollbar {
-    height: 10px;
-    margin: 6px 14px 0 14px;
+    position: relative;
+    height: 18px;
+    margin: 4px 14px 0 14px;
     border-radius: 999px;
-    background: rgba(255,255,255,0.16);
-    overflow: hidden;
+    background: rgba(255,255,255,0.14);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.25);
   }
 
   .tray-scroll-thumb {
-    height: 100%;
-    width: 80px;
+    position: absolute;
+    top: 1px;
+    left: 0;
+    height: 16px;
+    min-width: 56px;
     border-radius: 999px;
-    background: rgba(56, 189, 248, 0.95);
+    background: linear-gradient(180deg, #67d4ff, #38bdf8);
+    box-shadow:
+      0 2px 6px rgba(0,0,0,0.28),
+      inset 0 1px 0 rgba(255,255,255,0.35);
     transform: translateX(0);
     transition: transform 0.05s linear;
+    touch-action: none;
+    cursor: grab;
+  }
+
+  .tray-scroll-thumb:active {
+    cursor: grabbing;
   }
 
   .piece {
@@ -367,7 +380,7 @@
 
   <div class="tray-wrap">
     <footer class="tray-area" id="tray"></footer>
-    <div class="tray-scrollbar">
+    <div class="tray-scrollbar" id="trayScrollbar">
       <div class="tray-scroll-thumb" id="trayThumb"></div>
     </div>
   </div>
@@ -418,6 +431,7 @@
   const board = document.getElementById("board");
   const tray = document.getElementById("tray");
   const trayThumb = document.getElementById("trayThumb");
+  const trayScrollbar = document.getElementById("trayScrollbar");
 
   const statusEl = document.getElementById("status");
   const btnMenu = document.getElementById("btnMenu");
@@ -477,6 +491,7 @@
     });
 
     tray.addEventListener("scroll", updateTrayScrollbar);
+    attachTrayThumbDrag();
 
     if (isReplay) {
       introModal.classList.remove("hidden");
@@ -551,26 +566,101 @@
   }
 
   function updateTrayScrollbar() {
-    if (!trayThumb) return;
+    if (!trayThumb || !trayScrollbar) return;
 
     const visible = tray.clientWidth;
     const total = tray.scrollWidth;
-    const maxScroll = total - visible;
-    const track = trayThumb.parentElement;
-    const trackWidth = track.clientWidth;
+    const maxScroll = Math.max(0, total - visible);
+    const trackWidth = trayScrollbar.clientWidth;
 
-    if (total <= visible || trackWidth <= 0) {
-      trayThumb.style.width = Math.max(trackWidth, 0) + "px";
+    if (trackWidth <= 0) return;
+
+    if (total <= visible) {
+      trayThumb.style.width = trackWidth + "px";
       trayThumb.style.transform = "translateX(0px)";
       return;
     }
 
-    const thumbWidth = Math.max(60, trackWidth * (visible / total));
+    const thumbWidth = Math.max(56, trackWidth * (visible / total));
     const maxThumbX = trackWidth - thumbWidth;
     const thumbX = maxScroll > 0 ? (tray.scrollLeft / maxScroll) * maxThumbX : 0;
 
     trayThumb.style.width = thumbWidth + "px";
     trayThumb.style.transform = `translateX(${thumbX}px)`;
+  }
+
+  function attachTrayThumbDrag() {
+    if (!trayThumb || !trayScrollbar) return;
+
+    let draggingThumb = false;
+    let startX = 0;
+    let startScrollLeft = 0;
+
+    trayThumb.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      draggingThumb = true;
+      startX = e.clientX;
+      startScrollLeft = tray.scrollLeft;
+
+      trayThumb.setPointerCapture(e.pointerId);
+      trayThumb.style.transition = "none";
+    });
+
+    trayThumb.addEventListener("pointermove", (e) => {
+      if (!draggingThumb) return;
+
+      const visible = tray.clientWidth;
+      const total = tray.scrollWidth;
+      const maxScroll = Math.max(0, total - visible);
+      const trackWidth = trayScrollbar.clientWidth;
+      const thumbWidth = trayThumb.offsetWidth;
+      const maxThumbX = Math.max(1, trackWidth - thumbWidth);
+
+      const dx = e.clientX - startX;
+      const scrollDelta = (dx / maxThumbX) * maxScroll;
+
+      tray.scrollLeft = Math.min(
+        maxScroll,
+        Math.max(0, startScrollLeft + scrollDelta)
+      );
+
+      updateTrayScrollbar();
+    });
+
+    function stopThumbDrag(e) {
+      if (!draggingThumb) return;
+      draggingThumb = false;
+      trayThumb.style.transition = "transform 0.05s linear";
+      if (e.pointerId != null) {
+        try { trayThumb.releasePointerCapture(e.pointerId); } catch {}
+      }
+    }
+
+    trayThumb.addEventListener("pointerup", stopThumbDrag);
+    trayThumb.addEventListener("pointercancel", stopThumbDrag);
+
+    trayScrollbar.addEventListener("pointerdown", (e) => {
+      if (e.target === trayThumb) return;
+
+      const rect = trayScrollbar.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+
+      const visible = tray.clientWidth;
+      const total = tray.scrollWidth;
+      const maxScroll = Math.max(0, total - visible);
+      const trackWidth = trayScrollbar.clientWidth;
+      const thumbWidth = trayThumb.offsetWidth;
+      const maxThumbX = Math.max(1, trackWidth - thumbWidth);
+
+      const thumbCenterX = clickX - thumbWidth / 2;
+      const clampedThumbX = Math.max(0, Math.min(maxThumbX, thumbCenterX));
+      const targetScroll = (clampedThumbX / maxThumbX) * maxScroll;
+
+      tray.scrollLeft = targetScroll;
+      updateTrayScrollbar();
+    });
   }
 
   function rescalePieces(oldBoard, newBoard) {
