@@ -455,14 +455,14 @@ if (taskId === 'hub_world') {
     if (oldWardrobeIndex !== -1) {
         task.npcs[oldWardrobeIndex] = {
             id: 'obj_wardrobe', name: '更衣櫃', icon: '🚪', color: '#37474f',
-            pos: { x: 1660, y: -140 }, action: 'ACTION_WARDROBE', dialogs: [{name: '', text: ''}]
+            pos: { x: 1660, y: -160 }, action: 'ACTION_WARDROBE', dialogs: [{name: '', text: ''}]
         };
     }
 
     if (!task.npcs.find(n => n.id === 'obj_tablet')) {
         task.npcs.push({
             id: 'obj_tablet', name: '任務平板', icon: '📱', color: '#1976d2',
-            pos: { x: 1630, y: -220 }, action: 'ACTION_CHECK_TABLET', dialogs: [{name: '', text: ''}]
+            pos: { x: 1550, y: -220 }, action: 'ACTION_CHECK_TABLET', dialogs: [{name: '', text: ''}]
         });
     }
 
@@ -470,7 +470,7 @@ if (taskId === 'hub_world') {
     if (!task.npcs.find(n => n.id === 'obj_magazine')) {
         task.npcs.push({
             id: 'obj_magazine', name: '亞東院訊', icon: '📚', color: '#5d4037',
-            pos: { x: 1330, y: -180 }, action: 'ACTION_READ_MAGAZINE', 
+            pos: { x: 1330, y: -200 }, action: 'ACTION_READ_MAGAZINE', 
             dialogs: [{
                 name: '系統提示', 
                 text: '這裡有最新一期的《亞東院訊》雜誌。\n\n要坐下來閱讀嗎？'
