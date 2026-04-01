@@ -65,9 +65,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 /* ===== 豪華升級版魚缸 (護眼版：高度、尺寸、方向、顏色微調) ===== */
 .aquarium {
     position: absolute; left: 1300px; 
-    top: -80px; /* ★ 高度稍低一些 (佔地板約5格，高度125px) */
+    top: -80px; /* ★ 高度稍高一些，並向下移動以容納完整魚兒且不佔太多格 */
     width: 400px; 
-    height: 125px; /* ★ 高度從 150px 降為 125px */
+    height: 125px; /* ★ 高度從 125px 增加到 140px，防止魚被切掉 */
     background: linear-gradient(180deg, rgba(20, 150, 200, 0.15), rgba(0, 80, 120, 0.5));
     border: 6px solid rgba(255,255,255,0.4); border-radius: 12px;
     box-shadow: 0 16px 32px rgba(0,0,0,0.4), inset 0 0 30px rgba(0, 255, 255, 0.3);
@@ -76,7 +76,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 .aq-water { position: absolute; inset: 0; background: repeating-linear-gradient(45deg, transparent, transparent 15px, rgba(255,255,255,0.03) 15px, rgba(255,255,255,0.03) 30px); animation: wave 8s infinite linear; }
 .aq-plant { position: absolute; bottom: -10px; font-size: 38px; /* ★ 加大植物 */ filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); transform-origin: bottom center; animation: sway 5s infinite ease-in-out; }
 .aq-coral { position: absolute; bottom: -4px; font-size: 36px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
-.aq-crab { position: absolute; bottom: 4px; font-size: 30px; /* ★ 加大螃蟹 */ animation: scuttle 20s infinite alternate ease-in-out; /* ★ 變慢 */ }
+
+/* ★ 需求1：螃蟹貼地走，且速度大幅變慢 */
+.aq-crab { position: absolute; bottom: 2px; /* ★ 貼地走 */ font-size: 30px; /* ★ 加大螃蟹 */ animation: scuttle 60s infinite alternate ease-in-out; /* ★ 速度大幅變慢 */ }
 
 /* ★ 需求3：海星顏色改為鮮豔的橘紅色，並加大 */
 .aq-starfish { 
@@ -101,18 +103,19 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
     100% { left: -60px; transform: scaleX(-1); } /* 重置轉向右 */
 }
 
-/* ★ 需求1：修正獨游的魚 (🐠，🐡，預設頭朝右) ★ 速度最慢，頭朝前 */
-.aq-fish.aq-fish-r { animation: swimLeftRightCorrectFishHeadR 80s infinite linear; }
+/* ★ 需求2：修正獨游的魚方向，並更換為新的動畫名稱與邏輯 */
+.aq-fish.aq-fish-r { animation: swimRightLeftCorrectFishHeadR 80s infinite linear; }
 
-/* 修正方向邏輯：🐠,🐡(頭朝右)
-   0% 在右側，要向左游，必須轉身 (scaleX(-1) 讓🐠頭朝左)
-   50% 在左側，要向右游，恢復預設 (scaleX(1) 讓🐠頭朝右) */
-@keyframes swimLeftRightCorrectFishHeadR { 
-    0% { right: -60px; transform: scaleX(-1); }    /* 開始在右側，轉身向左 (頭朝左) */
-    49.9% { right: 440px; transform: scaleX(-1); } /* 到達左側，仍頭朝左 */
-    50% { right: 440px; transform: scaleX(1); }    /* 轉身向右 (頭朝右) */
-    99.9% { right: -60px; transform: scaleX(1); }   /* 回到右側，仍頭朝右 */
-    100% { right: -60px; transform: scaleX(-1); }  /* 重置轉向左 */
+/* 修正方向邏輯：🐠,🐡(頭朝右) 
+   現在玩家說游的反了，那就是要改成：從左邊出現，頭朝右，往右游，轉身，頭朝左，往左游。
+   0% 在左側，要向右游，預設 scaleX(1) 讓魚頭朝右
+   50% 在右側，要向左游，必須轉身 (scaleX(-1) 讓🐠頭朝左) */
+@keyframes swimRightLeftCorrectFishHeadR { 
+    0% { left: -60px; transform: scaleX(1); }    /* 開始在左側，頭朝右 (scaleX(1)) */
+    49.9% { left: 440px; transform: scaleX(1); } /* 到達右側，仍頭朝右 */
+    50% { left: 440px; transform: scaleX(-1); }   /* 轉身向左 (頭朝左) */
+    99.9% { left: -60px; transform: scaleX(-1); }  /* 回到左側，仍頭朝左 */
+    100% { left: -60px; transform: scaleX(1); } /* 重置轉向右 */
 }
 
 /* ★ 章魚加大、變慢 */
@@ -129,7 +132,6 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 @keyframes sway { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
 @keyframes scuttle { 0% { left: 30px; transform: scaleX(1); } 49% { left: 200px; transform: scaleX(1); } 50% { left: 200px; transform: scaleX(-1); } 100% { left: 30px; transform: scaleX(-1); } }
 @keyframes bubbleUp更高 { 0% { bottom: -10px; transform: translateX(0); opacity: 0; } 20% { opacity: 0.8; } 100% { bottom: 125px; transform: translateX(-20px); opacity: 0; } }
-
 /* 玩家眼鏡系統 (修復陰影錯誤，確保 100% 顯示)
    ========================================= */
 .character .head { position: relative; overflow: visible !important; }
@@ -1054,7 +1056,7 @@ const solidBlocks = [
   {x: 1730, y: 1420, w: 10, h: 170}, {x: 950, y: 1590, w: 810, h: 160}, {x: 400, y: 1850, w: 1310, h: 350}, {x: 1710, y: 2150, w: 790, h: 50},
   {x: 3600, y: -610, w: 300, h: 20},
 {x: 1300, y: -240, w: 130, h: 60}, // 沙發
-  {x: 1300, y: -70, w: 400, h: 115},  // ★ 物理阻擋也配合更高更上的魚缸
+  {x: 1300, y: -80, w: 400, h: 125},  // ★ 物理阻擋也配合更高更上的魚缸
 ];
 
 if (urlParams.get('locked') === '1') {
