@@ -754,51 +754,60 @@ function randomizeAquariumDecorations() {
     if (crab) crab.style.left = (30 + Math.random() * 150) + 'px';
 }
 
+// ==========================================
+// ★ 需求2 & 3: 醫院探索生態系統隨機生成 (Procedural Generation)
+// ==========================================
 function randomizeAquariumFish() {
     const container = document.getElementById('aqFishContainer'); 
     if (!container) return; 
     container.innerHTML = '';
     
-    // ★ 需求2：成群的數量與魚種類隨機 ★
-    
+    // =========================================
     // --- (A) 成群游動的魚 (🐟群，頭朝左) ---
-    const schoolCount = 2 + Math.floor(Math.random() * 4); // 隨機生成 2-5 隻魚的魚群
+    // ★ 需求3: 小小魚數量增加
+    // =========================================
+    const schoolCount = 5 + Math.floor(Math.random() * 6); // ★ 隨機生成 5-10 隻魚的魚群
     // 魚群種類隨機：大部分是🐟，少部分是別的
-    const schoolTypes = ['🐟', '🐟', '🐟', '🦈' ]; // 鯊魚混進去了!
+    const schoolTypes = ['🐟', '🐟', '🐟', '🐠', '🐡']; // ★ 去除鯊魚，加入獨游魚種類
     const baseTypeGroup1 = schoolTypes[Math.floor(Math.random() * schoolTypes.length)];
     
     for (let i = 0; i < schoolCount; i++) {
         let el = document.createElement('div');
         el.className = 'aq-fish aq-group-1'; el.textContent = baseTypeGroup1;
         // top 位置隨機分佈
-        el.style.top = (15 + Math.random() * 50) + 'px'; 
+        el.style.top = (15 + Math.random() * 60) + 'px'; // ★ 配合新高度 (140px) 調整
         el.style.left = '-60px'; // 開始位置固定
-        // 關鍵：隨機加大/變慢的尺寸與延遲，讓魚群看起來更氣定神閒
-        let baseSize = 28 + Math.random() * 10;
+        // ★ 小小魚尺寸更小，且更隨機
+        let baseSize = 20 + Math.random() * 12; 
         el.style.fontSize = baseSize + 'px';
-        el.style.animationDelay = (i * 2 + Math.random() * 3) + 's'; // 錯開隊形
+        el.style.animationDelay = (i * 2 + Math.random() * 5) + 's'; // 錯開隊形
         // 讓體型大的游得更慢
-        let duration = 55 + (baseSize / 10) * 5;
+        let duration = 50 + (baseSize / 10) * 8;
         el.style.animationDuration = duration + 's';
         
         container.appendChild(el);
     }
     
+    // =========================================
     // --- (B) 獨游的魚 (🐠，🐡，頭朝右) ★ 速度最慢 ---
+    // ★ 需求3: 方向反轉，配合新的 CSS 動畫邏輯
+    // =========================================
     const solitaryFish = [
-        { emoji: '🐠', cls: 'aq-fish aq-fish-r', top_range: [60, 95], delay_range: [0, 20] },
-        { emoji: '🐡', cls: 'aq-fish aq-fish-r', top_range: [80, 110], delay_range: [15, 35], large: true },
-        { emoji: '🦈', cls: 'aq-fish aq-fish-r', top_range: [50, 80], delay_range: [30, 50], large: true } // 一隻獨游的鯊魚
+        // ★ 方向反轉，起始位置固定在左邊 (style.left='-60px')
+        { emoji: '🐠', cls: 'aq-fish aq-fish-r', top_range: [60, 110], delay_range: [0, 20] },
+        { emoji: '🐡', cls: 'aq-fish aq-fish-r', top_range: [80, 125], delay_range: [15, 35], large: true },
+        // ★ 去除鯊魚
     ];
     // 隨機選 2-3 隻獨游魚
-    const countSolitary = 2 + Math.floor(Math.random() * 2);
+    const countSolitary = 2 + Math.floor(Math.random() * solitaryFish.length);
     let selectedFish = solitaryFish.sort(() => 0.5 - Math.random()).slice(0, countSolitary);
     
     selectedFish.forEach(f => {
         let el = document.createElement('div');
         el.className = f.cls; el.textContent = f.emoji;
         el.style.top = (f.top_range[0] + Math.random() * (f.top_range[1] - f.top_range[0])) + 'px';
-        el.style.right = '-60px'; // 開始位置固定
+        // ★ 方向反轉，固定在左邊起始位置
+        el.style.left = '-60px'; 
         let baseSize = 28 + Math.random() * 10;
         if (f.large) baseSize += 10; // 大體型魚
         el.style.fontSize = baseSize + 'px';
