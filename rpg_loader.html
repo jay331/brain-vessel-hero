@@ -62,6 +62,32 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 /* ★ 擴大地圖世界邊界，容納所有的樓層 */
 .game-world { position: absolute; left: 0; top: 0; width: 40000px; height: 3500px; }
 
+/* ===== 休息室大型魚缸 ===== */
+.aquarium {
+    position: absolute; left: 1300px; top: -10px; /* 剛好放在休息室下方 */
+    width: 400px; height: 60px;
+    background: linear-gradient(180deg, rgba(20, 150, 200, 0.3), rgba(0, 80, 120, 0.7));
+    border: 4px solid rgba(255,255,255,0.4); border-radius: 8px;
+    box-shadow: 0 12px 24px rgba(0,0,0,0.4), inset 0 0 20px rgba(0, 255, 255, 0.3);
+    overflow: hidden; z-index: 2; display: flex; align-items: flex-end;
+}
+.aq-water { position: absolute; inset: 0; background: repeating-linear-gradient(45deg, transparent, transparent 15px, rgba(255,255,255,0.05) 15px, rgba(255,255,255,0.05) 30px); animation: wave 4s infinite linear; }
+.aq-plant { position: absolute; bottom: -5px; font-size: 26px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); transform-origin: bottom center; animation: sway 3s infinite ease-in-out; }
+.aq-coral { position: absolute; bottom: -2px; font-size: 24px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
+.aq-crab { position: absolute; bottom: 2px; font-size: 18px; animation: scuttle 12s infinite alternate ease-in-out; }
+.aq-fish { position: absolute; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.4)); white-space: nowrap; }
+.aq-f1 { font-size: 22px; top: 8px; animation: swimR 14s infinite linear; }
+.aq-f2 { font-size: 16px; top: 25px; animation: swimL 18s infinite linear reverse; transform: scaleX(-1); }
+.aq-f3 { font-size: 18px; top: 12px; animation: swimR 11s infinite linear; animation-delay: -5s; }
+.aq-bubbles { position: absolute; font-size: 12px; animation: bubbleUp 5s infinite ease-in; opacity: 0; }
+
+@keyframes wave { 0% { background-position: 0 0; } 100% { background-position: 42px 0; } }
+@keyframes sway { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
+@keyframes scuttle { 0% { left: 20px; transform: scaleX(1); } 49% { left: 160px; transform: scaleX(1); } 50% { left: 160px; transform: scaleX(-1); } 100% { left: 20px; transform: scaleX(-1); } }
+@keyframes swimR { 0% { left: -40px; transform: scaleX(1); } 49% { left: 420px; transform: scaleX(1); } 50% { left: 420px; transform: scaleX(-1); } 99% { left: -40px; transform: scaleX(-1); } 100% { left: -40px; transform: scaleX(1); } }
+@keyframes swimL { 0% { right: -40px; transform: scaleX(-1); } 49% { right: 420px; transform: scaleX(-1); } 50% { right: 420px; transform: scaleX(1); } 99% { right: -40px; transform: scaleX(1); } 100% { right: -40px; transform: scaleX(-1); } }
+@keyframes bubbleUp { 0% { bottom: -10px; transform: translateX(0); opacity: 0; } 20% { opacity: 0.8; } 100% { bottom: 60px; transform: translateX(-15px); opacity: 0; } }
+   
 /* =========================================
    ★ 玩家眼鏡系統 (修復陰影錯誤，確保 100% 顯示)
    ========================================= */
@@ -155,7 +181,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
   </div>
 
   <button class="btn-fs-toggle" id="btnFsToggle" onclick="toggleFs()">⛶</button>
-  <button class="btn-return-lobby" id="btnReturnLobby" onclick="returnToLobby()">🏠 返回大廳</button>
+  <button class="btn-return-lobby" id="btnReturnLobby" onclick="returnToLobby()">🏠 返回休息室</button>
 
   <div class="header" id="uiHeader" style="opacity:0; display:none;">
     <div id="ui-role">玩家</div>
@@ -177,7 +203,21 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
         <div id="lobby-tv" style="position:absolute; left:1750px; top:-480px; width:220px; height:70px; background:#111; border:4px solid #444; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:18px; font-weight:bold; box-shadow:0 8px 16px rgba(0,0,0,0.6), inset 0 0 10px rgba(255,255,255,0.2); z-index:2; text-align:center;">
             📺 亞東影音衛教
         </div>
-
+<div class="aquarium">
+    <div class="aq-water"></div>
+    <div class="aq-plant" style="left:20px; animation-delay: 0s;">🌿</div>
+    <div class="aq-plant" style="left:40px; animation-delay: 0.5s;">🌿</div>
+    <div class="aq-plant" style="right:30px; animation-delay: 0.2s;">🌿</div>
+    <div class="aq-coral" style="right:60px;">🪸</div>
+    <div class="aq-coral" style="left:120px;">🪸</div>
+    <div class="aq-crab">🦀</div>
+    <div class="aq-fish aq-f1">🐟</div>
+    <div class="aq-fish aq-f2">🐠</div>
+    <div class="aq-fish aq-f3">🐡</div>
+    <div class="aq-bubbles" style="left:130px; animation-delay: 0s;">🫧</div>
+    <div class="aq-bubbles" style="left:70px; animation-delay: 2s;">🫧</div>
+    <div class="aq-bubbles" style="right:80px; animation-delay: 1s;">🫧</div>
+</div>
         <div class="corridor-rest"></div><div class="room-rest">休息室</div>
         
         <div class="sofa-rest" style="position:absolute; left:1340px; top:-240px; width:120px; height:60px; background:linear-gradient(180deg, #8d6e63, #5d4037); border-radius:10px; box-shadow:0 8px 16px rgba(0,0,0,0.3); border:2px solid rgba(255,255,255,0.2); z-index:2;">
@@ -309,9 +349,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
   </div>
   
   <div class="animation-screen" id="animScreen">
-    <button class="btn-quit-anim" onclick="window.postMessage({type:'CLOSE_IFRAME'}, '*')">✖ 中斷離開</button>
-    <iframe id="animFrame" src="about:blank"></iframe>
-  </div>
+  <button class="btn-quit-anim" onclick="closeAnimScreenInner()">✖ 關閉視窗</button>
+  <iframe id="animFrame" src="about:blank" style="background:#fff;"></iframe>
+</div>
 
   <div class="elevator-modal" id="elevatorModal">
       <div class="elevator-panel">
@@ -657,6 +697,15 @@ window.onload = () => {
   }
 };
 
+// ★ 專門給內部網頁（如雜誌）使用的關閉功能，不觸發母視窗離開
+function closeAnimScreenInner() {
+    document.getElementById('animScreen').style.display = 'none';
+    document.getElementById('animFrame').src = 'about:blank';
+    stepBackFromNpc();
+    missionStage = 0; 
+    setTimeout(() => { gameActive = true; currentNpc = null; }, 300);
+}
+   
 function startExplore() {
   document.getElementById('storyIntro').style.opacity = '0';
   
@@ -703,7 +752,10 @@ function returnToLobby() {
     document.getElementById('dialogBox').style.display = 'none';
     velocity = {x:0, y:0}; isDragging = false;
     document.getElementById('joystickBase').style.display = 'none';
-    state.x = 1500; state.y = -600; 
+    
+    state.x = 1500; 
+    state.y = -150; // ★ 把 -600 改成 -150，這樣就會出生在休息室正中央
+    
     document.getElementById('player').style.left = state.x + 'px'; 
     document.getElementById('player').style.top = state.y + 'px'; 
     updateCamera(); gameActive = true; currentNpc = null; missionStage = 0;
@@ -802,10 +854,7 @@ function finishNpcDialog() {
         missionStage = 2; 
         document.getElementById('animScreen').style.display = 'flex';
         document.getElementById('animFrame').src = 'https://www.femh.org.tw/magazine/magazine.aspx';
-        
-        stepBackFromNpc();
-        setTimeout(() => { gameActive = true; currentNpc = null; }, 800);
-        return;
+        return; // ★ 加上 return，讓玩家按了「關閉視窗」才退後
     }
     
     window.parent.postMessage({type: currentNpc.action}, '*');
@@ -850,7 +899,9 @@ const solidBlocks = [
   {x: 2310, y: 850, w: 10, h: 150}, {x: 1750, y: 180, w: 250, h: 200}, {x: 1590, y: 825, w: 270, h: 245}, {x: 1800, y: 1140, w: 50, h: 250},
   {x: 950, y: 1420, w: 380, h: 175}, {x: 1330, y: 1420, w: 10, h: 10}, {x: 1420, y: 1420, w: 320, h: 10}, {x: 1330, y: 1585, w: 410, h: 10},
   {x: 1730, y: 1420, w: 10, h: 170}, {x: 950, y: 1590, w: 810, h: 160}, {x: 400, y: 1850, w: 1310, h: 350}, {x: 1710, y: 2150, w: 790, h: 50},
-  {x: 3600, y: -610, w: 300, h: 20}
+  {x: 3600, y: -610, w: 300, h: 20},
+   {x: 1340, y: -240, w: 120, h: 60}, // 沙發
+  {x: 1300, y: -10, w: 400, h: 60} // ★ 新增：大型魚缸物理阻擋
 ];
 
 if (urlParams.get('locked') === '1') {
