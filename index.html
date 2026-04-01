@@ -567,7 +567,7 @@ body.mode-advanced .view-toggle-btn {
     <h3 id="modalTitle" style="color:var(--theme-primary); margin:0 0 8px 0; font-size:16px;"></h3>
     <div id="modalCategory" style="font-size:11px; color:var(--text-muted); margin-bottom:12px;"></div>
     <p id="modalDesc" style="color:#fff; font-size:13px; line-height:1.5; text-align:left; background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; border:1px solid #444; margin:0;"></p>
-    <button class="btn" style="margin-top: 15px; background:var(--theme-primary); color:var(--btn-text); font-weight:bold; box-shadow:var(--btn-shadow);" onclick="closeCardModalBtn()">✔ 收下圖卡</button>
+    <button class="btn" id="btnCollectCard" style="margin-top: 15px; background:var(--theme-primary); color:var(--btn-text); font-weight:bold; box-shadow:var(--btn-shadow);" onclick="collectAndCloseCard()">✔ 收下圖卡</button>
   </div>
 </div>
 
@@ -620,7 +620,7 @@ let playerState = {
 let isGlobalFs = false; 
 let currentGameInfo = null;
 let activeRoleId = null;
-let currentQIndex = 0; let currentAnswers = {}; let trendChartInstance = null;
+let currentQIndex = 0; let currentAnswers = {}; let trendChartInstance = null;let currentViewingCardId = null; // ★ 新增：追蹤現在打開的是哪張卡
 
 window.addEventListener('message', (event) => {
   if (!event.data) return;
@@ -1447,17 +1447,28 @@ function renderDisplayHall(type, skipScroll = false) {
     updateCoverFlow();
 
     // ★ 如果 skipScroll 是 false 才會自動滑動
+    // ★ 需求 3：修改預設捲動邏輯，優先找未讀/未拼湊的卡片
     if (!skipScroll && unlockedElementsCount > 0) {
         setTimeout(() => {
-            const unlockedCards = track.querySelectorAll('.unlocked-card');
-            if(unlockedCards.length > 0) {
-                const randomCard = unlockedCards[Math.floor(Math.random() * unlockedCards.length)];
-                randomCard.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+            const newCards = track.querySelectorAll('.is-new');
+            let targetCard = null;
+            
+            if (newCards.length > 0) {
+                targetCard = newCards[0]; // 優先取第一張 NEW 的卡片 / 待拼湊的拼圖
+            } else {
+                const unlockedCards = track.querySelectorAll('.unlocked-card');
+                if (unlockedCards.length > 0) {
+                    targetCard = unlockedCards[Math.floor(Math.random() * unlockedCards.length)]; // 沒新卡才隨機展示
+                }
+            }
+            
+            if (targetCard) {
+                targetCard.scrollIntoView({ behavior: 'smooth', inline: 'center' });
                 setTimeout(updateCoverFlow, 50); 
             }
         }, 100);
     }
-}
+} // 這是 renderDisplayHall 的結尾括號
 
 // 3D Cover Flow 立體翻頁計算
 function updateCoverFlow() {
@@ -1533,13 +1544,18 @@ function openCardModal(tab, roleId, taskIdx, absNum, isHidden, cardTrackingId) {
         cardTrackingId = `${tab}_${roleId}_${taskIdx}`;
     }
     
-    if (!playerState.seenCards.includes(cardTrackingId)) {
-        playerState.seenCards.push(cardTrackingId);
-        saveGameData(); 
-        
-        if (typeof updateCartridgeBadges === 'function') {
-            updateCartridgeBadges();
-        }
+    currentViewingCardId = cardTrackingId; // 記錄目前打開的卡片 ID
+    
+    const isCaseDexOpen = document.getElementById('scrCaseDex').classList.contains('show');
+    const isNew = !playerState.seenCards.includes(cardTrackingId);
+    const btnCollect = document.getElementById('btnCollectCard');
+    
+    if (isCaseDexOpen && isNew) {
+        // ★ 需求 1 & 2：在圖卡大廳中，且是新卡片，才顯示「收下圖卡」按鈕
+        btnCollect.style.display = 'block';
+    } else {
+        // ★ 剛通關彈出，或者是已經收下的舊卡，隱藏該按鈕
+        btnCollect.style.display = 'none';
     }
 
     let role = (tab === 'beg' ? ROLES_DATA_BEG : ROLES_DATA_ADV).find(r => r.id === roleId); 
@@ -1555,14 +1571,16 @@ function openCardModal(tab, roleId, taskIdx, absNum, isHidden, cardTrackingId) {
 
 function openHiddenCardModal(icon, title, desc, cardTrackingId) {
     if (!playerState.seenCards) playerState.seenCards = [];
+    currentViewingCardId = cardTrackingId;
     
-    if (!playerState.seenCards.includes(cardTrackingId)) {
-        playerState.seenCards.push(cardTrackingId);
-        saveGameData();
-        
-        if (typeof updateCartridgeBadges === 'function') {
-            updateCartridgeBadges();
-        }
+    const isCaseDexOpen = document.getElementById('scrCaseDex').classList.contains('show');
+    const isNew = !playerState.seenCards.includes(cardTrackingId);
+    const btnCollect = document.getElementById('btnCollectCard');
+    
+    if (isCaseDexOpen && isNew) {
+        btnCollect.style.display = 'block';
+    } else {
+        btnCollect.style.display = 'none';
     }
     
     document.getElementById('modalIcon').textContent = icon;
@@ -1570,6 +1588,27 @@ function openHiddenCardModal(icon, title, desc, cardTrackingId) {
     document.getElementById('modalCategory').textContent = '隱藏健康卡';
     document.getElementById('modalDesc').innerHTML = desc;
     showModalAnim();
+}
+
+// ★ 新增：專門處理「點擊收下圖卡」的邏輯
+function collectAndCloseCard() {
+    if (currentViewingCardId && !playerState.seenCards.includes(currentViewingCardId)) {
+        playerState.seenCards.push(currentViewingCardId);
+        saveGameData();
+        
+        // 拔掉畫面的 NEW 標籤
+        document.querySelectorAll('.hall-card.is-new').forEach(card => {
+            if (card.getAttribute('onclick') && card.getAttribute('onclick').includes(currentViewingCardId)) {
+                card.classList.remove('is-new');
+            }
+        });
+        
+        if (typeof updateCartridgeBadges === 'function') {
+            updateCartridgeBadges();
+        }
+    }
+    // 執行關閉與重繪大廳
+    closeCardModalBtn();
 }
 
 function showModalAnim() {
@@ -1601,6 +1640,7 @@ function updateCartridgeBadges() {
 
     const begBadge = countUnseen('beg');
     const advBadge = countUnseen('adv');
+    const puzzleBadge = (playerState.pendingPuzzles || []).length; // ★ 計算未拼完的拼圖數
     
     if(id('badge_beg')) {
         id('badge_beg').style.display = begBadge > 0 ? 'flex' : 'none';
@@ -1610,8 +1650,12 @@ function updateCartridgeBadges() {
         id('badge_adv').style.display = advBadge > 0 ? 'flex' : 'none';
         id('badge_adv').textContent = advBadge;
     }
+    if(id('badge_puzzle')) {
+        id('badge_puzzle').style.display = puzzleBadge > 0 ? 'flex' : 'none'; // ★ 顯示拼圖紅點
+        id('badge_puzzle').textContent = puzzleBadge;
+    }
     
-    const total = begBadge + advBadge + (playerState.pendingPuzzles?.length || 0);
+    const total = begBadge + advBadge + puzzleBadge;
     const navBadge = id('casedexBadge');
     if (navBadge) {
         navBadge.style.display = total > 0 ? 'flex' : 'none';
