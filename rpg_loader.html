@@ -425,7 +425,7 @@ if (taskId === 'hub_world') {
             // 【未解鎖】：安排在休息室與大廳的通道 (擋住玩家去路)
             // 註：玩家未解鎖時出生點在 {x: 1500, y: -150}，放在 y: -50 剛好是通道口
             volunteer.pos = { x: 1500, y: -250 }; 
-            volunteer.dialogs[0].text = "前方是醫院大廳與各樓層病房。\n\n請先完成「初階版」的 25 個引導任務，才能探索醫院喔！";
+            volunteer.dialogs[0].text = "歡迎來到遙遠的東方醫院，前方是醫院大廳與各樓層病房。\n\n請先完成「初階版」的 25 個引導任務，才能進入探索喔！";
         } else {
             // 【已解鎖】：回到與主治醫師 & 護理長同一列
             // 註：請根據你 js/tasks-main.js 裡面主治醫師和護理長的 Y 座標來調整。
@@ -736,7 +736,7 @@ function showDialog() {
 if (currentNpc.id === 'obj_tablet') {
       if (urlParams.get('locked') === '1') {
           // ★ 未解鎖的專屬平板訊息
-          currentNpc.dialogs[0].text = `【系統提示】\n\n請先完成初階版的 25 個引導任務，才能解鎖醫院大廳與完整探索模式喔！\n\n（目前僅開放員工休息室與更衣櫃）`;
+          currentNpc.dialogs[0].text = `【尚未解鎖】\n\n請先完成初階版的 25 個引導任務，才能解鎖醫院大廳與完整探索模式喔！`;
       } else {
           // 原本的任務面板邏輯
           let dailyCount = window.playerDailyExplores ? window.playerDailyExplores.count : 0;
