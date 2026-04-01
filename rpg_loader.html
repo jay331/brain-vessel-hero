@@ -92,13 +92,14 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 .aq-coral { position: absolute; bottom: -4px; font-size: 36px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
 .aq-starfish { position: absolute; bottom: 6px; font-size: 26px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)) hue-rotate(15deg) saturate(3); }
 
-/* 螃蟹改用 translateX */
-.aq-crab { position: absolute; bottom: 4px; left: 0; font-size: 30px; animation: scuttle 20s infinite alternate ease-in-out; will-change: transform; }
-@keyframes scuttle { 
-    0% { transform: translateX(30px) scaleX(1); } 
-    49.9% { transform: translateX(200px) scaleX(1); } 
-    50% { transform: translateX(200px) scaleX(-1); } 
-    100% { transform: translateX(30px) scaleX(-1); } 
+/* 螃蟹改用 translateX，並修正浮空問題 */
+.aq-crab { 
+    position: absolute; 
+    bottom: -6px; /* ★ 從 4px 改為 -6px，讓螃蟹完美貼地 */
+    left: 0; 
+    font-size: 30px; 
+    animation: scuttle 20s infinite alternate ease-in-out; 
+    will-change: transform; 
 }
 
 /* 魚兒基礎設定 */
@@ -782,8 +783,9 @@ function randomizeAquariumFish() {
     
     // --- (B) 獨游的魚 (🐠，🐡) ---
     const solitaryFish = [
-        { emoji: '🐠', cls: 'aq-fish aq-fish-r', top_range: [60, 110] },
-        { emoji: '🐡', cls: 'aq-fish aq-fish-r', top_range: [80, 125], large: true }
+        // ★ 大幅調高 top_range 的上限，確保魚的身體不會超過 125px 的邊界
+        { emoji: '🐠', cls: 'aq-fish aq-fish-r', top_range: [25, 75] },
+        { emoji: '🐡', cls: 'aq-fish aq-fish-r', top_range: [35, 80], large: true }
     ];
     
     const countSolitary = 1 + Math.floor(Math.random() * 2);
