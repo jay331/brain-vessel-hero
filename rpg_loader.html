@@ -764,7 +764,6 @@ function randomizeAquariumFish() {
     
     // =========================================
     // --- (A) 成群游動的魚 (🐟群，頭朝左) ---
-    // ★ 需求3: 小小魚數量增加
     // =========================================
     const schoolCount = 5 + Math.floor(Math.random() * 6); // ★ 隨機生成 5-10 隻魚的魚群
     // 魚群種類隨機：大部分是🐟，少部分是別的
@@ -775,7 +774,7 @@ function randomizeAquariumFish() {
         let el = document.createElement('div');
         el.className = 'aq-fish aq-group-1'; el.textContent = baseTypeGroup1;
         // top 位置隨機分佈
-        el.style.top = (15 + Math.random() * 60) + 'px'; // ★ 配合新高度 (140px) 調整
+        el.style.top = (15 + Math.random() * 60) + 'px'; 
         // ★ 小小魚尺寸更小，且更隨機
         let baseSize = 20 + Math.random() * 12; 
         el.style.fontSize = baseSize + 'px';
@@ -788,14 +787,11 @@ function randomizeAquariumFish() {
     }
     
     // =========================================
-    // --- (B) 獨游的魚 (🐠，🐡，頭朝右) ★ 速度最慢 ---
-    // ★ 需求3: 方向反轉，配合新的 CSS 動畫邏輯
+    // --- (B) 獨游的魚 (🐠，🐡，從右游到左) ★ 速度最慢 ---
     // =========================================
     const solitaryFish = [
-        // ★ 方向反轉，起始位置固定在左邊 (style.left='-60px')
         { emoji: '🐠', cls: 'aq-fish aq-fish-r', top_range: [60, 110], delay_range: [0, 20] },
-        { emoji: '🐡', cls: 'aq-fish aq-fish-r', top_range: [80, 125], delay_range: [15, 35], large: true },
-        // ★ 去除鯊魚
+        { emoji: '🐡', cls: 'aq-fish aq-fish-r', top_range: [80, 125], delay_range: [15, 35], large: true }
     ];
     // 隨機選 2-3 隻獨游魚
     const countSolitary = 2 + Math.floor(Math.random() * solitaryFish.length);
@@ -805,8 +801,10 @@ function randomizeAquariumFish() {
         let el = document.createElement('div');
         el.className = f.cls; el.textContent = f.emoji;
         el.style.top = (f.top_range[0] + Math.random() * (f.top_range[1] - f.top_range[0])) + 'px';
-        // ★ 方向反轉，固定在左邊起始位置
-        el.style.left = '-60px'; 
+        
+        // ★ 這裡已經把原本的 el.style.left = '-60px'; 刪除了！
+        // 位置完全交給 CSS 裡的 @keyframes swimLeftHeadFirst 處理
+        
         let baseSize = 28 + Math.random() * 10;
         if (f.large) baseSize += 10; // 大體型魚
         el.style.fontSize = baseSize + 'px';
