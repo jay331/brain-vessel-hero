@@ -722,75 +722,86 @@ function randomizeAquariumDecorations() {
     if (!container) return; 
     container.innerHTML = '';
     
-    // 定義植物種類 ( emoji, Base Class, 隨機X範圍 (Min, Max) )
     const plants = [
         { emoji: '🌿', cls: 'aq-plant', x_range: [20, 140] },
-        { emoji: '🌿', cls: 'aq-plant', x_range: [50, 180], large: true }, // 一棵大的
+        { emoji: '🌿', cls: 'aq-plant', x_range: [50, 180], large: true },
         { emoji: '🌿', cls: 'aq-plant', x_range: [230, 370] }
     ];
-    // 定義珊瑚種類
     const corals = [
         { emoji: '🪸', cls: 'aq-coral', x_range: [110, 220] },
         { emoji: '🪸', cls: 'aq-coral', x_range: [250, 330] }
     ];
-    // 獨一無二的海星 (橘紅色)
     const starfish = { emoji: '⭐', cls: 'aq-starfish', x_range: [180, 350] };
     
-    // 生成植物
     plants.forEach(p => {
         let el = document.createElement('div'); el.className = p.cls; el.textContent = p.emoji;
-        if (p.large) el.style.fontSize = (45 + Math.random() * 10) + 'px'; // 大的再随机加大一点
+        if (p.large) el.style.fontSize = (45 + Math.random() * 10) + 'px'; 
         el.style.left = (p.x_range[0] + Math.random() * (p.x_range[1] - p.x_range[0])) + 'px';
-        el.style.animationDelay = (Math.random() * 2) + 's'; // 隨機擺動延遲
+        el.style.animationDelay = (Math.random() * 2) + 's'; 
         container.appendChild(el);
     });
-    // 生成珊瑚
+    
     corals.forEach(c => {
         let el = document.createElement('div'); el.className = c.cls; el.textContent = c.emoji;
         el.style.left = (c.x_range[0] + Math.random() * (c.x_range[1] - c.x_range[0])) + 'px';
         container.appendChild(el);
     });
-    // 生成海星 (固定在左中偏底部，位置隨機)
+    
     let elStar = document.createElement('div'); elStar.className = starfish.cls; elStar.textContent = starfish.emoji;
     elStar.style.left = (starfish.x_range[0] + Math.random() * (starfish.x_range[1] - starfish.x_range[0])) + 'px';
     container.appendChild(elStar);
     
-    // 隨機調整螃蟹位置
-    const crab = document.getElementById('aqCrab');
-    if (crab) crab.style.left = (30 + Math.random() * 150) + 'px';
+    // ★ 螃蟹位置已全權交由 CSS transform 接管，不需在此設定
 }
 
-// ==========================================
-// ★ 需求2 & 3: 醫院探索生態系統隨機生成 (Procedural Generation)
-// ==========================================
 function randomizeAquariumFish() {
     const container = document.getElementById('aqFishContainer'); 
     if (!container) return; 
     container.innerHTML = '';
     
-    // =========================================
-    // --- (A) 成群游動的魚 (🐟群，頭朝左) ---
-    // =========================================
-    const schoolCount = 5 + Math.floor(Math.random() * 6); // ★ 隨機生成 5-10 隻魚的魚群
-    // 魚群種類隨機：大部分是🐟，少部分是別的
-    const schoolTypes = ['🐟', '🐟', '🐟', '🐠', '🐡']; // ★ 去除鯊魚，加入獨游魚種類
+    // --- (A) 成群游動的魚 ---
+    const schoolCount = 5 + Math.floor(Math.random() * 6); 
+    const schoolTypes = ['🐟', '🐟', '🐟', '🐠', '🐡']; 
     const baseTypeGroup1 = schoolTypes[Math.floor(Math.random() * schoolTypes.length)];
     
     for (let i = 0; i < schoolCount; i++) {
         let el = document.createElement('div');
         el.className = 'aq-fish aq-group-1'; el.textContent = baseTypeGroup1;
-        // top 位置隨機分佈
         el.style.top = (15 + Math.random() * 60) + 'px'; 
-        // ★ 小小魚尺寸更小，且更隨機
+        
         let baseSize = 20 + Math.random() * 12; 
         el.style.fontSize = baseSize + 'px';
-        el.style.animationDelay = (i * 2 + Math.random() * 5) + 's'; // 錯開隊形
-        // 讓體型大的游得更慢
+        el.style.animationDelay = (i * 2 + Math.random() * 5) + 's'; 
         let duration = 50 + (baseSize / 10) * 8;
         el.style.animationDuration = duration + 's';
         
         container.appendChild(el);
     }
+    
+    // --- (B) 獨游的魚 ---
+    const solitaryFish = [
+        { emoji: '🐠', cls: 'aq-fish aq-fish-r', top_range: [60, 110], delay_range: [0, 20] },
+        { emoji: '🐡', cls: 'aq-fish aq-fish-r', top_range: [80, 125], delay_range: [15, 35], large: true }
+    ];
+    
+    const countSolitary = 2 + Math.floor(Math.random() * solitaryFish.length);
+    let selectedFish = solitaryFish.sort(() => 0.5 - Math.random()).slice(0, countSolitary);
+    
+    selectedFish.forEach(f => {
+        let el = document.createElement('div');
+        el.className = f.cls; el.textContent = f.emoji;
+        el.style.top = (f.top_range[0] + Math.random() * (f.top_range[1] - f.top_range[0])) + 'px';
+        
+        let baseSize = 28 + Math.random() * 10;
+        if (f.large) baseSize += 10; 
+        el.style.fontSize = baseSize + 'px';
+        el.style.animationDelay = (f.delay_range[0] + Math.random() * (f.delay_range[1] - f.delay_range[0])) + 's';
+        let duration = 70 + (baseSize / 10) * 8;
+        el.style.animationDuration = duration + 's';
+        
+        container.appendChild(el);
+    });
+}
     
     // =========================================
     // --- (B) 獨游的魚 (🐠，🐡，從右游到左) ★ 速度最慢 ---
