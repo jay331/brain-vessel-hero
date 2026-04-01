@@ -710,7 +710,9 @@ function updateCamera() {
 // ★ 需求2：醫院探索生態系統隨機生成 (Procedural Generation)
 // ==========================================
 function randomizeAquariumDecorations() {
-    const container = id('aqDecorationsContainer'); if (!container) return; container.innerHTML = '';
+    const container = document.getElementById('aqDecorationsContainer'); 
+    if (!container) return; 
+    container.innerHTML = '';
     
     // 定義植物種類 ( emoji, Base Class, 隨機X範圍 (Min, Max) )
     const plants = [
@@ -746,12 +748,14 @@ function randomizeAquariumDecorations() {
     container.appendChild(elStar);
     
     // 隨機調整螃蟹位置
-    const crab = id('aqCrab');
+    const crab = document.getElementById('aqCrab');
     if (crab) crab.style.left = (30 + Math.random() * 150) + 'px';
 }
 
 function randomizeAquariumFish() {
-    const container = id('aqFishContainer'); if (!container) return; container.innerHTML = '';
+    const container = document.getElementById('aqFishContainer'); 
+    if (!container) return; 
+    container.innerHTML = '';
     
     // ★ 需求2：成群的數量與魚種類隨機 ★
     
@@ -804,6 +808,7 @@ function randomizeAquariumFish() {
         container.appendChild(el);
     });
 }
+
    
 window.onload = () => {
   document.getElementById('player').style.left = state.x + 'px'; 
