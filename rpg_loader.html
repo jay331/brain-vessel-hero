@@ -767,17 +767,33 @@ function randomizeAquariumDecorations() {
 // ==========================================
 // ★ 互動系統：點擊餵魚邏輯
 // ==========================================
+// ==========================================
+// ★ 互動系統：點擊餵魚邏輯
+// ==========================================
 let isFeeding = false;
 window.feedFish = function(e) {
+    // ★ 關鍵：徹底阻止事件往上傳遞給搖桿，並阻止預設行為(防止穿透)
+    e.stopPropagation();
+    if (e.cancelable) e.preventDefault(); 
+    
     if (isFeeding) return; // 避免狂點重複觸發
     isFeeding = true;
 
     const aq = e.currentTarget;
     const rect = aq.getBoundingClientRect();
     
+    // ★ 支援手機觸控與桌機點擊的座標抓取
+    let clientX = e.clientX;
+    let clientY = e.clientY;
+    if (e.type.includes('touch') && e.touches.length > 0) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+    }
+    
     // 計算點擊的相對位置
-    const clickX = e.clientX - rect.left;
-    const clickY = Math.min(e.clientY - rect.top, 100); // 限制飼料不要掉出魚缸底座
+    const clickX = clientX - rect.left;
+    const clickY = Math.min(clientY - rect.top, 100); // 限制飼料不要掉出魚缸底座
+
 
     // 1. 掉落 3 顆小飼料 🟤
     const foods = [];
