@@ -758,7 +758,7 @@ function randomizeAquariumFish() {
     container.innerHTML = '';
     
     // --- (A) 成群游動的魚 ---
-    const schoolCount = 5 + Math.floor(Math.random() * 6); 
+    const schoolCount = 3 + Math.floor(Math.random() * 3); 
     const schoolTypes = ['🐟', '🐟', '🐟', '🐠', '🐡']; 
     const baseTypeGroup1 = schoolTypes[Math.floor(Math.random() * schoolTypes.length)];
     
@@ -782,7 +782,7 @@ function randomizeAquariumFish() {
         { emoji: '🐡', cls: 'aq-fish aq-fish-r', top_range: [80, 125], delay_range: [15, 35], large: true }
     ];
     
-    const countSolitary = 2 + Math.floor(Math.random() * solitaryFish.length);
+    const countSolitary = 1 + Math.floor(Math.random() * 2);
     let selectedFish = solitaryFish.sort(() => 0.5 - Math.random()).slice(0, countSolitary);
     
     selectedFish.forEach(f => {
