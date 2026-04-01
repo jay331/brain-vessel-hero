@@ -80,13 +80,40 @@ header {
 }
 /* ===== 3D 立體展示廳核心 CSS ===== */
 .hall-track {
+    flex: 1; 
+    display: flex;          /* ★ 讓卡片橫向排列的關鍵 */
+    overflow-x: auto;       /* ★ 開啟橫向滑動 */
+    scroll-snap-type: x mandatory; 
+    gap: 0; 
     padding: 5px calc(50vw - 100px) !important; /* 配合新寬度 200px 的一半 */
+    align-items: center; 
+    scrollbar-width: none;  /* 隱藏預設醜醜的滾動條 */
+    perspective: 1000px;    /* ★ 3D 空間透視深度 */
+    transform-style: preserve-3d;
+}
+
+.hall-track::-webkit-scrollbar { 
+    display: none; /* Safari 隱藏滾動條 */
 }
 
 .hall-card {
-    width: 200px !important; /* 從 220px 縮減 */
-    height: 280px !important; /* 從 310px 縮減，這是解決被切掉的關鍵！ */
-    margin: 0 -20px !important; /* 卡片變小，重疊的間距也跟著微調 */
+    width: 200px !important;  /* 完美適應手機的新寬度 */
+    height: 280px !important; /* 完美適應手機的新高度 */
+    scroll-snap-align: center;
+    background: linear-gradient(135deg, #2a241e, #111);
+    border: 2px solid var(--theme-dim); 
+    border-radius: 12px;
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: flex-start;
+    padding: 10px; 
+    cursor: pointer; 
+    position: relative; 
+    flex-shrink: 0;           /* ★ 確保卡片不會被擠扁 */
+    margin: 0 -20px !important; /* 卡片重疊的 3D 間距 */
+    transition: transform 0.1s ease-out, filter 0.2s, opacity 0.2s; 
+    box-shadow: 0 15px 30px rgba(0,0,0,0.9), inset 0 2px 5px rgba(255,255,255,0.1);
 }
 
 .hall-card:active { transform: scale(0.95) !important; } 
