@@ -1104,6 +1104,25 @@ function gameLoop() {
     document.getElementById('player').style.top = state.y + 'px'; 
     updateCamera();
     
+    // ==========================================
+    // ★ 效能大躍進：視角外動態卸載 (Occlusion Culling)
+    // ==========================================
+    const aq = document.querySelector('.aquarium');
+    if (aq) {
+        // 計算玩家與魚缸中心 (約 x:1500, y:-100) 的直線距離
+        const distToAquarium = Math.hypot(state.x - 1500, state.y - (-100));
+        
+        // 手機螢幕一半寬度大約是 300~500px，我們設定 800px 為安全距離
+        // 當玩家離開超過 800px (畫面外) 時，完全隱藏魚缸，停止所有動畫運算
+        if (distToAquarium > 800) {
+            if (aq.style.display !== 'none') aq.style.display = 'none';
+        } else {
+            // 當玩家走回休息室範圍時，重新啟動渲染
+            if (aq.style.display !== 'flex') aq.style.display = 'flex';
+        }
+    }
+    // ==========================================
+
     if (velocity.x || velocity.y) {
       let touchedElevator = false;
       for(let z of elevatorZones) {
