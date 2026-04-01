@@ -75,8 +75,14 @@ header {
     display: flex; flex-direction: column;
 }
 .hall-title {
-    margin: 15px 0 5px 0 !important;
-    padding-left: 30px; /* 避開左上角返回按鈕 */
+    text-align: center !important;
+    color: var(--theme-primary) !important;
+    margin: 65px 0 5px 0 !important; /* ★ 往下推 65px，徹底閃開左上角的返回按鈕 */
+    padding-left: 0 !important;      /* ★ 移除先前的左推，恢復完美水平置中 */
+    font-size: 18px !important;
+    font-weight: 900 !important;
+    letter-spacing: 2px !important;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8) !important;
 }
 /* ===== 3D 立體展示廳核心 CSS ===== */
 .hall-track {
@@ -181,9 +187,10 @@ header {
     width: 100% !important;
     flex-shrink: 0 !important; 
     
-    /* ★ 從原本的 35px/45px 大幅降為 12px，按鈕就會往下貼，把空間讓給上方 */
-    padding-bottom: max(12px, env(safe-area-inset-bottom)) !important; 
-    margin-top: 10px !important;
+    /* ★ 關鍵：左右加上 15px 內距，讓按鈕整體往中間收，給紅點留出安全空間 */
+    padding: 0 15px max(15px, env(safe-area-inset-bottom)) 15px !important; 
+    box-sizing: border-box !important;
+    margin-top: 5px !important;
     overflow: visible !important; 
 }
 
@@ -209,8 +216,8 @@ header {
 .cartridge-badge {
     position: absolute !important;
     top: -6px !important;
-    right: -6px !important;
-    background: #f44336 !important; /* 警示紅 */
+    right: -2px !important; /* ★ 從 -6px 改為 -2px，稍微往內收一點 */
+    background: #f44336 !important; 
     color: white !important;
     font-size: 11px !important;
     font-weight: bold !important;
@@ -218,7 +225,7 @@ header {
     border-radius: 12px !important;
     box-shadow: 0 2px 5px rgba(0,0,0,0.4) !important;
     border: 1px solid #ffcdd2 !important;
-    display: none; /* 預設隱藏，有數字時才靠 JS 顯示 */
+    display: none; 
     z-index: 10 !important;
 }
 .cartridge-btn.active {
