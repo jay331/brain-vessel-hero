@@ -104,11 +104,17 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:
 /* 螃蟹改用 translateX，並修正浮空問題 */
 .aq-crab { 
     position: absolute; 
-    bottom: -6px; /* ★ 從 4px 改為 -6px，讓螃蟹完美貼地 */
+    bottom: -6px; 
     left: 0; 
     font-size: 30px; 
     animation: scuttle 20s infinite alternate ease-in-out; 
     will-change: transform; 
+}
+
+/* ★ 補上這段遺失的螃蟹走路動畫，牠就會開始左右橫行了！ */
+@keyframes scuttle { 
+    0% { transform: translateX(10px); } 
+    100% { transform: translateX(340px); } 
 }
 
 /* 魚兒基礎設定 */
