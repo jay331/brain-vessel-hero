@@ -1582,12 +1582,17 @@ document.addEventListener('DOMContentLoaded', () => {
 function openCardModal(tab, roleId, taskIdx, absNum, isHidden, cardTrackingId) {
     if (!playerState.seenCards) playerState.seenCards = [];
     
+    // ★ 核心修復：如果從「通關結算」呼叫時沒有傳入 cardTrackingId，系統自動把它組裝起來！
+    if (!cardTrackingId) {
+        cardTrackingId = `${tab}_${roleId}_${taskIdx}`;
+    }
+    
     // 如果是第一次看，加入已讀清單並立即儲存
     if (!playerState.seenCards.includes(cardTrackingId)) {
         playerState.seenCards.push(cardTrackingId);
         saveGameData(); 
         
-        // ★ 核心修復：直接在背景尋找這張卡片，並當場拔除 'is-new' 閃爍標籤！
+        // 直接在背景尋找這張卡片，並當場拔除 'is-new' 閃爍標籤！
         document.querySelectorAll('.hall-card.is-new').forEach(card => {
             if (card.getAttribute('onclick') && card.getAttribute('onclick').includes(cardTrackingId)) {
                 card.classList.remove('is-new');
