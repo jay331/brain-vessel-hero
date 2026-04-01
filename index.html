@@ -802,8 +802,9 @@ function setHomeView(isMap) {
   
   if (isMap) {
       if(id('nodeMapContainer')) id('nodeMapContainer').style.display = 'flex';
-      renderNodeMap();
+      renderNodeMap(); // 重新傳遞資料給血管引擎
   } else {
+      renderHomeRoles(); // ★ 關鍵修復：切換到清單模式時，強制把內容畫出來
       if(id('roleListContainer')) id('roleListContainer').style.display = 'flex';
   }
 }
