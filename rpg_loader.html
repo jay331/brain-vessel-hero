@@ -978,9 +978,37 @@ if (currentNpc.id === 'obj_tablet') {
 
 function stepBackFromNpc() {
   if (currentNpc) {
-    const dx = state.x - currentNpc.pos.x; const dy = state.y - currentNpc.pos.y; const dist = Math.hypot(dx, dy) || 1;
-    let newX = state.x + (dx / dist) * 40; let newY = state.y + (dy / dist) * 40;
-    if (canMoveTo(newX, newY)) { state.x = newX; state.y = newY; } else { state.y += 40; }
+    // ★ 1. 針對特定物件，自訂絕對安全的反彈方向
+    if (currentNpc.id === 'obj_wardrobe') {
+        // 更衣櫃在右上角，下方是魚缸。強制讓玩家往「左側」安全的空地退一步
+        if (canMoveTo(state.x - 40, state.y)) { 
+            state.x -= 40; 
+        }
+    } 
+    else if (currentNpc.id === 'obj_tablet') {
+        // 任務平板附近，強制往「左下方」退
+        if (canMoveTo(state.x - 30, state.y + 30)) { 
+            state.x -= 30; state.y += 30; 
+        }
+    }
+    else {
+        // ★ 2. 預設的物理反彈邏輯 (依據相對位置反彈)
+        const dx = state.x - currentNpc.pos.x; 
+        const dy = state.y - currentNpc.pos.y; 
+        const dist = Math.hypot(dx, dy) || 1;
+        let newX = state.x + (dx / dist) * 40; 
+        let newY = state.y + (dy / dist) * 40; 
+        
+        if (canMoveTo(newX, newY)) { 
+            state.x = newX; state.y = newY; 
+        } else { 
+            // ★ 3. 終極防卡死機制：如果原本想退的方向撞牆了，尋找安全的退路，絕對不硬塞！
+            if (canMoveTo(state.x, state.y + 40)) state.y += 40;
+            else if (canMoveTo(state.x - 40, state.y)) state.x -= 40;
+            else if (canMoveTo(state.x, state.y - 40)) state.y -= 40;
+            else if (canMoveTo(state.x + 40, state.y)) state.x += 40;
+        }
+    }
     updateCamera();
   }
 }
