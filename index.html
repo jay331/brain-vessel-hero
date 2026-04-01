@@ -450,7 +450,7 @@ body.mode-advanced .subtask-item.active {
       
       <div class="cartridge-btn" id="cart_beg" onclick="selectCartridge('beg')">
         <div style="display:flex; flex-direction:column; align-items:center; line-height:1.4;">
-          <span style="font-size:16px;">🔰 初階圖卡</span>
+          <span style="font-size:16px;"><span style="color:#90caf9;">❖</span> 初階健康卡</span>
           <span id="count_beg" style="font-size:11px; color:#aaa; font-weight:normal;">0/25</span>
         </div>
         <div class="cartridge-badge" id="badge_beg">0</div>
@@ -458,7 +458,7 @@ body.mode-advanced .subtask-item.active {
       
       <div class="cartridge-btn" id="cart_adv" onclick="selectCartridge('adv')">
         <div style="display:flex; flex-direction:column; align-items:center; line-height:1.4;">
-          <span style="font-size:16px;">👑 進階圖卡</span>
+          <span style="font-size:16px;"><span style="color:#ffd54f;">❖</span> 進階健康卡</span>
           <span id="count_adv" style="font-size:11px; color:#aaa; font-weight:normal;">0/25</span>
         </div>
         <div class="cartridge-badge" id="badge_adv">0</div>
@@ -466,7 +466,7 @@ body.mode-advanced .subtask-item.active {
       
       <div class="cartridge-btn" id="cart_hid" onclick="selectCartridge('hid')">
         <div style="display:flex; flex-direction:column; align-items:center; line-height:1.4;">
-          <span style="font-size:16px;">⭐ 隱藏卡</span>
+          <span style="font-size:16px;">⭐ 隱藏健康卡</span>
           <span id="count_hid" style="font-size:11px; color:#aaa; font-weight:normal;">0/2</span>
         </div>
         <div class="cartridge-badge" id="badge_hid">0</div>
@@ -1403,8 +1403,16 @@ function selectCartridge(type) {
     });
     document.getElementById('cart_' + type).classList.add('active');
     
-    const titles = { 'puzzle': '🧩 拼圖收藏', 'beg': '🔰 初階健康卡', 'adv': '💠 進階健康卡', 'hid': '⭐ 隱藏健康卡' };
-    document.getElementById('hallTitle').textContent = titles[type];
+    // ★ 更新字典：加入 ❖ 圖示與專屬的藍/金顏色 HTML
+    const titles = { 
+        'puzzle': '🧩 拼圖收藏', 
+        'beg': '<span style="color:#90caf9;">❖</span> 初階健康卡', 
+        'adv': '<span style="color:#ffd54f;">❖</span> 進階健康卡', 
+        'hid': '⭐ 隱藏健康卡' 
+    };
+    
+    // ★ 關鍵修改：把 textContent 改成 innerHTML，讓顏色的 HTML 標籤生效！
+    document.getElementById('hallTitle').innerHTML = titles[type];
     
     // ★ 這裡傳 false 代表可以自動捲動到新卡片
     renderDisplayHall(type, false);
