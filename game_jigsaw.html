@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -174,11 +173,15 @@
     opacity: 0.5;
   }
 
-  .tray-area {
+  .tray-wrap {
     flex-shrink: 0;
-    height: 120px;
     background: var(--tray-bg);
     border-top: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 10px;
+  }
+
+  .tray-area {
+    height: 120px;
     display: flex;
     align-items: center;
     padding: 0 10px;
@@ -186,24 +189,49 @@
     overflow-y: hidden;
     white-space: nowrap;
     gap: 8px;
-    touch-action: pan-x; 
+    touch-action: pan-x;
   }
 
   .tray-area::-webkit-scrollbar {
     display: none;
   }
 
+  .tray-scrollbar {
+    height: 10px;
+    margin: 6px 14px 0 14px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.16);
+    overflow: hidden;
+  }
+
+  .tray-scroll-thumb {
+    height: 100%;
+    width: 80px;
+    border-radius: 999px;
+    background: rgba(56, 189, 248, 0.95);
+    transform: translateX(0);
+    transition: transform 0.05s linear;
+  }
+
   .piece {
     position: relative;
     flex-shrink: 0;
     user-select: none;
+    -webkit-user-select: none;
     touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-drag: none;
     cursor: grab;
     filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
   }
 
+  .piece svg,
+  .piece image {
+    pointer-events: none;
+  }
+
   .tray-area .piece {
-    touch-action: none; 
+    touch-action: none;
   }
 
   .piece.floating {
@@ -211,7 +239,7 @@
     margin: 0 !important;
     cursor: grabbing;
     filter: drop-shadow(0 15px 20px rgba(0,0,0,0.6));
-    opacity: 0.95; 
+    opacity: 0.95;
   }
 
   .piece.locked {
@@ -261,11 +289,11 @@
     pointer-events: none;
   }
 
-.modal-content {
+  .modal-content {
     background: #1e293b;
     border: 1px solid rgba(255,255,255,0.15);
     border-radius: 24px;
-    padding: 24px 20px; /* 左右內距稍微縮小，讓出更多空間給圖片 */
+    padding: 24px 20px;
     width: 85%;
     max-width: 360px;
     text-align: center;
@@ -280,26 +308,25 @@
 
   .modal-content h2 {
     margin: 0 0 16px 0;
-    font-size: 22px; /* 稍微縮小標題 */
+    font-size: 22px;
     color: #f8fafc;
   }
 
   .modal-content .full-image {
     width: 100%;
     border-radius: 12px;
-    margin-bottom: 12px; /* 縮小與下方文字的距離 */
+    margin-bottom: 12px;
     border: 2px solid rgba(255,255,255,0.1);
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   }
-  
-  /* ★ 新增：專門給拼圖說明的文字樣式 */
+
   .modal-desc {
     color: #94a3b8;
     font-size: 14px;
     line-height: 1.5;
     margin: 0 0 20px 0;
     font-weight: bold;
-    min-height: 21px; /* 避免沒文字時跑版 */
+    min-height: 21px;
   }
 
   .btn-finish {
@@ -318,7 +345,7 @@
 </head>
 <body>
 <div class="game-app">
-  
+
   <div class="top-nav">
     <div class="status-pill" id="status">0 / 25</div>
     <button class="icon-btn" id="btnMenu">☰</button>
@@ -338,13 +365,19 @@
     </div>
   </main>
 
-  <footer class="tray-area" id="tray"></footer>
+  <div class="tray-wrap">
+    <footer class="tray-area" id="tray"></footer>
+    <div class="tray-scrollbar">
+      <div class="tray-scroll-thumb" id="trayThumb"></div>
+    </div>
+  </div>
 
-<div id="introModal" class="modal-overlay hidden">
+  <div id="introModal" class="modal-overlay hidden">
     <div class="modal-content">
       <h2 id="introTitle">🧩 拼圖畫廊</h2>
       <img id="introImage" class="full-image" alt="完整原圖預覽">
-      <p id="introDesc" class="modal-desc"></p> <button class="btn-finish" id="btnStart">重溫挑戰 (打亂)</button>
+      <p id="introDesc" class="modal-desc"></p>
+      <button class="btn-finish" id="btnStart">重溫挑戰 (打亂)</button>
     </div>
   </div>
 
@@ -352,7 +385,8 @@
     <div class="modal-content">
       <h2>🎉 恭喜完成！</h2>
       <img id="modalImage" class="full-image" alt="完整原圖">
-      <p id="modalDesc" class="modal-desc"></p> <button class="btn-finish" id="btnFinish">領取獎勵並離開</button>
+      <p id="modalDesc" class="modal-desc"></p>
+      <button class="btn-finish" id="btnFinish">領取獎勵並離開</button>
     </div>
   </div>
 
@@ -363,14 +397,13 @@
   const ROWS = 5;
   const COLS = 5;
   const TOTAL = ROWS * COLS;
-  
-  // ★ 解析主系統傳遞過來的暗號
+
   const urlParams = new URLSearchParams(window.location.search);
-  const imgId = urlParams.get('imgId') || '1'; 
-  const isReplay = urlParams.get('isReplay') === 'true'; // 是否為複習模式
-  
+  const imgId = urlParams.get('imgId') || '1';
+  const isReplay = urlParams.get('isReplay') === 'true';
+
   const IMG_SRC = `assets/puzzle_${imgId}.png`;
-  const puzzleId = parseInt(imgId);
+  const puzzleId = parseInt(imgId, 10);
 
   const puzzleTitles = [
     "神經內科醫師是腦中風病人主要診療者", "急診醫師與神經內科醫師交接急診中風病人", "中風病房護理師專精於中風病人照護", "動脈取栓醫師負責腦血管導管治療", "語言治療師訓練中風病人發音及語言表達",
@@ -379,27 +412,28 @@
     "物理治療師使用下肢機器人協助中風步態訓練", "個管師電訪關心中風病人出院後恢復狀態", "社工師協助長照資源及社會福利申請", "中風後吞嚥困難使用鼻胃管協助進食", "職能治療師協助精細動作及日常功能訓練"
   ];
 
-  // 透過 ID 抓出對應的文字 (因為陣列從 0 開始，所以 ID 要減 1)
   const currentPuzzleText = puzzleTitles[puzzleId - 1] || "未知名稱";
 
   const boardArea = document.getElementById("boardArea");
   const board = document.getElementById("board");
   const tray = document.getElementById("tray");
+  const trayThumb = document.getElementById("trayThumb");
+
   const statusEl = document.getElementById("status");
   const btnMenu = document.getElementById("btnMenu");
   const menuPanel = document.getElementById("menuPanel");
   const btnShuffle = document.getElementById("btnShuffle");
   const btnHint = document.getElementById("btnHint");
-  
+
   const introModal = document.getElementById("introModal");
-  const introTitle = document.getElementById("introTitle"); // ★ 抓取畫廊標題
+  const introTitle = document.getElementById("introTitle");
   const introImage = document.getElementById("introImage");
-  const introDesc = document.getElementById("introDesc");   // ★ 抓取畫廊說明
+  const introDesc = document.getElementById("introDesc");
   const btnStart = document.getElementById("btnStart");
 
   const completionModal = document.getElementById("completionModal");
   const modalImage = document.getElementById("modalImage");
-  const modalDesc = document.getElementById("modalDesc");   // ★ 抓取過關說明
+  const modalDesc = document.getElementById("modalDesc");
   const btnFinish = document.getElementById("btnFinish");
 
   let BOARD_SIZE = 300;
@@ -415,51 +449,51 @@
 
   image.onload = () => init();
   image.onerror = () => {
-    introModal.classList.add("hidden"); 
+    introModal.classList.add("hidden");
     statusEl.textContent = "載入失敗";
     board.innerHTML = `<div class="error-msg">找不到圖片：<br><span style="color:#fff;">${IMG_SRC}</span><br><br><span style="font-size:12px; color:#aaa;">請確認 assets 資料夾內有這張圖片，且副檔名正確！</span></div>`;
   };
-  
+
   image.src = IMG_SRC;
 
-function init(){
+  function init() {
     updateSizes();
     generateEdgeMap();
-    buildPieces(); 
+    buildPieces();
 
     board.style.setProperty("--board-preview", `url("${IMG_SRC}")`);
-    introImage.src = IMG_SRC;  
-    modalImage.src = IMG_SRC;  
-    
-    // ★ 動態塞入專屬標題與說明文字
+    introImage.src = IMG_SRC;
+    modalImage.src = IMG_SRC;
+
     introTitle.textContent = `欣賞拼圖 #${puzzleId}`;
     introDesc.textContent = currentPuzzleText;
     modalDesc.textContent = currentPuzzleText;
 
-    // ★ 修正：這裡只能有一組 resize 監聽器
     window.addEventListener("resize", () => {
       const oldBoard = BOARD_SIZE;
       updateSizes();
       rescalePieces(oldBoard, BOARD_SIZE);
+      updateTrayScrollbar();
     });
 
-    // ★ 智慧判斷開場模式
+    tray.addEventListener("scroll", updateTrayScrollbar);
+
     if (isReplay) {
-      // 從圖鑑進來：秀出畫廊預覽
       introModal.classList.remove("hidden");
+      setTimeout(updateTrayScrollbar, 50);
     } else {
-      // 第一次挑戰：不秀預覽，直接炸開打亂
       setTimeout(() => {
         scatterPieces();
         updateStatus();
-      }, 50); // 給予 50 毫秒渲染緩衝，確保動畫順暢
+        updateTrayScrollbar();
+      }, 50);
     }
 
-    // 畫廊模式下的「開始打亂」按鈕
     btnStart.addEventListener("click", () => {
       introModal.classList.add("hidden");
       scatterPieces();
       updateStatus();
+      updateTrayScrollbar();
     });
 
     btnMenu.addEventListener("click", (e) => {
@@ -477,6 +511,7 @@ function init(){
       pieces.forEach(p => p.el.dispatchEvent(new PointerEvent("pointercancel")));
       scatterPieces();
       updateStatus();
+      updateTrayScrollbar();
       menuPanel.classList.add("hidden");
     });
 
@@ -486,15 +521,16 @@ function init(){
       btnHint.textContent = showHint ? "隱藏底圖提示" : "顯示底圖提示";
     });
 
-    // ★ 結算：按下按鈕後才通知主系統發獎勵跟關閉
     btnFinish.addEventListener("click", () => {
       completionModal.classList.add("hidden");
       window.parent.postMessage({ type: 'PUZZLE_CLEAR', puzzleId: puzzleId }, '*');
       window.parent.postMessage({ type: 'CLOSE_IFRAME' }, '*');
     });
+
+    updateTrayScrollbar();
   }
 
-  function updateSizes(){
+  function updateSizes() {
     const style = window.getComputedStyle(boardArea);
     const pLeft = parseFloat(style.paddingLeft);
     const pRight = parseFloat(style.paddingRight);
@@ -503,9 +539,9 @@ function init(){
 
     const maxWidth = boardArea.clientWidth - pLeft - pRight;
     const maxHeight = boardArea.clientHeight - pTop - pBottom;
-    
+
     BOARD_SIZE = Math.min(maxWidth, maxHeight);
-    
+
     board.style.width = BOARD_SIZE + "px";
     board.style.height = BOARD_SIZE + "px";
 
@@ -514,9 +550,32 @@ function init(){
     SNAP = Math.max(20, CELL * 0.25);
   }
 
-  function rescalePieces(oldBoard, newBoard){
+  function updateTrayScrollbar() {
+    if (!trayThumb) return;
+
+    const visible = tray.clientWidth;
+    const total = tray.scrollWidth;
+    const maxScroll = total - visible;
+    const track = trayThumb.parentElement;
+    const trackWidth = track.clientWidth;
+
+    if (total <= visible || trackWidth <= 0) {
+      trayThumb.style.width = Math.max(trackWidth, 0) + "px";
+      trayThumb.style.transform = "translateX(0px)";
+      return;
+    }
+
+    const thumbWidth = Math.max(60, trackWidth * (visible / total));
+    const maxThumbX = trackWidth - thumbWidth;
+    const thumbX = maxScroll > 0 ? (tray.scrollLeft / maxScroll) * maxThumbX : 0;
+
+    trayThumb.style.width = thumbWidth + "px";
+    trayThumb.style.transform = `translateX(${thumbX}px)`;
+  }
+
+  function rescalePieces(oldBoard, newBoard) {
     const scale = newBoard / oldBoard;
-    
+
     pieces.forEach(p => {
       p.correctX = p.col * CELL - TAB;
       p.correctY = p.row * CELL - TAB;
@@ -525,7 +584,7 @@ function init(){
 
       renderPieceSVG(p);
 
-      if(p.locked){
+      if (p.locked) {
         p.el.style.left = p.correctX + "px";
         p.el.style.top = p.correctY + "px";
       } else if (p.el.parentElement === board) {
@@ -537,14 +596,14 @@ function init(){
     });
   }
 
-  function randSign(){
+  function randSign() {
     return Math.random() > 0.5 ? 1 : -1;
   }
 
-  function generateEdgeMap(){
-    for(let r = 0; r < ROWS; r++){
+  function generateEdgeMap() {
+    for (let r = 0; r < ROWS; r++) {
       edgeMap[r] = [];
-      for(let c = 0; c < COLS; c++){
+      for (let c = 0; c < COLS; c++) {
         const top = r === 0 ? 0 : -edgeMap[r - 1][c].bottom;
         const left = c === 0 ? 0 : -edgeMap[r][c - 1].right;
         const right = c === COLS - 1 ? 0 : randSign();
@@ -554,13 +613,13 @@ function init(){
     }
   }
 
-  function buildPieces(){
+  function buildPieces() {
     board.querySelectorAll(".piece").forEach(el => el.remove());
     tray.innerHTML = "";
     pieces.length = 0;
 
-    for(let r = 0; r < ROWS; r++){
-      for(let c = 0; c < COLS; c++){
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
         const id = r * COLS + c;
         const piece = {
           id,
@@ -584,7 +643,7 @@ function init(){
     }
   }
 
-  function renderPieceSVG(piece){
+  function renderPieceSVG(piece) {
     piece.el.style.width = (CELL + TAB * 2) + "px";
     piece.el.style.height = (CELL + TAB * 2) + "px";
 
@@ -611,55 +670,57 @@ function init(){
 `;
   }
 
-  function makePiecePath(edges, cell, tab){
+  function makePiecePath(edges, cell, tab) {
     const x0 = tab, y0 = tab;
     const x1 = tab + cell, y1 = tab + cell;
     const midX = tab + cell / 2, midY = tab + cell / 2;
     const knobW = cell * 0.22, knobH = tab * 0.95;
 
-    function topSeg(type){
-      if(type === 0) return `L ${x1} ${y0}`;
+    function topSeg(type) {
+      if (type === 0) return `L ${x1} ${y0}`;
       const dir = -type;
       return `L ${midX - knobW} ${y0} C ${midX - knobW*0.55} ${y0}, ${midX - knobW*0.65} ${y0 + dir*knobH}, ${midX} ${y0 + dir*knobH} C ${midX + knobW*0.65} ${y0 + dir*knobH}, ${midX + knobW*0.55} ${y0}, ${midX + knobW} ${y0} L ${x1} ${y0}`;
     }
-    function rightSeg(type){
-      if(type === 0) return `L ${x1} ${y1}`;
+    function rightSeg(type) {
+      if (type === 0) return `L ${x1} ${y1}`;
       const dir = type;
       return `L ${x1} ${midY - knobW} C ${x1} ${midY - knobW*0.55}, ${x1 + dir*knobH} ${midY - knobW*0.65}, ${x1 + dir*knobH} ${midY} C ${x1 + dir*knobH} ${midY + knobW*0.65}, ${x1} ${midY + knobW*0.55}, ${x1} ${midY + knobW} L ${x1} ${y1}`;
     }
-    function bottomSeg(type){
-      if(type === 0) return `L ${x0} ${y1}`;
+    function bottomSeg(type) {
+      if (type === 0) return `L ${x0} ${y1}`;
       const dir = type;
       return `L ${midX + knobW} ${y1} C ${midX + knobW*0.55} ${y1}, ${midX + knobW*0.65} ${y1 + dir*knobH}, ${midX} ${y1 + dir*knobH} C ${midX - knobW*0.65} ${y1 + dir*knobH}, ${midX - knobW*0.55} ${y1}, ${midX - knobW} ${y1} L ${x0} ${y1}`;
     }
-    function leftSeg(type){
-      if(type === 0) return `L ${x0} ${y0}`;
+    function leftSeg(type) {
+      if (type === 0) return `L ${x0} ${y0}`;
       const dir = -type;
       return `L ${x0} ${midY + knobW} C ${x0} ${midY + knobW*0.55}, ${x0 + dir*knobH} ${midY + knobW*0.65}, ${x0 + dir*knobH} ${midY} C ${x0 + dir*knobH} ${midY - knobW*0.65}, ${x0} ${midY - knobW*0.55}, ${x0} ${midY - knobW} L ${x0} ${y0}`;
     }
     return `M ${x0} ${y0} ${topSeg(edges.top)} ${rightSeg(edges.right)} ${bottomSeg(edges.bottom)} ${leftSeg(edges.left)} Z`;
   }
 
-  function scatterPieces(){
+  function scatterPieces() {
     const shuffled = [...pieces].sort(() => Math.random() - 0.5);
-    
+
     shuffled.forEach((p) => {
       p.locked = false;
       p.el.classList.remove("locked", "correctPulse", "floating");
-      
+
       p.el.style.position = "";
       p.el.style.left = "";
       p.el.style.top = "";
-      
+
       tray.appendChild(p.el);
     });
+
     tray.scrollLeft = 0;
+    updateTrayScrollbar();
   }
 
-  function attachDrag(piece){
+  function attachDrag(piece) {
     let isPressing = false;
     let dragging = false;
-    let dragMode = null; // 'drag' or 'scroll'
+    let dragMode = null;
     let startX = 0;
     let startY = 0;
     let offsetX = 0;
@@ -667,15 +728,16 @@ function init(){
     let initLeft = 0;
     let initTop = 0;
 
+    piece.el.addEventListener("dragstart", (e) => e.preventDefault());
+
     piece.el.addEventListener("pointerdown", (e) => {
-      if(piece.locked || dragging) return;
-      
+      if (piece.locked || dragging) return;
+
       piece.el.style.touchAction = "none";
       tray.style.overflowX = "hidden";
       tray.style.touchAction = "none";
-      
+
       dragMode = null;
-      
       isPressing = true;
       startX = e.clientX;
       startY = e.clientY;
@@ -687,64 +749,89 @@ function init(){
       offsetY = startY - initTop;
     });
 
+    piece.el.addEventListener("pointermove", (e) => {
+      if (!isPressing) return;
 
-piece.el.addEventListener("pointermove", (e) => {
-  if(!isPressing) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      const movedEnough = Math.hypot(dx, dy) > 5;
 
-  const dx = e.clientX - startX;
-  const dy = e.clientY - startY;
+      if (piece.el.parentElement === tray) {
+        if (!dragMode) {
+          if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
+            dragMode = Math.abs(dx) > Math.abs(dy) ? "scroll" : "drag";
+          }
+        }
 
-  // ⭐ 還沒決定模式時，先判斷方向
-  if(!dragMode){
-    if(Math.abs(dx) > 8 || Math.abs(dy) > 8){
-      dragMode = Math.abs(dx) > Math.abs(dy) ? "scroll" : "drag";
-    }
-  }
+        if (dragMode === "scroll") {
+          isPressing = false;
+          tray.style.overflowX = "auto";
+          tray.style.touchAction = "pan-x";
+          return;
+        }
 
-  // ⭐ 如果是橫向滑動 → 讓 tray 處理
-  if(dragMode === "scroll" && piece.el.parentElement === tray){
-    isPressing = false;
-    return;
-  }
+        if (!dragging && dragMode === "drag") {
+          dragging = true;
+          piece.el.setPointerCapture(e.pointerId);
+          highestZ++;
 
-  // ⭐ 開始拖曳
-  if(!dragging && dragMode === "drag"){
-    dragging = true;
-    piece.el.setPointerCapture(e.pointerId);
-    highestZ++;
+          piece.el.style.position = "fixed";
+          piece.el.style.left = (e.clientX - offsetX) + "px";
+          piece.el.style.top = (e.clientY - offsetY) + "px";
+          piece.el.style.zIndex = highestZ;
 
-    piece.el.style.position = "fixed";
-    piece.el.style.left = (e.clientX - offsetX) + "px";
-    piece.el.style.top = (e.clientY - offsetY) + "px";
-    piece.el.style.zIndex = highestZ;
+          if (!menuPanel.classList.contains("hidden")) {
+            menuPanel.classList.add("hidden");
+          }
 
-    if(!menuPanel.classList.contains("hidden")){
-      menuPanel.classList.add("hidden");
-    }
+          document.body.appendChild(piece.el);
+          piece.el.classList.add("floating");
+        }
+      } else {
+        if (!dragging && movedEnough) {
+          dragging = true;
+          piece.el.setPointerCapture(e.pointerId);
+          highestZ++;
 
-    document.body.appendChild(piece.el);
-    piece.el.classList.add("floating");
-  }
+          piece.el.style.position = "fixed";
+          piece.el.style.left = (e.clientX - offsetX) + "px";
+          piece.el.style.top = (e.clientY - offsetY) + "px";
+          piece.el.style.zIndex = highestZ;
 
-  // ⭐ 拖曳中
-  if(dragging){
-    piece.el.style.left = (e.clientX - offsetX) + "px";
-    piece.el.style.top = (e.clientY - offsetY) + "px";
-  }
-});
+          if (!menuPanel.classList.contains("hidden")) {
+            menuPanel.classList.add("hidden");
+          }
 
-    function endDrag(e){
+          document.body.appendChild(piece.el);
+          piece.el.classList.add("floating");
+        }
+      }
+
+      if (dragging) {
+        piece.el.style.left = (e.clientX - offsetX) + "px";
+        piece.el.style.top = (e.clientY - offsetY) + "px";
+      }
+    });
+
+    function endDrag(e) {
       tray.style.overflowX = "auto";
-tray.style.touchAction = "pan-x";
+      tray.style.touchAction = "pan-x";
+
       isPressing = false;
-      if(!dragging) return;
+      dragMode = null;
+
+      if (!dragging) {
+        updateTrayScrollbar();
+        return;
+      }
+
       dragging = false;
       piece.el.classList.remove("floating");
 
       const boardRect = board.getBoundingClientRect();
       const pieceLeft = e.clientX - offsetX;
       const pieceTop = e.clientY - offsetY;
-      
+
       const pieceCenterX = pieceLeft + piece.width / 2;
       const pieceCenterY = pieceTop + piece.height / 2;
 
@@ -755,16 +842,16 @@ tray.style.touchAction = "pan-x";
         pieceCenterY <= boardRect.bottom
       );
 
-      if(isOverBoard){
+      if (isOverBoard) {
         const boardX = pieceLeft - boardRect.left;
         const boardY = pieceTop - boardRect.top;
-        
+
         const dx = boardX - piece.correctX;
         const dy = boardY - piece.correctY;
         const dist = Math.hypot(dx, dy);
 
-        if(dist < SNAP){
-          lockPiece(piece); 
+        if (dist < SNAP) {
+          lockPiece(piece);
         } else {
           const minX = -TAB;
           const minY = -TAB;
@@ -774,33 +861,34 @@ tray.style.touchAction = "pan-x";
           const clampedX = Math.min(Math.max(minX, boardX), maxX);
           const clampedY = Math.min(Math.max(minY, boardY), maxY);
 
-          leaveOnBoard(piece, clampedX, clampedY); 
+          leaveOnBoard(piece, clampedX, clampedY);
         }
       } else {
         returnToTray(piece);
       }
 
       updateStatus();
+      updateTrayScrollbar();
     }
 
     piece.el.addEventListener("pointerup", endDrag);
     piece.el.addEventListener("pointercancel", endDrag);
   }
 
-  function lockPiece(piece){
+  function lockPiece(piece) {
     piece.locked = true;
     board.appendChild(piece.el);
-    
+
     piece.el.style.position = "absolute";
     piece.el.style.left = piece.correctX + "px";
     piece.el.style.top = piece.correctY + "px";
     piece.el.style.zIndex = 500 + piece.id;
-    
+
     piece.el.classList.add("locked", "correctPulse");
     setTimeout(() => piece.el.classList.remove("correctPulse"), 260);
   }
 
-  function leaveOnBoard(piece, x, y){
+  function leaveOnBoard(piece, x, y) {
     board.appendChild(piece.el);
     piece.el.style.position = "absolute";
     piece.el.style.left = x + "px";
@@ -808,21 +896,21 @@ tray.style.touchAction = "pan-x";
     piece.el.style.zIndex = highestZ;
   }
 
-  function returnToTray(piece){
+  function returnToTray(piece) {
     piece.el.style.position = "";
     piece.el.style.left = "";
     piece.el.style.top = "";
     tray.appendChild(piece.el);
   }
 
-  function updateStatus(){
+  function updateStatus() {
     const done = pieces.filter(p => p.locked).length;
     statusEl.textContent = `${done} / ${TOTAL}`;
-    
-    if(done === TOTAL){
+
+    if (done === TOTAL) {
       setTimeout(() => {
         completionModal.classList.remove("hidden");
-      }, 400); 
+      }, 400);
     }
   }
 })();
