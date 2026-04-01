@@ -464,7 +464,7 @@ if (taskId === 'hub_world') {
     if (!task.npcs.find(n => n.id === 'obj_tablet')) {
         task.npcs.push({
             id: 'obj_tablet', name: '任務平板', icon: '📱', color: '#1976d2',
-            pos: { x: 1500, y: -220 }, action: 'ACTION_CHECK_TABLET', dialogs: [{name: '', text: ''}]
+            pos: { x: 1600, y: -260 }, action: 'ACTION_CHECK_TABLET', dialogs: [{name: '', text: ''}]
         });
     }
 
@@ -514,7 +514,7 @@ if (taskId === 'hub_world') {
     if (isLockedRoom) {
         task.startPos = { x: 1500, y: -150 };
         let tablet = task.npcs.find(n => n.id === 'obj_tablet');
-        if (tablet) tablet.pos = { x: 1650, y: -260 }; 
+        if (tablet) tablet.pos = { x: 1600, y: -260 }; 
     } else {
         task.startPos = { x: 1500, y: -150 };
     }
