@@ -75,38 +75,18 @@ header {
     display: flex; flex-direction: column;
 }
 .hall-title {
-    text-align: center; 
-    color: var(--theme-primary); 
-    margin: 18px 0 5px 0; /* ★ 稍微往下推齊平按鈕 */
-    padding-left: 30px;   /* ★ 往右推，避開左邊的返回按鈕 */
-    font-size: 18px; 
-    font-weight: 900; 
-    letter-spacing: 2px; 
-    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    margin: 15px 0 5px 0 !important;
+    padding-left: 30px; /* 避開左上角返回按鈕 */
 }
 /* ===== 3D 立體展示廳核心 CSS ===== */
 .hall-track {
-    flex: 1; display: flex; overflow-x: auto; 
-    scroll-snap-type: x mandatory; 
-    gap: 0; 
-    padding: 20px calc(50vw - 110px); 
-    align-items: center; scrollbar-width: none;
-    perspective: 1000px; 
-    transform-style: preserve-3d;
+    padding: 5px calc(50vw - 100px) !important; /* 配合新寬度 200px 的一半 */
 }
 
 .hall-card {
-    width: 220px; 
-    height: 310px; 
-    scroll-snap-align: center;
-    background: linear-gradient(135deg, #2a241e, #111);
-    border: 2px solid var(--theme-dim); border-radius: 12px;
-    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-    padding: 10px; cursor: pointer; 
-    position: relative; flex-shrink: 0;
-    margin: 0 -25px; 
-    transition: transform 0.1s ease-out, filter 0.2s, opacity 0.2s; 
-    box-shadow: 0 15px 30px rgba(0,0,0,0.9), inset 0 2px 5px rgba(255,255,255,0.1);
+    width: 200px !important; /* 從 220px 縮減 */
+    height: 280px !important; /* 從 310px 縮減，這是解決被切掉的關鍵！ */
+    margin: 0 -20px !important; /* 卡片變小，重疊的間距也跟著微調 */
 }
 
 .hall-card:active { transform: scale(0.95) !important; } 
@@ -172,9 +152,11 @@ header {
     grid-template-columns: repeat(2, 1fr) !important; 
     gap: 12px !important; 
     width: 100% !important;
-    flex-shrink: 0 !important; /* ★ 關鍵：絕對不允許被壓縮，保證按鈕完整顯示 */
-    padding-bottom: max(35px, env(safe-area-inset-bottom)) !important; /* 加大底部安全空間 */
-    margin-top: 15px !important;
+    flex-shrink: 0 !important; 
+    
+    /* ★ 從原本的 35px/45px 大幅降為 12px，按鈕就會往下貼，把空間讓給上方 */
+    padding-bottom: max(12px, env(safe-area-inset-bottom)) !important; 
+    margin-top: 10px !important;
     overflow: visible !important; 
 }
 
