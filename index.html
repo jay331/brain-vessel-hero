@@ -1460,15 +1460,25 @@ function playTaskFlat(index) {
   if(id('mainNav')) id('mainNav').style.display = 'flex';
   isGlobalFs = false; 
   
-  // ★ 修改這裡：加入該類別專屬的圖示與名稱！
-  if(id('mapOverlayTitle')) id('mapOverlayTitle').textContent = `${flatTask.role.icon} ${flatTask.role.name}：${flatTask.role.subTasks[flatTask.taskIndex].substring(3)}`; 
+  // ★ 新增：計算關卡號碼 (1-1 ~ 5-5)
+  const rolesList = playerState.mode === 'beginner' ? ROLES_DATA_BEG : ROLES_DATA_ADV;
+  const rIndex = rolesList.findIndex(r => r.id === flatTask.role.id) + 1; // 大類別編號 (1~5)
+  const tIndex = flatTask.taskIndex + 1;                                  // 小關卡編號 (1~5)
+  const levelNum = `${rIndex}-${tIndex}`;
+  
+  // ★ 修改：將關卡號碼 levelNum 加到標題最前面
+  if(id('mapOverlayTitle')) id('mapOverlayTitle').textContent = `${levelNum} ${flatTask.role.icon} ${flatTask.role.name}：${flatTask.role.subTasks[flatTask.taskIndex].substring(3)}`; 
   
   if(id('mapOverlay')) id('mapOverlay').style.display = 'flex'; 
-    if(id('mapFrame')) id('mapFrame').src = `rpg_loader.html?taskId=${flatTask.gameId}&skipIntro=0`;
+  if(id('mapFrame')) id('mapFrame').src = `rpg_loader.html?taskId=${flatTask.gameId}`;
 }
 
 function playTask(taskIndex) {
-  const role = getActiveRoles().find(r => r.id === activeRoleId);
+  // ★ 新增：先抓出目前模式的清單，以便計算大類別是第幾個
+  const rolesList = playerState.mode === 'beginner' ? ROLES_DATA_BEG : ROLES_DATA_ADV;
+  const roleIdx = rolesList.findIndex(r => r.id === activeRoleId);
+  const role = rolesList[roleIdx];
+  
   const gameId = `${role.id}_${taskIndex}`; currentGameInfo = { role: role, taskIndex: taskIndex, id: gameId, isLinear: false, isChallenge: false };
   
   const gameUrl = typeof GAME_URLS !== 'undefined' ? GAME_URLS[gameId] : null;
@@ -1476,15 +1486,19 @@ function playTask(taskIndex) {
       return customAlert(`【${role.subTasks[taskIndex].substring(3)}】\n此任務的情境演練正在建置中...\n點擊「確定」直接模擬通關！`, () => { handleGameClear(1000); }, "🚧 任務建置中");
   }
 
+  // ★ 新增：計算關卡號碼 (1-1 ~ 5-5)
+  const levelNum = `${roleIdx + 1}-${taskIndex + 1}`;
+
   if (gameUrl) { 
       if(id('gameFrame')) id('gameFrame').src = gameUrl; 
-      if(id('gameTitle')) id('gameTitle').textContent = role.subTasks[taskIndex].substring(3); 
+      // 若是有獨立 HTML 的遊戲，也幫它的標題加上關卡號碼
+      if(id('gameTitle')) id('gameTitle').textContent = `${levelNum} ${role.subTasks[taskIndex].substring(3)}`; 
       if(id('gameOverlay')) id('gameOverlay').style.display = 'flex'; 
   } else { 
-      // ★ 修改這裡：同步加入專屬圖示與名稱
-      if(id('mapOverlayTitle')) id('mapOverlayTitle').textContent = `${role.icon} ${role.name}：${role.subTasks[taskIndex].substring(3)}`; 
+      // ★ 修改：將關卡號碼 levelNum 加到地圖引擎的標題最前面
+      if(id('mapOverlayTitle')) id('mapOverlayTitle').textContent = `${levelNum} ${role.icon} ${role.name}：${role.subTasks[taskIndex].substring(3)}`; 
       if(id('mapOverlay')) id('mapOverlay').style.display = 'flex'; 
-      if(id('mapFrame')) id('mapFrame').src = `rpg_loader.html?taskId=${gameId}&skipIntro=1`;
+      if(id('mapFrame')) id('mapFrame').src = `rpg_loader.html?taskId=${gameId}`; 
   }
 }
 
