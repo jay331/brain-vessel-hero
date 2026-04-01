@@ -750,8 +750,6 @@ function randomizeAquariumDecorations() {
     let elStar = document.createElement('div'); elStar.className = starfish.cls; elStar.textContent = starfish.emoji;
     elStar.style.left = (starfish.x_range[0] + Math.random() * (starfish.x_range[1] - starfish.x_range[0])) + 'px';
     container.appendChild(elStar);
-    
-    // ★ 螃蟹位置已全權交由 CSS transform 接管，不需在此設定
 }
 
 function randomizeAquariumFish() {
@@ -802,38 +800,6 @@ function randomizeAquariumFish() {
         container.appendChild(el);
     });
 }
-    
-    // =========================================
-    // --- (B) 獨游的魚 (🐠，🐡，從右游到左) ★ 速度最慢 ---
-    // =========================================
-    const solitaryFish = [
-        { emoji: '🐠', cls: 'aq-fish aq-fish-r', top_range: [60, 110], delay_range: [0, 20] },
-        { emoji: '🐡', cls: 'aq-fish aq-fish-r', top_range: [80, 125], delay_range: [15, 35], large: true }
-    ];
-    // 隨機選 2-3 隻獨游魚
-    const countSolitary = 2 + Math.floor(Math.random() * solitaryFish.length);
-    let selectedFish = solitaryFish.sort(() => 0.5 - Math.random()).slice(0, countSolitary);
-    
-    selectedFish.forEach(f => {
-        let el = document.createElement('div');
-        el.className = f.cls; el.textContent = f.emoji;
-        el.style.top = (f.top_range[0] + Math.random() * (f.top_range[1] - f.top_range[0])) + 'px';
-        
-        // ★ 這裡已經把原本的 el.style.left = '-60px'; 刪除了！
-        // 位置完全交給 CSS 裡的 @keyframes swimLeftHeadFirst 處理
-        
-        let baseSize = 28 + Math.random() * 10;
-        if (f.large) baseSize += 10; // 大體型魚
-        el.style.fontSize = baseSize + 'px';
-        el.style.animationDelay = (f.delay_range[0] + Math.random() * (f.delay_range[1] - f.delay_range[0])) + 's';
-        // 獨游魚游得最慢 (70-90秒)
-        let duration = 70 + (baseSize / 10) * 8;
-        el.style.animationDuration = duration + 's';
-        
-        container.appendChild(el);
-    });
-}
-
    
 window.onload = () => {
   document.getElementById('player').style.left = state.x + 'px'; 
