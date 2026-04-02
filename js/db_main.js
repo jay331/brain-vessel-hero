@@ -13,7 +13,7 @@ const GAME_URLS = {
 };
 
 const ROLES_DATA_BEG = [
-  { id: 'beg_id', name: '1 中風補習班', subtitle: '一定要知道的', icon: '🧠', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1-1. 什麼是腦中風 ?', '1-2. 認識中風團隊人員', '1-3. 中風常見檢查項目', '1-4. 中風常見治療項目', '1-5. 完成您專屬的中風名片'],cardDesc: [
+  { id: 'beg_id', name: '1 中風補習班', subtitle: '一定要知道的', icon: '🧠', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1-1 什麼是腦中風 ?', '1-2 認識中風團隊人員', '1-3 中風常見檢查項目', '1-4 中風常見治療項目', '1-5 完成您專屬的中風名片'],cardDesc: [
       "中風常見的症狀包括：<br>1. 臉部不對稱 (Face)<br>2. 手臂無力 (Arm)<br>3. 說話含糊 (Speech)<br>千萬不可忽視！",
       "記錄發病時間非常重要！<br>因為這會決定醫師是否能施打『靜脈血栓溶解劑』(黃金 4.5 小時內)。",
       "遇到疑似中風，請『立刻撥打 119』，切勿自行開車送醫，以免延誤黃金搶救時間。",
@@ -27,11 +27,11 @@ const ROLES_DATA_BEG = [
 ];
 
 const ROLES_DATA_ADV = [
-  { id: 'role_emt', name: 'EMT', subtitle: '院前識別', icon: '🚑', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 基礎駕駛與鳴笛', '2. 閃避車流', '3. 惡劣天候', '4. 路口判斷', '5. 極限護送'] }, 
-  { id: 'role_dr', name: '取栓專家', subtitle: '血管再通', icon: '🩺', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 導管操作', '2. 尋找阻塞', '3. 突破血栓', '4. 支架釋放', '5. 血流再通'] }, 
-  { id: 'role_nurse', name: '護理師', subtitle: '急診護理', icon: '💉', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 生命徵象', '2. FAST指標', '3. 給藥準備', '4. 狀況排除', '5. 急診調度'] }, 
-  { id: 'role_pt', name: '復健師', subtitle: '復健訓練', icon: '🦾', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 活動評估', '2. 翻身訓練', '3. 平衡考驗', '4. 步態矯正', '5. 功能重建'] }, 
-  { id: 'role_diet', name: '營養師', subtitle: '健康飲食', icon: '🥗', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 地中海飲食', '2. 優質蛋白', '3. 避開高鈉', '4. 吞嚥餐食', '5. 菜單設計'] }
+  { id: 'role_emt', name: '1 EMT', subtitle: '院前識別', icon: '🚑', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1-1 基礎駕駛與鳴笛', '1-2 閃避車流', '1-3 惡劣天候', '1-4 路口判斷', '1-5 極限護送'] }, 
+  { id: 'role_dr', name: '2 取栓專家', subtitle: '血管再通', icon: '🩺', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 導管操作', '2. 尋找阻塞', '3. 突破血栓', '4. 支架釋放', '5. 血流再通'] }, 
+  { id: 'role_nurse', name: '3 護理師', subtitle: '急診護理', icon: '💉', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 生命徵象', '2. FAST指標', '3. 給藥準備', '4. 狀況排除', '5. 急診調度'] }, 
+  { id: 'role_pt', name: '4 復健師', subtitle: '復健訓練', icon: '🦾', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 活動評估', '2. 翻身訓練', '3. 平衡考驗', '4. 步態矯正', '5. 功能重建'] }, 
+  { id: 'role_diet', name: '5 營養師', subtitle: '健康飲食', icon: '🥗', totalTasks: 5, currentTask: 1, dailyAttempts: 5, subTasks: ['1. 地中海飲食', '2. 優質蛋白', '3. 避開高鈉', '4. 吞嚥餐食', '5. 菜單設計'] }
 ];
 
 const scaleQuestions = [
