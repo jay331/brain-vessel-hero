@@ -10,8 +10,8 @@
             --blood-bg: #050101;
             --danger: #ff4d4d;
             --safe: #00ffcc;
-            --panel: #151515;
-            --border: #333;
+            --panel: rgba(15, 15, 15, 0.85);
+            --border: rgba(255, 255, 255, 0.15);
         }
 
         * { box-sizing: border-box; }
@@ -26,182 +26,35 @@
             font-family: "PingFang TC", "Noto Sans TC", sans-serif;
             overflow: hidden;
             touch-action: none;
-        }
-
-        body {
-            min-height: 100dvh;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 3px;
+            overscroll-behavior: none;
         }
 
         #app {
-            width: 100%;
-            max-width: 500px;
-            height: 100dvh;
-            display: grid;
-            grid-template-rows: auto 1fr auto;
-            gap: 3px;
-            align-items: start;
-            justify-items: center;
-            padding:
-                max(2px, env(safe-area-inset-top))
-                0
-                max(2px, env(safe-area-inset-bottom))
-                0;
-        }
-
-        /* ===== 超精簡頂部資訊卡 ===== */
-        #top-hud {
-            width: 100%;
-            flex-shrink: 0;
-        }
-
-        .compact-card {
-            width: 100%;
-            background: rgba(20,20,20,0.96);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 5px 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.28);
-        }
-
-        .compact-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px;
-            align-items: center;
-        }
-
-        .compact-grid-3 {
-            grid-template-columns: 1fr 1.15fr 1fr;
-            gap: 6px;
-        }
-
-        .compact-item {
-            text-align: center;
-            min-width: 0;
-        }
-
-        .compact-label {
-            font-size: 0.5rem;
-            color: #9a9a9a;
-            line-height: 1;
-            margin-bottom: 1px;
-        }
-
-        .compact-value {
-            font-size: 0.92rem;
-            font-weight: 900;
-            line-height: 1;
-        }
-
-        #blockage { color: var(--danger); }
-        #score { color: var(--safe); }
-
-        .compact-pill {
-            width: 100%;
-            text-align: center;
-            font-size: 0.48rem;
-            line-height: 1;
-            padding: 4px 6px;
-            border-radius: 999px;
-            font-weight: 800;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin: 0;
-        }
-
-        #alert-signal {
-            margin-top: 0;
-        }
-
-        .status-normal {
-            color: #00ffcc;
-            border: 1px solid rgba(0,255,204,0.18);
-            background: rgba(0,255,204,0.04);
-        }
-
-        .status-warning {
-            color: #ffcc00;
-            background: rgba(255, 204, 0, 0.12);
-            border: 1px solid rgba(255, 204, 0, 0.45);
-        }
-
-        .status-danger {
-            color: #ff4d4d;
-            background: rgba(255, 77, 77, 0.14);
-            border: 1px solid rgba(255, 77, 77, 0.55);
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            50% { opacity: 0.6; }
-        }
-
-        /* ===== 主遊戲區 ===== */
-        #game-wrap {
-            width: 100%;
-            min-height: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-        }
-
-        #vessel-title {
-            font-size: 0.48rem;
-            color: rgba(255,255,255,0.7);
-            letter-spacing: 0.3px;
-            line-height: 1;
-            margin-bottom: 2px;
-            text-align: center;
-            flex-shrink: 0;
-        }
-
-        #vessel-shell {
-            width: min(80vw, calc((100dvh - 112px) * 280 / 525), 350px);
-            display: flex;
-            flex-direction: column;
-            align-items: stretch;
-            flex-shrink: 0;
-            box-shadow: 0 0 32px rgba(255, 0, 0, 0.22);
-        }
-
-        .vessel-wall {
-            width: 100%;
-            background: var(--vessel-wall);
-            flex-shrink: 0;
-        }
-
-        .vessel-wall.top {
-            height: 18px;
-            border-left: 2px solid #333;
-            border-right: 2px solid #333;
-            border-top: 2px solid #333;
-        }
-
-        .vessel-wall.bottom {
-            height: 16px;
-            border-left: 2px solid #333;
-            border-right: 2px solid #333;
-            border-bottom: 2px solid #333;
-        }
-
-        #vessel-container {
             position: relative;
-            width: 100%;
-            aspect-ratio: 280 / 525;
+            width: 100vw;
+            height: 100dvh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at center, #1a0505 0%, #000000 100%);
+        }
+
+        /* ===== 主遊戲區 (上下留邊界) ===== */
+        #vessel-container {
+            height: calc(100dvh - 130px); /* 扣除上下空間，避免被 UI 遮擋 */
+            min-height: 400px;
+            max-height: 850px; /* 限制最大高度，避免在大螢幕比例失衡 */
+            aspect-ratio: 8 / 15;
+            max-width: 95vw;
             background: var(--blood-bg);
-            border-left: 2px solid #333;
-            border-right: 2px solid #333;
-            overflow: hidden;
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-touch-callout: none;
-            flex-shrink: 0;
+            border-left: 3px solid var(--vessel-wall);
+            border-right: 3px solid var(--vessel-wall);
+            border-top: 3px solid #333; /* 增加上蓋暗示 */
+            border-bottom: 3px solid #333; /* 增加底蓋暗示 */
+            border-radius: 4px;
+            box-shadow: inset 0 0 30px rgba(139, 0, 0, 0.4), 0 0 20px rgba(255, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
         }
 
         canvas {
@@ -209,219 +62,203 @@
             width: 100%;
             height: 100%;
             background: transparent;
-            position: relative;
-            z-index: 1;
         }
 
-        /* ===== 下方簡化診斷區 ===== */
-        #bottom-info {
-            width: 100%;
-            flex-shrink: 0;
+        /* ===== 懸浮 UI (左右側) ===== */
+        .hud-panel {
+            position: absolute;
+            top: max(12px, env(safe-area-inset-top));
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 10;
+            pointer-events: none; /* 讓觸控穿透，不影響遊戲手勢 */
         }
 
-        #log-box {
-            width: 100%;
-            font-size: 0.58rem;
-            color: #ffcc00;
-            background: #111;
-            border: 1px solid #2b2b2b;
+        #side-left { left: max(10px, env(safe-area-inset-left)); align-items: flex-start; }
+        #side-right { right: max(10px, env(safe-area-inset-right)); align-items: flex-end; }
+
+        .hud-item {
+            background: var(--panel);
+            border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 4px 7px;
-            min-height: 28px;
-            max-height: 40px;
+            padding: 8px 12px;
+            min-width: 80px;
+            text-align: center;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        .hud-label {
+            font-size: 0.6rem;
+            color: #aaa;
+            margin-bottom: 4px;
+            letter-spacing: 1px;
+        }
+
+        .hud-value {
+            font-size: 1.1rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .hud-target {
+            font-size: 0.6rem;
+            color: #777;
+            margin-top: 2px;
+        }
+
+        #blockage { color: var(--danger); }
+        #score { color: var(--safe); }
+
+        .status-pill {
+            font-size: 0.65rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .status-normal { color: #00ffcc; background: rgba(0,255,204,0.1); border: 1px solid rgba(0,255,204,0.3); }
+        .status-warning { color: #ffcc00; background: rgba(255, 204, 0, 0.15); border: 1px solid rgba(255, 204, 0, 0.5); }
+        .status-danger { 
+            color: #ff4d4d; background: rgba(255, 77, 77, 0.15); border: 1px solid rgba(255, 77, 77, 0.6);
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink { 50% { opacity: 0.6; } }
+
+        /* ===== 底部診斷日誌 ===== */
+        #log-box {
+            position: absolute;
+            bottom: max(12px, env(safe-area-inset-bottom));
+            left: 50%;
+            transform: translateX(-50%);
+            width: 85%;
+            max-width: 320px;
+            font-size: 0.65rem;
+            color: #ffcc00;
+            background: rgba(17, 17, 17, 0.9);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 6px 10px;
+            height: 46px;
             overflow: hidden;
-            line-height: 1.2;
+            z-index: 10;
+            pointer-events: none;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
 
         #log-title {
             color: #ddd;
             font-weight: 800;
-            margin-bottom: 2px;
-            font-size: 0.58rem;
+            margin-bottom: 3px;
+            font-size: 0.6rem;
         }
 
-        /* ===== Game Over ===== */
+        /* ===== Game Over / Win 結算畫面 ===== */
         #game-over {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.95);
+            background: rgba(0,0,0,0.92);
             flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 1000;
-            padding: 16px;
+            padding: 20px;
         }
 
         .over-card {
-            background: #1a0000;
-            padding: 24px 20px;
-            border: 2px solid #f00;
-            border-radius: 10px;
+            background: #111;
+            padding: 30px 25px;
+            border: 2px solid #333;
+            border-radius: 12px;
             text-align: center;
-            max-width: 360px;
+            max-width: 320px;
             width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
 
-        #leaderboard {
-            margin: 18px 0;
-            text-align: left;
-            font-size: 0.88rem;
-            border-top: 1px solid #444;
-            padding-top: 10px;
-        }
-
-        .score-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 3px 0;
-            color: #aaa;
-        }
-
-        .score-row.highlight {
-            color: #00ffcc;
+        .over-score-display {
+            margin: 20px 0;
+            font-size: 1.3rem;
             font-weight: bold;
+            color: #fff;
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 8px;
         }
 
         button {
-            background: #f00;
+            background: #444;
             color: #fff;
             border: none;
-            padding: 12px 20px;
+            padding: 14px 20px;
             cursor: pointer;
-            border-radius: 6px;
+            border-radius: 8px;
             font-weight: bold;
             width: 100%;
-            font-size: 0.98rem;
+            font-size: 1rem;
+            margin-top: 10px;
+            transition: background 0.2s;
         }
+        button:active { background: #555; }
+        .btn-retry { background: #d32f2f; }
+        .btn-win { background: #009688; }
 
-        body.caseMode .leaderboard,
-        body.caseMode #leaderboard {
-            display: none !important;
-        }
-
-        @media (min-width: 700px) {
-            #app { max-width: 420px; }
-            #vessel-shell {
-                width: min(330px, calc((100dvh - 125px) * 280 / 525));
-            }
-        }
-
-        @media (max-height: 700px) {
-            #app { gap: 2px; }
-
-            .compact-card {
-                padding: 4px 7px;
-                border-radius: 7px;
-            }
-
-            .compact-label {
-                font-size: 0.5rem;
-            }
-
-            .compact-value {
-                font-size: 0.82rem;
-            }
-
-            .compact-pill {
-                font-size: 0.44rem;
-                padding: 2px 5px;
-            }
-
-            #vessel-shell {
-                width: min(75vw, calc((100dvh - 94px) * 280 / 525), 310px);
-            }
-
-            #log-box {
-                min-height: 24px;
-                max-height: 32px;
-                font-size: 0.54rem;
-                padding: 3px 6px;
-            }
-
-            #log-title {
-                font-size: 0.54rem;
-                margin-bottom: 1px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            body { padding: 2px; }
-
-            #vessel-shell {
-                width: min(82vw, calc((100dvh - 118px) * 280 / 525));
-            }
-
-            .compact-value {
-                font-size: 0.86rem;
-            }
-
-            .compact-pill {
-                font-size: 0.46rem;
-            }
+        @media (max-width: 380px) {
+            .hud-item { min-width: 65px; padding: 6px 8px; }
+            .hud-value { font-size: 0.95rem; }
         }
     </style>
 </head>
 <body>
 
 <div id="app">
-    <div id="top-hud">
-        <div class="compact-card">
-            <div class="compact-grid compact-grid-3">
-                <div class="compact-item">
-                    <div class="compact-label">血管狹窄度</div>
-                    <div id="blockage" class="compact-value">--%</div>
-                </div>
-                <div class="compact-item">
-                    <div class="compact-label">狀態</div>
-                    <div id="alert-signal" class="compact-pill status-normal">臨床掃描啟動</div>
-                </div>
-                <div class="compact-item">
-                    <div class="compact-label">健康積分</div>
-                    <div id="score" class="compact-value">0</div>
-                </div>
-            </div>
+    <div id="side-left" class="hud-panel">
+        <div class="hud-item">
+            <div class="hud-label">狀態</div>
+            <div id="alert-signal" class="status-pill status-normal">掃描啟動</div>
+        </div>
+        <div class="hud-item">
+            <div class="hud-label">血管狹窄度</div>
+            <div id="blockage" class="hud-value">--%</div>
         </div>
     </div>
 
-    <div id="game-wrap">
-        <div id="vessel-title">亞東中風中心 FEMH STROKE CENTER</div>
-        <div id="vessel-shell">
-            <div class="vessel-wall top"></div>
-            <div id="vessel-container">
-                <canvas id="tetris" width="280" height="525"></canvas>
-            </div>
-            <div class="vessel-wall bottom"></div>
+    <div id="vessel-container">
+        <canvas id="tetris" width="280" height="525"></canvas>
+    </div>
+
+    <div id="side-right" class="hud-panel">
+        <div class="hud-item">
+            <div class="hud-label">健康積分</div>
+            <div id="score" class="hud-value">0</div>
+            <div class="hud-target">目標: 1000</div>
         </div>
     </div>
 
-    <div id="bottom-info">
-        <div id="log-box">
-            <div id="log-title">🩺 臨床影像診斷</div>
-            <div id="log-list"></div>
-        </div>
+    <div id="log-box">
+        <div id="log-title">🩺 臨床影像診斷</div>
+        <div id="log-list"></div>
     </div>
 </div>
 
 <div id="game-over">
-    <div class="over-card">
-        <h1 style="color:#f00; margin:0; font-size: 1.5rem;">急性腦梗塞</h1>
-        <p style="margin: 5px 0; font-size: 0.85rem; color: #ccc;">亞東中風中心：提醒您及早就醫</p>
-        <div id="leaderboard">
-            <strong style="color: #ffcc00;">🏆 血管康復排行榜 (Top 10)</strong>
-            <div id="leaderboard-list"></div>
-        </div>
-        <button onclick="location.reload()">重新啟動監測</button>
+    <div class="over-card" id="end-card">
+        <h1 id="end-title" style="margin:0; font-size: 1.6rem;"></h1>
+        <p id="end-desc" style="margin: 8px 0; font-size: 0.9rem; color: #ccc;"></p>
+        
+        <div class="over-score-display" id="end-score"></div>
+
+        <button id="end-btn" onclick="location.reload()">重新啟動監測</button>
     </div>
 </div>
 
 <script>
-const isCaseMode =
-  new URLSearchParams(location.search).get('mode') === 'case';
-
-if (isCaseMode) {
-  document.body.classList.add('caseMode');
-}
+const isCaseMode = new URLSearchParams(location.search).get('mode') === 'case';
 
 const AudioEngine = {
     ctx: null,
@@ -464,6 +301,12 @@ const AudioEngine = {
         gain.connect(this.ctx.destination);
         osc.start();
         osc.stop(this.ctx.currentTime + 2.1);
+    },
+    playWin() {
+        this.init();
+        this.beep(523.25, 0.2, 0.1, 'sine'); // C5
+        setTimeout(() => this.beep(659.25, 0.2, 0.1, 'sine'), 150); // E5
+        setTimeout(() => this.beep(783.99, 0.4, 0.1, 'sine'), 300); // G5
     }
 };
 
@@ -550,7 +393,7 @@ function updateLog(msg) {
     const entry = document.createElement('div');
     entry.innerText = `> ${msg}`;
     list.prepend(entry);
-    if (list.children.length > 4) list.lastElementChild.remove();
+    if (list.children.length > 2) list.lastElementChild.remove();
 }
 
 const player = { pos: { x: 0, y: 0 }, matrix: null };
@@ -644,7 +487,9 @@ function playerDrop() {
         });
 
         AudioEngine.playHit();
+        
         arenaSweep();
+        if (gameOver) return;
 
         let highestPoint = 15;
         for (let y = 0; y < 15; y++) {
@@ -656,7 +501,7 @@ function playerDrop() {
         let fullness = Math.floor(((15 - highestPoint) / 15) * 100);
 
         if (overflow || fullness >= 100) {
-            endGame();
+            loseGame();
         } else {
             if (Math.random() < 0.35) spawnDanger();
             playerReset();
@@ -696,6 +541,10 @@ function arenaSweep() {
     if (count > 0) {
         score += count * 100;
         AudioEngine.playClear();
+        
+        if (score >= 1000) {
+            winGame();
+        }
     }
     return count;
 }
@@ -707,72 +556,63 @@ function checkVesselStatus(fullness) {
 
     if (fullness >= 70) {
         alertEl.innerText = "🚨 嚴重狹窄";
-        alertEl.className = "compact-pill status-danger";
+        alertEl.className = "status-pill status-danger";
         if (now - lastSoundTime > 600) {
             AudioEngine.playDanger();
             lastSoundTime = now;
         }
     } else if (fullness >= 50) {
         alertEl.innerText = "⚠️ 預警";
-        alertEl.className = "compact-pill status-warning";
+        alertEl.className = "status-pill status-warning";
         if (now - lastSoundTime > 1500) {
             AudioEngine.playWarning();
             lastSoundTime = now;
         }
     } else {
         alertEl.innerText = "管腔通暢";
-        alertEl.className = "compact-pill status-normal";
+        alertEl.className = "status-pill status-normal";
     }
 }
 
-function updateLeaderboard(finalScore) {
-    let scores = JSON.parse(localStorage.getItem('vessel_scores_named')) || [];
-    const isTopScore = scores.length < 10 || finalScore > (scores[scores.length - 1]?.score || 0);
+function winGame() {
+    gameOver = true;
+    AudioEngine.playWin();
+    document.getElementById('game-over').style.display = 'flex';
+    
+    document.getElementById('end-card').style.borderColor = '#00ffcc';
+    document.getElementById('end-title').innerText = '血管疏通成功！';
+    document.getElementById('end-title').style.color = '#00ffcc';
+    document.getElementById('end-desc').innerText = '亞東中風中心：成功防止腦梗塞';
+    
+    document.getElementById('end-score').innerText = `達成目標: ${score} / 1000`;
+    
+    const btn = document.getElementById('end-btn');
+    btn.className = 'btn-win';
+    btn.innerText = '完成關卡';
 
-    if (isTopScore && finalScore > 0) {
-        setTimeout(() => {
-            const userName = prompt("恭喜進入前十名！請輸入您的名字：", "匿名醫護");
-            const entryName = userName ? userName.substring(0, 10) : "匿名";
-            scores.push({ name: entryName, score: finalScore, date: new Date().getTime() });
-            scores.sort((a, b) => b.score - a.score);
-            scores = scores.slice(0, 10);
-            localStorage.setItem('vessel_scores_named', JSON.stringify(scores));
-            renderLeaderboard(scores, finalScore);
-        }, 500);
-    } else {
-        renderLeaderboard(scores, finalScore);
-    }
+    try {
+        parent.postMessage({ type: 'GAME_RESULT', game: 'match-l1', score: score, success: true }, '*');
+    } catch (e) {}
 }
 
-function renderLeaderboard(scores, currentScore) {
-    const listContainer = document.getElementById('leaderboard-list');
-    listContainer.innerHTML = '';
-    if (scores.length === 0) {
-        listContainer.innerHTML = '<div style="color:#666; text-align:center;">尚無紀錄</div>';
-        return;
-    }
-    scores.forEach((item, i) => {
-        const row = document.createElement('div');
-        row.className = 'score-row' + (item.score === currentScore ? ' highlight' : '');
-        row.innerHTML = `<span>${i + 1}. ${item.name}</span> <span>${item.score}</span>`;
-        listContainer.appendChild(row);
-    });
-}
-
-function endGame() {
+function loseGame() {
     gameOver = true;
     AudioEngine.playDeath();
     document.getElementById('game-over').style.display = 'flex';
 
-    if (!isCaseMode) {
-        updateLeaderboard(score);
-    }
+    document.getElementById('end-card').style.borderColor = '#ff4d4d';
+    document.getElementById('end-title').innerText = '急性腦梗塞';
+    document.getElementById('end-title').style.color = '#ff4d4d';
+    document.getElementById('end-desc').innerText = '亞東中風中心：提醒您及早就醫';
+    
+    document.getElementById('end-score').innerText = `最終積分: ${score}`;
+    
+    const btn = document.getElementById('end-btn');
+    btn.className = 'btn-retry';
+    btn.innerText = '重新啟動監測';
 
     try {
-        parent.postMessage(
-            { type: 'GAME_RESULT', game: 'match-l1', score: score },
-            '*'
-        );
+        parent.postMessage({ type: 'GAME_RESULT', game: 'match-l1', score: score, success: false }, '*');
     } catch (e) {}
 }
 
@@ -831,9 +671,6 @@ document.addEventListener('keydown', e => {
     }
 });
 
-document.addEventListener('mousedown', initGame);
-document.addEventListener('touchstart', initGame, { passive: true });
-
 let touchStartX = 0;
 let touchStartY = 0;
 let touchStartTime = 0;
@@ -883,6 +720,5 @@ document.addEventListener('DOMContentLoaded', () => {
     update();
 });
 </script>
-
 </body>
 </html>
